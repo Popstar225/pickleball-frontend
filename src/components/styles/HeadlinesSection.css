@@ -1,0 +1,248 @@
+/* Prevent badge wrapping at all screen sizes */
+.slick-carousel-custom .flex {
+  flex-wrap: nowrap !important;
+}
+
+/* Base slider styles */
+.slick-carousel-custom {
+  position: relative;
+}
+
+.slick-carousel-custom .slick-slide {
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.slick-carousel-custom .slick-slide > div {
+  height: 100%;
+}
+
+.slick-carousel-custom .slick-list {
+  overflow: visible;
+  margin: 0;
+}
+
+.slick-carousel-custom .slick-track {
+  display: flex !important;
+  align-items: stretch;
+}
+
+/* Arrow styling */
+.slick-carousel-custom .slick-arrow {
+  z-index: 100;
+  width: 36px;
+  height: 36px;
+  transition: all 0.3s ease;
+}
+
+.slick-carousel-custom .slick-arrow:before {
+  font-size: 36px;
+  opacity: 0.75;
+  color: #7cfc00;
+  transition: all 0.3s ease;
+}
+
+.slick-carousel-custom .slick-arrow:hover:before {
+  opacity: 1;
+  color: #9fff4d;
+}
+
+.slick-carousel-custom .slick-prev {
+  left: -45px;
+}
+
+.slick-carousel-custom .slick-next {
+  right: -45px;
+}
+
+/* Dots styling */
+.slick-carousel-custom .slick-dots {
+  bottom: -35px;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.slick-carousel-custom .slick-dots li {
+  margin: 0;
+  width: auto;
+  height: auto;
+}
+
+.slick-carousel-custom .slick-dots li button {
+  padding: 0;
+}
+
+.slick-carousel-custom .slick-dots li button:before {
+  font-size: 10px;
+  color: #7cfc00;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.slick-carousel-custom .slick-dots li.slick-active button:before {
+  opacity: 1;
+  color: #7cfc00;
+  font-size: 12px;
+}
+
+.slick-carousel-custom .slick-dots li:hover button:before {
+  opacity: 0.8;
+}
+
+/* Responsive adjustments for 320px */
+@media (max-width: 480px) {
+  .slick-carousel-custom .slick-arrow {
+    display: none !important;
+  }
+
+  .slick-carousel-custom .slick-dots {
+    bottom: -30px;
+    gap: 6px;
+  }
+
+  .slick-carousel-custom .slick-dots li button:before {
+    font-size: 8px;
+  }
+
+  .slick-carousel-custom .slick-dots li.slick-active button:before {
+    font-size: 10px;
+  }
+
+  /* Ensure badges stay in line on 320px */
+  .slick-carousel-custom .flex {
+    gap: 0.25rem !important;
+  }
+
+  /* Center mode adjustments */
+  .slick-carousel-custom.slick-slider {
+    padding: 0;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 640px) {
+  .slick-carousel-custom .slick-arrow {
+    display: none !important;
+  }
+
+  .slick-carousel-custom .slick-dots {
+    bottom: -32px;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .slick-carousel-custom .slick-prev {
+    left: -40px;
+  }
+
+  .slick-carousel-custom .slick-next {
+    right: -40px;
+  }
+
+  .slick-carousel-custom .slick-arrow {
+    width: 32px;
+    height: 32px;
+  }
+
+  .slick-carousel-custom .slick-arrow:before {
+    font-size: 32px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .slick-carousel-custom .slick-prev {
+    left: -42px;
+  }
+
+  .slick-carousel-custom .slick-next {
+    right: -42px;
+  }
+
+  .slick-carousel-custom .slick-arrow {
+    width: 34px;
+    height: 34px;
+  }
+
+  .slick-carousel-custom .slick-arrow:before {
+    font-size: 34px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .slick-carousel-custom .slick-arrow:before {
+    font-size: 40px;
+  }
+
+  .slick-carousel-custom .slick-prev {
+    left: -50px;
+  }
+
+  .slick-carousel-custom .slick-next {
+    right: -50px;
+  }
+}
+
+/* Fix for center mode slide spacing */
+.slick-carousel-custom .slick-center {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.slick-carousel-custom .slick-slide:not(.slick-center) {
+  opacity: 0.7;
+  transform: scale(0.95);
+}
+
+/* Smooth transitions */
+.slick-carousel-custom .slick-slide {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+/* Remove default slick spacing issues */
+.slick-carousel-custom .slick-list {
+  padding: 0 !important;
+}
+
+.slick-carousel-custom .slick-track {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* React Multi Carousel arrow button styling */
+.carousel-container button[type='button'] {
+  z-index: 100;
+  background-color: rgba(124, 252, 0, 0.1) !important;
+  border: 2px solid #7cfc00 !important;
+  color: #7cfc00 !important;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.carousel-container button[type='button']:hover {
+  background-color: rgba(124, 252, 0, 0.2) !important;
+  color: #9fff4d !important;
+  border-color: #9fff4d !important;
+}
+
+.carousel-container button[type='button']:disabled {
+  opacity: 0.3 !important;
+  cursor: not-allowed !important;
+}
+
+/* Responsive adjustments for touch devices */
+@media (max-width: 640px) {
+  .carousel-container button[type='button'] {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+}

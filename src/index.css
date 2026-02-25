@@ -1,0 +1,229 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Bebas+Neue&display=swap');
+
+@layer base {
+  :root {
+    /* Core brand colors */
+    --background: 220 20% 97%;
+    --foreground: 220 20% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 10%;
+
+    /* Primary - Lime Green */
+    --primary: 75 100% 45%;
+    --primary-foreground: 220 30% 10%;
+
+    /* Secondary - Dark Navy */
+    --secondary: 220 30% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 220 15% 92%;
+    --muted-foreground: 220 10% 45%;
+
+    /* Accent - Yellow */
+    --accent: 50 100% 50%;
+    --accent-foreground: 220 30% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 15% 88%;
+    --input: 220 15% 88%;
+    --ring: 75 100% 45%;
+
+    --radius: 0.5rem;
+
+    /* Custom brand colors */
+    --navy: 220 30% 12%;
+    --navy-light: 220 25% 18%;
+    --lime: 75 100% 45%;
+    --lime-dark: 75 100% 35%;
+    --yellow: 50 100% 50%;
+    --green-cta: 145 70% 40%;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(220 30% 8%) 0%, hsl(220 25% 15%) 100%);
+    --gradient-lime: linear-gradient(135deg, hsl(75 100% 45%) 0%, hsl(85 100% 40%) 100%);
+    --gradient-green: linear-gradient(135deg, hsl(145 70% 35%) 0%, hsl(160 70% 40%) 100%);
+
+    /* Shadows */
+    --shadow-card: 0 4px 20px -4px hsl(220 30% 10% / 0.15);
+    --shadow-hover: 0 8px 30px -8px hsl(220 30% 10% / 0.25);
+    --shadow-lime: 0 4px 20px -4px hsl(75 100% 45% / 0.4);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 220 30% 8%;
+    --foreground: 0 0% 98%;
+
+    --card: 220 25% 12%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 220 25% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 75 100% 45%;
+    --primary-foreground: 220 30% 10%;
+
+    --secondary: 220 20% 20%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 220 20% 18%;
+    --muted-foreground: 220 10% 60%;
+
+    --accent: 50 100% 50%;
+    --accent-foreground: 220 30% 10%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 75 100% 45%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.02em;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-primary-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-300 hover:shadow-lg;
+    box-shadow: var(--shadow-lime);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .btn-accent {
+    @apply bg-accent text-accent-foreground font-semibold px-6 py-3 rounded-lg transition-all duration-300;
+  }
+
+  .btn-outline-light {
+    @apply border-2 border-white text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 hover:bg-white hover:text-secondary;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300;
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+
+  .gradient-lime {
+    background: var(--gradient-lime);
+  }
+
+  .gradient-green {
+    background: var(--gradient-green);
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background: var(--gradient-lime);
+  }
+
+  .nav-link {
+    @apply text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-200;
+  }
+
+  .nav-link-light {
+    @apply text-sm font-medium text-white/80 hover:text-white transition-colors duration-200;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.6s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .hover-lift {
+    @apply transition-transform duration-300;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+}
