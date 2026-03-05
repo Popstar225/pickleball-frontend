@@ -20,6 +20,10 @@ import {
   CreatePenaltyRequest,
   AppealPenaltyRequest,
   ReviewPenaltyAppealRequest,
+  // API Response Types
+  TournamentResponse,
+  TournamentEventsResponse,
+  TournamentsResponse,
   // Eligibility
 } from '../../types/api';
 import { api } from '../../lib/api';
@@ -28,6 +32,7 @@ interface TournamentsState {
   tournaments: Tournament[];
   currentTournament: Tournament | null;
   upcomingTournaments: Tournament[];
+  federationTournaments: any[]; // Federation/admin level tournaments for calendar
 
   // Tournament Event System
   tournamentEvents: TournamentEvent[];
@@ -47,6 +52,16 @@ interface TournamentsState {
   penalties: any[];
   userPenalties: any[];
 
+  // Player Eligibility
+  eligibilityResult: any | null;
+
+  // Organizer Dashboard
+  preStartDashboard: any | null;
+
+  // State Approval
+  pendingApprovals: any[];
+  approvalAuditTrail: any | null;
+
   loading: boolean;
   error: string | null;
   pagination: {
@@ -61,6 +76,7 @@ const initialState: TournamentsState = {
   tournaments: [],
   currentTournament: null,
   upcomingTournaments: [],
+  federationTournaments: [], // Federation/admin tournaments
 
   // Tournament Event System
   tournamentEvents: [],
@@ -79,6 +95,16 @@ const initialState: TournamentsState = {
   // Penalties
   penalties: [],
   userPenalties: [],
+
+  // Player Eligibility
+  eligibilityResult: null,
+
+  // Organizer Dashboard
+  preStartDashboard: null,
+
+  // State Approval
+  pendingApprovals: [],
+  approvalAuditTrail: null,
 
   loading: false,
   error: null,
@@ -101,10 +127,24 @@ export const fetchUpcomingTournaments = createAsyncThunk(
   },
 );
 
+// Fetch federation/admin level tournaments for calendar view
+export const fetchFederationTournaments = createAsyncThunk(
+  'tournaments/fetchFederationTournaments',
+  async (params?: { status?: string; state?: string; page?: number; limit?: number }) => {
+    const queryParams = {
+      ...params,
+      // Filter only federation and admin level tournaments
+    };
+    const queryString = new URLSearchParams(queryParams as Record<string, string>).toString();
+    return await api.get(`/tournaments?${queryString}`);
+  },
+);
+
 export const fetchTournament = createAsyncThunk(
   'tournaments/fetchTournament',
   async (id: string) => {
-    return await api.get(`/tournaments/${id}`);
+    const response = (await api.get(`/tournaments/${id}`)) as TournamentResponse;
+    return response.data;
   },
 );
 
@@ -156,6 +196,72 @@ export const updateTournamentStatus = createAsyncThunk(
   },
 );
 
+// Approve tournament (state committee)
+export const approveTournament = createAsyncThunk(
+  'tournaments/approveTournament',
+  async ({ id, rejectionReason }: { id: string; rejectionReason?: string }) => {
+    return await api.put(`/tournaments/${id}/approve`, {
+      rejection_reason: rejectionReason,
+    });
+  },
+);
+
+// Publish tournament (federation)
+export const publishTournament = createAsyncThunk(
+  'tournaments/publishTournament',
+  async (id: string) => {
+    return await api.put(`/tournaments/${id}/publish`, {});
+  },
+);
+
+// Start tournament
+export const startTournament = createAsyncThunk(
+  'tournaments/startTournament',
+  async ({
+    id,
+    params = {},
+  }: {
+    id: string;
+    params?: { generateGroups?: boolean; generateBrackets?: boolean };
+  }) => {
+    const response = (await api.post(`/tournaments/${id}/start`, params)) as TournamentResponse;
+    return response.data;
+  },
+);
+
+// Fetch tournaments by status (state/federationFEDMEX)
+export const fetchPendingTournaments = createAsyncThunk(
+  'tournaments/fetchPendingTournaments',
+  async (params: { state?: string; limit?: number; page?: number; status?: string }) => {
+    const queryParams = new URLSearchParams();
+    if (params.state) queryParams.append('state', params.state);
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.status) queryParams.append('status', params.status);
+    const queryString = queryParams.toString();
+    const url = `/tournaments/pending${queryString ? `?${queryString}` : ''}`;
+    const response = await api.get<TournamentsResponse>(url);
+    console.log('[fetchPendingTournaments] Response:', response);
+    return response.data;
+  },
+);
+
+// Fetch all tournaments for a state (all statuses) - for frontend filtering
+export const fetchTournamentsByState = createAsyncThunk(
+  'tournaments/fetchTournamentsByState',
+  async (params: { state?: string; limit?: number; page?: number }) => {
+    const queryParams = new URLSearchParams();
+    if (params.state) queryParams.append('state', params.state);
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+    if (params.page) queryParams.append('page', params.page.toString());
+    const queryString = queryParams.toString();
+    const url = `/tournaments/by-state${queryString ? `?${queryString}` : ''}`;
+    const data = await api.get(url);
+    console.log('[fetchTournamentsByState] Response:', data);
+    return data;
+  },
+);
+
 // ============================================================================
 // TOURNAMENT EVENT SYSTEM ASYNC THUNKS
 // ============================================================================
@@ -173,7 +279,8 @@ export const fetchTournamentEvents = createAsyncThunk(
       ? new URLSearchParams(params as Record<string, string>).toString()
       : '';
     const url = `/tournaments/${tournamentId}/events${queryString ? `?${queryString}` : ''}`;
-    return await api.get(url);
+    const response = (await api.get(url)) as TournamentEventsResponse;
+    return (response as any)?.events;
   },
 );
 
@@ -282,6 +389,22 @@ export const fetchEventRegistrations = createAsyncThunk(
     return await api.get(
       `/tournaments/${tournamentId}/events/${eventId}/registrations${queryString}`,
     );
+  },
+);
+
+export const fetchAvailablePartners = createAsyncThunk(
+  'tournaments/fetchAvailablePartners',
+  async ({
+    tournamentId,
+    eventId,
+    userId,
+  }: {
+    tournamentId: string;
+    eventId: string;
+    userId: string;
+  }) => {
+    const queryString = `?user_id=${userId}&event_id=${eventId}`;
+    return await api.get(`/tournaments/${tournamentId}/available-partners${queryString}`);
   },
 );
 
@@ -570,6 +693,40 @@ export const checkRegistrationEligibility = createAsyncThunk(
   },
 );
 
+// ============================================================================
+// PLAYER ELIGIBILITY CHECK ASYNC THUNKS
+// ============================================================================
+
+export const checkEventEligibility = createAsyncThunk(
+  'tournaments/checkEventEligibility',
+  async ({
+    eventId,
+    userId,
+    partnerId,
+  }: {
+    eventId: string;
+    userId: string;
+    partnerId?: string;
+  }) => {
+    const params = new URLSearchParams({
+      user_id: userId,
+      ...(partnerId && { partner_id: partnerId }),
+    });
+    return await api.get(`/tournaments/registrations/check-eligibility?${params}`);
+  },
+);
+
+// ============================================================================
+// ORGANIZER PRE-START DASHBOARD ASYNC THUNKS
+// ============================================================================
+
+export const fetchTournamentPreStartDashboard = createAsyncThunk(
+  'tournaments/fetchTournamentPreStartDashboard',
+  async (tournamentId: string) => {
+    return await api.get(`/tournaments/${tournamentId}/pre-start-dashboard`);
+  },
+);
+
 const tournamentsSlice = createSlice({
   name: 'tournaments',
   initialState,
@@ -602,6 +759,18 @@ const tournamentsSlice = createSlice({
     clearPenalties: (state) => {
       state.penalties = [];
       state.userPenalties = [];
+    },
+    clearEligibilityResult: (state) => {
+      state.eligibilityResult = null;
+    },
+    clearPreStartDashboard: (state) => {
+      state.preStartDashboard = null;
+    },
+    clearPendingApprovals: (state) => {
+      state.pendingApprovals = [];
+    },
+    clearApprovalAuditTrail: (state) => {
+      state.approvalAuditTrail = null;
     },
     addTournament: (state, action) => {
       state.tournaments.unshift(action.payload);
@@ -676,14 +845,31 @@ const tournamentsSlice = createSlice({
       })
       .addCase(fetchTournament.fulfilled, (state, action) => {
         state.loading = false;
-        const payload = action.payload as any;
-        if (payload) {
-          state.currentTournament = payload;
+        if (action.payload) {
+          state.currentTournament = action.payload;
         }
       })
       .addCase(fetchTournament.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch tournament';
+      })
+      // Fetch Federation Tournaments
+      .addCase(fetchFederationTournaments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchFederationTournaments.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as any;
+        // Filter for federation and admin level tournaments
+        const federationData = payload?.data?.data || [];
+        state.federationTournaments = federationData.filter(
+          (t: any) => t.organizer_type === 'admin' || t.organizer_type === 'state',
+        );
+      })
+      .addCase(fetchFederationTournaments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch federation tournaments';
       })
       // Create Tournament
       .addCase(createTournament.pending, (state) => {
@@ -785,6 +971,115 @@ const tournamentsSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Failed to update tournament status';
       })
+      // Approve Tournament
+      .addCase(approveTournament.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(approveTournament.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as any;
+        if (!payload) return;
+        const tournament = payload.data?.tournament || payload.tournament || payload;
+        console.log('[approveTournament.fulfilled] Tournament:', tournament);
+        const index = state.tournaments.findIndex((t) => t.id === tournament.id);
+        if (index !== -1) {
+          state.tournaments[index] = tournament;
+        }
+        if (state.currentTournament && state.currentTournament.id === tournament.id) {
+          state.currentTournament = tournament;
+        }
+        // Remove from pending approvals
+        state.pendingApprovals = state.pendingApprovals.filter((t: any) => t.id !== tournament.id);
+      })
+      .addCase(approveTournament.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to approve tournament';
+      })
+      // Publish Tournament
+      .addCase(publishTournament.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(publishTournament.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as any;
+        if (!payload) return;
+        const tournament = payload.tournament || payload;
+        const index = state.tournaments.findIndex((t) => t.id === tournament.id);
+        if (index !== -1) {
+          state.tournaments[index] = tournament;
+        }
+        if (state.currentTournament && state.currentTournament.id === tournament.id) {
+          state.currentTournament = tournament;
+        }
+        // Remove from pending if it was pending
+        state.pendingApprovals = state.pendingApprovals.filter((t: any) => t.id !== tournament.id);
+      })
+      .addCase(publishTournament.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to publish tournament';
+      })
+      // Start Tournament
+      .addCase(startTournament.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(startTournament.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as any;
+        if (!payload) return;
+        const tournament = payload.data || payload;
+        const index = state.tournaments.findIndex((t) => t.id === tournament.id);
+        if (index !== -1) {
+          state.tournaments[index] = tournament;
+        }
+        if (state.currentTournament && state.currentTournament.id === tournament.id) {
+          state.currentTournament = tournament;
+        }
+      })
+      .addCase(startTournament.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to start tournament';
+      })
+      // Fetch Pending Tournaments
+      .addCase(fetchPendingTournaments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPendingTournaments.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as any;
+        console.log('[fetchPendingTournaments] Full payload:', payload);
+        // API returns { success, data: [...], pagination: {...} }
+        state.pendingApprovals = Array.isArray(payload?.data) ? payload.data : [];
+        state.pagination = payload?.pagination || null;
+        console.log('[fetchPendingTournaments] pendingApprovals set to:', state.pendingApprovals);
+      })
+      .addCase(fetchPendingTournaments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch pending tournaments';
+      })
+      // Fetch Tournaments By State (all statuses)
+      .addCase(fetchTournamentsByState.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTournamentsByState.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as any;
+        console.log('[fetchTournamentsByState] Full payload:', payload);
+        // API returns { success, data: { tournaments: [...], total, pages, currentPage } }
+        state.pendingApprovals = Array.isArray(payload?.data?.tournaments)
+          ? payload.data.tournaments
+          : [];
+        state.pagination = payload?.data || null;
+        console.log('[fetchTournamentsByState] pendingApprovals set to:', state.pendingApprovals);
+      })
+      .addCase(fetchTournamentsByState.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch tournaments by state';
+      })
       .addCase(registerForTournament.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to register for tournament';
@@ -803,11 +1098,28 @@ const tournamentsSlice = createSlice({
       .addCase(fetchTournamentEvents.fulfilled, (state, action) => {
         state.loading = false;
         const payload = action.payload as any;
-        state.tournamentEvents = payload?.data?.events || [];
+        console.log('fetchTournamentEvents payload:', payload);
+
+        // Handle multiple possible response structures
+        let events: any[] = [];
+        if (Array.isArray(payload)) {
+          events = payload;
+        } else if (payload?.data?.events && Array.isArray(payload.data.events)) {
+          events = payload.data.events;
+        } else if (payload?.data && Array.isArray(payload.data)) {
+          events = payload.data;
+        } else if (payload?.events && Array.isArray(payload.events)) {
+          events = payload.events;
+        }
+
+        console.log('Extracted events:', events);
+        state.tournamentEvents = events;
       })
       .addCase(fetchTournamentEvents.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch tournament events';
+        console.error('fetchTournamentEvents rejected:', action.error.message);
+        state.tournamentEvents = []; // Clear events on error
       })
       // Fetch Tournament Event
       .addCase(fetchTournamentEvent.pending, (state) => {
@@ -943,11 +1255,28 @@ const tournamentsSlice = createSlice({
       .addCase(fetchEventRegistrations.fulfilled, (state, action) => {
         state.loading = false;
         const payload = action.payload as any;
-        state.eventRegistrations = payload?.data?.registrations || [];
+        console.log('fetchEventRegistrations payload:', payload);
+
+        // Handle multiple possible response structures
+        let registrations: any[] = [];
+        if (Array.isArray(payload)) {
+          registrations = payload;
+        } else if (payload?.data?.registrations && Array.isArray(payload.data.registrations)) {
+          registrations = payload.data.registrations;
+        } else if (payload?.registrations && Array.isArray(payload.registrations)) {
+          registrations = payload.registrations;
+        } else if (payload?.data && Array.isArray(payload.data)) {
+          registrations = payload.data;
+        }
+
+        console.log('Extracted registrations:', registrations);
+        state.eventRegistrations = registrations;
       })
       .addCase(fetchEventRegistrations.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch event registrations';
+        console.error('fetchEventRegistrations rejected:', action.error.message, action.payload);
+        state.eventRegistrations = [];
       });
 
     // ============================================================================
@@ -1009,11 +1338,89 @@ const tournamentsSlice = createSlice({
       .addCase(fetchEventGroups.fulfilled, (state, action) => {
         state.loading = false;
         const payload = action.payload as any;
-        state.eventGroups = payload?.data?.groups || [];
+        console.log('[fetchEventGroups] Raw payload:', payload);
+
+        let groups: any[] = [];
+
+        // PRIORITY ORDER (based on actual response structure):
+        // Option A: { data: { success, groupCount, groups } } - WRAPPED BY AXIOS
+        if (payload?.data?.groups && Array.isArray(payload.data.groups)) {
+          groups = payload.data.groups;
+          console.log('[fetchEventGroups] ✓ Using Option A: payload.data.groups');
+        }
+        // Fallback: { success, groupCount, groups } - Direct response
+        else if (payload?.groups && Array.isArray(payload.groups)) {
+          groups = payload.groups;
+          console.log('[fetchEventGroups] ✓ Using Fallback: payload.groups');
+        }
+        // Fallback: Direct array
+        else if (Array.isArray(payload)) {
+          groups = payload;
+          console.log('[fetchEventGroups] ✓ Using Fallback: Direct array');
+        }
+
+        console.log('[fetchEventGroups] ✓ Extracted', groups.length, 'groups');
+        console.log('[fetchEventGroups] Groups data:', groups);
+        state.eventGroups = groups;
       })
       .addCase(fetchEventGroups.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch event groups';
+        state.eventGroups = [];
+      })
+      // Fetch Single Event Group
+      .addCase(fetchEventGroup.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchEventGroup.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as any;
+
+        console.log('[fetchEventGroup] Payload received:', payload);
+
+        // Extract standings from the API response
+        let standings = [];
+        if (payload?.data?.standings && Array.isArray(payload.data.standings)) {
+          console.log('[fetchEventGroup] ✓ Using payload.data.standings');
+          standings = payload.data.standings.map((s: any) => ({
+            position: s.position,
+            userId: s.userId,
+            userName: s.playerName,
+            matchesWon: s.matchesWon,
+            matchesLost: s.matchesLost,
+            setsWon: s.setsWon,
+            setsLost: s.setsLost,
+            pointsFor: s.pointsFor,
+            pointsAgainst: s.pointsAgainst,
+            rankingPoints: s.rankingPoints || 0,
+            qualified: s.qualified,
+          }));
+        } else if (payload?.standings && Array.isArray(payload.standings)) {
+          console.log('[fetchEventGroup] ✓ Using payload.standings');
+          standings = payload.standings.map((s: any) => ({
+            position: s.position,
+            userId: s.userId,
+            userName: s.playerName,
+            matchesWon: s.matchesWon,
+            matchesLost: s.matchesLost,
+            setsWon: s.setsWon,
+            setsLost: s.setsLost,
+            pointsFor: s.pointsFor,
+            pointsAgainst: s.pointsAgainst,
+            rankingPoints: s.rankingPoints || 0,
+            qualified: s.qualified,
+          }));
+        } else {
+          console.warn('[fetchEventGroup] No standings found in payload:', payload);
+        }
+
+        console.log('[fetchEventGroup] ✓ Transformed standings:', standings);
+        state.groupStandings = standings;
+      })
+      .addCase(fetchEventGroup.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch event group';
       })
       // Update Event Group
       .addCase(updateEventGroup.pending, (state) => {
@@ -1152,6 +1559,8 @@ const tournamentsSlice = createSlice({
     // ============================================================================
     // ELIGIBILITY CHECK EXTRA REDUCERS
     // ============================================================================
+    // ELIGIBILITY CHECK EXTRA REDUCERS
+    // ============================================================================
 
     // Check Registration Eligibility
     builder
@@ -1166,6 +1575,42 @@ const tournamentsSlice = createSlice({
       .addCase(checkRegistrationEligibility.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to check registration eligibility';
+      })
+      // Check Event Eligibility
+      .addCase(checkEventEligibility.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(checkEventEligibility.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as any;
+        state.eligibilityResult = payload?.data || null;
+      })
+      .addCase(checkEventEligibility.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to check event eligibility';
+        state.eligibilityResult = null;
+      });
+
+    // ============================================================================
+    // ORGANIZER DASHBOARD EXTRA REDUCERS
+    // ============================================================================
+
+    builder
+      // Fetch Tournament Pre-Start Dashboard
+      .addCase(fetchTournamentPreStartDashboard.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTournamentPreStartDashboard.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as any;
+        state.preStartDashboard = payload?.data || null;
+      })
+      .addCase(fetchTournamentPreStartDashboard.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch pre-start dashboard';
+        state.preStartDashboard = null;
       });
   },
 });
@@ -1180,6 +1625,10 @@ export const {
   clearEventMatches,
   clearEventGroups,
   clearPenalties,
+  clearEligibilityResult,
+  clearPreStartDashboard,
+  clearPendingApprovals,
+  clearApprovalAuditTrail,
   addTournament,
   updateTournament,
   addTournamentEvent,

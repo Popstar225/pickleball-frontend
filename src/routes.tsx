@@ -35,11 +35,21 @@ import CourtsManagement from './pages/admin/dashboard/CourtsManagement';
 import CourtDetails from './pages/admin/dashboard/CourtDetails';
 import DashboardHome from './pages/admin/dashboard/DashboardHome';
 import PlayersManagement from './pages/admin/dashboard/PlayersManagement';
+import FederationTournamentManagementPage from './pages/admin/dashboard/Tournament/FederationTournamentManagementPage';
+import FederationTournamentEventManagement from './pages/admin/dashboard/Tournament/TournamentEventManagement';
+import FederationEventsPage from './pages/admin/dashboard/FederationEvents';
 
 // State Dashboard pages
 import StateDashboardLayout from './pages/state/dashboard/StateDashboardLayout';
 import StateDashboardHome from './pages/state/dashboard/StateDashboardHome';
 import StateAccountPage from './pages/state/dashboard/StateAccountPage';
+import TournamentValidationPage from './pages/state/dashboard/TournamentValidation';
+import StateTournamentManagementPage from './pages/state/dashboard/StateTournamentManagement';
+import StateTournamentEventManagement from './pages/state/dashboard/Tournament/TournamentEventManagement';
+import EventValidationPage from './pages/state/dashboard/EventValidation';
+import StatePlayersManagement from './pages/state/dashboard/StatePlayersManagement';
+import StateClubsManagement from './pages/state/dashboard/StateClubsManagement';
+import StateCourtsManagement from './pages/state/dashboard/StateCourtsManagement';
 
 // Player Dashboard pages
 import PlayerDashboardLayout from './pages/players/dashboard/PlayerDashboardLayout';
@@ -76,16 +86,49 @@ import ClubCourtsPage from './pages/clubs/dashboard/CourtsManagement';
 import ClubVenuesPage from './pages/clubs/dashboard/VenuesManagement';
 import TournamentEventManagement from './pages/clubs/dashboard/Tournament/TournamentEventManagement';
 import TournamentManagement from './pages/clubs/dashboard/Tournament/TournamentManagement';
+import ClubTournamentManagementPage from './pages/clubs/dashboard/Tournament/ClubTournamentManagementPage';
 import TournamentCreation from './pages/clubs/dashboard/Tournament/TournamentCreation';
 import TournamentDetails from './pages/clubs/dashboard/Tournament/TournamentDetails';
 import TournamentEdit from './pages/clubs/dashboard/Tournament/TournamentEdit';
+import { ClubTournamentCreationPage } from './pages/clubs/dashboard/tournaments/CreatePage';
+import { StateTournamentCreationPage } from './pages/state/dashboard/tournaments/CreatePage';
+import { FederationTournamentCreationPage } from './pages/admin/dashboard/tournaments/CreatePage';
 
-import path from 'path';
+// Player Tournament Registration pages
+import TournamentListPage from './pages/tournaments/TournamentListPage';
+import TournamentDetailsPage from './pages/tournaments/TournamentDetailsPage';
+import PlayerRegistrationFlowPage from './pages/tournaments/PlayerRegistrationFlowPage';
+import PaymentPage from './pages/tournaments/PaymentPage';
+import RegistrationConfirmationPage from './pages/tournaments/RegistrationConfirmationPage';
+import TournamentStart from './pages/tournaments/TournamentStart';
+import Validation from './pages/tournaments/Validation';
+import Confirmation from './pages/tournaments/Confirmation';
+import InsufficientEntries from './pages/tournaments/InsufficientEntries';
+
+// Role-based Tournament Dashboards
+import ClubTournamentDashboard from './pages/tournament/ClubTournamentDashboard';
+import FederationTournamentDashboard from './pages/tournament/FederationTournamentDashboard';
+import StateTournamentDashboard from './pages/tournament/StateTournamentDashboard';
+import PlayerTournamentView from './pages/tournament/PlayerTournamentView';
+import CoachTournamentView from './pages/tournament/CoachTournamentView';
+import CoachDashboardComponent from './pages/coaches/dashboard/CoachTournamentDashboard';
+import { MapPin } from 'lucide-react';
+import StatesManagement from './pages/admin/dashboard/StatesManagement';
 
 // Wrapper components for routes with parameters
 const TournamentEventManagementWrapper: React.FC = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   return <TournamentEventManagement tournamentId={tournamentId || ''} />;
+};
+
+const FederationTournamentEventManagementWrapper: React.FC = () => {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  return <FederationTournamentEventManagement tournamentId={tournamentId || ''} />;
+};
+
+const StateTournamentEventManagementWrapper: React.FC = () => {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  return <StateTournamentEventManagement tournamentId={tournamentId || ''} />;
 };
 
 const TournamentDetailsWrapper: React.FC = () => {
@@ -96,6 +139,38 @@ const TournamentDetailsWrapper: React.FC = () => {
 const TournamentEditWrapper: React.FC = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   return <TournamentEdit tournamentId={tournamentId || ''} />;
+};
+
+// Player Tournament Registration Wrappers
+const TournamentDetailsPageWrapper: React.FC = () => {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  return <TournamentDetailsPage tournamentId={tournamentId || ''} />;
+};
+
+const PlayerRegistrationFlowPageWrapper: React.FC = () => {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  return <PlayerRegistrationFlowPage tournamentId={tournamentId || ''} />;
+};
+
+const PaymentPageWrapper: React.FC = () => {
+  const { tournamentId, registrationId } = useParams<{
+    tournamentId: string;
+    registrationId: string;
+  }>();
+  return <PaymentPage tournamentId={tournamentId || ''} registrationId={registrationId || ''} />;
+};
+
+const RegistrationConfirmationPageWrapper: React.FC = () => {
+  const { tournamentId, registrationId } = useParams<{
+    tournamentId: string;
+    registrationId: string;
+  }>();
+  return (
+    <RegistrationConfirmationPage
+      tournamentId={tournamentId || ''}
+      registrationId={registrationId || ''}
+    />
+  );
 };
 
 export const routes = [
@@ -232,6 +307,61 @@ export const routes = [
     element: <OptionalFieldsPage />,
     public: true,
   },
+  // Tournament routes
+  {
+    key: 'tournaments-list',
+    path: '/tournaments',
+    element: <TournamentListPage />,
+    public: true,
+  },
+  {
+    key: 'tournament-details',
+    path: '/tournaments/:tournamentId',
+    element: <TournamentDetailsPageWrapper />,
+    public: true,
+  },
+  {
+    key: 'player-registration',
+    path: '/tournaments/:tournamentId/register',
+    element: <PlayerRegistrationFlowPageWrapper />,
+    public: false,
+  },
+  {
+    key: 'player-payment',
+    path: '/tournaments/:tournamentId/register/:registrationId/payment',
+    element: <PaymentPageWrapper />,
+    public: false,
+  },
+  {
+    key: 'registration-confirmation',
+    path: '/tournaments/:tournamentId/register/:registrationId/confirmation',
+    element: <RegistrationConfirmationPageWrapper />,
+    public: false,
+  },
+  {
+    key: 'tournament-start',
+    path: '/tournaments/:tournamentId/start',
+    element: <TournamentStart />,
+    public: true,
+  },
+  {
+    key: 'validation',
+    path: '/tournaments/validation',
+    element: <Validation />,
+    public: true,
+  },
+  {
+    key: 'confirmation',
+    path: '/tournaments/confirmation',
+    element: <Confirmation />,
+    public: true,
+  },
+  {
+    key: 'insufficient-entries',
+    path: '/tournaments/insufficient-entries',
+    element: <InsufficientEntries />,
+    public: true,
+  },
   {
     key: 'admin-dashboard',
     path: '/admin/dashboard',
@@ -256,9 +386,21 @@ export const routes = [
         public: false,
       },
       {
+        key: 'dashboard-clubs',
+        path: '/admin/dashboard/clubs',
+        element: <ClubsManagement />,
+        public: false,
+      },
+      {
         key: 'dashboard-courts',
         path: '/admin/dashboard/courts',
         element: <CourtsManagement />,
+        public: false,
+      },
+      {
+        key: 'dashboard-states',
+        path: '/admin/dashboard/states',
+        element: <StatesManagement />,
         public: false,
       },
       {
@@ -271,6 +413,36 @@ export const routes = [
         key: 'dashboard-messages',
         path: '/admin/dashboard/messages',
         element: <MessagesPage />,
+        public: false,
+      },
+      {
+        key: 'federation-tournaments',
+        path: '/admin/dashboard/tournaments',
+        element: <FederationTournamentManagementPage />,
+        public: false,
+      },
+      {
+        key: 'federation-tournament-create',
+        path: '/admin/dashboard/tournaments/create',
+        element: <FederationTournamentCreationPage />,
+        public: false,
+      },
+      {
+        key: 'federation-tournament-manage',
+        path: '/admin/dashboard/tournaments/:tournamentId/manage',
+        element: <FederationTournamentEventManagementWrapper />,
+        public: false,
+      },
+      {
+        key: 'federation-events',
+        path: '/admin/dashboard/events',
+        element: <FederationEventsPage />,
+        public: false,
+      },
+      {
+        key: 'federation-tournament-view',
+        path: '/admin/dashboard/tournaments-view',
+        element: <FederationTournamentDashboard />,
         public: false,
       },
     ],
@@ -290,6 +462,60 @@ export const routes = [
         key: 'state-dashboard-account',
         path: '/state/dashboard/account',
         element: <StateAccountPage />,
+        public: false,
+      },
+      {
+        key: 'state-tournament-validation',
+        path: '/state/dashboard/validation',
+        element: <TournamentValidationPage />,
+        public: false,
+      },
+      {
+        key: 'state-tournament-management',
+        path: '/state/dashboard/tournaments',
+        element: <StateTournamentManagementPage />,
+        public: false,
+      },
+      {
+        key: 'state-tournament-create',
+        path: '/state/dashboard/tournaments/create',
+        element: <StateTournamentCreationPage />,
+        public: false,
+      },
+      {
+        key: 'state-tournament-manage',
+        path: '/state/dashboard/tournaments/:tournamentId/manage',
+        element: <StateTournamentEventManagementWrapper />,
+        public: false,
+      },
+      {
+        key: 'state-tournament-view',
+        path: '/state/dashboard/tournaments-view',
+        element: <StateTournamentDashboard />,
+        public: false,
+      },
+      {
+        key: 'state-event-validation',
+        path: '/state/dashboard/events',
+        element: <EventValidationPage />,
+        public: false,
+      },
+      {
+        key: 'state-players-management',
+        path: '/state/dashboard/players',
+        element: <StatePlayersManagement />,
+        public: false,
+      },
+      {
+        key: 'state-clubs-management',
+        path: '/state/dashboard/clubs',
+        element: <StateClubsManagement />,
+        public: false,
+      },
+      {
+        key: 'state-courts-management',
+        path: '/state/dashboard/courts',
+        element: <StateCourtsManagement />,
         public: false,
       },
     ],
@@ -336,6 +562,12 @@ export const routes = [
         public: false,
       },
       {
+        key: 'player-tournament-view',
+        path: '/players/dashboard/tournaments-view',
+        element: <PlayerTournamentView />,
+        public: false,
+      },
+      {
         key: 'player-dashboard-messages',
         path: '/players/dashboard/messages',
         element: <PlayerMessagesPage />,
@@ -345,6 +577,18 @@ export const routes = [
         key: 'player-dashboard-payments',
         path: '/players/dashboard/payments',
         element: <PlayerPaymentsPage />,
+        public: false,
+      },
+      {
+        key: 'player-dashboard-registrations',
+        path: '/players/dashboard/registrations',
+        element: <PlayerTournamentsPage />,
+        public: false,
+      },
+      {
+        key: 'player-dashboard-registration-details',
+        path: '/players/dashboard/registrations/:registrationId',
+        element: <PlayerTournamentsPage />,
         public: false,
       },
     ],
@@ -413,6 +657,18 @@ export const routes = [
         key: 'coach-dashboard-payments',
         path: '/coaches/dashboard/payments',
         element: <CoachPaymentsPage />,
+        public: false,
+      },
+      {
+        key: 'coach-tournament-view',
+        path: '/coaches/dashboard/tournaments/view',
+        element: <CoachTournamentView />,
+        public: false,
+      },
+      {
+        key: 'coach-tournament-dashboard',
+        path: '/coaches/dashboard/tournaments/dashboard',
+        element: <CoachDashboardComponent />,
         public: false,
       },
     ],
@@ -487,7 +743,13 @@ export const routes = [
       {
         key: 'tournament-management',
         path: '/clubs/dashboard/tournaments',
-        element: <TournamentManagement />,
+        element: <ClubTournamentManagementPage />,
+        public: false,
+      },
+      {
+        key: 'tournament-create',
+        path: '/clubs/dashboard/tournaments/create',
+        element: <ClubTournamentCreationPage />,
         public: false,
       },
       {
@@ -506,6 +768,12 @@ export const routes = [
         key: 'tournament-edit',
         path: '/clubs/dashboard/tournaments/:tournamentId/edit',
         element: <TournamentEditWrapper />,
+        public: false,
+      },
+      {
+        key: 'club-tournament-view',
+        path: '/clubs/dashboard/tournaments/view/:tournamentId',
+        element: <ClubTournamentDashboard />,
         public: false,
       },
     ],

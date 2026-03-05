@@ -1,4 +1,6 @@
+import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
+import { RootState } from '@/store';
 import {
   LayoutDashboard,
   User,
@@ -9,6 +11,7 @@ import {
   MessageSquare,
   Receipt,
 } from 'lucide-react';
+import PlayerTournamentsPage from './TournamentsPage';
 
 const navItems: NavItem[] = [
   {
@@ -48,10 +51,22 @@ const navItems: NavItem[] = [
     description: 'Ver y registrarme en torneos',
   },
   {
+    title: 'Mi Panel de Torneos',
+    url: '/players/dashboard/tournaments-view',
+    icon: MessageSquare,
+    description: 'Ver progress en mis torneos',
+  },
+  {
     title: 'Mensajes',
     url: '/players/dashboard/messages',
     icon: MessageSquare,
     description: 'Mis mensajes',
+  },
+  {
+    title: 'Registrations',
+    url: '/players/dashboard/registrations',
+    icon: Users,
+    description: 'Attend in tournaments',
   },
   {
     title: 'Pagos',
@@ -69,13 +84,24 @@ const playerUser = {
 };
 
 export default function PlayerDashboardLayout() {
+  const { user } = useSelector((state: RootState) => state.auth);
+
+  const userData = user
+    ? {
+        name: user.full_name || user.username || 'Usuario',
+        email: user.email || '',
+        role: 'Jugador',
+        avatar: user.profile_photo || null,
+      }
+    : playerUser;
+
   return (
     <DashboardLayoutBase
       navItems={navItems}
       brandTitle="FEDMEX"
       brandSubtitle="Panel de Jugador"
       BrandIcon={Trophy}
-      user={playerUser}
+      user={userData}
       basePath="/players/dashboard"
     />
   );

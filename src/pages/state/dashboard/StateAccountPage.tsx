@@ -17,20 +17,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import {
-  User,
-  MapPin,
-  Mail,
-  Phone,
-  Edit,
-  Trash2,
-  Building,
-  Users,
-  Trophy,
-  Calendar,
-  AlertCircle,
-  Loader,
-} from 'lucide-react';
+import { Mail, Phone, Edit, Trash2, AlertCircle, Loader, Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AppDispatch, RootState } from '@/store';
 import {
@@ -43,11 +30,21 @@ export default function StateAccountPage() {
   const { toast } = useToast();
   const dispatch = useDispatch<AppDispatch>();
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [deletionConfirmed, setDeletionConfirmed] = useState(false);
+  const [formData, setFormData] = useState<any>({
+    full_name: '',
+    email: '',
+    phone: '',
+    address: '',
+    website: '',
+    bio: '',
+  });
 
   const { profile, profileLoading, profileError } = useSelector(
     (state: RootState) => state.stateDashboard,
   );
+  const { user } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     dispatch(fetchStateProfile());
@@ -55,392 +52,379 @@ export default function StateAccountPage() {
 
   useEffect(() => {
     if (profile) {
-      setFormData(profile);
+      setFormData({
+        full_name: profile.coordinatorName || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        address: profile.address || '',
+        website: profile.website || '',
+        bio: profile.description || '',
+      });
     }
   }, [profile]);
 
   const handleSaveProfile = async () => {
-    try {
-      await dispatch(
-        updateStateProfile({
-          coordinatorName: formData.coordinatorName,
-          email: formData.email,
-          phone: formData.phone,
-          description: formData.description,
-        }),
-      ).unwrap();
-      setIsEditing(false);
-      toast({
-        title: 'Perfil actualizado',
-        description: 'Los cambios han sido guardados exitosamente.',
-      });
-    } catch (error: any) {
-      const errorMessage =
-        error?.message || error?.toString?.() || 'No se pudo actualizar el perfil';
+    if (!formData.full_name || !formData.email) {
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: 'El nombre y correo son requeridos',
         variant: 'destructive',
       });
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await dispatch(updateStateProfile(formData)).unwrap();
+      setIsEditing(false);
+      // Refresh profile after update
+      dispatch(fetchStateProfile());
+      toast({
+        title: 'Éxito',
+        description: 'El perfil se ha actualizado correctamente',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error?.message || 'No se pudo actualizar el perfil',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleDeleteAccount = async () => {
+    if (!deletionConfirmed) {
+      toast({
+        title: 'Confirmación requerida',
+        description: 'Debes confirmar que deseas eliminar la cuenta',
+      });
+      return;
+    }
+
     try {
-      await dispatch(deleteStateAccount('confirmation_token')).unwrap();
+      await dispatch(deleteStateAccount()).unwrap();
       toast({
         title: 'Cuenta eliminada',
-        description: 'Tu cuenta ha sido eliminada permanentemente.',
-        variant: 'destructive',
+        description: 'Tu cuenta ha sido eliminada definitivamente',
       });
       // Redirect to login
-      window.location.href = '/login';
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 1000);
     } catch (error: any) {
-      const errorMessage = error?.message || error?.toString?.() || 'No se pudo eliminar la cuenta';
       toast({
         title: 'Error',
-        description: errorMessage,
+        description: error?.message || 'No se pudo eliminar la cuenta',
         variant: 'destructive',
       });
     }
   };
+
+  if (profileLoading && !profile) {
+    return (
+      <div className="space-y-6 p-1">
+        <div className="flex items-center justify-center py-12">
+          <Loader className="w-8 h-8 text-[#ace600] animate-spin" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-1">
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold text-white">Configuración de Cuenta</h1>
+        <p className="text-sm text-white/35 mt-1">
+          Gestiona la información de la delegación estatal
+        </p>
+      </div>
+
       {profileError && (
-        <div className="flex items-center gap-4 p-4 rounded-lg bg-red-900/20 border border-red-800">
-          <AlertCircle className="h-5 w-5 text-red-500" />
-          <div>
-            <h3 className="text-white font-semibold">Error al cargar el perfil</h3>
-            <p className="text-slate-400">{profileError}</p>
-          </div>
+        <div className="flex gap-3 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-400">{profileError}</p>
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white">Gestión de Cuenta Estatal</h1>
-          <p className="text-slate-400 mt-1">Administra la información de tu delegación estatal</p>
-        </div>
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            onClick={() => setIsEditing(!isEditing)}
-            disabled={profileLoading}
-            className="border-slate-700 text-white hover:bg-slate-800"
-          >
-            {profileLoading ? (
-              <>
-                <Loader className="h-4 w-4 mr-2 animate-spin" />
-                Cargando...
-              </>
-            ) : (
-              <>
-                <Edit className="h-4 w-4 mr-2" />
-                {isEditing ? 'Cancelar' : 'Editar Perfil'}
-              </>
-            )}
-          </Button>
+      {/* Profile Card */}
+      <Card className="bg-[#0d1117] border-white/[0.07]">
+        <CardHeader className="flex flex-row items-start justify-between">
+          <div>
+            <CardTitle className="text-white">Información de la Delegación</CardTitle>
+            <CardDescription>Detalles principales de tu delegación estatal</CardDescription>
+          </div>
+          {!isEditing && (
+            <Button
+              onClick={() => setIsEditing(true)}
+              className="gap-2 bg-[#ace600] hover:bg-[#c0f000] text-black"
+            >
+              <Edit className="w-4 h-4" />
+              Editar
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {isEditing ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-white/70 text-xs font-bold uppercase tracking-wider">
+                    Nombre del Coordinador
+                  </Label>
+                  <Input
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                    className="mt-2 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20"
+                    placeholder="Nombre completo"
+                  />
+                </div>
+                <div>
+                  <Label className="text-white/70 text-xs font-bold uppercase tracking-wider">
+                    Correo
+                  </Label>
+                  <Input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="mt-2 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20"
+                    placeholder="correo@ejemplo.com"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label className="text-white/70 text-xs font-bold uppercase tracking-wider">
+                    Teléfono
+                  </Label>
+                  <Input
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    className="mt-2 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20"
+                    placeholder="+52 (555) 555-5555"
+                  />
+                </div>
+                <div>
+                  <Label className="text-white/70 text-xs font-bold uppercase tracking-wider">
+                    Sitio Web
+                  </Label>
+                  <Input
+                    value={formData.website}
+                    onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                    className="mt-2 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20"
+                    placeholder="https://example.com"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label className="text-white/70 text-xs font-bold uppercase tracking-wider">
+                  Dirección
+                </Label>
+                <Input
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  className="mt-2 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20"
+                  placeholder="Dirección completa"
+                />
+              </div>
+
+              <div>
+                <Label className="text-white/70 text-xs font-bold uppercase tracking-wider">
+                  Descripción
+                </Label>
+                <Textarea
+                  value={formData.bio}
+                  onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                  className="mt-2 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 min-h-24"
+                  placeholder="Descripción de la delegación estatal"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <Button
+                  onClick={handleSaveProfile}
+                  disabled={isSaving}
+                  className="gap-2 bg-[#ace600] hover:bg-[#c0f000] text-black"
+                >
+                  <Save className="w-4 h-4" />
+                  {isSaving ? 'Guardando...' : 'Guardar cambios'}
+                </Button>
+                <Button
+                  onClick={() => setIsEditing(false)}
+                  variant="outline"
+                  className="gap-2 border-white/[0.08]"
+                >
+                  <X className="w-4 h-4" />
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+                    Coordinador
+                  </p>
+                  <p className="text-sm text-white/75 font-medium">
+                    {profile?.coordinatorName || '—'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+                    Estado
+                  </p>
+                  <Badge className="bg-[#ace600]/10 text-[#ace600] border-[#ace600]/20">
+                    {profile?.stateName || user?.state || '—'}
+                  </Badge>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+                    Correo
+                  </p>
+                  <p className="text-sm text-white/75 font-medium flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-white/30" />
+                    {profile?.email || '—'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+                    Teléfono
+                  </p>
+                  <p className="text-sm text-white/75 font-medium flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-white/30" />
+                    {profile?.phone || '—'}
+                  </p>
+                </div>
+              </div>
+
+              {profile?.address && (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+                    Dirección
+                  </p>
+                  <p className="text-sm text-white/60">{profile.address}</p>
+                </div>
+              )}
+
+              {profile?.website && (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+                    Sitio Web
+                  </p>
+                  <p className="text-sm text-white/60">
+                    <a
+                      href={profile.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#ace600] hover:underline"
+                    >
+                      {profile.website}
+                    </a>
+                  </p>
+                </div>
+              )}
+
+              {profile?.description && (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+                    Descripción
+                  </p>
+                  <p className="text-sm text-white/60">{profile.description}</p>
+                </div>
+              )}
+
+              {profile?.foundationDate && (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+                    Miembro desde
+                  </p>
+                  <p className="text-sm text-white/60">
+                    {new Date(profile.foundationDate).toLocaleDateString('es-MX')}
+                  </p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/[0.07]">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+                    Miembros Activos
+                  </p>
+                  <p className="text-lg font-bold text-[#ace600]">{profile?.totalMembers || 0}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+                    Clubes Activos
+                  </p>
+                  <p className="text-lg font-bold text-[#ace600]">{profile?.activeClubs || 0}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Danger Zone */}
+      <Card className="border-red-500/20 bg-red-500/[0.02]">
+        <CardHeader>
+          <CardTitle className="text-red-400 flex items-center gap-2">
+            <AlertCircle className="w-5 h-5" />
+            Zona de Peligro
+          </CardTitle>
+          <CardDescription>Acciones irreversibles</CardDescription>
+        </CardHeader>
+        <CardContent>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" disabled={profileLoading}>
-                <Trash2 className="h-4 w-4 mr-2" />
+              <Button variant="destructive" className="gap-2">
+                <Trash2 className="w-4 h-4" />
                 Eliminar Cuenta
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent className="bg-slate-900 border-slate-800">
+            <AlertDialogContent className="bg-[#0d1117] border-red-500/20">
               <AlertDialogHeader>
-                <AlertDialogTitle className="text-white">¿Eliminar cuenta?</AlertDialogTitle>
-                <AlertDialogDescription className="text-slate-400">
-                  Esta acción no se puede deshacer. Se eliminará permanentemente la cuenta de la
-                  delegación estatal y todos los datos asociados.
+                <AlertDialogTitle className="text-red-400">
+                  ¿Eliminar cuenta permanentemente?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-white/50">
+                  Esta acción no puede deshacerse. Se eliminarán todos los datos asociados a esta
+                  delegación estatal.
                 </AlertDialogDescription>
               </AlertDialogHeader>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="confirm"
+                    checked={deletionConfirmed}
+                    onChange={(e) => setDeletionConfirmed(e.target.checked)}
+                    className="w-4 h-4 cursor-pointer"
+                  />
+                  <label htmlFor="confirm" className="text-sm text-white/60 cursor-pointer">
+                    Confirmo que deseo eliminar esta cuenta
+                  </label>
+                </div>
+              </div>
               <AlertDialogFooter>
-                <AlertDialogCancel className="border-slate-700 text-white hover:bg-slate-800">
+                <AlertDialogCancel className="bg-white/[0.04] border-white/[0.08]">
                   Cancelar
                 </AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleDeleteAccount}
+                  disabled={!deletionConfirmed}
                   className="bg-red-600 hover:bg-red-700"
-                  disabled={profileLoading}
                 >
-                  Eliminar
+                  Eliminar Cuenta
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
-        </div>
-      </div>
-
-      {profileLoading && !formData ? (
-        <Card className="bg-slate-900 border-slate-800">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-center py-12">
-              <Loader className="h-8 w-8 text-primary animate-spin" />
-              <span className="ml-3 text-white">Cargando perfil...</span>
-            </div>
-          </CardContent>
-        </Card>
-      ) : formData ? (
-        <>
-          {/* State Information */}
-          <Card className="bg-slate-900 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Información de la Delegación
-              </CardTitle>
-              <CardDescription className="text-slate-400">
-                Datos generales de la delegación estatal
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="stateName" className="text-white">
-                    Nombre del Estado
-                  </Label>
-                  <Input
-                    id="stateName"
-                    value={formData.stateName || ''}
-                    disabled
-                    className="bg-slate-800 border-slate-700 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="coordinatorName" className="text-white">
-                    Nombre del Coordinador
-                  </Label>
-                  <Input
-                    id="coordinatorName"
-                    value={formData.coordinatorName || ''}
-                    onChange={(e) => setFormData({ ...formData, coordinatorName: e.target.value })}
-                    disabled={!isEditing}
-                    className="bg-slate-800 border-slate-700 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-white">
-                    Correo Electrónico
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email || ''}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    disabled={!isEditing}
-                    className="bg-slate-800 border-slate-700 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-white">
-                    Teléfono
-                  </Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone || ''}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    disabled={!isEditing}
-                    className="bg-slate-800 border-slate-700 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="address" className="text-white">
-                    Dirección
-                  </Label>
-                  <Input
-                    id="address"
-                    value={formData.address || ''}
-                    disabled
-                    className="bg-slate-800 border-slate-700 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="website" className="text-white">
-                    Sitio Web
-                  </Label>
-                  <Input
-                    id="website"
-                    value={formData.website || ''}
-                    disabled
-                    className="bg-slate-800 border-slate-700 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="foundationDate" className="text-white">
-                    Fecha de Fundación
-                  </Label>
-                  <Input
-                    id="foundationDate"
-                    type="date"
-                    value={formData.foundationDate || ''}
-                    disabled
-                    className="bg-slate-800 border-slate-700 text-white"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-white">
-                  Descripción
-                </Label>
-                <Textarea
-                  id="description"
-                  value={formData.description || ''}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  disabled={!isEditing}
-                  className="bg-slate-800 border-slate-700 text-white"
-                  rows={3}
-                />
-              </div>
-              {isEditing && (
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleSaveProfile}
-                    disabled={profileLoading}
-                    className="bg-primary hover:bg-primary/90"
-                  >
-                    {profileLoading ? (
-                      <>
-                        <Loader className="h-4 w-4 mr-2 animate-spin" />
-                        Guardando...
-                      </>
-                    ) : (
-                      'Guardar Cambios'
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsEditing(false)}
-                    className="border-slate-700 text-white hover:bg-slate-800"
-                  >
-                    Cancelar
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* State Statistics */}
-          <Card className="bg-slate-900 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Building className="h-5 w-5" />
-                Estadísticas de la Delegación
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <div className="space-y-2">
-                  <Label className="text-slate-400">Miembros Totales</Label>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-5 w-5 text-primary" />
-                    <span className="text-white font-bold text-xl">
-                      {formData.totalMembers?.toLocaleString() || '0'}
-                    </span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-400">Clubes Activos</Label>
-                  <div className="flex items-center gap-2">
-                    <Building className="h-5 w-5 text-green-500" />
-                    <span className="text-white font-bold text-xl">
-                      {formData.activeClubs || 0}
-                    </span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-400">Torneos Este Año</Label>
-                  <div className="flex items-center gap-2">
-                    <Trophy className="h-5 w-5 text-yellow-500" />
-                    <span className="text-white font-bold text-xl">28</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-slate-400">Estado</Label>
-                  <Badge className="bg-green-600 hover:bg-green-700 text-lg px-4 py-2">
-                    Activa
-                  </Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card className="bg-slate-900 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Actividad Reciente
-              </CardTitle>
-              <CardDescription className="text-slate-400">
-                Últimas actividades y eventos en el estado
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4 p-4 rounded-lg bg-slate-800/50">
-                  <div className="p-2 rounded-full bg-blue-600/20">
-                    <Users className="h-5 w-5 text-blue-500" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium text-white">Nuevo Club Afiliado</h4>
-                    <p className="text-sm text-slate-400">
-                      Club Pickleball Toluca se unió a la federación
-                    </p>
-                    <p className="text-xs text-slate-500">Hace 2 días</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 p-4 rounded-lg bg-slate-800/50">
-                  <div className="p-2 rounded-full bg-yellow-600/20">
-                    <Trophy className="h-5 w-5 text-yellow-500" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium text-white">Torneo Completado</h4>
-                    <p className="text-sm text-slate-400">
-                      Torneo Estatal Juvenil finalizado con 156 participantes
-                    </p>
-                    <p className="text-xs text-slate-500">Hace 5 días</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 p-4 rounded-lg bg-slate-800/50">
-                  <div className="p-2 rounded-full bg-green-600/20">
-                    <Users className="h-5 w-5 text-green-500" />
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-medium text-white">Récord de Membresía</h4>
-                    <p className="text-sm text-slate-400">
-                      Se alcanzó la meta de 1200 miembros activos
-                    </p>
-                    <p className="text-xs text-slate-500">Hace 1 semana</p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Important Notice */}
-          <Card className="bg-gradient-to-r from-yellow-900/20 to-yellow-800/20 border-yellow-700">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-full bg-yellow-600/20">
-                  <AlertCircle className="h-8 w-8 text-yellow-500" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold text-white">Información Importante</h3>
-                  <p className="text-slate-400 mt-1">
-                    Como delegación estatal, eres responsable de coordinar todas las actividades de
-                    pickleball en tu estado. Mantén actualizada tu información y coordina con la
-                    federación nacional para eventos y torneos.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </>
-      ) : null}
+        </CardContent>
+      </Card>
     </div>
   );
 }

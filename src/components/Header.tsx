@@ -49,6 +49,53 @@ const Header = () => {
     navigate('/');
   };
 
+  const getRoleBasedLinks = () => {
+    const links: { label: string; href: string; icon: any }[] = [];
+
+    switch (user?.user_type) {
+      case 'player':
+        links.push(
+          { label: 'Mi Cuenta', href: '/players/account', icon: User },
+          { label: 'Mi Dashboard', href: '/players/dashboard', icon: User },
+        );
+        break;
+      case 'coach':
+        links.push(
+          { label: 'Mi Cuenta', href: '/coach/account', icon: User },
+          { label: 'Mi Dashboard', href: '/coach/dashboard', icon: User },
+        );
+        break;
+      case 'club':
+        links.push(
+          { label: 'Mi Cuenta', href: '/clubs/account', icon: User },
+          { label: 'Mi Dashboard', href: '/clubs/dashboard', icon: User },
+        );
+        break;
+      case 'partner':
+        links.push(
+          { label: 'Mi Cuenta', href: '/partner/account', icon: User },
+          { label: 'Mi Dashboard', href: '/partner/dashboard', icon: User },
+        );
+        break;
+      case 'state':
+        links.push(
+          { label: 'Mi Cuenta', href: '/state/account', icon: User },
+          { label: 'Mi Dashboard', href: '/state/dashboard', icon: User },
+        );
+        break;
+      case 'admin':
+        links.push(
+          { label: 'Mi Cuenta', href: '/admin/account', icon: User },
+          { label: 'Mi Dashboard', href: '/admin/dashboard', icon: User },
+        );
+        break;
+      default:
+        break;
+    }
+
+    return links;
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full">
       {/* Top bar */}
@@ -179,6 +226,18 @@ const Header = () => {
                           {user?.user_type}
                         </p>
                       </div>
+                      {getRoleBasedLinks().map((link) => (
+                        <Link
+                          key={link.label}
+                          to={link.href}
+                          className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition-colors"
+                          onClick={() => setUserDropdownOpen(false)}
+                        >
+                          <link.icon className="w-4 h-4" />
+                          <span>{link.label}</span>
+                        </Link>
+                      ))}
+                      <div className="border-t border-border my-1"></div>
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 transition-colors"
@@ -295,6 +354,19 @@ const Header = () => {
                         {user?.username || 'Usuario'}
                       </p>
                       <p className="text-xs text-slate-400 capitalize mt-1">{user?.user_type}</p>
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      {getRoleBasedLinks().map((link) => (
+                        <Link
+                          key={link.label}
+                          to={link.href}
+                          className="flex items-center gap-2 px-3 py-2 text-sm text-white hover:text-primary transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <link.icon className="w-4 h-4" />
+                          {link.label}
+                        </Link>
+                      ))}
                     </div>
                     <Button
                       variant="outline"

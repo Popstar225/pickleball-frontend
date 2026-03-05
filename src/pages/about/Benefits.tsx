@@ -4,10 +4,10 @@ import Footer from '@/components/Footer';
 import { affiliationBenefits } from '@/data/mockData';
 import benefitsImage from '@/assets/logo-fedmex.png';
 
-import benefit1 from '@/assets/images/_DSC7870.jpg';
-import benefit2 from '@/assets/images/_DSC8411.jpg';
-import benefit3 from '@/assets/images/_DSC8354.jpg';
-import benefit4 from '@/assets/images/_DSC8137.jpg';
+import benefit1 from '@/assets/images/_DSC7870.png';
+import benefit2 from '@/assets/images/_DSC8411.png';
+import benefit3 from '@/assets/images/_DSC8354.png';
+import benefit4 from '@/assets/images/_DSC8137.png';
 import benefit5 from '@/assets/images/Image 9.1.jpeg';
 import benefit6 from '@/assets/images/Image 7.1.jpeg';
 import benefit7 from '@/assets/images/image 7.jpeg';

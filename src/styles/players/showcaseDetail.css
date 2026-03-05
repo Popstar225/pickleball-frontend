@@ -1,0 +1,216 @@
+@keyframes sd-shimmer {
+  0% {
+    background-position: -300% center;
+  }
+  100% {
+    background-position: 300% center;
+  }
+}
+@keyframes sd-float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  40% {
+    transform: translateY(-22px) rotate(1.2deg);
+  }
+  70% {
+    transform: translateY(-10px) rotate(-0.8deg);
+  }
+}
+@keyframes sd-scanline {
+  0% {
+    top: -4px;
+  }
+  100% {
+    top: 100%;
+  }
+}
+@keyframes sd-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    filter: blur(50px);
+  }
+  50% {
+    opacity: 0.8;
+    filter: blur(70px);
+  }
+}
+@keyframes sd-pop {
+  0% {
+    transform: scale(0.6) translateY(16px);
+    opacity: 0;
+  }
+  65% {
+    transform: scale(1.06) translateY(-3px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes sd-rise {
+  from {
+    transform: translateY(48px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes sd-bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes sd-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sd-ticker {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+@keyframes sd-card-in {
+  from {
+    transform: translateX(80px) scale(0.94);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.sd-name-shimmer {
+  background: linear-gradient(
+    100deg,
+    #ffffff 0%,
+    #ffffff 35%,
+    #a3ff47 48%,
+    #e2ff99 52%,
+    #ffffff 65%,
+    #ffffff 100%
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: sd-shimmer 5s linear infinite;
+}
+.sd-float-card {
+  animation: sd-float 8s ease-in-out infinite;
+}
+.sd-glow-orb {
+  animation: sd-glow-pulse 3.5s ease-in-out infinite;
+}
+
+.sd-badge-pop {
+  animation: sd-pop 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.sd-rise-1 {
+  animation: sd-rise 0.75s 0.1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.sd-rise-2 {
+  animation: sd-rise 0.75s 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.sd-rise-3 {
+  animation: sd-rise 0.75s 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.sd-rise-4 {
+  animation: sd-rise 0.75s 0.46s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.sd-rise-5 {
+  animation: sd-rise 0.75s 0.58s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.sd-bar-grow {
+  transform-origin: left;
+  animation: sd-bar-grow 1s 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.sd-card-in {
+  animation: sd-card-in 0.9s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.sd-fade-in {
+  animation: sd-fade-in 1s 0.1s ease both;
+}
+
+.sd-ticker-wrap {
+  overflow: hidden;
+  white-space: nowrap;
+}
+.sd-ticker-inner {
+  display: inline-block;
+  animation: sd-ticker 24s linear infinite;
+}
+
+.sd-scanline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(163, 255, 71, 0.2), transparent);
+  animation: sd-scanline 7s linear infinite;
+}
+
+.sd-prose h2 {
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 700;
+  color: #fff;
+  margin-top: 2.5rem;
+  margin-bottom: 0.65rem;
+}
+.sd-prose p {
+  color: rgba(203, 213, 225, 0.85);
+  font-size: 1.05rem;
+  line-height: 1.8;
+  margin-bottom: 1.25rem;
+}
+.sd-prose ul {
+  margin: 1.25rem 0 1.5rem 0;
+}
+.sd-prose li {
+  color: rgba(203, 213, 225, 0.85);
+  font-size: 1.05rem;
+  line-height: 1.8;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+}
+.sd-prose li::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a3ff47;
+  margin-top: 0.55rem;
+  flex-shrink: 0;
+}
+.sd-prose strong {
+  color: #fff;
+  font-weight: 700;
+}
+.sd-prose em {
+  display: block;
+  border-left: 3px solid #a3ff47;
+  padding-left: 1.25rem;
+  color: rgba(203, 213, 225, 0.6);
+  font-style: italic;
+  margin: 1.5rem 0;
+}

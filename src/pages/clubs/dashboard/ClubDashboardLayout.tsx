@@ -1,4 +1,6 @@
+import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
+import type { RootState } from '@/store';
 import { LayoutDashboard, User, Users, Trophy, MessageSquare, Receipt } from 'lucide-react';
 
 const navItems: NavItem[] = [
@@ -32,6 +34,12 @@ const navItems: NavItem[] = [
     icon: Trophy,
     description: 'Torneos del club',
   },
+  // {
+  //   title: 'Ver Torneos',
+  //   url: '/clubs/dashboard/tournaments/view/active',
+  //   icon: Trophy,
+  //   description: 'Panel de Torneos Activos',
+  // },
   {
     title: 'Mensajes',
     url: '/clubs/dashboard/messages',
@@ -46,21 +54,30 @@ const navItems: NavItem[] = [
   },
 ];
 
-const clubUser = {
-  name: 'Club Pickleball CDMX',
-  email: 'info@clubpickelballcdmx.com',
-  role: 'Club',
-  avatar: null,
-};
-
 export default function ClubDashboardLayout() {
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  const displayUser = user
+    ? {
+        name: user.club_name || user.name || user.email || 'Club',
+        email: user.email || '',
+        role: 'Club Manager',
+        avatar: user.profile_picture || null,
+      }
+    : {
+        name: 'Club Pickleball',
+        email: 'club@fedmex.com',
+        role: 'Club',
+        avatar: null,
+      };
+
   return (
     <DashboardLayoutBase
       navItems={navItems}
       brandTitle="FEDMEX"
       brandSubtitle="Panel de Club"
       BrandIcon={Trophy}
-      user={clubUser}
+      user={displayUser}
       basePath="/clubs/dashboard"
     />
   );

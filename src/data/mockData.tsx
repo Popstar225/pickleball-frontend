@@ -2,21 +2,21 @@
 // Centralized mock data for FEDMEX (Federación Mexicana de Pickleball)
 // Ready for AI integration - just replace with API calls when needed
 
-import videoCap1 from '../assets/images/_DSC8411.jpg';
-import videoCap2 from '../assets/images/_DSC8182.jpg';
-import videoCap3 from '../assets/images/_DSC8354.jpg';
-import videoCap4 from '../assets/images/_DSC8745.jpg';
+import videoCap1 from '../assets/images/_DSC8411.png';
+import videoCap2 from '../assets/images/_DSC8182.png';
+import videoCap3 from '../assets/images/_DSC8354.png';
+import videoCap4 from '../assets/images/_DSC8745.png';
 
 import article1 from '../assets/images/image 8.jpeg';
 import article2 from '../assets/images/Image 9.1.jpeg';
 import article3 from '../assets/images/Image 7.1.jpeg';
 import article4 from '../assets/images/image 9.jpeg';
 
-import upcoming1 from '../assets/images/Image 1.jpg';
+import upcoming1 from '../assets/images/_DSC7870.png';
 import upcoming2 from '../assets/images/_DSC8895.png';
 import upcoming3 from '../assets/images/Image 8.1.jpeg';
-import upcoming4 from '../assets/images/_DSC8285.jpg';
-import upcoming5 from '../assets/images/_DSC8285.jpg';
+import upcoming4 from '../assets/images/_DSC8285.png';
+import upcoming5 from '../assets/images/_DSC8285.png';
 
 import headless4 from '../assets/images/blogs/Image 7.jpeg';
 import headless2 from '../assets/images/blogs/Image 8.jpeg';
@@ -2235,7 +2235,7 @@ export type TournamentStatus =
   | 'published'
   | 'completed'
   | 'cancelled';
-export type TournamentCreator = 'federation' | 'state_committee' | 'partner' | 'club';
+export type TournamentCreator = 'admin' | 'state_committee' | 'partner' | 'club';
 
 export interface Tournament {
   id: string;
@@ -2282,7 +2282,7 @@ export const tournaments: Tournament[] = [
     prizePool: '$150,000 MXN',
     image: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&h=400&fit=crop',
     status: 'published',
-    createdBy: 'federation',
+    createdBy: 'admin',
     creatorName: 'Federación Mexicana de Pickleball',
     validatedBy: null,
     validatedAt: null,

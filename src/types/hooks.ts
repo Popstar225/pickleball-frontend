@@ -28,7 +28,7 @@ export interface LoginCredentials {
 }
 
 export interface RegisterData {
-  userType: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'federation';
+  userType: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'admin';
   username: string;
   email: string;
   password: string;
@@ -39,7 +39,7 @@ export interface RegisterData {
   state?: string;
   city?: string;
   phone?: string;
-  skillLevel?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5';
+  skillLevel?: '2.5' | '3.5' | '4.5' | '5+';
   businessName?: string;
   contactPerson?: string;
   rfc?: string;

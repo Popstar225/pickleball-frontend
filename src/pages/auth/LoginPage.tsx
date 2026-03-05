@@ -99,7 +99,7 @@ const LoginPage = () => {
               navigate('/partners/dashboard');
               break;
             case 'state':
-              navigate('/states/dashboard');
+              navigate('/state/dashboard');
               break;
             case 'admin':
               navigate('/admin/dashboard');

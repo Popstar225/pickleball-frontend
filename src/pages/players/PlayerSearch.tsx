@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
 import {
   Select,
   SelectContent,
@@ -17,34 +18,23 @@ import { playerRankings, countryFlags } from '@/data/mockData';
 
 const PlayerSearch = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedState, setSelectedState] = useState('all');
+  const [selectedState, setSelectedState] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('all');
   const [selectedModality, setSelectedModality] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
 
-  const states = [
-    'CDMX',
-    'Jalisco',
-    'Nuevo León',
-    'Quintana Roo',
-    'Baja California',
-    'Yucatán',
-    'Querétaro',
-    'Puebla',
-    'Guanajuato',
-    'Estado de México',
-  ];
-
-  const levels = ['2.0', '2.5', '3.0', '3.5', '4.0', '4.5', '5.0+'];
+  const levels = ['2.5', '3.5', '4.5', '5.0+'];
 
   const filteredPlayers = playerRankings.filter((player) => {
     const matchesSearch = player.name.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
   });
 
-  const activeFiltersCount = [selectedState, selectedLevel, selectedModality].filter(
-    (f) => f !== 'all',
-  ).length;
+  const activeFiltersCount = [
+    selectedState && selectedState !== '',
+    selectedLevel !== 'all',
+    selectedModality !== 'all',
+  ].filter(Boolean).length;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/5">
@@ -153,7 +143,7 @@ const PlayerSearch = () => {
                               variant="ghost"
                               size="sm"
                               onClick={() => {
-                                setSelectedState('all');
+                                setSelectedState('');
                                 setSelectedLevel('all');
                                 setSelectedModality('all');
                               }}
@@ -170,19 +160,12 @@ const PlayerSearch = () => {
                             <label className="text-sm font-semibold text-foreground mb-3 block">
                               Estado
                             </label>
-                            <Select value={selectedState} onValueChange={setSelectedState}>
-                              <SelectTrigger className="h-12 border-slate-200 dark:border-slate-700 rounded-xl">
-                                <SelectValue placeholder="Todos los estados" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="all">Todos los estados</SelectItem>
-                                {states.map((state) => (
-                                  <SelectItem key={state} value={state.toLowerCase()}>
-                                    {state}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <StateAutocomplete
+                              value={selectedState}
+                              onChange={setSelectedState}
+                              placeholder="Buscar estado..."
+                              className="h-12 border-slate-200 dark:border-slate-700 rounded-xl"
+                            />
                           </div>
                           <div>
                             <label className="text-sm font-semibold text-foreground mb-3 block">
@@ -361,7 +344,7 @@ const PlayerSearch = () => {
                     variant="outline"
                     onClick={() => {
                       setSearchTerm('');
-                      setSelectedState('all');
+                      setSelectedState('');
                       setSelectedLevel('all');
                       setSelectedModality('all');
                     }}

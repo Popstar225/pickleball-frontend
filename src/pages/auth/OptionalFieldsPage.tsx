@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { AppDispatch, RootState } from '../../store';
 import { registerUser } from '../../store/slices/authSlice';
 import { toast } from 'sonner';
+import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
+import { Mexico } from '@/constants/constants';
 import {
   Phone,
   MapPin,
@@ -150,7 +152,13 @@ const OptionalFieldsPage = () => {
         placeholder: '+52 123 456 7890',
         icon: Phone,
       },
-      { name: 'state', label: 'Estado', type: 'text', placeholder: 'ej., Jalisco', icon: MapPin },
+      {
+        name: 'state',
+        label: 'Estado',
+        type: 'autocomplete',
+        placeholder: 'Buscar estado...',
+        icon: MapPin,
+      },
       {
         name: 'city',
         label: 'Ciudad',
@@ -194,7 +202,7 @@ const OptionalFieldsPage = () => {
           name: 'skill_level',
           label: 'Nivel de Habilidad',
           type: 'select',
-          options: ['2.5', '3.0', '3.5', '4.0', '4.5', '5.0', '5.5'],
+          options: ['2.5', '3.5', '4.5', '5+'],
           icon: Award,
         },
         { name: 'curp', label: 'CURP', type: 'text', placeholder: '18 caracteres', icon: FileText },
@@ -315,10 +323,10 @@ const OptionalFieldsPage = () => {
         const userType = apiResponse.data.user.user_type;
         switch (userType) {
           case 'player':
-            navigate('/player/dashboard');
+            navigate('/players/dashboard');
             break;
           case 'coach':
-            navigate('/coach/dashboard');
+            navigate('/coaches/dashboard');
             break;
           case 'club':
             navigate('/clubs/dashboard');
@@ -440,13 +448,29 @@ const OptionalFieldsPage = () => {
         </label>
 
         <div className="relative">
-          {!field.type.includes('select') && !field.type.includes('textarea') && (
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/field:text-primary transition-colors duration-300">
-              <Icon className="w-5 h-5" />
-            </div>
-          )}
+          {!field.type.includes('select') &&
+            !field.type.includes('textarea') &&
+            !field.type.includes('autocomplete') && (
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/field:text-primary transition-colors duration-300">
+                <Icon className="w-5 h-5" />
+              </div>
+            )}
 
-          {field.type === 'select' ? (
+          {field.type === 'autocomplete' ? (
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/field:text-primary transition-colors duration-300 pointer-events-none">
+                <Icon className="w-5 h-5" />
+              </div>
+              <StateAutocomplete
+                value={formData[field.name as keyof typeof formData] as string}
+                onChange={(value) => handleSelectChange(field.name, value)}
+                placeholder={field.placeholder}
+                className="w-full h-14 pl-12 pr-4 bg-slate-800/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 
+                focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 
+                transition-all duration-300 backdrop-blur-sm hover:border-slate-600/50"
+              />
+            </div>
+          ) : field.type === 'select' ? (
             <div className="relative">
               <select
                 value={formData[field.name as keyof typeof formData]}

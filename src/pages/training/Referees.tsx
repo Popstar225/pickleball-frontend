@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 
 import { referees, coaches } from '@/data/mockData';
+import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
+import { Mexico } from '@/constants/constants';
 
 // ─── Certification colour tokens ───────────────────────────
 const CERT_STYLES = {
@@ -76,7 +78,7 @@ const DetailRow = ({
 
 const Referees = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [stateFilter, setStateFilter] = useState('all');
+  const [stateFilter, setStateFilter] = useState('');
   const [certFilter, setCertFilter] = useState('all');
   const [selected, setSelected] = useState<(typeof referees)[0] | null>(null);
 
@@ -87,15 +89,15 @@ const Referees = () => {
     const q = searchTerm.toLowerCase();
     return (
       (r.name.toLowerCase().includes(q) || r.state.toLowerCase().includes(q)) &&
-      (stateFilter === 'all' || r.state === stateFilter) &&
+      (stateFilter === '' || r.state === stateFilter) &&
       (certFilter === 'all' || r.certification === certFilter)
     );
   });
 
-  const hasActiveFilter = stateFilter !== 'all' || certFilter !== 'all' || searchTerm;
+  const hasActiveFilter = stateFilter !== '' || certFilter !== 'all' || searchTerm;
   const clearFilters = () => {
     setSearchTerm('');
-    setStateFilter('all');
+    setStateFilter('');
     setCertFilter('all');
   };
 
@@ -268,18 +270,14 @@ const Referees = () => {
                     {/* state */}
                     <div className="relative flex-1 md:flex-auto">
                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                      <select
-                        value={stateFilter}
-                        onChange={(e) => setStateFilter(e.target.value)}
-                        className="w-full md:w-40 bg-slate-950/50 border border-slate-700 rounded-xl pl-10 pr-4 py-3 sm:py-4 text-xs sm:text-sm text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer"
-                      >
-                        <option value="all">Todos los Estados</option>
-                        {states.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="w-full md:w-40">
+                        <StateAutocomplete
+                          value={stateFilter}
+                          onChange={setStateFilter}
+                          placeholder="Buscar estado..."
+                          className="md:w-40 bg-slate-950/50 border border-slate-700 rounded-xl px-10 py-3 sm:py-4 text-xs sm:text-sm text-white"
+                        />
+                      </div>
                     </div>
 
                     {/* certification */}

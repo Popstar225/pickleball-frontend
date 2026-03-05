@@ -2,17 +2,17 @@
 // COMPREHENSIVE PAGE INTERFACES FOR PICKLEBALL PLATFORM
 // ============================================================================
 
-import { 
-  User, 
-  Club, 
-  Tournament, 
-  Court, 
-  Payment, 
-  Ranking, 
-  Notification, 
-  Banner, 
-  PlayerFinder, 
-  CourtReservation 
+import {
+  User,
+  Club,
+  Tournament,
+  Court,
+  Payment,
+  Ranking,
+  Notification,
+  Banner,
+  PlayerFinder,
+  CourtReservation,
 } from './api';
 
 // ============================================================================
@@ -59,13 +59,13 @@ export interface LoginPageState {
 export interface SelectUserTypePageProps extends PageProps {}
 
 export interface SelectUserTypePageState {
-  selectedType: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'federation' | null;
+  selectedType: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'admin' | null;
   isLoading: boolean;
   error: string | null;
 }
 
 export interface RequiredFieldsPageProps extends PageProps {
-  userType: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'federation';
+  userType: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'admin';
 }
 
 export interface RequiredFieldsPageState {
@@ -81,7 +81,7 @@ export interface RequiredFieldsPageState {
     state?: string;
     city?: string;
     phone?: string;
-    skill_level?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5';
+    skill_level?: '2.5' | '3.5' | '4.5' | '5+';
     business_name?: string;
     contact_person?: string;
     rfc?: string;
@@ -93,7 +93,7 @@ export interface RequiredFieldsPageState {
 }
 
 export interface OptionalFieldsPageProps extends PageProps {
-  userType: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'federation';
+  userType: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'admin';
 }
 
 export interface OptionalFieldsPageState {

@@ -1,7 +1,5 @@
 import { FileText, Download, Sparkles, Shield, BookOpen, Award } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import Director from '../assets/images/_DSC7870.jpg';
+import Director from '../assets/images/DSC7870.png';
 
 import Equipment from '../assets/images/rules/equipment.jpg';
 import Technical from '../assets/images/rules/technical.png';

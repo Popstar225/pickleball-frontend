@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 import { updateUser } from '../../store/slices/usersSlice';
+import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
 
 import { toast } from 'sonner';
 
@@ -16,7 +17,7 @@ const ProfilePage = () => {
     state: string;
     city: string;
     phone: string;
-    skill_level: '' | '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5';
+    skill_level: '' | '2.5' | '3.5' | '4.5' | '5+';
   }>({
     first_name: user?.first_name || '',
     last_name: user?.last_name || '',
@@ -45,8 +46,6 @@ const ProfilePage = () => {
       });
     }
   }, [user]);
-
-
 
   const handleEditToggle = () => {
     if (isEditing) {
@@ -95,12 +94,9 @@ const ProfilePage = () => {
 
   const getSkillLevelColor = (level: string) => {
     switch (level) {
-      case '5.5': return 'bg-purple-100 text-purple-800';
-      case '5.0': return 'bg-red-100 text-red-800';
+      case '5+': return 'bg-purple-100 text-purple-800';
       case '4.5': return 'bg-orange-100 text-orange-800';
-      case '4.0': return 'bg-blue-100 text-blue-800';
       case '3.5': return 'bg-green-100 text-green-800';
-      case '3.0': return 'bg-yellow-100 text-yellow-800';
       case '2.5': return 'bg-gray-100 text-gray-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -332,18 +328,12 @@ const ProfilePage = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label htmlFor="state" className="animate-on-scroll block text-sm font-medium text-gray-700">State</label>
-                        <select
+                        <StateAutocomplete
                           value={isEditing ? editForm.state : user.state || ''}
-                          onChange={(e) => handleInputChange('state', e.target.value)}
+                          onChange={(value) => handleInputChange('state', value)}
                           disabled={!isEditing}
-                          className="animate-on-scroll w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100"
-                        >
-                          <option value="">Select State</option>
-                          <option value="Jalisco">Jalisco</option>
-                          <option value="Nuevo León">Nuevo León</option>
-                          <option value="CDMX">CDMX</option>
-                          <option value="Baja California">Baja California</option>
-                        </select>
+                          placeholder="Search states..."
+                        />
                       </div>
                       <div className="space-y-2">
                         <label htmlFor="city" className="animate-on-scroll block text-sm font-medium text-gray-700">City</label>

@@ -100,6 +100,52 @@ export interface Club {
   updated_at: string;
 }
 
+// Team Registration (Coach viewing players in tournaments)
+export interface TeamRegistrationUser {
+  id: string;
+  full_name: string;
+  email: string;
+  skill_level?: string;
+}
+
+export interface TeamRegistrationEvent {
+  id: string;
+  skill_block: '2.5' | '3.5' | '4.5' | '5+';
+  gender: 'M' | 'F' | 'Mixed';
+  modality: 'Singles' | 'Doubles' | 'Mixed';
+}
+
+export interface TeamRegistration {
+  id: string;
+  user_id: string;
+  tournament_id: string;
+  tournament_event_id: string;
+  group_id?: string | null;
+  skill_block: '2.5' | '3.5' | '4.5' | '5+';
+  gender: 'M' | 'F' | 'Mixed';
+  modality: 'Singles' | 'Doubles' | 'Mixed';
+  status: 'pending' | 'confirmed' | 'waitlist' | 'cancelled' | 'withdrawn';
+  payment_status: 'pending' | 'paid' | 'refunded' | 'partial';
+  entry_fee: number | string;
+  final_position?: number | null;
+  points_earned: number;
+  registration_date: string;
+  tournament_name: string;
+  user: TeamRegistrationUser;
+  event: TeamRegistrationEvent;
+}
+
+export interface TeamRegistrationsResponse {
+  judge_info: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  tournaments_count: number;
+  registrations_count: number;
+  registrations: TeamRegistration[];
+}
+
 export interface CoachMessage {
   id: string;
   senderId: string;
@@ -226,6 +272,14 @@ interface CoachDashboardState {
   messagesError: string | null;
   paymentsError: string | null;
 
+  // coach team registrations (players in tournaments where coach is assigned as judge)
+  teamRegistrations: TeamRegistration[];
+  teamRegistrationsLoading: boolean;
+  teamRegistrationsError: string | null;
+  teamRegistrationsJudgeInfo: { id: string; name: string; email: string } | null;
+  teamRegistrationsTournamentsCount: number;
+  teamRegistrationsTotal: number;
+
   // Pagination
   courtsPagination: {
     page: number;
@@ -259,6 +313,13 @@ const initialState: CoachDashboardState = {
   studentsError: null,
   messagesError: null,
   paymentsError: null,
+
+  teamRegistrations: [],
+  teamRegistrationsLoading: false,
+  teamRegistrationsError: null,
+  teamRegistrationsJudgeInfo: null,
+  teamRegistrationsTournamentsCount: 0,
+  teamRegistrationsTotal: 0,
 
   courtsPagination: {
     page: 1,
@@ -471,6 +532,47 @@ export const createCoachCredential = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || error.message || 'Failed to create credential',
+      );
+    }
+  },
+);
+
+// ============================================================================
+// New: Coach team registration thunk
+// ============================================================================
+export const fetchCoachTeamRegistrations = createAsyncThunk(
+  'coachDashboard/fetchTeamRegistrations',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get('/coaches/me/team-registrations');
+
+      // Backend response structure:
+      // {
+      //   success: true,
+      //   data: {
+      //     judge_info: { id, name, email },
+      //     tournaments_count: number,
+      //     registrations_count: number,
+      //     registrations: TeamRegistration[]
+      //   }
+      // }
+
+      const data = (response as any).data as TeamRegistrationsResponse;
+
+      if (!data) {
+        return rejectWithValue('No registration data returned from server');
+      }
+
+      return {
+        judge_info: data.judge_info || { id: '', name: '', email: '' },
+        tournaments_count: data.tournaments_count || 0,
+        registrations_count: data.registrations_count || 0,
+        registrations: data.registrations || [],
+      };
+    } catch (error: any) {
+      console.error('Fetch coach team registrations error:', error);
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Failed to fetch team registrations',
       );
     }
   },
@@ -797,6 +899,25 @@ const coachDashboardSlice = createSlice({
       .addCase(createCoachCredential.rejected, (state, action) => {
         state.myCredentialLoading = false;
         state.myCredentialError = action.payload as string;
+      })
+
+      // Coach team registrations
+      .addCase(fetchCoachTeamRegistrations.pending, (state) => {
+        state.teamRegistrationsLoading = true;
+        state.teamRegistrationsError = null;
+      })
+      .addCase(fetchCoachTeamRegistrations.fulfilled, (state, action) => {
+        state.teamRegistrationsLoading = false;
+        // Payload structure: { judge_info, tournaments_count, registrations_count, registrations }
+        const payload = action.payload as any;
+        state.teamRegistrations = payload.registrations || [];
+        state.teamRegistrationsJudgeInfo = payload.judge_info || null;
+        state.teamRegistrationsTournamentsCount = payload.tournaments_count || 0;
+        state.teamRegistrationsTotal = payload.registrations_count || 0;
+      })
+      .addCase(fetchCoachTeamRegistrations.rejected, (state, action) => {
+        state.teamRegistrationsLoading = false;
+        state.teamRegistrationsError = (action.payload as string) || action.error.message || null;
       })
 
       // Fetch Courts

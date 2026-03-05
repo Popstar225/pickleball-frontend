@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -11,29 +8,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import {
   Calendar,
   MapPin,
@@ -45,27 +33,112 @@ import {
   Trash2,
   Plus,
   Search,
-  Filter,
   MoreHorizontal,
   AlertTriangle,
   CheckCircle,
   Clock,
+  Loader2,
+  Rocket,
 } from 'lucide-react';
 
-// Redux imports
 import { AppDispatch, RootState } from '@/store';
 import {
   fetchTournaments,
-  updateTournament,
   deleteTournament,
   updateTournamentStatus,
+  publishTournament,
 } from '@/store/slices/tournamentsSlice';
-
-// Components
 import TournamentCreation from './TournamentCreation';
-
-// Types
 import type { Tournament, TournamentsQueryParams } from '@/types/api';
+
+/* ─── status config ───────────────────────────────────────────────────────── */
+
+const STATUS_CONFIG: Record<string, { label: string; dot: string; text: string; bg: string }> = {
+  draft: { label: 'Draft', dot: 'bg-white/30', text: 'text-white/50', bg: 'bg-white/[0.06]' },
+  pending_validation: {
+    label: 'Awaiting Approval',
+    dot: 'bg-amber-400',
+    text: 'text-amber-400',
+    bg: 'bg-amber-500/[0.08]',
+  },
+  approved: {
+    label: 'Approved',
+    dot: 'bg-blue-400',
+    text: 'text-blue-300',
+    bg: 'bg-blue-500/[0.08]',
+  },
+  rejected: {
+    label: 'Rejected',
+    dot: 'bg-red-400',
+    text: 'text-red-400',
+    bg: 'bg-red-500/[0.08]',
+  },
+  published: {
+    label: 'Published',
+    dot: 'bg-sky-400',
+    text: 'text-sky-300',
+    bg: 'bg-sky-500/[0.08]',
+  },
+  in_progress: {
+    label: 'In Progress',
+    dot: 'bg-[#ace600]',
+    text: 'text-[#ace600]',
+    bg: 'bg-[#ace600]/[0.08]',
+  },
+  completed: {
+    label: 'Completed',
+    dot: 'bg-emerald-400',
+    text: 'text-emerald-400',
+    bg: 'bg-emerald-500/[0.08]',
+  },
+  cancelled: {
+    label: 'Cancelled',
+    dot: 'bg-red-400',
+    text: 'text-red-400',
+    bg: 'bg-red-500/[0.08]',
+  },
+};
+
+const TYPE_CONFIG: Record<string, { label: string; color: string }> = {
+  local: { label: 'Local', color: 'text-emerald-400 bg-emerald-500/[0.08] border-emerald-500/20' },
+  state: { label: 'State', color: 'text-sky-400 bg-sky-500/[0.08] border-sky-500/20' },
+  national: { label: 'National', color: 'text-[#ace600] bg-[#ace600]/[0.08] border-[#ace600]/20' },
+};
+
+/* ─── helpers ─────────────────────────────────────────────────────────────── */
+
+function StatusBadge({ status }: { status: string }) {
+  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.draft;
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-white/[0.06] ${cfg.bg} ${cfg.text}`}
+    >
+      <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
+      {cfg.label}
+    </span>
+  );
+}
+
+function TypeBadge({ type }: { type: string }) {
+  const cfg = TYPE_CONFIG[type] ?? TYPE_CONFIG.local;
+  return (
+    <span
+      className={`inline-flex items-center text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md border ${cfg.color}`}
+    >
+      {cfg.label}
+    </span>
+  );
+}
+
+function formatDate(d: string) {
+  return new Date(d).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+/* ─── main ────────────────────────────────────────────────────────────────── */
 
 const TournamentManagement: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -74,390 +147,519 @@ const TournamentManagement: React.FC = () => {
   const { tournaments, loading, error } = useSelector((state: RootState) => state.tournaments);
   const { user } = useSelector((state: RootState) => state.auth);
 
-  // Local state
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<
-    'all' | 'draft' | 'published' | 'registration_open' | 'in_progress' | 'completed' | 'cancelled'
-  >('all');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'local' | 'state' | 'national'>('all');
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [selectedTournament, setSelectedTournament] = useState<Tournament | null>(null);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
+  const [showCreate, setShowCreate] = useState(false);
+  const [toDelete, setToDelete] = useState<Tournament | null>(null);
+  const [toPublish, setToPublish] = useState<Tournament | null>(null);
+  const [isPublishing, setIsPublishing] = useState(false);
 
-  // Load tournaments on mount
   useEffect(() => {
-    loadTournaments();
+    load();
   }, [statusFilter, typeFilter]);
 
-  // Load tournaments with filters
-  const loadTournaments = () => {
-    const params: TournamentsQueryParams = {
-      page: 1,
-      limit: 50,
-    };
-
-    if (statusFilter !== 'all') {
-      params.status = statusFilter as any;
+  function load() {
+    const params: TournamentsQueryParams = { page: 1, limit: 50 };
+    if (statusFilter !== 'all') params.status = statusFilter as any;
+    if (typeFilter !== 'all') params.tournament_type = typeFilter as any;
+    // club users only view their own
+    if (user?.user_type === 'club') {
+      params.myTournaments = 'true';
     }
-
-    if (typeFilter !== 'all') {
-      params.tournament_type = typeFilter;
-    }
-
     dispatch(fetchTournaments(params));
-  };
 
-  // Filter tournaments by search term
-  const filteredTournaments = tournaments.filter(
-    (tournament) =>
-      tournament.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tournament.venue_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tournament.city.toLowerCase().includes(searchTerm.toLowerCase()),
+    console.log('[TournamentManagement] Rendered with tournaments:', tournaments);
+  }
+
+  const filtered = tournaments.filter(
+    (t) =>
+      (t?.name ?? '').toLowerCase().includes(search.toLowerCase()) ||
+      (t?.venue_name ?? '').toLowerCase().includes(search.toLowerCase()) ||
+      (t?.city ?? '').toLowerCase().includes(search.toLowerCase()),
   );
 
-  // Get tournament status badge
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      draft: { variant: 'secondary' as const, label: 'Draft' },
-      published: { variant: 'default' as const, label: 'Published' },
-      ongoing: { variant: 'default' as const, label: 'Ongoing' },
-      completed: { variant: 'secondary' as const, label: 'Completed' },
-      cancelled: { variant: 'destructive' as const, label: 'Cancelled' },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.draft;
-    return <Badge variant={config.variant}>{config.label}</Badge>;
-  };
-
-  // Get tournament type badge
-  const getTypeBadge = (type: string) => {
-    const typeConfig = {
-      local: { variant: 'outline' as const, label: 'Local' },
-      state: { variant: 'outline' as const, label: 'State' },
-      national: { variant: 'outline' as const, label: 'National' },
-    };
-
-    const config = typeConfig[type as keyof typeof typeConfig] || typeConfig.local;
-    return <Badge variant={config.variant}>{config.label}</Badge>;
-  };
-
-  // Handle tournament creation
-  const handleTournamentCreated = (tournamentId: string) => {
-    setShowCreateDialog(false);
-    loadTournaments();
-    // Navigate to the new tournament's management page
-    navigate(`/tournaments/${tournamentId}/manage`);
-  };
-
-  // Handle delete tournament
-  const handleDeleteTournament = async () => {
-    if (!selectedTournament) return;
-
+  async function handleDelete() {
+    if (!toDelete) return;
     try {
-      await dispatch(deleteTournament(selectedTournament.id)).unwrap();
-      setShowDeleteDialog(false);
-      setSelectedTournament(null);
-      loadTournaments();
-    } catch (error) {
-      console.error('Failed to delete tournament:', error);
-    }
-  };
+      await dispatch(deleteTournament(toDelete.id)).unwrap();
+      setToDelete(null);
+      load();
+    } catch {}
+  }
 
-  // Handle update tournament status
-  const handleUpdateStatus = async (tournamentId: string, newStatus: string) => {
+  async function handleStatus(id: string, status: string) {
     try {
-      await dispatch(updateTournamentStatus({ id: tournamentId, status: newStatus })).unwrap();
-      setSelectedTournament(null);
-      loadTournaments();
-    } catch (error) {
-      console.error('Failed to update tournament status:', error);
+      await dispatch(updateTournamentStatus({ id, status })).unwrap();
+      load();
+    } catch {}
+  }
+
+  async function handlePublish(t: Tournament) {
+    setToPublish(t);
+  }
+
+  async function confirmPublish() {
+    if (!toPublish) return;
+    setIsPublishing(true);
+    try {
+      console.log('[TournamentManagement] Publishing tournament:', toPublish.id);
+      await dispatch(publishTournament(toPublish.id)).unwrap();
+      console.log('[TournamentManagement] Tournament published successfully');
+      setToPublish(null);
+      setIsPublishing(false);
+      load();
+    } catch (err: any) {
+      console.error('[TournamentManagement] Publish failed:', err);
+      setIsPublishing(false);
+      alert(`Failed to publish tournament: ${err.message || err}`);
     }
-  };
+  }
 
-  // Format date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  // Check if user can manage tournament
-  const canManageTournament = (tournament: Tournament) => {
-    // Admin can manage all tournaments
+  const canManage = (t: Tournament) => {
     if (user?.user_type === 'admin') return true;
-
-    // State can manage their own tournaments and local tournaments in their state
-    if (user?.user_type === 'state') {
-      return tournament.organizer_type === 'state' || tournament.tournament_type === 'local';
-    }
-
-    // Club can only manage their own tournaments
-    if (user?.user_type === 'club') {
-      return tournament.organizer_type === 'club';
-    }
-
+    if (user?.user_type === 'state')
+      return t.organizer_type === 'state' || t.tournament_type === 'local';
+    if (user?.user_type === 'club') return t.organizer_type === 'club';
     return false;
   };
 
+  /* filter pill */
+  const selectTrigger =
+    'h-9 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white/70 px-3 focus:border-white/20 transition-colors w-full sm:w-44';
+  const selectContent = 'bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl';
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-6 p-1">
+      {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white">Tournament Management</h1>
-          <p className="text-gray-400">Create and manage your tournaments</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Tournaments</h1>
+          <p className="text-sm text-white/35 mt-0.5">Create and manage your competitions</p>
         </div>
 
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <Dialog open={showCreate} onOpenChange={setShowCreate}>
           <DialogTrigger asChild>
-            <Button className="bg-[#ace600] hover:bg-[#9bc500] text-black">
-              <Plus className="w-4 h-4 mr-2" />
-              Create Tournament
-            </Button>
+            <button className="flex items-center gap-2 bg-[#ace600] hover:bg-[#c0f000] active:scale-[0.98] text-black text-sm font-bold px-4 py-2.5 rounded-xl transition-all duration-150 shadow-[0_0_18px_rgba(172,230,0,0.18)] hover:shadow-[0_0_28px_rgba(172,230,0,0.32)]">
+              <Plus className="w-4 h-4" strokeWidth={2.5} />
+              New Tournament
+            </button>
           </DialogTrigger>
-          <DialogContent className="bg-[#111827] border-white/10 text-white max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Create New Tournament</DialogTitle>
-              <DialogDescription className="text-gray-400">
-                Set up a new tournament. Events will be created within this tournament.
-              </DialogDescription>
-            </DialogHeader>
-            <TournamentCreation onTournamentCreated={handleTournamentCreated} />
+          <DialogContent
+            className="p-0 gap-0 bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-[680px] shadow-[0_32px_80px_rgba(0,0,0,0.6)] overflow-hidden"
+            style={{ maxHeight: '88vh' }}
+          >
+            <TournamentCreation
+              onTournamentCreated={(id) => {
+                setShowCreate(false);
+                load();
+                navigate(`/tournaments/${id}/manage`);
+              }}
+            />
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Filters */}
-      <Card className="bg-[#111827] border-white/10">
-        <CardContent className="p-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Search tournaments..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-[#111827] border-white/10 text-white"
-                />
-              </div>
-            </div>
+      {/* ── Filters ───────────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        {/* search */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search tournaments, venues, cities…"
+            className="w-full h-9 bg-white/[0.04] border border-white/[0.08] rounded-lg pl-8 pr-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-white/20 transition-colors"
+          />
+        </div>
 
-            <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
-              <SelectTrigger className="w-full sm:w-48 bg-[#111827] border-white/10 text-white">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#111827] border-white/10">
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="ongoing">Ongoing</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={typeFilter} onValueChange={(value: any) => setTypeFilter(value)}>
-              <SelectTrigger className="w-full sm:w-48 bg-[#111827] border-white/10 text-white">
-                <SelectValue placeholder="Filter by type" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#111827] border-white/10">
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="local">Local</SelectItem>
-                <SelectItem value="state">State</SelectItem>
-                <SelectItem value="national">National</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Tournaments Table */}
-      <Card className="bg-[#111827] border-white/10">
-        <CardHeader>
-          <CardTitle className="text-white">Your Tournaments</CardTitle>
-          <CardDescription className="text-gray-400">
-            {filteredTournaments.length} tournament{filteredTournaments.length !== 1 ? 's' : ''}{' '}
-            found
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#ace600]"></div>
-            </div>
-          ) : filteredTournaments.length === 0 ? (
-            <div className="text-center py-8">
-              <Trophy className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-white mb-2">No tournaments found</h3>
-              <p className="text-gray-400 mb-4">
-                {searchTerm || statusFilter !== 'all' || typeFilter !== 'all'
-                  ? 'Try adjusting your filters or search terms.'
-                  : 'Create your first tournament to get started.'}
-              </p>
-              {!searchTerm && statusFilter === 'all' && typeFilter === 'all' && (
-                <Button
-                  onClick={() => setShowCreateDialog(true)}
-                  className="bg-[#ace600] hover:bg-[#9bc500] text-black"
+        {/* status */}
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className={selectTrigger}>
+            <SelectValue placeholder="All Status" />
+          </SelectTrigger>
+          <SelectContent className={selectContent}>
+            {[
+              'all',
+              'draft',
+              'pending_validation',
+              'approved',
+              'rejected',
+              'published',
+              'in_progress',
+              'completed',
+              'cancelled',
+            ].map((s) => {
+              const labels: Record<string, string> = {
+                all: 'All Status',
+                draft: 'Draft',
+                pending_validation: 'Awaiting Approval',
+                approved: 'Approved',
+                rejected: 'Rejected',
+                published: 'Published',
+                in_progress: 'In Progress',
+                completed: 'Completed',
+                cancelled: 'Cancelled',
+              };
+              return (
+                <SelectItem
+                  key={s}
+                  value={s}
+                  className="text-white/70 focus:bg-white/[0.06] focus:text-white capitalize"
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Tournament
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-white/10">
-                    <TableHead className="text-white">Tournament</TableHead>
-                    <TableHead className="text-white">Type</TableHead>
-                    <TableHead className="text-white">Status</TableHead>
-                    <TableHead className="text-white">Dates</TableHead>
-                    <TableHead className="text-white">Venue</TableHead>
-                    <TableHead className="text-white">Participants</TableHead>
-                    <TableHead className="text-white">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTournaments.map((tournament) => (
-                    <TableRow key={tournament.id} className="border-white/10">
-                      <TableCell>
-                        <div>
-                          <div className="font-medium text-white">{tournament.name}</div>
-                          <div className="text-sm text-gray-400">{tournament.category}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{getTypeBadge(tournament.tournament_type)}</TableCell>
-                      <TableCell>{getStatusBadge(tournament.status)}</TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div className="text-white">
-                            {formatDate(tournament.start_date)} - {formatDate(tournament.end_date)}
-                          </div>
-                          <div className="text-gray-400">
-                            Reg: {formatDate(tournament.registration_deadline)}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div className="text-white">{tournament.venue_name}</div>
-                          <div className="text-gray-400">
-                            {tournament.city}, {tournament.state}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center text-sm">
-                          <Users className="w-4 h-4 mr-1 text-gray-400" />
-                          <span className="text-white">
-                            {tournament.current_participants || 0} / {tournament.max_participants}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="bg-[#111827] border-white/10">
-                            <DropdownMenuItem
-                              onClick={() => navigate(`/clubs/dashboard/tournaments/${tournament.id}`)}
-                              className="text-white hover:bg-white/10"
-                            >
-                              <Eye className="w-4 h-4 mr-2" />
-                              View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => navigate(`/clubs/dashboard/tournaments/${tournament.id}/manage`)}
-                              className="text-white hover:bg-white/10"
-                            >
-                              <Settings className="w-4 h-4 mr-2" />
-                              Manage Events
-                            </DropdownMenuItem>
-                            {canManageTournament(tournament) && (
-                              <>
-                                <DropdownMenuItem
-                                  onClick={() => navigate(`/clubs/dashboard/tournaments/${tournament.id}/edit`)}
-                                  className="text-white hover:bg-white/10"
-                                >
-                                  <Edit className="w-4 h-4 mr-2" />
-                                  Edit Tournament
-                                </DropdownMenuItem>
-                                {tournament.status === 'draft' && (
-                                  <DropdownMenuItem
-                                    onClick={() => handleUpdateStatus(tournament.id, 'published')}
-                                    className="text-white hover:bg-white/10"
-                                  >
-                                    <CheckCircle className="w-4 h-4 mr-2" />
-                                    Publish
-                                  </DropdownMenuItem>
-                                )}
-                                {tournament.status === 'published' && (
-                                  <DropdownMenuItem
-                                    onClick={() => handleUpdateStatus(tournament.id, 'cancelled')}
-                                    className="text-white hover:bg-white/10"
-                                  >
-                                    <AlertTriangle className="w-4 h-4 mr-2" />
-                                    Cancel
-                                  </DropdownMenuItem>
-                                )}
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    setSelectedTournament(tournament);
-                                    setShowDeleteDialog(true);
-                                  }}
-                                  className="text-red-400 hover:bg-red-900/20"
-                                >
-                                  <Trash2 className="w-4 h-4 mr-2" />
-                                  Delete
-                                </DropdownMenuItem>
-                              </>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                  {labels[s]}
+                </SelectItem>
+              );
+            })}
+          </SelectContent>
+        </Select>
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="bg-[#111827] border-white/10 text-white">
-          <DialogHeader>
-            <DialogTitle>Delete Tournament</DialogTitle>
-            <DialogDescription className="text-gray-400">
-              Are you sure you want to delete "{selectedTournament?.name}"? This action cannot be
-              undone.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex gap-3">
-            <Button onClick={handleDeleteTournament} variant="destructive" className="flex-1">
-              Delete
-            </Button>
-            <Button variant="outline" onClick={() => setShowDeleteDialog(false)} className="flex-1">
+        {/* type */}
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className={selectTrigger}>
+            <SelectValue placeholder="All Types" />
+          </SelectTrigger>
+          <SelectContent className={selectContent}>
+            {['all', 'local', 'state', 'national'].map((t) => (
+              <SelectItem
+                key={t}
+                value={t}
+                className="text-white/70 focus:bg-white/[0.06] focus:text-white capitalize"
+              >
+                {t === 'all' ? 'All Types' : t.charAt(0).toUpperCase() + t.slice(1)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* ── Table card ────────────────────────────────────────────────────── */}
+      <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
+        {/* card header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+          <div className="flex items-center gap-2">
+            <Trophy className="w-4 h-4 text-white/30" />
+            <span className="text-sm font-semibold text-white/60">Your Tournaments</span>
+          </div>
+          {!loading && (
+            <span className="text-[11px] font-semibold text-white/25 bg-white/[0.04] border border-white/[0.06] px-2.5 py-0.5 rounded-full">
+              {filtered.length} {filtered.length === 1 ? 'result' : 'results'}
+            </span>
+          )}
+        </div>
+
+        {/* loading */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <Loader2 className="w-6 h-6 text-[#ace600] animate-spin" />
+            <p className="text-sm text-white/25">Loading tournaments…</p>
+          </div>
+        )}
+
+        {/* empty */}
+        {!loading && filtered.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-center mb-4">
+              <Trophy className="w-6 h-6 text-white/20" />
+            </div>
+            <p className="text-white/50 font-semibold text-sm mb-1">No tournaments found</p>
+            <p className="text-white/20 text-xs max-w-xs">
+              {search || statusFilter !== 'all' || typeFilter !== 'all'
+                ? 'Try adjusting your filters or search terms.'
+                : 'Create your first tournament to get started.'}
+            </p>
+            {!search && statusFilter === 'all' && typeFilter === 'all' && (
+              <button
+                onClick={() => setShowCreate(true)}
+                className="mt-5 flex items-center gap-2 bg-[#ace600] hover:bg-[#c0f000] text-black text-xs font-bold px-4 py-2 rounded-lg transition-all"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Create Tournament
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* table */}
+        {!loading && filtered.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.05]">
+                  {['Tournament', 'Type', 'Status', 'Dates', 'Venue', 'Participants', ''].map(
+                    (h) => (
+                      <th
+                        key={h}
+                        className="text-left px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-white/25 whitespace-nowrap"
+                      >
+                        {h}
+                      </th>
+                    ),
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((t, i) => (
+                  <tr
+                    key={t.id}
+                    className={`border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors group ${i === filtered.length - 1 ? 'border-b-0' : ''}`}
+                  >
+                    {/* name */}
+                    <td className="px-5 py-3.5">
+                      <div className="font-semibold text-white text-sm leading-tight">{t.name}</div>
+                      <div className="text-[11px] text-white/30 mt-0.5 capitalize">
+                        {t.category?.replace('_', ' ')}
+                      </div>
+                    </td>
+
+                    {/* type */}
+                    <td className="px-5 py-3.5">
+                      <TypeBadge type={t.tournament_type} />
+                    </td>
+
+                    {/* status */}
+                    <td className="px-5 py-3.5">
+                      <StatusBadge status={t.status} />
+                    </td>
+
+                    {/* dates */}
+                    <td className="px-5 py-3.5 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5 text-white/60 text-xs">
+                        <Calendar className="w-3 h-3 text-white/25 flex-shrink-0" />
+                        {formatDate(t.start_date)} – {formatDate(t.end_date)}
+                      </div>
+                      <div className="flex items-center gap-1.5 text-white/25 text-[11px] mt-0.5">
+                        <Clock className="w-3 h-3 flex-shrink-0" />
+                        Reg: {formatDate(t.registration_deadline)}
+                      </div>
+                    </td>
+
+                    {/* venue */}
+                    <td className="px-5 py-3.5">
+                      <div className="text-white/60 text-xs font-medium leading-tight">
+                        {t.venue_name}
+                      </div>
+                      <div className="flex items-center gap-1 text-white/25 text-[11px] mt-0.5">
+                        <MapPin className="w-2.5 h-2.5" />
+                        {t.city}, {t.state}
+                      </div>
+                    </td>
+
+                    {/* participants */}
+                    <td className="px-5 py-3.5">
+                      <div className="flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-white/25" />
+                        <span className="text-white/60 text-xs font-medium">
+                          {t.current_participants ?? 0}
+                          <span className="text-white/25"> / {t.max_participants}</span>
+                        </span>
+                      </div>
+                      {/* mini progress bar */}
+                      <div className="mt-1.5 w-20 h-1 rounded-full bg-white/[0.07] overflow-hidden">
+                        <div
+                          className="h-full rounded-full bg-[#ace600]/60 transition-all"
+                          style={{
+                            width: `${Math.min(100, ((t.current_participants ?? 0) / t.max_participants) * 100)}%`,
+                          }}
+                        />
+                      </div>
+                    </td>
+
+                    {/* actions */}
+                    <td className="px-5 py-3.5">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-white/70 hover:bg-white/[0.06] transition-all opacity-0 group-hover:opacity-100">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className="bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl p-1 w-48"
+                        >
+                          <DropdownMenuItem
+                            onClick={() => navigate(`/clubs/dashboard/tournaments/${t.id}`)}
+                            className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
+                          >
+                            <Eye className="w-3.5 h-3.5" /> View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => navigate(`/clubs/dashboard/tournaments/${t.id}/manage`)}
+                            className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
+                          >
+                            <Settings className="w-3.5 h-3.5" /> Manage Events
+                          </DropdownMenuItem>
+
+                          {canManage(t) && (
+                            <>
+                              <div className="h-px bg-white/[0.06] my-1" />
+                              <DropdownMenuItem
+                                onClick={() =>
+                                  navigate(`/clubs/dashboard/tournaments/${t.id}/edit`)
+                                }
+                                className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
+                              >
+                                <Edit className="w-3.5 h-3.5" /> Edit Tournament
+                              </DropdownMenuItem>
+
+                              {t.status === 'draft' && (
+                                <DropdownMenuItem
+                                  onClick={() => handleStatus(t.id, 'pending_validation')}
+                                  className="flex items-center gap-2.5 text-amber-400 hover:text-amber-300 focus:text-amber-300 hover:bg-amber-500/[0.06] focus:bg-amber-500/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
+                                >
+                                  <CheckCircle className="w-3.5 h-3.5" /> Request Approval
+                                </DropdownMenuItem>
+                              )}
+
+                              {t.status === 'approved' && (
+                                <DropdownMenuItem
+                                  onClick={() => handlePublish(t)}
+                                  className="flex items-center gap-2.5 text-[#ace600] hover:text-[#c0f000] focus:text-[#c0f000] hover:bg-[#ace600]/[0.06] focus:bg-[#ace600]/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
+                                >
+                                  <Rocket className="w-3.5 h-3.5" /> Publish Tournament
+                                </DropdownMenuItem>
+                              )}
+
+                              {t.status === 'published' && (
+                                <DropdownMenuItem
+                                  onClick={() => handleStatus(t.id, 'cancelled')}
+                                  className="flex items-center gap-2.5 text-amber-400 hover:text-amber-300 focus:text-amber-300 hover:bg-amber-500/[0.06] focus:bg-amber-500/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
+                                >
+                                  <AlertTriangle className="w-3.5 h-3.5" /> Cancel
+                                </DropdownMenuItem>
+                              )}
+
+                              <div className="h-px bg-white/[0.06] my-1" />
+                              <DropdownMenuItem
+                                onClick={() => setToDelete(t)}
+                                className="flex items-center gap-2.5 text-red-400 hover:text-red-300 focus:text-red-300 hover:bg-red-500/[0.06] focus:bg-red-500/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" /> Delete
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* ── Publish dialog ───────────────────────────────────────────────── */}
+      <Dialog open={!!toPublish} onOpenChange={(v) => !v && !isPublishing && setToPublish(null)}>
+        <DialogContent className="bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-sm p-0 shadow-2xl overflow-hidden">
+          <div className="p-6">
+            <div className="w-11 h-11 rounded-2xl bg-[#ace600]/[0.08] border border-[#ace600]/15 flex items-center justify-center mb-4">
+              <Rocket className="w-5 h-5 text-[#ace600]" />
+            </div>
+            <h2 className="text-base font-bold text-white mb-1">Publish Tournament</h2>
+            <p className="text-sm text-white/35 leading-relaxed mb-4">
+              Publish <span className="text-white/60 font-medium">"{toPublish?.name}"</span> to make
+              it available for player registration?
+            </p>
+
+            {toPublish && (
+              <div className="space-y-2.5 mb-6 p-3 bg-[#ace600]/[0.05] border border-[#ace600]/10 rounded-lg">
+                <div className="flex justify-between items-start text-xs">
+                  <span className="text-white/50">Tournament Dates:</span>
+                  <span className="text-white/80 font-medium">
+                    {formatDate(toPublish.start_date)} – {formatDate(toPublish.end_date)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-start text-xs">
+                  <span className="text-white/50">Venue:</span>
+                  <span className="text-white/80 font-medium text-right">
+                    {toPublish.venue_name}, {toPublish.city}
+                  </span>
+                </div>
+                <div className="flex justify-between items-start text-xs">
+                  <span className="text-white/50">Registration Deadline:</span>
+                  <span className="text-white/80 font-medium">
+                    {formatDate(toPublish.registration_deadline)}
+                  </span>
+                </div>
+                <div className="flex justify-between items-start text-xs">
+                  <span className="text-white/50">Max Participants:</span>
+                  <span className="text-white/80 font-medium">{toPublish.max_participants}</span>
+                </div>
+              </div>
+            )}
+
+            <div className="p-3 bg-[#ace600]/[0.05] border border-[#ace600]/10 rounded-lg mb-6">
+              <p className="text-xs text-[#ace600] leading-relaxed">
+                ✓ Players will be able to register immediately after publication
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2.5 px-6 pb-6">
+            <button
+              onClick={() => setToPublish(null)}
+              disabled={isPublishing}
+              className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 hover:text-white text-sm font-semibold transition-all disabled:opacity-50"
+            >
               Cancel
-            </Button>
+            </button>
+            <button
+              onClick={confirmPublish}
+              disabled={isPublishing}
+              className="flex-1 h-9 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black text-sm font-bold transition-all shadow-[0_0_16px_rgba(172,230,0,0.2)] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {isPublishing ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Publishing...
+                </>
+              ) : (
+                <>
+                  <Rocket className="w-3.5 h-3.5" />
+                  Publish
+                </>
+              )}
+            </button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {error && (
-        <div className="bg-red-900/20 border border-red-500/20 rounded-lg p-4">
-          <div className="flex items-center">
-            <AlertTriangle className="w-5 h-5 text-red-400 mr-2" />
-            <p className="text-red-400">{error}</p>
+      {/* ── Delete dialog ─────────────────────────────────────────────────── */}
+      <Dialog open={!!toDelete} onOpenChange={(v) => !v && setToDelete(null)}>
+        <DialogContent className="bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-sm p-0 shadow-2xl overflow-hidden">
+          <div className="p-6">
+            <div className="w-11 h-11 rounded-2xl bg-red-500/[0.08] border border-red-500/15 flex items-center justify-center mb-4">
+              <Trash2 className="w-5 h-5 text-red-400" />
+            </div>
+            <h2 className="text-base font-bold text-white mb-1">Delete Tournament</h2>
+            <p className="text-sm text-white/35 leading-relaxed">
+              Are you sure you want to delete{' '}
+              <span className="text-white/60 font-medium">"{toDelete?.name}"</span>? This action
+              cannot be undone.
+            </p>
           </div>
+          <div className="flex gap-2.5 px-6 pb-6">
+            <button
+              onClick={() => setToDelete(null)}
+              className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 hover:text-white text-sm font-semibold transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDelete}
+              className="flex-1 h-9 rounded-xl bg-red-500/80 hover:bg-red-500 text-white text-sm font-bold transition-all shadow-[0_0_16px_rgba(239,68,68,0.2)]"
+            >
+              Delete
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Error ─────────────────────────────────────────────────────────── */}
+      {error && (
+        <div className="flex gap-2.5 bg-red-500/[0.06] border border-red-500/15 rounded-xl px-4 py-3">
+          <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-red-400">{error}</p>
         </div>
       )}
     </div>

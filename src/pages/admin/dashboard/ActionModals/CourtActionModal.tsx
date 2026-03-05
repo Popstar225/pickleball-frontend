@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
-import { updateCourt, deleteCourt } from '@/store/slices/courtsSlice';
+import { createCourt, updateCourt, deleteCourt } from '@/store/slices/courtsSlice';
+import { useToast } from '@/hooks/use-toast';
 import {
   Dialog,
   DialogContent,
@@ -53,7 +54,7 @@ const COURT_SURFACES = {
 interface CourtActionModalProps {
   isOpen: boolean;
   court: Court | null;
-  mode: 'view' | 'edit';
+  mode: 'view' | 'edit' | 'create';
   onClose: () => void;
   onSaveSuccess?: () => void;
 }
@@ -69,32 +70,47 @@ export default function CourtActionModal({
 }: CourtActionModalProps) {
   const dispatch = useDispatch<AppDispatch>();
   const { loading } = useSelector((state: RootState) => state.courts);
+  const { toast } = useToast();
 
   const [formData, setFormData] = useState<FormData>({});
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const isCreate = mode === 'create';
+  const isEdit = mode === 'edit';
+  const isView = mode === 'view';
+  const ro = isView; // read-only
+
   useEffect(() => {
-    if (court && isOpen) {
-      const initialData: FormData = {
-        name: court.name,
-        court_type: court.court_type,
-        surface: court.surface,
-        description: court.description,
-        capacity: court.capacity,
-        hourly_rate: court.hourly_rate !== undefined ? Number(court.hourly_rate) : undefined,
-        daily_rate: court.daily_rate !== undefined ? Number(court.daily_rate) : undefined,
-        member_discount:
-          court.member_discount !== undefined ? Number(court.member_discount) : undefined,
-        club_id: court?.club?.id || court?.club_id,
-        is_available: court.is_available,
-        is_maintenance: court.is_maintenance,
-      };
-      setFormData(initialData);
+    if (isOpen) {
+      if (isCreate) {
+        // Initialize empty form for create
+        setFormData({
+          is_available: true,
+          is_maintenance: false,
+        });
+      } else if (court) {
+        // Initialize form with court data for edit/view
+        const initialData: FormData = {
+          name: court.name,
+          court_type: court.court_type,
+          surface: court.surface,
+          description: court.description,
+          capacity: court.capacity,
+          hourly_rate: court.hourly_rate !== undefined ? Number(court.hourly_rate) : undefined,
+          daily_rate: court.daily_rate !== undefined ? Number(court.daily_rate) : undefined,
+          member_discount:
+            court.member_discount !== undefined ? Number(court.member_discount) : undefined,
+          club_id: court?.club?.id || court?.club_id,
+          is_available: court.is_available,
+          is_maintenance: court.is_maintenance,
+        };
+        setFormData(initialData);
+      }
       setErrors({});
       setShowDeleteConfirm(false);
     }
-  }, [court, isOpen]);
+  }, [isOpen, isCreate, court]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -158,7 +174,7 @@ export default function CourtActionModal({
   };
 
   const handleSave = async () => {
-    if (!court || !validateForm()) return;
+    if (!validateForm()) return;
 
     try {
       const cleanData: Record<string, any> = {};
@@ -187,23 +203,27 @@ export default function CourtActionModal({
         }
       });
 
-      console.log('🚀 Sending court update:', {
-        id: court.id,
-        data: cleanData,
-      });
-
-      const result = await dispatch(
-        updateCourt({ id: court.id, courtData: cleanData as CreateCourtRequest }),
-      ).unwrap();
-
-      if (result) {
-        onClose();
-        onSaveSuccess?.();
+      if (isCreate) {
+        // Create new court
+        console.log('🚀 Creating court:', cleanData);
+        await dispatch(createCourt(cleanData as CreateCourtRequest)).unwrap();
+        toast({ title: 'Éxito', description: 'Cancha creada correctamente' });
+      } else if (isEdit && court) {
+        // Update existing court
+        console.log('🚀 Updating court:', { id: court.id, data: cleanData });
+        await dispatch(
+          updateCourt({ id: court.id, courtData: cleanData as CreateCourtRequest }),
+        ).unwrap();
+        toast({ title: 'Éxito', description: 'Cancha actualizada correctamente' });
       }
+
+      onClose();
+      onSaveSuccess?.();
     } catch (error: any) {
+      toast({ title: 'Error', description: error?.message || 'Error al guardar cancha' });
       setErrors((prev) => ({
         ...prev,
-        submit: error?.message || 'Error al actualizar cancha',
+        submit: error?.message || 'Error al guardar cancha',
       }));
     }
   };
@@ -237,10 +257,10 @@ export default function CourtActionModal({
           <div className="flex items-start justify-between mb-4">
             <div>
               <DialogTitle className="text-2xl">
-                {mode === 'view' ? 'Detalles de la Cancha' : 'Editar Cancha'}
+                {isCreate ? 'Nueva Cancha' : isView ? 'Detalles de la Cancha' : 'Editar Cancha'}
               </DialogTitle>
               <DialogDescription className="text-slate-400">
-                {court?.name} • {court?.club_name || '-'}
+                {isCreate ? 'Crea una nueva cancha' : `${court?.name} • ${court?.club_name || '-'}`}
               </DialogDescription>
             </div>
             <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
@@ -524,10 +544,11 @@ export default function CourtActionModal({
                   <div>
                     <Label className="text-slate-300 mb-2 block">Nombre</Label>
                     <Input
+                      disabled={ro || loading}
                       value={formData.name || ''}
                       onChange={(e) => handleInputChange('name', e.target.value)}
                       placeholder="Nombre de la cancha"
-                      className="bg-slate-800 border-slate-700 text-white"
+                      className="bg-slate-800 border-slate-700 text-white disabled:opacity-50"
                     />
                     {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
                   </div>
@@ -535,10 +556,11 @@ export default function CourtActionModal({
                   <div>
                     <Label className="text-slate-300 mb-2 block">Tipo de Cancha</Label>
                     <Select
+                      disabled={ro || loading}
                       value={formData.court_type || ''}
                       onValueChange={(v) => handleInputChange('court_type', v)}
                     >
-                      <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                      <SelectTrigger className="bg-slate-800 border-slate-700 text-white disabled:opacity-50">
                         <SelectValue placeholder="Seleccionar tipo" />
                       </SelectTrigger>
                       <SelectContent className="bg-slate-800 border-slate-700">
@@ -557,10 +579,11 @@ export default function CourtActionModal({
                   <div>
                     <Label className="text-slate-300 mb-2 block">Superficie</Label>
                     <Select
+                      disabled={ro || loading}
                       value={formData.surface || ''}
                       onValueChange={(v) => handleInputChange('surface', v)}
                     >
-                      <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                      <SelectTrigger className="bg-slate-800 border-slate-700 text-white disabled:opacity-50">
                         <SelectValue placeholder="Seleccionar superficie" />
                       </SelectTrigger>
                       <SelectContent className="bg-slate-800 border-slate-700">
@@ -579,19 +602,21 @@ export default function CourtActionModal({
                   <div>
                     <Label className="text-slate-300 mb-2 block">Descripción</Label>
                     <Input
+                      disabled={ro || loading}
                       value={formData.description || ''}
                       onChange={(e) => handleInputChange('description', e.target.value)}
                       placeholder="Descripción de la cancha"
-                      className="bg-slate-800 border-slate-700 text-white"
+                      className="bg-slate-800 border-slate-700 text-white disabled:opacity-50"
                     />
                   </div>
                   <div>
                     <Label className="text-slate-300 mb-2 block">Club</Label>
                     <Input
+                      disabled={ro || loading}
                       value={(formData.club_id as string) || court?.club?.name || ''}
                       onChange={(e) => handleInputChange('club_id', e.target.value)}
                       placeholder="Club (id)"
-                      className="bg-slate-800 border-slate-700 text-white"
+                      className="bg-slate-800 border-slate-700 text-white disabled:opacity-50"
                     />
                   </div>
                 </TabsContent>
@@ -601,6 +626,7 @@ export default function CourtActionModal({
                     <div>
                       <Label className="text-slate-300 mb-2 block">Capacidad</Label>
                       <Input
+                        disabled={ro || loading}
                         type="number"
                         value={formData.capacity || ''}
                         onChange={(e) =>
@@ -610,7 +636,7 @@ export default function CourtActionModal({
                           )
                         }
                         placeholder="Ej: 4"
-                        className="bg-slate-800 border-slate-700 text-white"
+                        className="bg-slate-800 border-slate-700 text-white disabled:opacity-50"
                       />
                       {errors.capacity && (
                         <p className="text-red-400 text-sm mt-1">{errors.capacity}</p>
@@ -620,6 +646,7 @@ export default function CourtActionModal({
                     <div>
                       <Label className="text-slate-300 mb-2 block">Tarifa por Hora ($)</Label>
                       <Input
+                        disabled={ro || loading}
                         type="number"
                         value={formData.hourly_rate || ''}
                         onChange={(e) =>
@@ -629,7 +656,7 @@ export default function CourtActionModal({
                           )
                         }
                         placeholder="Ej: 50.00"
-                        className="bg-slate-800 border-slate-700 text-white"
+                        className="bg-slate-800 border-slate-700 text-white disabled:opacity-50"
                       />
                       {errors.hourly_rate && (
                         <p className="text-red-400 text-sm mt-1">{errors.hourly_rate}</p>
@@ -640,20 +667,22 @@ export default function CourtActionModal({
                   <div className="space-y-3">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
+                        disabled={ro || loading}
                         type="checkbox"
                         checked={formData.is_available || false}
                         onChange={(e) => handleInputChange('is_available', e.target.checked)}
-                        className="rounded border-slate-700"
+                        className="rounded border-slate-700 disabled:opacity-50"
                       />
                       <span className="text-slate-300">Disponible</span>
                     </label>
 
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
+                        disabled={ro || loading}
                         type="checkbox"
                         checked={formData.is_maintenance || false}
                         onChange={(e) => handleInputChange('is_maintenance', e.target.checked)}
-                        className="rounded border-slate-700"
+                        className="rounded border-slate-700 disabled:opacity-50"
                       />
                       <span className="text-slate-300">En Mantenimiento</span>
                     </label>
@@ -687,7 +716,11 @@ export default function CourtActionModal({
           </div>
 
           <DialogFooter className="border-t border-slate-800 pt-4">
-            {mode === 'edit' ? (
+            {isView ? (
+              <Button onClick={onClose} className="bg-blue-600 hover:bg-blue-700">
+                Cerrar
+              </Button>
+            ) : (
               <>
                 <Button
                   variant="outline"
@@ -707,15 +740,13 @@ export default function CourtActionModal({
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Guardando...
                     </>
+                  ) : isCreate ? (
+                    'Crear Cancha'
                   ) : (
                     'Guardar Cambios'
                   )}
                 </Button>
               </>
-            ) : (
-              <Button onClick={onClose} className="bg-blue-600 hover:bg-blue-700">
-                Cerrar
-              </Button>
             )}
           </DialogFooter>
         </DialogContent>

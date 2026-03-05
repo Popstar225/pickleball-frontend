@@ -1,4 +1,6 @@
+import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
+import { RootState } from '@/store';
 import { LayoutDashboard, User, MessageSquare, Receipt } from 'lucide-react';
 
 const navItems: NavItem[] = [
@@ -36,13 +38,24 @@ const partnerUser = {
 };
 
 export default function PartnerDashboardLayout() {
+  const { user } = useSelector((state: RootState) => state.auth);
+
+  const userData = user
+    ? {
+        name: user.business_name || user.full_name || user.username || 'Partner',
+        email: user.email || '',
+        role: 'Socio',
+        avatar: user.profile_photo || null,
+      }
+    : partnerUser;
+
   return (
     <DashboardLayoutBase
       navItems={navItems}
       brandTitle="FEDMEX"
       brandSubtitle="Panel de Partner"
       BrandIcon={User}
-      user={partnerUser}
+      user={userData}
       basePath="/partners/dashboard"
     />
   );

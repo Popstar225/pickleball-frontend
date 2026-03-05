@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import usersReducer from './slices/usersSlice';
 import clubsReducer from './slices/clubsSlice';
 import tournamentsReducer from './slices/tournamentsSlice';
+import tournamentReducer from './slices/tournamentSlice';
 import courtsReducer from './slices/courtsSlice';
 import venuesReducer from './slices/venuesSlice';
 import paymentsReducer from './slices/paymentsSlice';
@@ -16,6 +17,7 @@ import statsReducer from './slices/statsSlice';
 import bannersReducer from './slices/bannersSlice';
 import playerFinderReducer from './slices/playerFinderSlice';
 import courtReservationsReducer from './slices/courtReservationsSlice';
+import reservationReducer from './slices/reservationSlice';
 import pendingReducer from './slices/pendingSlice';
 import digitalCredentialsReducer from './slices/digitalCredentialsSlice';
 import playerDashboardReducer from './slices/playerDashboardSlice';
@@ -25,6 +27,8 @@ import partnerDashboardReducer from './slices/partnerDashboardSlice';
 import stateDashboardReducer from './slices/stateDashboardSlice';
 import adminDashboardReducer from './slices/adminDashboardSlice';
 import statesReducer from './slices/statesSlice';
+import tournamentValidationReducer from './slices/tournamentValidationSlice';
+import tournamentSetupReducer from './slices/tournamentSetupSlice';
 
 export const store = configureStore({
   reducer: {
@@ -32,6 +36,7 @@ export const store = configureStore({
     users: usersReducer,
     clubs: clubsReducer,
     tournaments: tournamentsReducer,
+    tournament: tournamentReducer,
     courts: courtsReducer,
     venues: venuesReducer,
     payments: paymentsReducer,
@@ -45,6 +50,7 @@ export const store = configureStore({
     banners: bannersReducer,
     playerFinder: playerFinderReducer,
     courtReservations: courtReservationsReducer,
+    reservation: reservationReducer,
     pending: pendingReducer,
     digitalCredentials: digitalCredentialsReducer,
     playerDashboard: playerDashboardReducer,
@@ -54,6 +60,8 @@ export const store = configureStore({
     stateDashboard: stateDashboardReducer,
     adminDashboard: adminDashboardReducer,
     states: statesReducer,
+    tournamentValidation: tournamentValidationReducer,
+    tournamentSetup: tournamentSetupReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

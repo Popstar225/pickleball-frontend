@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { api } from '../../lib/api';
 
 // Interfaces for state dashboard data
 export interface StateProfile {
@@ -69,6 +70,21 @@ export interface StateMember {
   joinDate: string;
 }
 
+export interface StateCourt {
+  id: string;
+  name: string;
+  court_type: string;
+  surface: string;
+  status: string;
+  is_available: boolean;
+  club_id: string;
+  club?: { id: string; name: string; state: string; city: string };
+  venue_id?: string;
+  venue?: { id: string; name: string; address: string };
+  created_at: string;
+  updated_at: string;
+}
+
 // Initial state
 interface StateDashboardState {
   profile: StateProfile | null;
@@ -77,6 +93,10 @@ interface StateDashboardState {
   upcomingEvents: StateEvent[];
   clubs: StateClub[];
   members: StateMember[];
+  courts: StateCourt[];
+  courtsLoading: boolean;
+  courtsError: string | null;
+  courtsPagination: { page: number; limit: number; total: number; pages: number } | null;
 
   // Loading states
   profileLoading: boolean;
@@ -102,6 +122,10 @@ const initialState: StateDashboardState = {
   upcomingEvents: [],
   clubs: [],
   members: [],
+  courts: [],
+  courtsLoading: false,
+  courtsError: null,
+  courtsPagination: null,
 
   profileLoading: false,
   statsLoading: false,
@@ -123,64 +147,39 @@ const getAuthToken = () => {
   return localStorage.getItem('token') || '';
 };
 
-// Helper for API calls
-const apiCall = async (endpoint: string, options: RequestInit = {}) => {
-  const response = await fetch(endpoint, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${getAuthToken()}`,
-      ...options.headers,
-    },
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || `API Error: ${response.statusText}`);
-  }
-
-  return response.json();
-};
-
 // Async thunks
 export const fetchStateProfile = createAsyncThunk(
   'stateDashboard/fetchProfile',
   async (_, { rejectWithValue }) => {
     try {
-      const data = await apiCall('/api/state/profile');
-      return data.data;
+      const data = await api.get('/states/profile');
+      return (data as any)?.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
 
 export const updateStateProfile = createAsyncThunk(
   'stateDashboard/updateProfile',
-  async (profileData: Partial<StateProfile>, { rejectWithValue }) => {
+  async (profileData: Record<string, any>, { rejectWithValue }) => {
     try {
-      const data = await apiCall('/api/state/profile', {
-        method: 'PUT',
-        body: JSON.stringify(profileData),
-      });
-      return data.data;
+      const data = await api.put('/states/profile', profileData);
+      return (data as any)?.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
 
 export const deleteStateAccount = createAsyncThunk(
   'stateDashboard/deleteAccount',
-  async (confirmationToken: string, { rejectWithValue }) => {
+  async (_, { rejectWithValue }) => {
     try {
-      const data = await apiCall('/api/state/account', {
-        method: 'DELETE',
-        body: JSON.stringify({ confirmationToken }),
-      });
-      return data.message;
+      const data = await api.delete('/states/account');
+      return (data as any)?.message;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
@@ -189,10 +188,10 @@ export const fetchStateStatistics = createAsyncThunk(
   'stateDashboard/fetchStatistics',
   async (_, { rejectWithValue }) => {
     try {
-      const data = await apiCall('/api/state/statistics');
-      return data.data;
+      const data = await api.get('/states/statistics');
+      return (data as any)?.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
@@ -201,10 +200,10 @@ export const fetchStateActivities = createAsyncThunk(
   'stateDashboard/fetchActivities',
   async ({ limit = 10, offset = 0 }: { limit?: number; offset?: number }, { rejectWithValue }) => {
     try {
-      const data = await apiCall(`/api/state/activities?limit=${limit}&offset=${offset}`);
-      return data.data.activities;
+      const data = await api.get(`/states/activities?limit=${limit}&offset=${offset}`);
+      return (data as any)?.data?.activities;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
@@ -213,10 +212,10 @@ export const fetchUpcomingEvents = createAsyncThunk(
   'stateDashboard/fetchUpcomingEvents',
   async ({ limit = 10 }: { limit?: number }, { rejectWithValue }) => {
     try {
-      const data = await apiCall(`/api/state/events/upcoming?limit=${limit}`);
-      return data.data.events;
+      const data = await api.get(`/states/events/upcoming?limit=${limit}`);
+      return (data as any)?.data?.events;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
@@ -225,13 +224,10 @@ export const createStateEvent = createAsyncThunk(
   'stateDashboard/createEvent',
   async (eventData: Partial<StateEvent>, { rejectWithValue }) => {
     try {
-      const data = await apiCall('/api/state/events', {
-        method: 'POST',
-        body: JSON.stringify(eventData),
-      });
-      return data.data;
+      const data = await api.post('/states/events', eventData);
+      return (data as any)?.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
@@ -243,13 +239,10 @@ export const updateStateEvent = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const data = await apiCall(`/api/state/events/${eventId}`, {
-        method: 'PUT',
-        body: JSON.stringify(eventData),
-      });
-      return data.data;
+      const data = await api.put(`/states/events/${eventId}`, eventData);
+      return (data as any)?.data;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
@@ -258,12 +251,10 @@ export const deleteStateEvent = createAsyncThunk(
   'stateDashboard/deleteEvent',
   async (eventId: string, { rejectWithValue }) => {
     try {
-      const data = await apiCall(`/api/state/events/${eventId}`, {
-        method: 'DELETE',
-      });
+      await api.delete(`/states/events/${eventId}`);
       return eventId;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
@@ -272,10 +263,10 @@ export const fetchStateClubs = createAsyncThunk(
   'stateDashboard/fetchClubs',
   async (_, { rejectWithValue }) => {
     try {
-      const data = await apiCall('/api/state/clubs');
-      return data.data.clubs;
+      const data = await api.get('/states/clubs');
+      return (data as any)?.data?.clubs;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
@@ -284,10 +275,52 @@ export const fetchStateMembers = createAsyncThunk(
   'stateDashboard/fetchMembers',
   async (_, { rejectWithValue }) => {
     try {
-      const data = await apiCall('/api/state/members');
-      return data.data.members;
+      const data = await api.get('/states/members');
+      return (data as any)?.data?.members;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  },
+);
+
+export const fetchStateCourts = createAsyncThunk(
+  'stateDashboard/fetchCourts',
+  async (
+    params: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      court_type?: string;
+      surface?: string;
+      status?: string;
+    } = {},
+    { rejectWithValue },
+  ) => {
+    try {
+      const queryParams = new URLSearchParams();
+      if (params.page) queryParams.append('page', params.page.toString());
+      if (params.limit) queryParams.append('limit', params.limit.toString());
+      if (params.search) queryParams.append('search', params.search);
+      if (params.court_type && params.court_type !== 'all')
+        queryParams.append('court_type', params.court_type);
+      if (params.surface && params.surface !== 'all') queryParams.append('surface', params.surface);
+      const queryString = queryParams.toString();
+      const data = await api.get(`/courts?${queryString}`);
+      return (data as any)?.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
+    }
+  },
+);
+
+export const deleteStateCourt = createAsyncThunk(
+  'stateDashboard/deleteCourt',
+  async (courtId: string, { rejectWithValue }) => {
+    try {
+      await api.delete(`/courts/${courtId}`);
+      return courtId;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
@@ -463,6 +496,38 @@ const stateDashboardSlice = createSlice({
       .addCase(fetchStateMembers.rejected, (state, action) => {
         state.membersLoading = false;
         state.membersError = action.payload as string;
+      })
+
+      // Fetch State Courts
+      .addCase(fetchStateCourts.pending, (state) => {
+        state.courtsLoading = true;
+        state.courtsError = null;
+      })
+      .addCase(fetchStateCourts.fulfilled, (state, action) => {
+        state.courtsLoading = false;
+        const payload = action.payload as any;
+        state.courts = payload.courts || payload.rows || [];
+        if (payload.pagination) {
+          state.courtsPagination = payload.pagination;
+        }
+      })
+      .addCase(fetchStateCourts.rejected, (state, action) => {
+        state.courtsLoading = false;
+        state.courtsError = action.payload as string;
+      })
+
+      // Delete State Court
+      .addCase(deleteStateCourt.pending, (state) => {
+        state.courtsLoading = true;
+        state.courtsError = null;
+      })
+      .addCase(deleteStateCourt.fulfilled, (state, action) => {
+        state.courtsLoading = false;
+        state.courts = state.courts.filter((c) => c.id !== action.payload);
+      })
+      .addCase(deleteStateCourt.rejected, (state, action) => {
+        state.courtsLoading = false;
+        state.courtsError = action.payload as string;
       });
   },
 });

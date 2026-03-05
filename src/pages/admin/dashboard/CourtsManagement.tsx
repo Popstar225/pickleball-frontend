@@ -2,17 +2,14 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../store';
-import { fetchCourts, updateCourt, deleteCourt } from '../../../store/slices/courtsSlice';
+import { fetchCourts } from '../../../store/slices/courtsSlice';
 import CourtActionModal from './ActionModals/CourtActionModal';
 import { useToast } from '@/hooks/use-toast';
 import { Court } from '../../../types/api';
 import {
   Search,
-  Filter,
   MoreHorizontal,
-  Heart,
   MapPin,
-  Users,
   DollarSign,
   Edit,
   Trash2,
@@ -20,15 +17,17 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  AlertCircle,
   X,
   Download,
   Upload,
+  Plus,
+  RefreshCw,
+  Layers,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -41,6 +40,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import {
@@ -51,19 +51,90 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-const COURT_TYPES = {
+/* ─── constants ── */
+const COURT_TYPES: Record<string, string> = {
   indoor: 'Cubierta',
   outdoor: 'Aire Libre',
   covered: 'Techada',
 };
 
-const COURT_SURFACES = {
+const COURT_SURFACES: Record<string, string> = {
   concrete: 'Concreto',
   asphalt: 'Asfalto',
   synthetic: 'Sintética',
   grass: 'Pasto',
   clay: 'Arcilla',
 };
+
+const TYPE_CLASSES: Record<string, string> = {
+  indoor: 'bg-violet-500/10 text-violet-400 border-violet-500/20 hover:bg-violet-500/10',
+  outdoor: 'bg-amber-500/10  text-amber-400  border-amber-500/20  hover:bg-amber-500/10',
+  covered: 'bg-sky-500/10    text-sky-400    border-sky-500/20    hover:bg-sky-500/10',
+};
+
+const SURFACE_DOT: Record<string, string> = {
+  concrete: 'bg-slate-400',
+  asphalt: 'bg-slate-500',
+  synthetic: 'bg-sky-400',
+  grass: 'bg-emerald-400',
+  clay: 'bg-orange-400',
+};
+
+/* ─── small presentational components ── */
+function TypeBadge({ type }: { type?: string }) {
+  const cls =
+    TYPE_CLASSES[type ?? ''] ?? 'bg-white/5 text-white/40 border-white/10 hover:bg-white/5';
+  return (
+    <Badge variant="outline" className={`text-[10px] font-bold uppercase tracking-widest ${cls}`}>
+      {COURT_TYPES[type ?? ''] ?? type ?? '—'}
+    </Badge>
+  );
+}
+
+function SurfaceBadge({ surface }: { surface?: string }) {
+  const dot = SURFACE_DOT[surface ?? ''] ?? 'bg-white/20';
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs text-white/50 font-medium">
+      <span className={`w-2 h-2 rounded-full flex-shrink-0 ${dot}`} />
+      {COURT_SURFACES[surface ?? ''] ?? surface ?? '—'}
+    </span>
+  );
+}
+
+function AvailBadge({ available }: { available: boolean }) {
+  return available ? (
+    <Badge
+      variant="outline"
+      className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/10 text-[11px]"
+    >
+      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5" />
+      Disponible
+    </Badge>
+  ) : (
+    <Badge
+      variant="outline"
+      className="bg-white/5 text-white/30 border-white/10 hover:bg-white/5 text-[11px]"
+    >
+      <span className="w-1.5 h-1.5 rounded-full bg-white/20 mr-1.5" />
+      No disponible
+    </Badge>
+  );
+}
+
+function StatCard({ label, value }: { label: string; value: string | number }) {
+  return (
+    <Card className="bg-[#0d1117] border-white/[0.07] rounded-xl">
+      <CardContent className="px-4 py-3.5">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+          {label}
+        </p>
+        <p className="text-2xl font-bold text-white">{value}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════════════ */
 
 export default function CourtsManagement() {
   const dispatch = useDispatch<AppDispatch>();
@@ -72,37 +143,31 @@ export default function CourtsManagement() {
 
   const { courts, loading, pagination } = useSelector((state: RootState) => state.courts);
 
-  // Modal state
   const [selectedCourt, setSelectedCourt] = useState<Court | null>(null);
-  const [modalMode, setModalMode] = useState<'view' | 'edit'>('view');
+  const [modalMode, setModalMode] = useState<'view' | 'edit' | 'create'>('view');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Filter state
   const [searchTerm, setSearchTerm] = useState('');
   const [courtTypeFilter, setCourtTypeFilter] = useState('');
   const [surfaceFilter, setSurfaceFilter] = useState('');
   const [availableFilter, setAvailableFilter] = useState('');
   const [clubFilter, setClubFilter] = useState('');
 
-  // Pagination
-  const currentPage = pagination?.page || 1;
-  const pageLimit = pagination?.limit || 10;
+  const currentPage = pagination?.page ?? 1;
+  const pageLimit = pagination?.limit ?? 10;
 
-  // Fetch courts on mount and when pagination changes
+  function buildParams(overrides: Record<string, any> = {}) {
+    const p: Record<string, any> = { page: currentPage, limit: pageLimit, ...overrides };
+    if (searchTerm) p.search = searchTerm;
+    if (courtTypeFilter) p.court_type = courtTypeFilter;
+    if (surfaceFilter) p.surface = surfaceFilter;
+    if (availableFilter) p.is_available = availableFilter;
+    if (clubFilter) p.club_id = clubFilter;
+    return p;
+  }
+
   useEffect(() => {
-    const params: any = {
-      page: currentPage,
-      limit: pageLimit,
-    };
-
-    if (searchTerm) params.search = searchTerm;
-    if (courtTypeFilter) params.court_type = courtTypeFilter;
-    if (surfaceFilter) params.surface = surfaceFilter;
-    if (availableFilter !== '') params.is_available = availableFilter;
-    if (clubFilter) params.club_id = clubFilter;
-
-    console.log('🔄 Fetching courts with params:', params);
-    dispatch(fetchCourts(params));
+    dispatch(fetchCourts(buildParams()));
   }, [
     dispatch,
     currentPage,
@@ -114,52 +179,33 @@ export default function CourtsManagement() {
     clubFilter,
   ]);
 
-  useEffect(() => {
-    console.log('📊 Courts from Redux:', {
-      loading,
-      courtsCount: Array.isArray(courts) ? courts.length : 'not an array',
-      courts,
-      pagination,
-    });
-  }, [courts, loading, pagination]);
-
-  const handleViewCourt = useCallback((court: Court) => {
-    navigate(`/admin/dashboard/courts/${court.id}`);
+  const handleCreateCourt = useCallback(() => {
+    setSelectedCourt(null);
+    setModalMode('create');
+    setIsModalOpen(true);
   }, []);
-
-  const handleEditCourt = useCallback((court: Court) => {
-    setSelectedCourt(court);
+  const handleViewCourt = useCallback(
+    (c: Court) => navigate(`/admin/dashboard/courts/${c.id}`),
+    [navigate],
+  );
+  const handleEditCourt = useCallback((c: Court) => {
+    setSelectedCourt(c);
     setModalMode('edit');
     setIsModalOpen(true);
   }, []);
-
-  const handleDeleteCourt = useCallback((court: Court) => {
-    setSelectedCourt(court);
+  const handleDeleteCourt = useCallback((c: Court) => {
+    setSelectedCourt(c);
     setModalMode('edit');
     setIsModalOpen(true);
   }, []);
-
   const handleModalClose = useCallback(() => {
     setIsModalOpen(false);
-    setTimeout(() => {
-      setSelectedCourt(null);
-    }, 300);
+    setTimeout(() => setSelectedCourt(null), 300);
   }, []);
 
   const handleSaveSuccess = useCallback(() => {
-    toast({
-      title: 'Éxito',
-      description: 'Cancha actualizada correctamente',
-    });
-    const params: any = {
-      page: currentPage,
-      limit: pageLimit,
-    };
-    if (searchTerm) params.search = searchTerm;
-    if (courtTypeFilter) params.court_type = courtTypeFilter;
-    if (surfaceFilter) params.surface = surfaceFilter;
-    if (availableFilter !== '') params.is_available = availableFilter;
-    dispatch(fetchCourts(params));
+    toast({ title: 'Éxito', description: 'Cancha actualizada correctamente' });
+    dispatch(fetchCourts(buildParams()));
     handleModalClose();
   }, [
     dispatch,
@@ -173,361 +219,390 @@ export default function CourtsManagement() {
     toast,
   ]);
 
-  // Get unique clubs for filtering
-  const clubOptions = useMemo(() => {
-    const clubs = new Map();
-    if (Array.isArray(courts)) {
-      courts.forEach((court) => {
-        if (court.club_id && court.club_name) {
-          clubs.set(court.club_id, court.club_name);
-        }
-      });
-    }
-    return Array.from(clubs.entries()).map(([id, name]) => ({ id, name }));
-  }, [courts]);
-
-  const handlePageChange = (newPage: number) => {
-    if (newPage > 0 && newPage <= (pagination?.pages || 1)) {
-      const params: any = {
-        page: newPage,
-        limit: pageLimit,
-      };
-      if (searchTerm) params.search = searchTerm;
-      dispatch(fetchCourts(params));
-    }
-  };
-
-  const getSurfaceColor = (surface?: string) => {
-    const colorMap: Record<string, string> = {
-      concrete: 'bg-gray-600',
-      asphalt: 'bg-slate-600',
-      synthetic: 'bg-blue-600',
-      grass: 'bg-green-600',
-      clay: 'bg-orange-600',
-    };
-    return colorMap[surface || ''] || 'bg-gray-600';
-  };
-
-  const getCourtTypeColor = (type?: string) => {
-    const colorMap: Record<string, string> = {
-      indoor: 'bg-purple-600',
-      outdoor: 'bg-yellow-600',
-      covered: 'bg-indigo-600',
-    };
-    return colorMap[type || ''] || 'bg-gray-600';
-  };
-
-  const paginationData = pagination || {
-    page: currentPage,
-    limit: pageLimit,
-    total: 0,
-    pages: 0,
+  const handlePageChange = (p: number) => {
+    if (p > 0 && p <= (pagination?.pages ?? 1)) dispatch(fetchCourts(buildParams({ page: p })));
   };
 
   const handleLimitChange = (limit: string) => {
-    const params: any = {
-      page: 1,
-      limit: Number(limit),
-    };
-    if (searchTerm) params.search = searchTerm;
-    if (courtTypeFilter) params.court_type = courtTypeFilter;
-    if (surfaceFilter) params.surface = surfaceFilter;
-    if (availableFilter !== '') params.is_available = availableFilter;
-    if (clubFilter) params.club_id = clubFilter;
-    dispatch(fetchCourts(params));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    dispatch(fetchCourts(buildParams({ page: 1, limit: Number(limit) })));
   };
 
+  const clearFilters = () => {
+    setSearchTerm('');
+    setCourtTypeFilter('');
+    setSurfaceFilter('');
+    setAvailableFilter('');
+    setClubFilter('');
+  };
+
+  const hasFilters = !!(
+    searchTerm ||
+    courtTypeFilter ||
+    surfaceFilter ||
+    availableFilter ||
+    clubFilter
+  );
+
+  const clubOptions = useMemo(() => {
+    const m = new Map<string, string>();
+    if (Array.isArray(courts))
+      courts.forEach((c) => {
+        if (c.club_id && c.club_name) m.set(c.club_id, c.club_name);
+      });
+    return Array.from(m.entries()).map(([id, name]) => ({ id, name }));
+  }, [courts]);
+
+  const courtsArray = Array.isArray(courts) ? courts : [];
+  const paginationData = pagination ?? { page: currentPage, limit: pageLimit, total: 0, pages: 0 };
+  const availCount = courtsArray.filter((c) => c.is_available).length;
+
+  /* ── select style helpers ── */
+  const selTrigger =
+    'h-9 bg-white/[0.04] border-white/[0.08] text-white/70 text-sm focus:border-white/20 focus:ring-0';
+  const selContent = 'bg-[#161c25] border-white/[0.08] rounded-xl shadow-2xl';
+  const selItem = 'text-white/70 focus:bg-white/[0.06] focus:text-white';
+
+  /* ── render ── */
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div className="space-y-6 p-1">
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2 flex items-center gap-3">
-            Gestión de Canchas
-            <Badge className="bg-primary/10 text-primary border-primary/20 text-sm">En vivo</Badge>
-          </h1>
-          <p className="text-slate-400">Administra todas las canchas disponibles</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Gestión de Canchas</h1>
+          <p className="text-sm text-white/35 mt-0.5">Administra todas las canchas disponibles</p>
         </div>
+
         <div className="flex items-center gap-2 flex-wrap">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => {
-              const params: any = { page: currentPage, limit: pageLimit };
-              if (searchTerm) params.search = searchTerm;
-              dispatch(fetchCourts(params));
-            }}
+            onClick={() => dispatch(fetchCourts(buildParams()))}
             disabled={loading}
-            className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
+            className="border-white/[0.08] bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] hover:border-white/[0.12]"
           >
-            {loading ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <ChevronLeft className="h-4 w-4 mr-2 rotate-180" />
-            )}
+            <RefreshCw className={`w-3.5 h-3.5 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Actualizar
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
+            className="border-white/[0.08] bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] hover:border-white/[0.12]"
           >
-            <Download className="h-4 w-4 mr-2" />
-            Exportar
+            <Download className="w-3.5 h-3.5 mr-2" /> Exportar
           </Button>
           <Button
             variant="outline"
             size="sm"
-            className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white"
+            className="border-white/[0.08] bg-white/[0.04] text-white/60 hover:text-white hover:bg-white/[0.08] hover:border-white/[0.12]"
           >
-            <Upload className="h-4 w-4 mr-2" />
-            Importar
+            <Upload className="w-3.5 h-3.5 mr-2" /> Importar
           </Button>
           <Button
             size="sm"
-            className="bg-primary text-slate-900 hover:bg-primary/90 shadow-lg shadow-primary/20"
+            onClick={handleCreateCourt}
+            className="bg-[#ace600] hover:bg-[#c0f000] text-black font-bold shadow-[0_0_18px_rgba(172,230,0,0.18)] hover:shadow-[0_0_28px_rgba(172,230,0,0.32)] transition-all"
           >
-            <Edit className="h-4 w-4 mr-2" />
+            <Plus className="w-4 h-4 mr-2" strokeWidth={2.5} />
             Nueva Cancha
           </Button>
         </div>
       </div>
 
-      {/* Filters Section */}
-      <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-sm">
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-              <Input
-                placeholder="Buscar canchas por nombre..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 pr-10 h-12 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-700 rounded-lg transition-colors"
-                >
-                  <X className="h-4 w-4 text-slate-400 hover:text-white" />
-                </button>
-              )}
-            </div>
-
-            {/* Filter Controls */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div>
-                <label className="text-sm text-slate-300 block mb-2">Tipo de Cancha</label>
-                <Select value={courtTypeFilter} onValueChange={setCourtTypeFilter}>
-                  <SelectTrigger className="h-11 bg-slate-800/50 border-slate-700 text-white">
-                    <SelectValue placeholder="Todos" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    {Object.entries(COURT_TYPES).map(([value, label]) => (
-                      <SelectItem key={value} value={value} className="text-white">
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm text-slate-300 block mb-2">Superficie</label>
-                <Select value={surfaceFilter} onValueChange={setSurfaceFilter}>
-                  <SelectTrigger className="h-11 bg-slate-800/50 border-slate-700 text-white">
-                    <SelectValue placeholder="Todas" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    {Object.entries(COURT_SURFACES).map(([value, label]) => (
-                      <SelectItem key={value} value={value} className="text-white">
-                        {label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm text-slate-300 block mb-2">Disponibilidad</label>
-                <Select value={availableFilter} onValueChange={setAvailableFilter}>
-                  <SelectTrigger className="h-11 bg-slate-800/50 border-slate-700 text-white">
-                    <SelectValue placeholder="Todas" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    <SelectItem value="true" className="text-white">
-                      Disponibles
-                    </SelectItem>
-                    <SelectItem value="false" className="text-white">
-                      No Disponibles
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm text-slate-300 block mb-2">Club</label>
-                <Select value={clubFilter} onValueChange={setClubFilter}>
-                  <SelectTrigger className="h-11 bg-slate-800/50 border-slate-700 text-white">
-                    <SelectValue placeholder="Todos" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-slate-700">
-                    {clubOptions.map((club) => (
-                      <SelectItem key={club.id} value={club.id} className="text-white">
-                        {club.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="text-sm text-slate-300 block mb-2">&nbsp;</label>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSearchTerm('');
-                    setCourtTypeFilter('');
-                    setSurfaceFilter('');
-                    setAvailableFilter('');
-                    setClubFilter('');
-                  }}
-                  className="w-full border-slate-700 text-slate-300 hover:bg-slate-800"
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Limpiar
-                </Button>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Results Summary */}
-      <div className="flex items-center justify-between text-sm">
-        <p className="text-slate-400">
-          Mostrando{' '}
-          <span className="font-semibold text-white">
-            {paginationData.total === 0 ? 0 : (paginationData.page - 1) * paginationData.limit + 1}
-          </span>{' '}
-          -{' '}
-          <span className="font-semibold text-white">
-            {Math.min(paginationData.page * paginationData.limit, paginationData.total)}
-          </span>{' '}
-          de <span className="font-semibold text-white">{paginationData.total}</span> canchas
-        </p>
-        <div className="flex items-center gap-2">
-          <span className="text-slate-400">Mostrar:</span>
-          <Select value={String(paginationData.limit)} onValueChange={handleLimitChange}>
-            <SelectTrigger className="w-20 h-9 bg-slate-800 border-slate-700 text-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-700">
-              <SelectItem value="5" className="text-white">
-                5
-              </SelectItem>
-              <SelectItem value="10" className="text-white">
-                10
-              </SelectItem>
-              <SelectItem value="20" className="text-white">
-                20
-              </SelectItem>
-              <SelectItem value="50" className="text-white">
-                50
-              </SelectItem>
-              <SelectItem value="100" className="text-white">
-                100
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      {/* ── Stats ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <Card className="bg-[#0d1117] border-white/[0.07] rounded-xl">
+          <CardContent className="px-4 py-3.5">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+              Total
+            </p>
+            <p className="text-2xl font-bold text-[#ace600]">{paginationData.total}</p>
+          </CardContent>
+        </Card>
+        <StatCard label="Disponibles" value={availCount} />
+        <StatCard label="No disponibles" value={courtsArray.length - availCount} />
+        <StatCard label="Páginas" value={`${paginationData.page} / ${paginationData.pages || 1}`} />
       </div>
 
-      {/* Courts Table */}
-      <Card className="border-slate-800 bg-slate-800/50">
+      {/* ── Filters ── */}
+      <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+        {/* Search */}
+        <div className="relative flex-1 min-w-[200px]">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
+          <Input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Buscar canchas por nombre…"
+            className="pl-8 pr-8 h-9 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus-visible:border-white/20 focus-visible:ring-0"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/60 transition-colors"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        <Select
+          value={courtTypeFilter || 'all'}
+          onValueChange={(v) => setCourtTypeFilter(v === 'all' ? '' : v)}
+        >
+          <SelectTrigger className={`${selTrigger} sm:w-40`}>
+            <SelectValue placeholder="Tipo" />
+          </SelectTrigger>
+          <SelectContent className={selContent}>
+            <SelectItem value="all" className={selItem}>
+              Todos los tipos
+            </SelectItem>
+            {Object.entries(COURT_TYPES).map(([v, l]) => (
+              <SelectItem key={v} value={v} className={selItem}>
+                {l}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={surfaceFilter || 'all'}
+          onValueChange={(v) => setSurfaceFilter(v === 'all' ? '' : v)}
+        >
+          <SelectTrigger className={`${selTrigger} sm:w-40`}>
+            <SelectValue placeholder="Superficie" />
+          </SelectTrigger>
+          <SelectContent className={selContent}>
+            <SelectItem value="all" className={selItem}>
+              Todas
+            </SelectItem>
+            {Object.entries(COURT_SURFACES).map(([v, l]) => (
+              <SelectItem key={v} value={v} className={selItem}>
+                {l}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={availableFilter || 'all'}
+          onValueChange={(v) => setAvailableFilter(v === 'all' ? '' : v)}
+        >
+          <SelectTrigger className={`${selTrigger} sm:w-44`}>
+            <SelectValue placeholder="Disponibilidad" />
+          </SelectTrigger>
+          <SelectContent className={selContent}>
+            <SelectItem value="all" className={selItem}>
+              Todas
+            </SelectItem>
+            <SelectItem value="true" className={selItem}>
+              Disponibles
+            </SelectItem>
+            <SelectItem value="false" className={selItem}>
+              No disponibles
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
+        {clubOptions.length > 0 && (
+          <Select
+            value={clubFilter || 'all'}
+            onValueChange={(v) => setClubFilter(v === 'all' ? '' : v)}
+          >
+            <SelectTrigger className={`${selTrigger} sm:w-44`}>
+              <SelectValue placeholder="Club" />
+            </SelectTrigger>
+            <SelectContent className={selContent}>
+              <SelectItem value="all" className={selItem}>
+                Todos los clubs
+              </SelectItem>
+              {clubOptions.map((c) => (
+                <SelectItem key={c.id} value={c.id} className={selItem}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
+        {hasFilters && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={clearFilters}
+            className="border-white/[0.08] bg-white/[0.04] text-white/40 hover:text-white hover:bg-white/[0.08] h-9"
+          >
+            <X className="w-3.5 h-3.5 mr-2" /> Limpiar
+          </Button>
+        )}
+      </div>
+
+      {/* ── Table card ── */}
+      <Card className="bg-[#0d1117] border-white/[0.07] rounded-2xl overflow-hidden p-0">
+        {/* Card header */}
+        <CardHeader className="flex flex-row items-center justify-between px-5 py-4 border-b border-white/[0.06] space-y-0">
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-white/30" />
+            <span className="text-sm font-semibold text-white/60">Canchas</span>
+          </div>
+          <div className="flex items-center gap-3">
+            {!loading && (
+              <Badge
+                variant="outline"
+                className="border-white/[0.06] bg-white/[0.04] text-white/25 text-[11px] font-semibold"
+              >
+                {paginationData.total === 0
+                  ? 0
+                  : (paginationData.page - 1) * paginationData.limit + 1}
+                –{Math.min(paginationData.page * paginationData.limit, paginationData.total)} de{' '}
+                {paginationData.total}
+              </Badge>
+            )}
+            <Select value={String(paginationData.limit)} onValueChange={handleLimitChange}>
+              <SelectTrigger className="h-7 w-16 bg-white/[0.04] border-white/[0.08] text-xs text-white/50 focus:ring-0 focus:border-white/20 px-2">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className={selContent}>
+                {[5, 10, 20, 50, 100].map((n) => (
+                  <SelectItem key={n} value={String(n)} className={selItem}>
+                    {n}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardHeader>
+
         <CardContent className="p-0">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          {/* Loading */}
+          {loading && (
+            <div className="flex flex-col items-center justify-center py-20 gap-3">
+              <Loader2 className="w-6 h-6 text-[#ace600] animate-spin" />
+              <p className="text-sm text-white/25">Cargando canchas…</p>
             </div>
-          ) : Array.isArray(courts) && courts.length > 0 ? (
+          )}
+
+          {/* Empty */}
+          {!loading && courtsArray.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-center mb-4">
+                <Layers className="w-6 h-6 text-white/20" />
+              </div>
+              <p className="text-white/50 font-semibold text-sm mb-1">No se encontraron canchas</p>
+              <p className="text-white/20 text-xs max-w-xs">
+                {hasFilters
+                  ? 'Intenta ajustar los filtros de búsqueda.'
+                  : 'Crea tu primera cancha para comenzar.'}
+              </p>
+              {hasFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  className="mt-4 text-white/35 hover:text-white/60"
+                >
+                  <X className="w-3.5 h-3.5 mr-2" /> Limpiar filtros
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Table */}
+          {!loading && courtsArray.length > 0 && (
             <Table>
-              <TableHeader className="border-b border-slate-700">
-                <TableRow>
-                  <TableHead className="text-slate-300">Nombre</TableHead>
-                  <TableHead className="text-slate-300">Club</TableHead>
-                  <TableHead className="text-slate-300">Tipo</TableHead>
-                  <TableHead className="text-slate-300">Superficie</TableHead>
-                  <TableHead className="text-slate-300">Tarifa/Hora</TableHead>
-                  <TableHead className="text-slate-300">Disponible</TableHead>
-                  <TableHead className="text-slate-300">Acciones</TableHead>
+              <TableHeader>
+                <TableRow className="border-b border-white/[0.05] hover:bg-transparent">
+                  {['Cancha', 'Club', 'Tipo', 'Superficie', 'Tarifa/hr', 'Estado', ''].map((h) => (
+                    <TableHead
+                      key={h}
+                      className="text-[10px] font-bold uppercase tracking-widest text-white/25 h-10"
+                    >
+                      {h}
+                    </TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {courts.map((court) => (
+                {courtsArray.map((court) => (
                   <TableRow
                     key={court.id}
-                    className="border-b border-slate-700 hover:bg-slate-700/50 transition-colors"
+                    className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors group"
                   >
-                    <TableCell className="text-white font-medium">{court.name}</TableCell>
-                    <TableCell className="text-slate-300">{court.club_name || '-'}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className={`${getCourtTypeColor(court.court_type)} text-white capitalize`}
-                      >
-                        {COURT_TYPES[court.court_type as keyof typeof COURT_TYPES] ||
-                          court.court_type}
-                      </Badge>
+                    {/* Name */}
+                    <TableCell className="py-3.5">
+                      <div className="font-semibold text-white/90 text-sm leading-tight">
+                        {court.name}
+                      </div>
+                      {court.description && (
+                        <div className="text-[11px] text-white/30 mt-0.5 max-w-[180px] truncate">
+                          {court.description}
+                        </div>
+                      )}
                     </TableCell>
-                    <TableCell>
-                      <Badge className={`${getSurfaceColor(court.surface)} text-white capitalize`}>
-                        {COURT_SURFACES[court.surface as keyof typeof COURT_SURFACES] ||
-                          court.surface}
-                      </Badge>
+
+                    {/* Club */}
+                    <TableCell className="py-3.5">
+                      <div className="flex items-center gap-1.5 text-xs text-white/50">
+                        <MapPin className="w-3 h-3 text-white/25 flex-shrink-0" />
+                        {court.club_name || '—'}
+                      </div>
                     </TableCell>
-                    <TableCell className="text-slate-300">
-                      {court.hourly_rate ? `$${Number(court.hourly_rate).toFixed(2)}` : '-'}
+
+                    {/* Type */}
+                    <TableCell className="py-3.5">
+                      <TypeBadge type={court.court_type} />
                     </TableCell>
-                    <TableCell>
-                      <Badge variant={court.is_available ? 'default' : 'secondary'}>
-                        {court.is_available ? 'Disponible' : 'No disponible'}
-                      </Badge>
+
+                    {/* Surface */}
+                    <TableCell className="py-3.5">
+                      <SurfaceBadge surface={court.surface} />
                     </TableCell>
-                    <TableCell>
+
+                    {/* Rate */}
+                    <TableCell className="py-3.5">
+                      <div className="flex items-center gap-1 text-xs font-semibold text-white/70">
+                        <DollarSign className="w-3 h-3 text-white/25" />
+                        {court.hourly_rate ? Number(court.hourly_rate).toFixed(2) : '—'}
+                      </div>
+                    </TableCell>
+
+                    {/* Availability */}
+                    <TableCell className="py-3.5">
+                      <AvailBadge available={!!court.is_available} />
+                    </TableCell>
+
+                    {/* Actions */}
+                    <TableCell className="py-3.5">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Button
                             variant="ghost"
-                            size="sm"
-                            className="text-slate-300 hover:text-white hover:bg-slate-700"
+                            size="icon"
+                            className="w-7 h-7 text-white/25 hover:text-white/70 hover:bg-white/[0.06] opacity-0 group-hover:opacity-100 transition-all"
                           >
-                            <MoreHorizontal className="h-4 w-4" />
+                            <MoreHorizontal className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-slate-800 border-slate-700" align="end">
+                        <DropdownMenuContent
+                          align="end"
+                          className="bg-[#161c25] border-white/[0.08] rounded-xl shadow-2xl p-1 w-44"
+                        >
                           <DropdownMenuItem
                             onClick={() => handleViewCourt(court)}
-                            className="text-slate-300 cursor-pointer focus:bg-slate-700"
+                            className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
                           >
-                            <Eye className="h-4 w-4 mr-2" />
-                            Ver Detalles
+                            <Eye className="w-3.5 h-3.5" /> Ver Detalles
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => handleEditCourt(court)}
-                            className="text-slate-300 cursor-pointer focus:bg-slate-700"
+                            className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
                           >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Editar
+                            <Edit className="w-3.5 h-3.5" /> Editar
                           </DropdownMenuItem>
+                          <DropdownMenuSeparator className="bg-white/[0.06] my-1" />
                           <DropdownMenuItem
                             onClick={() => handleDeleteCourt(court)}
-                            className="text-red-400 cursor-pointer focus:bg-slate-700"
+                            className="flex items-center gap-2.5 text-red-400 hover:text-red-300 focus:text-red-300 hover:bg-red-500/[0.06] focus:bg-red-500/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
                           >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Eliminar
+                            <Trash2 className="w-3.5 h-3.5" /> Eliminar
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -536,70 +611,61 @@ export default function CourtsManagement() {
                 ))}
               </TableBody>
             </Table>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-12">
-              <AlertCircle className="h-12 w-12 text-slate-400 mb-4" />
-              <p className="text-slate-400 text-lg">No se encontraron canchas</p>
-              <p className="text-slate-500 text-sm">
-                Intenta cambiar los filtros e intentar de nuevo
+          )}
+
+          {/* Pagination footer */}
+          {!loading && paginationData.pages > 1 && (
+            <div className="flex items-center justify-between px-5 py-4 border-t border-white/[0.06]">
+              <p className="text-xs text-white/25">
+                {courtsArray.length} de {paginationData.total} canchas
               </p>
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="w-7 h-7 border-white/[0.08] bg-white/[0.04] text-white/40 hover:text-white hover:bg-white/[0.08] disabled:opacity-30"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </Button>
+
+                {Array.from({ length: paginationData.pages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={page === currentPage ? 'default' : 'outline'}
+                    size="icon"
+                    onClick={() => handlePageChange(page)}
+                    className={`w-7 h-7 text-xs font-semibold transition-all ${
+                      page === currentPage
+                        ? 'bg-[#ace600] text-black border-[#ace600]/50 hover:bg-[#c0f000] shadow-[0_0_10px_rgba(172,230,0,0.2)]'
+                        : 'border-white/[0.08] bg-white/[0.04] text-white/40 hover:text-white hover:bg-white/[0.08]'
+                    }`}
+                  >
+                    {page}
+                  </Button>
+                ))}
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === paginationData.pages}
+                  className="w-7 h-7 border-white/[0.08] bg-white/[0.04] text-white/40 hover:text-white hover:bg-white/[0.08] disabled:opacity-30"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* Pagination */}
-      {pagination && pagination.pages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-slate-400 text-sm">
-            Mostrando <span className="font-semibold">{courts.length}</span> de{' '}
-            <span className="font-semibold">{pagination.total}</span> canchas
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="flex items-center gap-2">
-              {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  variant={page === currentPage ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => handlePageChange(page)}
-                  className={
-                    page === currentPage
-                      ? 'bg-blue-600 text-white'
-                      : 'border-slate-700 text-slate-300 hover:bg-slate-800'
-                  }
-                >
-                  {page}
-                </Button>
-              ))}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === pagination.pages}
-              className="border-slate-700 text-slate-300 hover:bg-slate-800"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      )}
-
       {/* Court Action Modal */}
       <CourtActionModal
         isOpen={isModalOpen}
         court={selectedCourt}
-        mode={modalMode}
+        mode={modalMode as 'view' | 'edit' | 'create'}
         onClose={handleModalClose}
         onSaveSuccess={handleSaveSuccess}
       />

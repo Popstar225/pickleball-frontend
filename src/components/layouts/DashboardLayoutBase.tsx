@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store';
+import { logout } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
@@ -52,9 +55,22 @@ export default function DashboardLayoutBase({
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
 
-  const isActive = (path: string) =>
-    path === basePath ? location.pathname === basePath : location.pathname.startsWith(path);
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate('/');
+  };
+
+  const isActive = (path: string) => {
+    const currentPath = location.pathname;
+    // Exact match first
+    if (currentPath === path) return true;
+    // Check if it's a nested route under this path (must have a / after)
+    if (basePath !== path && currentPath.startsWith(path + '/')) return true;
+    return false;
+  };
 
   const getUserInitials = () => {
     if (!user?.name) return 'U';
@@ -197,13 +213,13 @@ export default function DashboardLayoutBase({
                   <p className="text-xs text-slate-400 truncate">{user.role}</p>
                 </div>
               </div>
-              <Link
-                to="/"
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
               >
                 <LogOut className="h-5 w-5 flex-shrink-0" />
                 <span>Cerrar Sesión</span>
-              </Link>
+              </button>
             </div>
           ) : (
             <div className="space-y-2">
@@ -220,12 +236,12 @@ export default function DashboardLayoutBase({
                   </div>
                 )}
               </div>
-              <Link
-                to="/"
-                className="flex items-center justify-center rounded-lg p-2.5 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center rounded-lg p-2.5 text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
               >
                 <LogOut className="h-5 w-5" />
-              </Link>
+              </button>
             </div>
           )}
         </div>
@@ -360,14 +376,16 @@ export default function DashboardLayoutBase({
                     </div>
 
                     <div className="border-t border-slate-700 p-2">
-                      <Link
-                        to="/"
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
-                        onClick={() => setUserMenuOpen(false)}
+                      <button
+                        onClick={() => {
+                          handleLogout();
+                          setUserMenuOpen(false);
+                        }}
+                        className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
                       >
                         <LogOut className="h-4 w-4" />
                         <span>Cerrar Sesión</span>
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </>

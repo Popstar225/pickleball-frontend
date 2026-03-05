@@ -41,7 +41,7 @@ export interface User {
   longitude?: number;
   phone?: string;
   whatsapp?: string;
-  skill_level?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5'; // NRTP Skill Levels
+  skill_level?: '2.5' | '3.5' | '4.5' | '5+'; // NRTP Skill Levels
   curp?: string; // Mexican population registry
   rfc?: string; // Mexican tax ID
   business_name?: string;
@@ -53,7 +53,7 @@ export interface User {
   logo?: string;
   membership_status: 'free' | 'basic' | 'pro' | 'premium' | 'expired';
   membership_expires_at?: string;
-  subscription_plan?: 'basic' | 'premium' | 'federation';
+  subscription_plan?: 'basic' | 'premium' | 'admin';
   email_verified?: boolean;
   last_login?: string;
   preferences?: object;
@@ -108,6 +108,8 @@ export interface Club {
   dress_code?: string;
   total_tournaments: number;
   total_matches: number;
+  is_verified?: boolean;
+  is_active?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -144,6 +146,8 @@ export interface Tournament {
   win_by?: number;
   status:
     | 'draft'
+    | 'pending_validation'
+    | 'approved'
     | 'published'
     | 'registration_open'
     | 'registration_closed'
@@ -164,6 +168,42 @@ export interface Tournament {
   completed_matches: number;
   settings?: object;
   notes?: string;
+  events?: TournamentEvent[];
+  created_at: string;
+  updated_at: string;
+}
+
+// Venue Types
+export interface VenueOperatingHours {
+  [day: string]: {
+    open: string; // HH:MM format
+    close: string; // HH:MM format
+  };
+}
+
+export interface VenuePaymentConfig {
+  is_connected: boolean;
+  stripe_account_id?: string;
+  [key: string]: any;
+}
+
+export interface Venue {
+  id: string;
+  club_id: string;
+  name: string;
+  state: string;
+  address: string;
+  phone?: string;
+  whatsapp?: string;
+  court_type: 'covered' | 'indoor' | 'outdoor';
+  surface_type: 'wood' | 'concrete' | 'acrylic' | 'tartan' | 'other';
+  base_price_per_hour: number;
+  number_of_courts: number;
+  operating_hours?: VenueOperatingHours;
+  payment_config?: VenuePaymentConfig;
+  is_active: boolean;
+  description?: string;
+  facilities?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -273,7 +313,7 @@ export interface Ranking {
   user_id: string;
   user_name: string;
   category: 'singles' | 'doubles' | 'mixed_doubles';
-  skill_level: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5';
+  skill_level: '2.5' | '3.5' | '4.5' | '5+';
   state?: string;
   current_position: number;
   current_points: number;
@@ -378,8 +418,8 @@ export interface Banner {
 export interface PlayerFinder {
   id: string;
   searcher_id: string;
-  skill_level_min?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5';
-  skill_level_max?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5';
+  skill_level_min?: '2.5' | '3.5' | '4.5' | '5+';
+  skill_level_max?: '2.5' | '3.5' | '4.5' | '5+';
   preferred_gender: 'male' | 'female' | 'any';
   age_range_min?: number;
   age_range_max?: number;
@@ -450,7 +490,7 @@ export interface LoginRequest {
 }
 
 export interface RegisterRequest {
-  user_type: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'federation';
+  user_type: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'admin';
   username: string;
   email: string;
   password: string;
@@ -460,7 +500,7 @@ export interface RegisterRequest {
   state?: string;
   city?: string;
   phone?: string;
-  skill_level?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5'; // NRTP Skill Levels
+  skill_level?: '2.5' | '3.5' | '4.5' | '5+'; // NRTP Skill Levels
   curp?: string;
   business_name?: string;
   contact_person?: string;
@@ -493,9 +533,9 @@ export interface ProfileResponse extends ApiResponse<User> {}
 export interface UsersQueryParams {
   page?: number;
   limit?: number;
-  user_type?: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'federation';
+  user_type?: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'admin';
   state?: string;
-  skill_level?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5';
+  skill_level?: '2.5' | '3.5' | '4.5' | '5+';
   membership_status?: 'active' | 'expired' | 'suspended' | 'cancelled' | 'pending';
   search?: string;
 }
@@ -507,7 +547,7 @@ export interface UpdateUserRequest {
   phone?: string;
   profile_photo?: string;
   bio?: string;
-  skill_level?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5'; // NRTP Skill Levels
+  skill_level?: '2.5' | '3.5' | '4.5' | '5+'; // NRTP Skill Levels
   state?: string;
   city?: string;
   address?: string;
@@ -576,6 +616,8 @@ export interface CreateClubRequest {
   banner?: string;
   photos?: string[];
   owner_id?: string;
+  is_verified?: boolean;
+  is_active?: boolean;
 }
 
 export interface ClubsResponse extends PaginatedResponse<Club> {}
@@ -601,6 +643,8 @@ export interface TournamentsQueryParams {
   state?: string;
   city?: string;
   search?: string;
+  // return only tournaments organized by current user
+  myTournaments?: 'true' | 'false';
 }
 
 export interface CreateTournamentRequest {
@@ -659,32 +703,43 @@ export interface TournamentRegistrationResponse extends ApiResponse<{
 
 export interface TournamentEvent {
   id: string;
-  tournamentId: string;
-  skillBlock: string; // e.g., "3.0", "3.5", "4.0"
-  gender: 'male' | 'female' | 'mixed';
-  modality: 'singles' | 'doubles' | 'mixed';
-  status: 'published' | 'cancelled' | 'completed';
-  maxParticipants: number;
-  minimumParticipants: number;
-  participantCount: number;
-  groupCount: number;
-  groupsGenerated: boolean;
-  format: 'round_robin' | 'round_robin_to_bracket' | 'bracket_only';
-  setsFormat: 'best_of_3_to_11' | 'best_of_3_to_15' | 'best_of_5_to_11';
-  seedingMethod: 'random' | 'ranking' | 'manual';
-  registrationDeadline?: string;
+  tournament_id: string;
+  skill_block: string; // e.g., "3.0", "3.5", "4.0"
+  gender: 'M' | 'F' | 'Mixed';
+  modality: 'Singles' | 'Doubles' | 'Mixed';
+  registration_status?: 'open' | 'closed' | 'cancelled';
+  max_participants: number;
+  minimum_participants: number;
+  current_participants: number;
+  participantCount?: number; // Alias for current_participants
+  format: 'hybrid' | 'single_elimination';
+  number_of_groups?: number | null;
+  groupCount?: number; // Alias for number_of_groups
+  target_group_size?: number;
+  advance_from_group?: number;
+  playoff_strategy?: string;
+  sets_format: 'best_of_3' | 'best_of_5';
+  points_per_set?: number;
+  win_margin?: number;
+  is_active: boolean;
+  notes?: string | null;
+  registrations?: any[];
   createdAt: string;
   updatedAt: string;
+  /**
+   * Indicates if groups have been generated for this event (set by Redux after generateGroups)
+   */
+  groupsGenerated?: boolean;
 }
 
 export interface CreateTournamentEventRequest {
   skill_block: string;
-  gender: 'male' | 'female' | 'mixed';
-  modality: 'singles' | 'doubles' | 'mixed';
+  gender: 'M' | 'F' | 'Mixed';
+  modality: 'Singles' | 'Doubles' | 'Mixed';
   max_participants?: number;
   minimum_participants?: number;
-  format: 'round_robin' | 'round_robin_to_bracket' | 'bracket_only';
-  sets_format: 'best_of_3_to_11' | 'best_of_3_to_15' | 'best_of_5_to_11';
+  format: 'hybrid' | 'single_elimination';
+  sets_format: 'best_of_3' | 'best_of_5';
   seeding_method?: 'random' | 'ranking' | 'manual';
   registration_deadline?: string;
 }
@@ -692,7 +747,7 @@ export interface CreateTournamentEventRequest {
 export interface UpdateTournamentEventRequest {
   max_participants?: number;
   minimum_participants?: number;
-  format?: 'round_robin' | 'round_robin_to_bracket' | 'bracket_only';
+  format?: 'hybrid' | 'single_elimination';
   seeding_method?: 'random' | 'ranking' | 'manual';
   registration_deadline?: string;
 }
@@ -798,6 +853,32 @@ export interface TournamentRegistrationDetailResponse extends ApiResponse<{
   };
 }> {}
 
+// ------------------------------------------------------------
+// Coach dashboard specific responses
+// ------------------------------------------------------------
+
+export interface CoachTeamRegistration {
+  id: string;
+  tournament: {
+    id: string;
+    name: string;
+    status: string;
+    start_date: string;
+  };
+  Participant?: {
+    id: string;
+    full_name: string;
+    email: string;
+  };
+  team_coach_id?: string;
+  participant_coach_id?: string;
+}
+
+export interface CoachTeamRegistrationsResponse extends ApiResponse<{
+  total: number;
+  registrations: CoachTeamRegistration[];
+}> {}
+
 // ============================================================================
 // TOURNAMENT MATCH TYPES
 // ============================================================================
@@ -810,7 +891,7 @@ export interface TournamentMatch {
   player1Id: string;
   player2Id: string;
   status: 'pending' | 'completed';
-  matchFormat: 'best_of_3_to_11' | 'best_of_3_to_15' | 'best_of_5_to_11';
+  match_format?: 'best_of_3' | 'best_of_5';
   bracketSeedPosition?: number;
   winnerId?: string;
   winnerBy?: 'score' | 'walkover' | 'injury' | 'disqualification' | 'withdrawal' | 'retirement';
@@ -831,7 +912,7 @@ export interface CreateTournamentMatchRequest {
   player2_id: string;
   group_id?: string;
   bracket_seed_position?: number;
-  match_format?: 'best_of_3_to_11' | 'best_of_3_to_15' | 'best_of_5_to_11';
+  match_format?: 'best_of_3' | 'best_of_5';
 }
 
 export interface RecordMatchResultRequest {
@@ -1127,7 +1208,7 @@ export interface RankingsQueryParams {
   page?: number;
   limit?: number;
   category?: 'singles' | 'doubles' | 'mixed_doubles';
-  skill_level?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5';
+  skill_level?: '2.5' | '3.5' | '4.5' | '5+';
   state?: string;
   search?: string;
 }
@@ -1221,7 +1302,7 @@ export interface SearchPlayersQueryParams {
   latitude?: number;
   longitude?: number;
   radius?: number;
-  skill_level?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5';
+  skill_level?: '2.5' | '3.5' | '4.5' | '5+';
   gender?: 'male' | 'female' | 'any';
   age_min?: number;
   age_max?: number;
@@ -1231,8 +1312,8 @@ export interface SearchPlayersQueryParams {
 }
 
 export interface UpdatePlayerFinderPreferencesRequest {
-  skill_level_min?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5';
-  skill_level_max?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5';
+  skill_level_min?: '2.5' | '3.5' | '4.5' | '5+';
+  skill_level_max?: '2.5' | '3.5' | '4.5' | '5+';
   preferred_gender?: 'male' | 'female' | 'any';
   age_range_min?: number;
   age_range_max?: number;
@@ -1343,7 +1424,7 @@ export interface DigitalCredential {
   federation_name: string;
   federation_logo?: string;
   player_name: string;
-  nrtp_level?: '2.5' | '3.0' | '3.5' | '4.0' | '4.5' | '5.0' | '5.5';
+  nrtp_level?: '2.5' | '3.5' | '4.5' | '5+';
   state_affiliation?: string;
   nationality: string;
   affiliation_status: 'active' | 'inactive' | 'suspended' | 'expired';
@@ -1383,6 +1464,188 @@ export interface RegenerateQRCodeResponse extends ApiResponse<{
   qrCodeData: string;
 }
 
+// ============================================================================
+// PLAYER ELIGIBILITY CHECK TYPES
+// ============================================================================
+
+export interface EligibilityCheckRequest {
+  user_id: string;
+  partner_id?: string;
+}
+
+export interface PlayerEligibilityInfo {
+  id: string;
+  full_name: string;
+  skill_level: string;
+  skill_block: string;
+  gender: string;
+  membership_status?: string;
+  is_active?: boolean;
+  is_eligible?: boolean;
+}
+
+export interface EventEligibilityInfo {
+  id: string;
+  skill_block: string;
+  gender: string;
+  modality: string;
+  current_participants: number;
+  max_participants: number;
+  registration_status: string;
+}
+
+export interface EligibilityCheckResult {
+  eligible: boolean;
+  reasons: string[];
+  warnings: string[];
+  playerInfo: PlayerEligibilityInfo;
+  eventInfo: EventEligibilityInfo;
+  partnerInfo?: PlayerEligibilityInfo;
+  penalties: {
+    disqualified?: any;
+    suspended?: any;
+    warnings: any[];
+  };
+}
+
+export interface CheckEligibilityResponse extends ApiResponse<EligibilityCheckResult> {}
+
+// ============================================================================
+// ORGANIZER DASHBOARD TYPES
+// ============================================================================
+
+export enum TrafficLightStatus {
+  FULL = 'full',
+  PARTIAL = 'partial',
+  INSUFFICIENT = 'insufficient',
+  NONE = 'none',
+}
+
+export interface TrafficLight {
+  status: TrafficLightStatus;
+  label: string;
+  color: string;
+}
+
+export interface EventDashboard {
+  id: string;
+  name: string;
+  skill_block: string;
+  gender: string;
+  modality: string;
+  status: string;
+  trafficLight: TrafficLight;
+  registrations: {
+    minimum: number;
+    current: number;
+    maximum: number;
+    openSlots: number;
+    capacityPercent: number;
+  };
+  health: {
+    isFull: boolean;
+    isPartial: boolean;
+    isInsufficient: boolean;
+    isEmpty: boolean;
+  };
+  actions: {
+    canStartEvent: boolean;
+    canCancelEvent: boolean;
+    canCloseRegistration: boolean;
+  };
+}
+
+export interface DashboardOverview {
+  totalEvents: number;
+  trafficLightCounts: {
+    full: number;
+    partial: number;
+    insufficient: number;
+    none: number;
+  };
+  totalRegistrations: number;
+  readyToStart: number;
+  atRisk: number;
+}
+
+export interface TournamentPreStartDashboard {
+  tournament: {
+    id: string;
+    name: string;
+    start_date: string;
+    registration_deadline: string;
+    status: string;
+  };
+  overview: DashboardOverview;
+  events: EventDashboard[];
+}
+
+export interface PreStartDashboardResponse extends ApiResponse<TournamentPreStartDashboard> {}
+
+// ============================================================================
+// STATE TOURNAMENT APPROVAL TYPES
+// ============================================================================
+
+export interface TournamentApprovalInfo {
+  id: string;
+  name: string;
+  organizer_name: string;
+  venue_name: string;
+  city: string;
+  state: string;
+  start_date: string;
+  end_date: string;
+  registration_deadline: string;
+  status: 'pending_state_approval' | 'state_approved' | 'state_rejected';
+  created_at: string;
+  state_approved_at?: string;
+  state_rejected_at?: string;
+  state_rejection_reason?: string;
+}
+
+export interface ApproveTournamentRequest {
+  approval_notes?: string;
+}
+
+export interface RejectTournamentRequest {
+  rejection_reason: string;
+}
+
+export interface PendingTournamentsResponse extends ApiResponse<{
+  tournaments: TournamentApprovalInfo[];
+  total: number;
+  pagination: {
+    page: number;
+    limit: number;
+    pages: number;
+  };
+}> {}
+
+export interface ApproveTournamentResponse extends ApiResponse<{
+  tournament: TournamentApprovalInfo;
+}> {}
+
+export interface RejectTournamentResponse extends ApiResponse<{
+  tournament: TournamentApprovalInfo;
+}> {}
+
+export interface ApprovalAuditTrail {
+  tournament_id: string;
+  tournament_name: string;
+  submitted_at: string;
+  current_status: string;
+  status_history: {
+    status: string;
+    changed_at: string;
+    approved_by?: string;
+    rejected_by?: string;
+    notes?: string;
+    reason?: string;
+  }[];
+}
+
+export interface ApprovalAuditTrailResponse extends ApiResponse<ApprovalAuditTrail> {}
+
 // New response types for optimized API
 export interface GetCredentialStatsResponse extends ApiResponse<{
   total: number;
@@ -1403,7 +1666,7 @@ export interface DeleteDigitalCredentialResponse extends ApiResponse<null> {}
 
 export interface TournamentCreationPermissions {
   user_type: 'player' | 'coach' | 'club' | 'partner' | 'state' | 'admin';
-  subscription_level?: 'free' | 'basic' | 'pro' | 'premium' | 'federation';
+  subscription_level?: 'free' | 'basic' | 'pro' | 'premium' | 'admin';
   allowed_tournament_types: ('local' | 'state' | 'national')[];
   max_participants_limit?: number;
   max_teams_limit?: number;
@@ -1411,7 +1674,7 @@ export interface TournamentCreationPermissions {
   can_create_state_level: boolean;
   can_create_national_level: boolean;
   requires_approval: boolean;
-  approval_required_by?: 'club' | 'state' | 'federation' | 'admin';
+  approval_required_by?: 'club' | 'state' | 'admin';
 }
 
 export interface TournamentOrganizerPermissions extends ApiResponse<{
@@ -1423,7 +1686,7 @@ export interface TournamentOrganizerPermissions extends ApiResponse<{
   can_create_state_level: boolean;
   can_create_national_level: boolean;
   requires_approval: boolean;
-  approval_required_by?: 'club' | 'state' | 'federation' | 'admin';
-  current_subscription_level: 'free' | 'basic' | 'pro' | 'premium' | 'federation';
+  approval_required_by?: 'club' | 'state' | 'admin';
+  current_subscription_level: 'free' | 'basic' | 'pro' | 'premium' | 'admin';
   upgrade_required_for?: string[];
 }> {}

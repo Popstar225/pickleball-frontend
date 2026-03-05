@@ -100,7 +100,7 @@ export default function PlayerMessagesPage() {
     },
     {
       id: 3,
-      type: 'federation',
+      type: 'admin',
       name: 'Federación Mexicana',
       avatar: '/api/placeholder/40/40',
       lastMessage: 'Tu credencial digital ha sido renovada exitosamente.',
@@ -188,7 +188,7 @@ export default function PlayerMessagesPage() {
         return <Users className="h-4 w-4" />;
       case 'club':
         return <Building2 className="h-4 w-4" />;
-      case 'federation':
+      case 'admin':
         return <MessageSquare className="h-4 w-4" />;
       default:
         return <MessageSquare className="h-4 w-4" />;
@@ -296,7 +296,7 @@ export default function PlayerMessagesPage() {
                       </span>
                     )}
                     {selectedConv.type === 'club' && 'Club'}
-                    {selectedConv.type === 'federation' && 'Federación'}
+                    {selectedConv.type === 'admin' && 'Federación'}
                   </p>
                 </div>
                 <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">

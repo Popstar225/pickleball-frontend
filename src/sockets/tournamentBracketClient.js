@@ -294,7 +294,7 @@ function renderBracket(rounds) {
         if (match.is_bye) {
           matchDiv.innerHTML = `
             <div class="bye-match">
-              <span class="player-name">${match.player1?.first_name} ${match.player1?.last_name}</span>
+              <span class="player-name">${match.player1?.full_name}</span>
               <span class="bye-badge">BYE</span>
             </div>
           `;
@@ -302,20 +302,20 @@ function renderBracket(rounds) {
           matchDiv.innerHTML = `
             <div class="match-result">
               <span class="player ${match.winner_id === match.player1?.id ? 'winner' : ''}">
-                ${match.player1?.first_name} ${match.player1?.last_name}: ${match.player1_score}
+                ${match.player1?.full_name}: ${match.player1_score}
               </span>
               <span class="vs">vs</span>
               <span class="player ${match.winner_id === match.player2?.id ? 'winner' : ''}">
-                ${match.player2?.first_name} ${match.player2?.last_name}: ${match.player2_score}
+                ${match.player2?.full_name}: ${match.player2_score}
               </span>
             </div>
           `;
         } else {
           matchDiv.innerHTML = `
             <div class="match-scheduled">
-              <span class="player">${match.player1?.first_name} ${match.player1?.last_name}</span>
+              <span class="player">${match.player1?.full_name}</span>
               <span class="vs">vs</span>
-              <span class="player">${match.player2?.first_name} ${match.player2?.last_name}</span>
+              <span class="player">${match.player2?.full_name}</span>
               <button onclick="openScoreModal('${match.id}')">Enter Score</button>
             </div>
           `;
