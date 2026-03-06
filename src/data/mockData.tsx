@@ -18,7 +18,7 @@ import upcoming3 from '../assets/images/blogs/Image 8.1.png';
 import upcoming4 from '../assets/images/_DSC8285.png';
 import upcoming5 from '../assets/images/_DSC8285.png';
 
-import headless4 from '../assets/images/blogs/Image 7.png';
+import headless4 from '../assets/images/blogs/image 7.png';
 import headless2 from '../assets/images/blogs/Image 8.png';
 import headless3 from '../assets/images/blogs/Image 9.png';
 import headless1 from '../assets/images/blogs/two girls.png';
