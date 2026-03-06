@@ -19,11 +19,11 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
 // Import images
-import playerImage from '@/assets/images/blogs/Image 8.1.png';
-import coachImage from '@/assets/images/blogs/image 8.png';
+import playerImage from '@/assets/images/blogs/Image8-1.png';
+import coachImage from '@/assets/images/blogs/image8.png';
 import clubImage from '@/assets/images/courts.jpg';
 import partnerImage from '@/assets/images/_DSC8895.png';
-import stateImage from '@/assets/images/blogs/Image 9.1.png';
+import stateImage from '@/assets/images/blogs/Image9-1.png';
 
 const SelectUserTypePage = () => {
   const [selectedType, setSelectedType] = useState<string>('');

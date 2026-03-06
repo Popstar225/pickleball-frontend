@@ -7,21 +7,21 @@ import videoCap2 from '../assets/images/_DSC8182.png';
 import videoCap3 from '../assets/images/_DSC8354.png';
 import videoCap4 from '../assets/images/_DSC8745.png';
 
-import article1 from '../assets/images/blogs/image 8.png';
-import article2 from '../assets/images/blogs/Image 9.1.png';
-import article3 from '../assets/images/blogs/Image 7.1.png';
-import article4 from '../assets/images/blogs/image 9.png';
+import article1 from '../assets/images/blogs/image8.png';
+import article2 from '../assets/images/blogs/Image9-1.png';
+import article3 from '../assets/images/blogs/Image7-1.png';
+import article4 from '../assets/images/blogs/image9.png';
 
 import upcoming1 from '../assets/images/_DSC7870.png';
 import upcoming2 from '../assets/images/_DSC8895.png';
-import upcoming3 from '../assets/images/blogs/Image 8.1.png';
+import upcoming3 from '../assets/images/blogs/Image8-1.png';
 import upcoming4 from '../assets/images/_DSC8285.png';
 import upcoming5 from '../assets/images/_DSC8285.png';
 
-import headless4 from '../assets/images/blogs/image 7.png';
-import headless2 from '../assets/images/blogs/image 8.png';
-import headless3 from '../assets/images/blogs/image 9.png';
-import headless1 from '../assets/images/blogs/two girls.png';
+import headless4 from '../assets/images/blogs/image7.png';
+import headless2 from '../assets/images/blogs/image8.png';
+import headless3 from '../assets/images/blogs/image9.png';
+import headless1 from '../assets/images/blogs/two-girls.png';
 
 import director1 from '../assets/images/Persons for de directive comite/Jorge Antonio Cordero Gómez Del Campo.png';
 import director2 from '../assets/images/Persons for de directive comite/José Armando Solís Morales.png';
@@ -33,14 +33,14 @@ import director7 from '../assets/images/Persons for de directive comite/Geroge A
 
 import association1 from '../assets/images/associations/cdmx.png';
 
-import blog1 from '../assets/images/blogs/image 7.png';
-import blog11 from '../assets/images/blogs/Image 7.1.png';
-import blog2 from '../assets/images/blogs/image 8.png';
-import blog21 from '../assets/images/blogs/image 8.1.png';
-import blog3 from '../assets/images/blogs/image 9.png';
-import blog31 from '../assets/images/blogs/Image 9.1.png';
-import blog4 from '../assets/images/blogs/two girls.png';
-import blog41 from '../assets/images/blogs/two girls.png';
+import blog1 from '../assets/images/blogs/image7.png';
+import blog11 from '../assets/images/blogs/Image7-1.png';
+import blog2 from '../assets/images/blogs/image8.png';
+import blog21 from '../assets/images/blogs/Image8-1.png';
+import blog3 from '../assets/images/blogs/image9.png';
+import blog31 from '../assets/images/blogs/Image9-1.png';
+import blog4 from '../assets/images/blogs/two-girls.png';
+import blog41 from '../assets/images/blogs/two-girls.png';
 
 import court1 from '../assets/images/courts/court1.png';
 import court2 from '../assets/images/courts/court2.png';

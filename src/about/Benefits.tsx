@@ -8,9 +8,9 @@ import benefit1 from '@/assets/images/_DSC7870.png';
 import benefit2 from '@/assets/images/_DSC8411.png';
 import benefit3 from '@/assets/images/_DSC8354.png';
 import benefit4 from '@/assets/images/_DSC8137.png';
-import benefit5 from '@/assets/images/blogs/Image 9.1.png';
-import benefit6 from '@/assets/images/blogs/Image 7.1.png';
-import benefit7 from '@/assets/images/image 7.png';
+import benefit5 from '@/assets/images/blogs/Image9-1.png';
+import benefit6 from '@/assets/images/blogs/Image7-1.png';
+import benefit7 from '@/assets/images/image7.png';
 
 const iconMap: Record<string, React.ReactNode> = {
   trophy: <Trophy className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8" />,
