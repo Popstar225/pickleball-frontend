@@ -19,8 +19,8 @@ import upcoming4 from '../assets/images/_DSC8285.png';
 import upcoming5 from '../assets/images/_DSC8285.png';
 
 import headless4 from '../assets/images/blogs/image 7.png';
-import headless2 from '../assets/images/blogs/Image 8.png';
-import headless3 from '../assets/images/blogs/Image 9.png';
+import headless2 from '../assets/images/blogs/image 8.png';
+import headless3 from '../assets/images/blogs/image 9.png';
 import headless1 from '../assets/images/blogs/two girls.png';
 
 import director1 from '../assets/images/Persons for de directive comite/Jorge Antonio Cordero Gómez Del Campo.png';
@@ -35,7 +35,7 @@ import association1 from '../assets/images/associations/cdmx.png';
 
 import blog1 from '../assets/images/blogs/image 7.png';
 import blog11 from '../assets/images/blogs/Image 7.1.png';
-import blog2 from '../assets/images/blogs/Image 8.png';
+import blog2 from '../assets/images/blogs/image 8.png';
 import blog21 from '../assets/images/blogs/image 8.1.png';
 import blog3 from '../assets/images/blogs/image 9.png';
 import blog31 from '../assets/images/blogs/Image 9.1.png';
