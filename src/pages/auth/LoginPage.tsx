@@ -24,7 +24,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 // Import your images
 import loginHeroImage from '@/assets/images/login-hero.jpg'; // Main hero image
 import pickleballCourtImage from '@/assets/images/federation.png'; // Court background
-import playerActionImage from '@/assets/images/image 7.jpeg'; // Action shot
+import playerActionImage from '@/assets/images/blogs/image 7.png'; // Action shot
 import logoImage from '@/assets/images/Logos/Logo pickleball compressed.png'; // Your logo
 
 const LoginPage = () => {

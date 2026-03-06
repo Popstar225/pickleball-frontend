@@ -3,9 +3,9 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Director from '../assets/images/_DSC7870.png';
 
-import Equipment from '../assets/images/rules/equipment.jpg';
+import Equipment from '../assets/images/rules/equipment.png';
 import Technical from '../assets/images/rules/technical.png';
-import Sports from '../assets/images/rules/sports.jpg';
+import Sports from '../assets/images/rules/sports.png';
 
 // Import the PDF files directly
 import reglamentoEquipamiento from '@/assets/documents/Reglamento del equipamiento.pdf';

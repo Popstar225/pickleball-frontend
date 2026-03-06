@@ -1,6 +1,6 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import coachImage from '@/assets/images/Image 1.jpg';
+import coachImage from '@/assets/images/_DSC7870.png';
 import {
   Target,
   Eye,
