@@ -8,6 +8,7 @@ import {
   Building2,
   Users,
   Trophy,
+  Swords,
   MessageSquare,
   Receipt,
 } from 'lucide-react';
@@ -53,20 +54,14 @@ const navItems: NavItem[] = [
   {
     title: 'Mi Panel de Torneos',
     url: '/players/dashboard/tournaments-view',
-    icon: MessageSquare,
-    description: 'Ver progress en mis torneos',
+    icon: Swords,
+    description: 'Ver progreso en mis torneos activos',
   },
   {
     title: 'Mensajes',
     url: '/players/dashboard/messages',
     icon: MessageSquare,
     description: 'Mis mensajes',
-  },
-  {
-    title: 'Registrations',
-    url: '/players/dashboard/registrations',
-    icon: Users,
-    description: 'Attend in tournaments',
   },
   {
     title: 'Pagos',

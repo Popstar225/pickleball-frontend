@@ -72,7 +72,7 @@ const GroupStandings: React.FC<GroupStandingsProps> = ({
   groupId,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error, groupStandings } = useSelector((s: RootState) => s.tournaments);
+  const { loading, error, groupStandingsMap } = useSelector((s: RootState) => s.tournaments);
 
   useEffect(() => {
     if (tournamentId && eventId && groupId) {
@@ -80,8 +80,11 @@ const GroupStandings: React.FC<GroupStandingsProps> = ({
     }
   }, [tournamentId, eventId, groupId, dispatch]);
 
+  // Get standings for this specific group from the map
   const standings =
-    (tournamentId && eventId && groupId ? groupStandings : null) || staticStandings || [];
+    (tournamentId && eventId && groupId && groupStandingsMap && groupStandingsMap[groupId]) ||
+    staticStandings ||
+    [];
 
   const usingApi = !!(tournamentId && eventId && groupId);
 
@@ -165,21 +168,40 @@ const GroupStandings: React.FC<GroupStandingsProps> = ({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/[0.06]">
-                {['Pos', 'Jugador', 'P/L', 'Sets', 'Puntos', 'Ranking', 'Estado'].map((h) => (
+                {/* Only show Position if matches have been played */}
+                {standings.some(s => s.matchesWon > 0 || s.matchesLost > 0) && (
+                  <th
+                    key="Pos"
+                    className="py-2.5 px-4 text-[10px] font-bold uppercase tracking-widest text-white/20 text-left"
+                  >
+                    Pos
+                  </th>
+                )}
+                {['Jugador', 'P/L', 'Sets', 'Puntos', 'Ranking'].map((h) => (
                   <th
                     key={h}
                     className={cn(
                       'py-2.5 px-4 text-[10px] font-bold uppercase tracking-widest text-white/20',
-                      h === 'Pos' || h === 'Jugador' ? 'text-left' : 'text-center',
+                      h === 'Jugador' ? 'text-left' : 'text-center',
                     )}
                   >
                     {h}
                   </th>
                 ))}
+                {/* Only show Estado if matches have been played */}
+                {standings.some(s => s.matchesWon > 0 || s.matchesLost > 0) && (
+                  <th
+                    key="Estado"
+                    className="py-2.5 px-4 text-[10px] font-bold uppercase tracking-widest text-white/20 text-center"
+                  >
+                    Estado
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-white/[0.04]">
               {standings.map((s, idx) => {
+                const hasMatches = standings.some(st => st.matchesWon > 0 || st.matchesLost > 0);
                 const advancing = s.position <= advanceCount;
                 return (
                   <tr
@@ -191,18 +213,20 @@ const GroupStandings: React.FC<GroupStandingsProps> = ({
                         : 'hover:bg-white/[0.02]',
                     )}
                   >
-                    {/* Position */}
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-2">
-                        <span className="text-base leading-none">
-                          {MEDAL[s.position] ?? (
-                            <span className="text-[11px] font-bold text-white/30 w-5 inline-block text-center">
-                              {s.position}
-                            </span>
-                          )}
-                        </span>
-                      </div>
-                    </td>
+                    {/* Position - Only show if matches have been played */}
+                    {hasMatches && (
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-base leading-none">
+                            {MEDAL[s.position] ?? (
+                              <span className="text-[11px] font-bold text-white/30 w-5 inline-block text-center">
+                                {s.position}
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      </td>
+                    )}
 
                     {/* Player */}
                     <td className="py-3 px-4">
@@ -307,18 +331,20 @@ const GroupStandings: React.FC<GroupStandingsProps> = ({
                       </TooltipProvider>
                     </td>
 
-                    {/* Status */}
-                    <td className="py-3 px-4 text-center">
-                      {advancing ? (
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]">
-                          <Trophy className="w-2.5 h-2.5" /> Avanza
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-white/[0.04] border-white/[0.08] text-white/25">
-                          Eliminado
-                        </span>
-                      )}
-                    </td>
+                    {/* Status - Only show if matches have been played */}
+                    {hasMatches && (
+                      <td className="py-3 px-4 text-center">
+                        {advancing ? (
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]">
+                            <Trophy className="w-2.5 h-2.5" /> Avanza
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-white/[0.04] border-white/[0.08] text-white/25">
+                            Eliminado
+                          </span>
+                        )}
+                      </td>
+                    )}
                   </tr>
                 );
               })}

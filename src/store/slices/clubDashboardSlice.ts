@@ -87,11 +87,10 @@ export interface ClubProfile {
 export interface ClubStats {
   totalMembers: number;
   activeMembers: number;
-  tournamentsOrganized: number;
-  upcomingEvents: number;
-  monthlyGrowth: number;
-  federationStatus: string;
-  membershipFeesDue: number;
+  totalCourts: number;
+  upcomingTournaments: number;
+  monthlyRevenue: number;
+  membershipGrowth: number;
 }
 
 export interface ClubMember {
@@ -219,36 +218,44 @@ export const fetchClubStatistics = createAsyncThunk('clubDashboard/fetchStatisti
 export const fetchClubMembers = createAsyncThunk(
   'clubDashboard/fetchMembers',
   async ({
-    clubId,
-    limit = 20,
+    limit = 100,
     offset = 0,
     status = '',
   }: {
-    clubId: string;
+    clubId?: string;
     limit?: number;
     offset?: number;
     status?: string;
-  }) => {
+  } = {}) => {
     const params = new URLSearchParams({ limit: limit.toString(), offset: offset.toString() });
     if (status) params.append('status', status);
-    const data = await api.get(`/clubs/${clubId}/members?${params}`);
-    return (data as any)?.data?.members as ClubMember[];
+    const data = await api.get(`/clubs/members?${params}`);
+    const raw: any[] = (data as any)?.data?.members ?? [];
+    return raw.map((m) => {
+      const parts = (m.name || '').split(' ');
+      return {
+        id: m.id,
+        playerId: m.id,
+        firstName: parts[0] || '',
+        lastName: parts.slice(1).join(' ') || '',
+        email: m.email || '',
+        phone: m.phone || '',
+        level: m.skillLevel || 'Básica',
+        joinDate: m.joinDate || '',
+        membershipStatus: m.membershipStatus || 'inactive',
+        membershipFee: 0,
+        lastPaymentDate: null as unknown as string,
+        credentialStatus: 'active',
+      } as ClubMember;
+    });
   },
 );
 
 export const addClubMember = createAsyncThunk(
   'clubDashboard/addMember',
-  async ({
-    playerId,
-    membershipFee,
-    notes,
-  }: {
-    playerId: string;
-    membershipFee: number;
-    notes?: string;
-  }) => {
-    const data = await api.post('/clubs/members', { playerId, membershipFee, notes });
-    return (data as any)?.data as ClubMember;
+  async ({ userId }: { userId: string }) => {
+    const data = await api.post('/clubs/members', { userId });
+    return (data as any)?.data as { memberId: string; memberName: string };
   },
 );
 
@@ -257,13 +264,11 @@ export const updateClubMember = createAsyncThunk(
   async ({
     memberId,
     membershipStatus,
-    membershipFee,
   }: {
     memberId: string;
     membershipStatus?: string;
-    membershipFee?: number;
   }) => {
-    const data = await api.put(`/clubs/members/${memberId}`, { membershipStatus, membershipFee });
+    const data = await api.put(`/clubs/members/${memberId}`, { membershipStatus });
     return (data as any)?.data as ClubMember;
   },
 );
@@ -416,9 +421,9 @@ const clubDashboardSlice = createSlice({
         state.membersLoading = true;
         state.membersError = null;
       })
-      .addCase(addClubMember.fulfilled, (state, action) => {
+      .addCase(addClubMember.fulfilled, (state) => {
         state.membersLoading = false;
-        state.members.unshift(action.payload);
+        // Re-fetch is triggered in the page after add
       })
       .addCase(addClubMember.rejected, (state, action) => {
         state.membersLoading = false;

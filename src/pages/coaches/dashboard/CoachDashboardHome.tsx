@@ -19,6 +19,7 @@ import {
   fetchCoachProfile,
   fetchCoachStudents,
   fetchCoachMessages,
+  fetchCoachEarnings,
 } from '@/store/slices/coachDashboardSlice';
 import { cn } from '@/lib/utils';
 
@@ -122,18 +123,21 @@ function StudentInitials({ name }: { name: string }) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function CoachDashboardHome() {
   const dispatch = useDispatch<AppDispatch>();
-  const { profile, students, messages, studentsLoading, messagesLoading } = useSelector(
+  const { profile, students, messages, earnings, studentsLoading } = useSelector(
     (s: RootState) => s.coachDashboard,
   );
 
   useEffect(() => {
     dispatch(fetchCoachProfile());
-    dispatch(fetchCoachStudents({}));
-    dispatch(fetchCoachMessages({ limit: 10 }));
+    dispatch(fetchCoachStudents({ limit: 5 }));
+    dispatch(fetchCoachMessages({ limit: 20 }));
+    dispatch(fetchCoachEarnings());
   }, [dispatch]);
 
   const firstName = profile?.fullName?.split(' ')[0] ?? 'Coach';
-  const certLevel = profile?.certifications ?? 'Nivel 1';
+  const certLevel = Array.isArray(profile?.certifications)
+    ? (profile.certifications[0] ?? 'Nivel 1')
+    : (profile?.certifications ?? 'Nivel 1');
   const joinDate = profile?.joinedDate
     ? new Date(profile.joinedDate).toLocaleDateString('es-MX', {
         day: 'numeric',
@@ -257,31 +261,31 @@ export default function CoachDashboardHome() {
         <StatCard
           icon={Users}
           label="Estudiantes Activos"
-          value={students?.length ?? 0}
-          sub="Total"
+          value={profile?.totalStudents ?? students?.length ?? 0}
+          sub={`${profile?.activeStudents ?? 0} activos`}
           color="text-[#ace600]"
           bg="bg-[#ace600]/10 border-[#ace600]/20"
         />
         <StatCard
           icon={Award}
           label="Certificaciones"
-          value={1}
+          value={Array.isArray(profile?.certifications) ? profile.certifications.length : 1}
           sub="Activas"
           color="text-sky-400"
           bg="bg-sky-500/10 border-sky-500/20"
         />
         <StatCard
           icon={Calendar}
-          label="Sesiones Próximas"
-          value={0}
-          sub="Esta semana"
+          label="Mensajes"
+          value={messages?.length ?? 0}
+          sub="En bandeja"
           color="text-violet-400"
           bg="bg-violet-500/10 border-violet-500/20"
         />
         <StatCard
           icon={DollarSign}
           label="Ingresos Mensuales"
-          value="$0"
+          value={`$${(earnings?.thisMonth ?? 0).toLocaleString()}`}
           sub="MXN este mes"
           color="text-emerald-400"
           bg="bg-emerald-500/10 border-emerald-500/20"

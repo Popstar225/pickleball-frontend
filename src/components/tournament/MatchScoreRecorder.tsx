@@ -53,6 +53,7 @@ const MatchScoreRecorder: React.FC<MatchScoreRecorderProps> = ({
   const [set3, setSet3] = useState<SetScore>({ player1: 0, player2: 0 });
   const [specialStatus, setSpecialStatus] = useState<string>('score');
   const [reason, setReason] = useState<string>('');
+  const [specialWinnerId, setSpecialWinnerId] = useState<string>('');
   const [errors, setErrors] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string>('');
 
@@ -97,6 +98,16 @@ const MatchScoreRecorder: React.FC<MatchScoreRecorderProps> = ({
 
   // Validate scores
   const validateScores = (): boolean => {
+    // Special outcomes don't need set score validation
+    if (specialStatus !== 'score') {
+      const newErrors: string[] = [];
+      if (!specialWinnerId) {
+        newErrors.push('Selecciona quién gana el partido');
+      }
+      setErrors(newErrors);
+      return newErrors.length === 0;
+    }
+
     const newErrors: string[] = [];
 
     // Check set 1
@@ -166,7 +177,7 @@ const MatchScoreRecorder: React.FC<MatchScoreRecorderProps> = ({
             ? winner?.winnerId === '1'
               ? player1Id
               : player2Id
-            : player1Id,
+            : specialWinnerId,
         winner_by: specialStatus as any,
         set3: set3.player1 > 0 || set3.player2 > 0 ? set3 : undefined,
         reason_details: reason || undefined,
@@ -332,19 +343,52 @@ const MatchScoreRecorder: React.FC<MatchScoreRecorderProps> = ({
         </div>
       )}
 
-      {/* Special Status Reason */}
+      {/* Special Outcome: Winner Selector + Reason */}
       {specialStatus !== 'score' && (
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-white/40 mb-2">
-            Razón (Opcional)
-          </label>
-          <textarea
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            placeholder="Ej: Lesión en el tobillo..."
-            className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white text-sm focus:border-[#ace600] focus:outline-none resize-none"
-            rows={2}
-          />
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-white/40 mb-2">
+              Ganador del partido <span className="text-red-400">*</span>
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setSpecialWinnerId(player1Id)}
+                className={cn(
+                  'px-3 py-2.5 rounded-lg border text-sm font-bold transition-colors text-left',
+                  specialWinnerId === player1Id
+                    ? 'bg-[#ace600]/10 border-[#ace600] text-[#ace600]'
+                    : 'bg-white/[0.03] border-white/10 text-white/60 hover:border-white/20 hover:text-white/80',
+                )}
+              >
+                {player1Name}
+              </button>
+              <button
+                type="button"
+                onClick={() => setSpecialWinnerId(player2Id)}
+                className={cn(
+                  'px-3 py-2.5 rounded-lg border text-sm font-bold transition-colors text-left',
+                  specialWinnerId === player2Id
+                    ? 'bg-[#ace600]/10 border-[#ace600] text-[#ace600]'
+                    : 'bg-white/[0.03] border-white/10 text-white/60 hover:border-white/20 hover:text-white/80',
+                )}
+              >
+                {player2Name}
+              </button>
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-white/40 mb-2">
+              Razón (Opcional)
+            </label>
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Ej: Lesión en el tobillo..."
+              className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white text-sm focus:border-[#ace600] focus:outline-none resize-none"
+              rows={2}
+            />
+          </div>
         </div>
       )}
 

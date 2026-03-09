@@ -524,7 +524,7 @@ export function OrganizerTournamentDashboard({
                               onClick={() =>
                                 organizerType === 'club'
                                   ? navigate(`/clubs/dashboard/tournaments/view/${t.id}`)
-                                  : navigate(`${baseUrl}/${t.id}/manage`)
+                                  : navigate(`${baseUrl}/view/${t.id}`)
                               }
                               className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[13px] text-white/50 hover:text-white hover:bg-white/[0.07] cursor-pointer focus:bg-white/[0.07] focus:text-white"
                             >
@@ -644,7 +644,7 @@ export function OrganizerTournamentDashboard({
                             onClick={() =>
                               organizerType === 'club'
                                 ? navigate(`/clubs/dashboard/tournaments/view/${t.id}`)
-                                : navigate(`${baseUrl}/${t.id}/manage`)
+                                : navigate(`${baseUrl}/view/${t.id}`)
                             }
                           >
                             Gestionar

@@ -49,7 +49,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { mockClubs } from '@/data/dashboardMockData';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
+import type { AdminUsersResponse, User } from '@/types/api';
 
 // Types
 type UserRole = 'admin' | 'manager' | 'moderator' | 'member';
@@ -113,28 +115,35 @@ export default function MemberManagement() {
     loadMembersData();
   }, []);
 
-  const loadMembersData = useCallback(() => {
-    setLoading(true);
-    // Simulate API delay
-    setTimeout(() => {
-      // Generate mock members from clubs data
-      const generatedMembers: Member[] = mockClubs.slice(0, 20).map((club: any, index: number) => ({
-        id: `member-${index + 1}`,
-        name: club.full_name || club.business_name || `Miembro ${index + 1}`,
-        email: club.email,
-        role: ['admin', 'manager', 'moderator', 'member'][index % 4] as UserRole,
-        club_name: club.business_name,
-        joined_date: club.created_at || new Date().toISOString(),
-        status: index % 10 === 0 ? 'inactive' : index % 9 === 0 ? 'banned' : 'active',
-        is_verified: index % 5 !== 0,
-        phone: club.phone,
-        activity_date: new Date(
-          Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000,
-        ).toISOString(),
-      }));
-      setMembers(generatedMembers);
+  const loadMembersData = useCallback(async () => {
+    try {
+      setLoading(true);
+      // Fetch all users from admin endpoint
+      const response = await api.get<AdminUsersResponse>('/admin/users?limit=100&page=1');
+      
+      if (response?.success && Array.isArray(response.data)) {
+        const generatedMembers: Member[] = response.data.map((user: User) => ({
+          id: `member-${user.id}`,
+          name: user.full_name || user.username,
+          email: user.email,
+          role: user.user_type === 'admin' ? 'admin' : user.user_type === 'state' ? 'manager' : 'member' as UserRole,
+          club_name: user.business_name || undefined,
+          joined_date: user.created_at || new Date().toISOString(),
+          status: user.is_active ? 'active' : 'inactive' as MembershipStatus,
+          is_verified: user.is_verified ?? false,
+          phone: user.phone,
+          activity_date: user.updated_at || new Date().toISOString(),
+        }));
+        setMembers(generatedMembers);
+      } else {
+        toast.error('Error al cargar miembros');
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Error al cargar miembros');
+      console.error('[MemberManagement]', error);
+    } finally {
       setLoading(false);
-    }, 300);
+    }
   }, []);
 
   // Apply filters
@@ -284,16 +293,51 @@ export default function MemberManagement() {
     });
   };
 
-  const handleAssignRole = (memberId: string, newRole: UserRole) => {
-    setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m)));
+  const handleAssignRole = async (memberId: string, newRole: UserRole) => {
+    try {
+      const userId = memberId.replace('member-', '');
+      const roleMap = { admin: 'admin', manager: 'state', moderator: 'coach', member: 'player' };
+      
+      await api.put(`/admin/users/${userId}`, { 
+        user_type: roleMap[newRole] 
+      });
+      
+      setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m)));
+      toast.success('Rol actualizado');
+      loadMembersData();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Error al actualizar rol');
+    }
   };
 
-  const handleChangeStatus = (memberId: string, newStatus: MembershipStatus) => {
-    setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, status: newStatus } : m)));
+  const handleChangeStatus = async (memberId: string, newStatus: MembershipStatus) => {
+    try {
+      const userId = memberId.replace('member-', '');
+      
+      await api.put(`/admin/users/${userId}`, { 
+        is_active: newStatus === 'active' 
+      });
+      
+      setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, status: newStatus } : m)));
+      toast.success('Estado actualizado');
+      loadMembersData();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Error al actualizar estado');
+    }
   };
 
-  const handleDeleteMember = (memberId: string) => {
-    setMembers((prev) => prev.filter((m) => m.id !== memberId));
+  const handleDeleteMember = async (memberId: string) => {
+    try {
+      const userId = memberId.replace('member-', '');
+      
+      await api.delete(`/admin/users/${userId}`);
+      
+      setMembers((prev) => prev.filter((m) => m.id !== memberId));
+      toast.success('Miembro eliminado');
+      loadMembersData();
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || 'Error al eliminar miembro');
+    }
   };
 
   return (

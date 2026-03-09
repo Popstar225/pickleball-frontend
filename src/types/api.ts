@@ -118,7 +118,7 @@ export interface Club {
 export interface Tournament {
   id: string;
   name: string;
-  tournament_type: 'local' | 'state' | 'national';
+  tournament_type: 'local' | 'state' | 'national' | 'club' | 'federation' | 'regional';
   category: 'singles' | 'doubles' | 'mixed_doubles' | 'team';
   description?: string;
   organizer_id: string;
@@ -148,6 +148,7 @@ export interface Tournament {
     | 'draft'
     | 'pending_validation'
     | 'approved'
+    | 'rejected'
     | 'published'
     | 'registration_open'
     | 'registration_closed'
@@ -168,6 +169,7 @@ export interface Tournament {
   completed_matches: number;
   settings?: object;
   notes?: string;
+  rejection_reason?: string;
   events?: TournamentEvent[];
   created_at: string;
   updated_at: string;
@@ -1389,6 +1391,8 @@ export interface DashboardStatsResponse extends ApiResponse<{
   new_users_this_month: number;
   upcoming_tournaments: number;
   pending_payments: number;
+  pending_verifications: number;
+  verified_users: number;
 }> {}
 
 export interface UpdateUserRoleRequest {
@@ -1397,6 +1401,19 @@ export interface UpdateUserRoleRequest {
 
 export interface AdminUsersResponse extends PaginatedResponse<User> {}
 export interface UpdateUserRoleResponse extends ApiResponse<User> {}
+
+// Pending Actions Types
+export interface PendingAction {
+  id: number;
+  type: 'Club Approval' | 'User Verification' | 'Payment Disputes' | 'Announcements';
+  count: number;
+  description: string;
+  priority: 'High' | 'Medium' | 'Low';
+}
+
+export interface PendingActionsResponse extends ApiResponse<{
+  actions: PendingAction[];
+}> {}
 
 // Request/Response Types for Statistics
 export interface OverviewStatsResponse extends ApiResponse<{

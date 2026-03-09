@@ -37,12 +37,6 @@ interface BracketMatch {
   position: number;
 }
 
-interface ApiResponse<T> {
-  data: T;
-  status: number;
-  message?: string;
-}
-
 interface BracketData {
   tournament_id: string;
   tournament_name: string;
@@ -208,8 +202,8 @@ export const BracketView: React.FC = () => {
       const endpoint = eventId
         ? `/tournaments/${tournamentId}/events/${eventId}/bracket`
         : `/tournaments/${tournamentId}/bracket`;
-      const response = (await api.get(endpoint)) as ApiResponse<BracketData>;
-      setData(response.data);
+      const response = (await api.get(endpoint)) as BracketData;
+      setData(response);
       setError(null);
     } catch (err: any) {
       setError(err.message || 'Failed to load bracket');
@@ -248,9 +242,9 @@ export const BracketView: React.FC = () => {
 
   const getRoundName = (roundNumber: number, totalRounds: number): string => {
     if (roundNumber === 1) return 'Round of ' + Math.pow(2, totalRounds);
-    if (roundNumber === totalRounds - 1) return 'Final';
-    if (roundNumber === totalRounds - 2) return 'Semifinals';
-    if (roundNumber === totalRounds - 3) return 'Quarterfinals';
+    if (roundNumber === totalRounds) return 'Final';
+    if (roundNumber === totalRounds - 1) return 'Semifinals';
+    if (roundNumber === totalRounds - 2) return 'Quarterfinals';
     return `Round ${roundNumber}`;
   };
 

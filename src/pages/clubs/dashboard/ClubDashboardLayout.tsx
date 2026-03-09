@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
 import type { RootState } from '@/store';
-import { LayoutDashboard, User, Users, Trophy, MessageSquare, Receipt } from 'lucide-react';
+import { LayoutDashboard, User, Users, Trophy, MessageSquare, Receipt, CheckSquare, CalendarDays } from 'lucide-react';
 
 const navItems: NavItem[] = [
   {
@@ -35,11 +35,17 @@ const navItems: NavItem[] = [
     description: 'Torneos del club',
   },
   // {
-  //   title: 'Ver Torneos',
-  //   url: '/clubs/dashboard/tournaments/view/active',
-  //   icon: Trophy,
-  //   description: 'Panel de Torneos Activos',
+  //   title: 'Correcciones de Marcador',
+  //   url: '/clubs/dashboard/corrections',
+  //   icon: CheckSquare,
+  //   description: 'Aprobar o rechazar correcciones de marcador',
   // },
+  {
+    title: 'Horarios',
+    url: '/clubs/dashboard/schedule',
+    icon: CalendarDays,
+    description: 'Programar horarios de partidos',
+  },
   {
     title: 'Mensajes',
     url: '/clubs/dashboard/messages',

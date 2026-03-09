@@ -47,6 +47,7 @@ interface TournamentsState {
   // Tournament Groups
   eventGroups: any[];
   groupStandings: any[];
+  groupStandingsMap: Record<string, any[]>; // Store standings for each group by groupId
 
   // Penalties
   penalties: any[];
@@ -91,6 +92,7 @@ const initialState: TournamentsState = {
   // Tournament Groups
   eventGroups: [],
   groupStandings: [],
+  groupStandingsMap: {},
 
   // Penalties
   penalties: [],
@@ -506,6 +508,58 @@ export const recordMatchResult = createAsyncThunk(
   'tournaments/recordMatchResult',
   async ({ matchId, resultData }: { matchId: string; resultData: RecordMatchResultRequest }) => {
     return await api.put(`/matches/${matchId}`, resultData);
+  },
+);
+
+export const fetchEventSchedule = createAsyncThunk(
+  'tournaments/fetchEventSchedule',
+  async ({ tournamentId, eventId }: { tournamentId: string; eventId: string }) => {
+    return await api.get(`/tournaments/${tournamentId}/events/${eventId}/matches/schedule`);
+  },
+);
+
+export const scheduleMatch = createAsyncThunk(
+  'tournaments/scheduleMatch',
+  async ({
+    tournamentId,
+    eventId,
+    matchId,
+    data,
+  }: {
+    tournamentId: string;
+    eventId: string;
+    matchId: string;
+    data: { scheduled_time: string; court_id?: string | null };
+  }) => {
+    return await api.put(
+      `/tournaments/${tournamentId}/events/${eventId}/matches/${matchId}/schedule`,
+      data,
+    );
+  },
+);
+
+export const autoScheduleMatches = createAsyncThunk(
+  'tournaments/autoScheduleMatches',
+  async ({
+    tournamentId,
+    eventId,
+    data,
+  }: {
+    tournamentId: string;
+    eventId: string;
+    data: {
+      start_date: string;
+      start_time?: string;
+      match_duration_minutes?: number;
+      court_count?: number;
+      break_minutes?: number;
+      overwrite?: boolean;
+    };
+  }) => {
+    return await api.post(
+      `/tournaments/${tournamentId}/events/${eventId}/matches/auto-schedule`,
+      data,
+    );
   },
 );
 
@@ -1305,11 +1359,35 @@ const tournamentsSlice = createSlice({
       .addCase(fetchEventMatches.fulfilled, (state, action) => {
         state.loading = false;
         const payload = action.payload as any;
-        state.eventMatches = payload?.data?.matches || [];
+        console.log('[fetchEventMatches] Raw payload:', payload);
+
+        let matches: any[] = [];
+
+        // PRIORITY ORDER (based on actual response structure):
+        // Option A: { success, matchCount, matches } - Direct response from API wrapper
+        if (payload?.matches && Array.isArray(payload.matches)) {
+          matches = payload.matches;
+          console.log('[fetchEventMatches] ✓ Using Option A: payload.matches');
+        }
+        // Fallback: { data: { success, matchCount, matches } } - Wrapped by Axios
+        else if (payload?.data?.matches && Array.isArray(payload.data.matches)) {
+          matches = payload.data.matches;
+          console.log('[fetchEventMatches] ✓ Using Fallback: payload.data.matches');
+        }
+        // Fallback: Direct array
+        else if (Array.isArray(payload)) {
+          matches = payload;
+          console.log('[fetchEventMatches] ✓ Using Fallback: Direct array');
+        }
+
+        console.log('[fetchEventMatches] ✓ Extracted', matches.length, 'matches');
+        console.log('[fetchEventMatches] Matches data:', matches);
+        state.eventMatches = matches;
       })
       .addCase(fetchEventMatches.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch event matches';
+        state.eventMatches = [];
       })
       // Record Match Result
       .addCase(recordMatchResult.pending, (state) => {
@@ -1323,6 +1401,44 @@ const tournamentsSlice = createSlice({
       .addCase(recordMatchResult.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to record match result';
+      })
+      // Fetch Event Schedule
+      .addCase(fetchEventSchedule.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchEventSchedule.fulfilled, (state, action) => {
+        state.loading = false;
+        const payload = action.payload as any;
+        state.eventMatches = payload?.matches || [];
+      })
+      .addCase(fetchEventSchedule.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch schedule';
+      })
+      // Schedule Match (manual)
+      .addCase(scheduleMatch.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(scheduleMatch.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(scheduleMatch.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to schedule match';
+      })
+      // Auto-schedule matches
+      .addCase(autoScheduleMatches.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(autoScheduleMatches.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(autoScheduleMatches.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to auto-schedule matches';
       });
 
     // ============================================================================
@@ -1417,6 +1533,12 @@ const tournamentsSlice = createSlice({
 
         console.log('[fetchEventGroup] ✓ Transformed standings:', standings);
         state.groupStandings = standings;
+        // Also store in map by groupId for access by multiple group components
+        const groupId = action.meta.arg.groupId;
+        if (!state.groupStandingsMap) {
+          state.groupStandingsMap = {};
+        }
+        state.groupStandingsMap[groupId] = standings;
       })
       .addCase(fetchEventGroup.rejected, (state, action) => {
         state.loading = false;

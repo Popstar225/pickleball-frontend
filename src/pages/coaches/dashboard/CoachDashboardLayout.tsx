@@ -9,6 +9,8 @@ import {
   Receipt,
   Trophy,
   Activity,
+  ClipboardList,
+  Swords,
 } from 'lucide-react';
 
 const navItems: NavItem[] = [
@@ -19,10 +21,22 @@ const navItems: NavItem[] = [
     description: 'Vista general',
   },
   {
-    title: 'Torneo Dashboard',
+    title: 'Árbitro — Marcadores',
     url: '/coaches/dashboard/tournaments/dashboard',
-    icon: Activity,
-    description: 'Registrar marcadores y ver partidos',
+    icon: Swords,
+    description: 'Registrar marcadores de partidos asignados',
+  },
+  {
+    title: 'Inscripción de Equipos',
+    url: '/coaches/dashboard/tournaments/register',
+    icon: ClipboardList,
+    description: 'Inscribir jugadores en torneos',
+  },
+  {
+    title: 'Panel de Torneos',
+    url: '/coaches/dashboard/tournaments/view',
+    icon: Trophy,
+    description: 'Monitorear torneos de equipo',
   },
   {
     title: 'Mi Cuenta',
@@ -35,12 +49,6 @@ const navItems: NavItem[] = [
     url: '/coaches/dashboard/credentials',
     icon: Shield,
     description: 'Mis credenciales NRTP',
-  },
-  {
-    title: 'Panel de Torneos',
-    url: '/coaches/dashboard/tournaments/view',
-    icon: Shield,
-    description: 'Monitorear torneos de equipo',
   },
   {
     title: 'Mensajes',

@@ -181,7 +181,7 @@ const TournamentDetails: React.FC<TournamentDetailsProps> = ({ tournamentId }) =
     if (!t) return;
     try {
       await dispatch(deleteTournament(t.id)).unwrap();
-      navigate('/dashboard/tournaments');
+      navigate('/admin/dashboard/tournaments');
     } catch (err) {
       console.error('Delete failed', err);
     }
@@ -211,7 +211,7 @@ const TournamentDetails: React.FC<TournamentDetailsProps> = ({ tournamentId }) =
           This tournament may have been removed or the ID is incorrect.
         </p>
         <button
-          onClick={() => navigate('/tournaments')}
+          onClick={() => navigate('/admin/dashboard/tournaments')}
           className="flex items-center gap-2 text-xs font-semibold text-white/40 hover:text-white/70 transition-colors"
         >
           <ChevronLeft className="w-3.5 h-3.5" /> Back to tournaments
@@ -225,7 +225,7 @@ const TournamentDetails: React.FC<TournamentDetailsProps> = ({ tournamentId }) =
     <div className="space-y-5 p-1 max-w-4xl">
       {/* ── Back ── */}
       <button
-        onClick={() => navigate('/tournaments')}
+        onClick={() => navigate('/admin/dashboard/tournaments')}
         className="flex items-center gap-1.5 text-xs font-semibold text-white/30 hover:text-white/60 transition-colors"
       >
         <ChevronLeft className="w-3.5 h-3.5" /> All tournaments
@@ -352,7 +352,7 @@ const TournamentDetails: React.FC<TournamentDetailsProps> = ({ tournamentId }) =
 
           {canManage(t) && (
             <button
-              onClick={() => navigate(`/tournaments/${t.id}/edit`)}
+              onClick={() => navigate(`/admin/dashboard/tournaments/${t.id}/edit`)}
               className="flex items-center gap-2 bg-white/[0.05] hover:bg-white/[0.09] border border-white/[0.08] text-white/70 hover:text-white text-sm font-semibold px-4 py-2 rounded-xl transition-all"
             >
               <Edit className="w-3.5 h-3.5" />

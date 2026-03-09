@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
 import { RootState } from '@/store';
-import { LayoutDashboard, User, Trophy, Zap, Users, Building2, Grid3X3 } from 'lucide-react';
+import { LayoutDashboard, User, Trophy, Zap, Users, Building2, Grid3X3, MessageSquare, BarChart2, CheckSquare, CalendarDays } from 'lucide-react';
 
 const navItems: NavItem[] = [
   {
@@ -28,12 +28,12 @@ const navItems: NavItem[] = [
     icon: Zap,
     description: 'Gestionar torneos estatales',
   },
-  {
-    title: 'Validación de Eventos',
-    url: '/state/dashboard/events',
-    icon: Users,
-    description: 'Aprobar eventos locales',
-  },
+  // {
+  //   title: 'Validación de Eventos',
+  //   url: '/state/dashboard/events',
+  //   icon: Users,
+  //   description: 'Aprobar eventos locales',
+  // },
   {
     title: 'Jugadores',
     url: '/state/dashboard/players',
@@ -46,11 +46,29 @@ const navItems: NavItem[] = [
     icon: Building2,
     description: 'Administrar clubes del estado',
   },
+  // {
+  //   title: 'Canchas',
+  //   url: '/state/dashboard/courts',
+  //   icon: Grid3X3,
+  //   description: 'Administrar canchas del estado',
+  // },
+  // {
+  //   title: 'Correcciones de Marcador',
+  //   url: '/state/dashboard/corrections',
+  //   icon: CheckSquare,
+  //   description: 'Aprobar o rechazar correcciones de marcador',
+  // },
   {
-    title: 'Canchas',
-    url: '/state/dashboard/courts',
-    icon: Grid3X3,
-    description: 'Administrar canchas del estado',
+    title: 'Mensajes',
+    url: '/state/dashboard/messages',
+    icon: MessageSquare,
+    description: 'Mensajes y comunicaciones',
+  },
+  {
+    title: 'Estadísticas',
+    url: '/state/dashboard/stats',
+    icon: BarChart2,
+    description: 'Estadísticas del estado',
   },
 ];
 

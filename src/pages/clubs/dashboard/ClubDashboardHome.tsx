@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   Trophy,
@@ -18,6 +18,7 @@ import {
   fetchClubProfile,
   fetchClubMembers,
   fetchClubEvents,
+  fetchClubStatistics,
 } from '@/store/slices/clubDashboardSlice';
 
 // ─── Status badge atoms ───────────────────────────────────────────────────────
@@ -53,24 +54,23 @@ function EventBadge({ status }: { status: string }) {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function ClubDashboardHome() {
-  const { clubId } = useParams<{ clubId: string }>();
   const dispatch = useDispatch<AppDispatch>();
-  const { profile, members, events, membersLoading, eventsLoading } = useSelector(
+  const { profile, stats: clubStats, members, events, membersLoading, eventsLoading } = useSelector(
     (state: RootState) => state.clubDashboard,
   );
 
   useEffect(() => {
-    if (!clubId) return;
     dispatch(fetchClubProfile());
-    dispatch(fetchClubMembers({ clubId, limit: 10 }));
+    dispatch(fetchClubStatistics());
+    dispatch(fetchClubMembers({ limit: 5 }));
     dispatch(fetchClubEvents());
-  }, [dispatch, clubId]);
+  }, [dispatch]);
 
   const stats = [
     {
       label: 'Miembros Totales',
-      value: profile?.memberCount ?? 0,
-      sub: `${profile?.membershipStatus ?? 0} activos`,
+      value: clubStats?.totalMembers ?? profile?.memberCount ?? 0,
+      sub: `${clubStats?.activeMembers ?? 0} activos`,
       icon: Users,
       color: 'text-sky-400',
       accent: 'bg-sky-500/10 border-sky-500/20',
@@ -78,23 +78,23 @@ export default function ClubDashboardHome() {
     {
       label: 'Torneos Organizados',
       value: profile?.totalTournaments ?? 0,
-      sub: 'Este año',
+      sub: `${clubStats?.upcomingTournaments ?? 0} próximos`,
       icon: Trophy,
       color: 'text-[#ace600]',
       accent: 'bg-[#ace600]/10 border-[#ace600]/20',
     },
     {
       label: 'Ingresos del Mes',
-      value: `$${((members?.length ?? 0) * 100).toLocaleString()}`,
+      value: `$${(clubStats?.monthlyRevenue ?? 0).toLocaleString()}`,
       sub: 'MXN',
       icon: DollarSign,
       color: 'text-emerald-400',
       accent: 'bg-emerald-500/10 border-emerald-500/20',
     },
     {
-      label: 'Pagos Pendientes',
-      value: events?.length ?? 0,
-      sub: 'Sin resolver',
+      label: 'Canchas',
+      value: clubStats?.totalCourts ?? 0,
+      sub: 'Registradas',
       icon: AlertCircle,
       color: 'text-amber-400',
       accent: 'bg-amber-500/10 border-amber-500/20',

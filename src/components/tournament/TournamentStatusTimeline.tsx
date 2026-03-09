@@ -115,7 +115,7 @@ function StageIndicator({
         >
           {stage.label}
         </p>
-        <p
+        <p  
           className={cn(
             'text-[9px] mt-0.5 leading-tight',
             status === 'in-progress' ? 'text-white/30' : 'text-white/15',

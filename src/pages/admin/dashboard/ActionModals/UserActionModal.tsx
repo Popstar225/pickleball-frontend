@@ -3,716 +3,489 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../../../../store';
 import { updateUser, deleteUser } from '../../../../store/slices/usersSlice';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { X, Loader2, AlertTriangle } from 'lucide-react';
+import {
+  X, Loader2, AlertTriangle, User as UserIcon, Building2,
+  MapPin, Shield, Edit2, Eye, Trash2, Check,
+} from 'lucide-react';
 import { User, UpdateUserRequest } from '../../../../types/api';
+import { cn } from '@/lib/utils';
 
-interface UserActionModalProps {
-  isOpen: boolean;
-  user: User | null;
-  mode: 'view' | 'edit';
-  onClose: () => void;
-  onSaveSuccess?: () => void;
+// ─── Tokens ───────────────────────────────────────────────────────────────────
+const inputCls =
+  'h-10 rounded-xl text-sm bg-white/[0.04] border-white/[0.09] text-white placeholder:text-white/20 ' +
+  'focus-visible:ring-0 focus-visible:border-[#ace600]/50 focus-visible:bg-[#ace600]/[0.03] transition-all';
+
+const labelCls = 'block text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1.5';
+
+const selectCls =
+  'h-10 rounded-xl text-sm bg-white/[0.04] border-white/[0.09] text-white ' +
+  'focus:ring-0 focus:border-[#ace600]/50 transition-all data-[placeholder]:text-white/20';
+
+// ─── Props ────────────────────────────────────────────────────────────────────
+interface Props {
+  isOpen: boolean; user: User | null; mode: 'view' | 'edit';
+  onClose: () => void; onSaveSuccess?: () => void;
 }
 
-export default function UserActionModal({
-  isOpen,
-  user,
-  mode,
-  onClose,
-  onSaveSuccess,
-}: UserActionModalProps) {
+// ─── Atoms ────────────────────────────────────────────────────────────────────
+function StatusPill({ active, trueLabel = 'Sí', falseLabel = 'No' }: { active: boolean; trueLabel?: string; falseLabel?: string }) {
+  return (
+    <span className={cn(
+      'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider',
+      active ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+             : 'bg-white/[0.04] text-white/25 border-white/[0.08]',
+    )}>
+      <span className={cn('w-1.5 h-1.5 rounded-full', active ? 'bg-emerald-400' : 'bg-white/20')} />
+      {active ? trueLabel : falseLabel}
+    </span>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value?: string | null }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-2.5 border-b border-white/[0.04] last:border-0">
+      <span className="text-[11px] font-bold uppercase tracking-widest text-white/20 shrink-0">{label}</span>
+      <span className="text-xs text-white/60 text-right truncate">{value || '—'}</span>
+    </div>
+  );
+}
+
+function Field({ label, req, error, children }: { label: string; req?: boolean; error?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className={labelCls}>{label}{req && <span className="text-[#ace600] ml-0.5">*</span>}</label>
+      {children}
+      {error && (
+        <p className="mt-1 flex items-center gap-1 text-[11px] text-red-400/80">
+          <AlertTriangle className="w-3 h-3 shrink-0" />{error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function Toggle({ label, desc, checked, onChange }: { label: string; desc?: string; checked: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-3 border-b border-white/[0.04] last:border-0">
+      <div>
+        <p className="text-xs font-semibold text-white/70">{label}</p>
+        {desc && <p className="text-[10px] text-white/25 mt-0.5">{desc}</p>}
+      </div>
+      <button type="button" onClick={() => onChange(!checked)}
+        className="relative shrink-0 transition-all duration-200 focus:outline-none"
+        style={{ background: checked ? '#ace600' : 'rgba(255,255,255,0.1)', borderRadius: 999, height: 22, width: 40 }}>
+        <span className="absolute top-0.5 left-0.5 w-[18px] h-[18px] rounded-full bg-white shadow transition-transform duration-200"
+          style={{ transform: checked ? 'translateX(18px)' : 'translateX(0)' }} />
+      </button>
+    </div>
+  );
+}
+
+// ─── Skill levels ─────────────────────────────────────────────────────────────
+const SKILL_LEVELS = [
+  { value: '2.5', label: '2.5 — Principiante' },
+  { value: '3.0', label: '3.0 — Intermedio Bajo' },
+  { value: '3.5', label: '3.5 — Intermedio' },
+  { value: '4.0', label: '4.0 — Intermedio Alto' },
+  { value: '4.5', label: '4.5 — Avanzado' },
+  { value: '5.0', label: '5.0 — Profesional' },
+  { value: '5.5', label: '5.5 — Élite' },
+];
+const MEMBERSHIP_OPTIONS = [
+  { value: 'free',    label: 'Gratuita' },
+  { value: 'basic',   label: 'Básica' },
+  { value: 'pro',     label: 'Pro' },
+  { value: 'premium', label: 'Premium' },
+  { value: 'expired', label: 'Expirada' },
+];
+const TAB_CFG = [
+  { value: 'personal', label: 'Personal',  icon: UserIcon  },
+  { value: 'business', label: 'Negocio',   icon: Building2 },
+  { value: 'location', label: 'Ubicación', icon: MapPin    },
+] as const;
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
+export default function UserActionModal({ isOpen, user, mode, onClose, onSaveSuccess }: Props) {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading } = useSelector((state: RootState) => state.users);
+  const { loading } = useSelector((s: RootState) => s.users);
 
-  // Form state - use UpdateUserRequest type for form data
-  const [formData, setFormData] = useState<UpdateUserRequest>({});
+  const [form,              setForm]              = useState<UpdateUserRequest>({});
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors,            setErrors]            = useState<Record<string, string>>({});
 
-  // Initialize form when user changes or modal opens
+  const VALID_FIELDS: (keyof UpdateUserRequest)[] = [
+    'full_name','date_of_birth','gender','phone','profile_photo','skill_level',
+    'state','city','address','latitude','longitude','business_name','contact_person',
+    'job_title','curp','rfc','website','membership_status','membership_expires_at',
+    'is_active','is_verified','club_id',
+  ];
+
   useEffect(() => {
     if (user && isOpen) {
-      // Only initialize with UpdateUserRequest fields
-      const initialData: Record<string, any> = {};
-      const validFields: (keyof UpdateUserRequest)[] = [
-        'full_name',
-        'date_of_birth',
-        'gender',
-        'phone',
-        'profile_photo',
-        'skill_level',
-        'state',
-        'city',
-        'address',
-        'latitude',
-        'longitude',
-        'business_name',
-        'contact_person',
-        'job_title',
-        'curp',
-        'rfc',
-        'website',
-        'membership_status',
-        'membership_expires_at',
-        'is_active',
-        'is_verified',
-        'club_id',
-      ];
-
-      validFields.forEach((field) => {
-        const value = user[field as keyof User];
-        if (value !== undefined && value !== null) {
-          initialData[field] = value;
-        }
-      });
-
-      setFormData(initialData as UpdateUserRequest);
+      const init: Record<string, any> = {};
+      VALID_FIELDS.forEach(f => { const v = user[f as keyof User]; if (v != null) init[f] = v; });
+      setForm(init as UpdateUserRequest);
       setErrors({});
       setShowDeleteConfirm(false);
     }
   }, [user, isOpen]);
 
-  // Reset delete confirmation on close
-  useEffect(() => {
-    if (!isOpen) {
-      setShowDeleteConfirm(false);
-    }
-  }, [isOpen]);
+  useEffect(() => { if (!isOpen) setShowDeleteConfirm(false); }, [isOpen]);
 
-  // Handle input change
-  const handleInputChange = (field: keyof UpdateUserRequest, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-    // Clear error for this field
-    if (errors[field]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
+  const set = (field: keyof UpdateUserRequest, val: any) => {
+    setForm(p => ({ ...p, [field]: val }));
+    if (errors[field]) setErrors(p => { const n = { ...p }; delete n[field]; return n; });
   };
 
-  // Validate form
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.full_name?.trim()) {
-      newErrors.full_name = 'Nombre completo es requerido';
+  const validate = () => {
+    const e: Record<string, string> = {};
+    if (!form.full_name?.trim()) e.full_name = 'Nombre completo es requerido';
+    if (form.latitude != null) {
+      const v = parseFloat(String(form.latitude));
+      if (isNaN(v) || v < -90 || v > 90) e.latitude = 'Latitud: -90 a 90';
     }
-
-    // Validate coordinates if provided
-    if (formData.latitude !== undefined && formData.latitude !== null) {
-      const lat = parseFloat(String(formData.latitude));
-      if (isNaN(lat) || lat < -90 || lat > 90) {
-        newErrors.latitude = 'Latitud debe estar entre -90 y 90';
-      }
+    if (form.longitude != null) {
+      const v = parseFloat(String(form.longitude));
+      if (isNaN(v) || v < -180 || v > 180) e.longitude = 'Longitud: -180 a 180';
     }
-    if (formData.longitude !== undefined && formData.longitude !== null) {
-      const lng = parseFloat(String(formData.longitude));
-      if (isNaN(lng) || lng < -180 || lng > 180) {
-        newErrors.longitude = 'Longitud debe estar entre -180 y 180';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors(e);
+    return !Object.keys(e).length;
   };
 
-  // Handle save/update
   const handleSave = async () => {
-    if (!user || !validateForm()) return;
-
+    if (!user || !validate()) return;
     try {
-      // Send all valid UpdateUserRequest fields that exist - don't filter aggressively
-      const cleanData: Record<string, any> = {};
-      const validFields: (keyof UpdateUserRequest)[] = [
-        'full_name',
-        'date_of_birth',
-        'gender',
-        'phone',
-        'profile_photo',
-        'skill_level',
-        'state',
-        'city',
-        'address',
-        'latitude',
-        'longitude',
-        'business_name',
-        'contact_person',
-        'job_title',
-        'curp',
-        'rfc',
-        'website',
-        'membership_status',
-        'membership_expires_at',
-        'is_active',
-        'is_verified',
-        'club_id',
-      ];
-
-      validFields.forEach((field) => {
-        const value = formData[field];
-        // Include the field if it has a value (skip only if truly empty string, not if 0 or false)
-        if (value !== undefined && value !== null && value !== '') {
-          cleanData[field] = value;
-        }
-      });
-
-      console.log('🚀 Sending update payload:', {
-        id: user.id,
-        userData: cleanData,
-        keys: Object.keys(cleanData),
-        skillLevel: cleanData['skill_level'],
-      });
-
-      const result = await dispatch(
-        updateUser({ id: user.id, userData: cleanData as UpdateUserRequest }),
-      ).unwrap();
-
-      if (result) {
-        onClose();
-        onSaveSuccess?.();
-      }
-    } catch (error: any) {
-      setErrors((prev) => ({
-        ...prev,
-        submit: error?.message || 'Error al actualizar usuario',
-      }));
-    }
+      const clean: Record<string, any> = {};
+      VALID_FIELDS.forEach(f => { const v = form[f]; if (v != null && v !== '') clean[f] = v; });
+      const result = await dispatch(updateUser({ id: user.id, userData: clean as UpdateUserRequest })).unwrap();
+      if (result) { onClose(); onSaveSuccess?.(); }
+    } catch (e: any) { setErrors(p => ({ ...p, submit: e?.message || 'Error al actualizar' })); }
   };
 
-  // Handle delete
   const handleDelete = async () => {
     if (!user) return;
-
     try {
       await dispatch(deleteUser(user.id)).unwrap();
       setShowDeleteConfirm(false);
-      onClose();
-      onSaveSuccess?.();
-    } catch (error: any) {
-      setErrors((prev) => ({
-        ...prev,
-        submit: error?.message || 'Error al eliminar usuario',
-      }));
-    }
+      onClose(); onSaveSuccess?.();
+    } catch (e: any) { setErrors(p => ({ ...p, submit: e?.message || 'Error al eliminar' })); }
   };
 
   if (!user) return null;
 
-  // Prevent closing dialog when delete confirmation is open
-  const handleDialogOpenChange = (open: boolean) => {
-    if (!open && !showDeleteConfirm) {
-      onClose();
-    }
-  };
+  const initials = user.full_name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() || '??';
 
+  // ─────────────────────────────────────────────────────────────────────────────
   return (
     <>
-      <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-slate-900 border-slate-800">
-          <DialogHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b border-slate-800">
-            <div>
-              <DialogTitle className="text-white text-xl">
-                {mode === 'view' ? 'Ver Usuario' : 'Editar Usuario'}
-              </DialogTitle>
-              <DialogDescription className="text-slate-400">
-                {user?.full_name} (@{user?.username})
-              </DialogDescription>
-            </div>
-            <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
-              <X className="h-5 w-5" />
-            </button>
-          </DialogHeader>
+      <Dialog open={isOpen} onOpenChange={open => { if (!open && !showDeleteConfirm) onClose(); }}>
+        <DialogContent className="bg-[#0d1117] border-white/[0.09] rounded-2xl p-0 overflow-hidden max-w-2xl max-h-[90vh] overflow-y-auto">
 
-          <div className="space-y-6 py-4">
-            {/* Tabs for View vs Edit */}
-            {mode === 'view' ? (
-              // View Mode - Display only
-              <div className="space-y-6">
-                {/* User Summary */}
-                <Card className="border-slate-800 bg-slate-800/50">
-                  <CardContent className="p-6">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      <div>
-                        <span className="text-xs text-slate-400">Tipo de Usuario</span>
-                        <Badge className="mt-2 capitalize">{user.user_type}</Badge>
-                      </div>
-                      <div>
-                        <span className="text-xs text-slate-400">Membresía</span>
-                        <Badge className="mt-2 capitalize">{user.membership_status}</Badge>
-                      </div>
-                      <div>
-                        <span className="text-xs text-slate-400">Estado</span>
-                        <Badge className="mt-2" variant={user.is_active ? 'default' : 'secondary'}>
-                          {user.is_active ? 'Activo' : 'Inactivo'}
-                        </Badge>
-                      </div>
-                      <div>
-                        <span className="text-xs text-slate-400">Verificado</span>
-                        <Badge
-                          className="mt-2"
-                          variant={user.is_verified ? 'default' : 'secondary'}
-                        >
-                          {user.is_verified ? 'Sí' : 'No'}
-                        </Badge>
-                      </div>
+          {/* Top accent */}
+          <div className={cn('h-0.5', mode === 'edit'
+            ? 'bg-gradient-to-r from-[#ace600]/60 via-[#ace600]/30 to-transparent'
+            : 'bg-gradient-to-r from-sky-400/50 via-sky-400/25 to-transparent')} />
+
+          <div className="p-6">
+            {/* ── Header ──────────────────────────────────────────────────── */}
+            <DialogHeader className="mb-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3 min-w-0">
+                  {/* Avatar */}
+                  <div className="w-11 h-11 rounded-2xl bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center text-sm font-black text-[#ace600] shrink-0 select-none">
+                    {initials}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <DialogTitle className="text-base font-bold text-white leading-tight">
+                        {mode === 'view' ? 'Ver Usuario' : 'Editar Usuario'}
+                      </DialogTitle>
+                      <span className={cn(
+                        'inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase tracking-wider shrink-0',
+                        mode === 'edit'
+                          ? 'bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]'
+                          : 'bg-sky-500/10 border-sky-500/20 text-sky-400',
+                      )}>
+                        {mode === 'edit' ? <Edit2 className="w-2.5 h-2.5" /> : <Eye className="w-2.5 h-2.5" />}
+                        {mode === 'edit' ? 'Edición' : 'Vista'}
+                      </span>
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* User Details */}
-                <Tabs defaultValue="personal" className="w-full">
-                  <TabsList className="grid w-full grid-cols-3 bg-slate-800 border-slate-700">
-                    <TabsTrigger value="personal" className="text-slate-300">
-                      Personal
-                    </TabsTrigger>
-                    <TabsTrigger value="business" className="text-slate-300">
-                      Negocio
-                    </TabsTrigger>
-                    <TabsTrigger value="location" className="text-slate-300">
-                      Ubicación
-                    </TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="personal" className="space-y-4 mt-4">
-                    <DetailField label="Nombre" value={user.full_name || 'N/A'} />
-                    <DetailField label="Usuario" value={user.username} />
-                    <DetailField label="Email" value={user.email} />
-                    <DetailField label="Teléfono" value={user.phone || 'No especificado'} />
-                    <DetailField
-                      label="Nivel de Habilidad"
-                      value={user.skill_level || 'No especificado'}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="business" className="space-y-4 mt-4">
-                    <DetailField
-                      label="Nombre de Negocio"
-                      value={user.business_name || 'No especificado'}
-                    />
-                    <DetailField
-                      label="Persona de Contacto"
-                      value={user.contact_person || 'No especificado'}
-                    />
-                    <DetailField label="Puesto" value={user.job_title || 'No especificado'} />
-                    <DetailField label="CURP" value={user.curp || 'No especificado'} />
-                    <DetailField label="RFC" value={user.rfc || 'No especificado'} />
-                    <DetailField label="Sitio Web" value={user.website || 'No especificado'} />
-                  </TabsContent>
-
-                  <TabsContent value="location" className="space-y-4 mt-4">
-                    <DetailField label="Estado" value={user.state || 'No especificado'} />
-                    <DetailField label="Ciudad" value={user.city || 'No especificado'} />
-                    <DetailField label="Dirección" value={user.address || 'No especificado'} />
-                    <DetailField label="Latitud" value={user.latitude?.toString() || 'N/A'} />
-                    <DetailField label="Longitud" value={user.longitude?.toString() || 'N/A'} />
-                  </TabsContent>
-                </Tabs>
-
-                {/* Timestamps */}
-                <Card className="border-slate-800 bg-slate-800/50">
-                  <CardContent className="p-6">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <span className="text-xs text-slate-400">Creado</span>
-                        <p className="text-white mt-1">
-                          {new Date(user.created_at).toLocaleDateString('es-MX')}
-                        </p>
-                      </div>
-                      <div>
-                        <span className="text-xs text-slate-400">Actualizado</span>
-                        <p className="text-white mt-1">
-                          {new Date(user.updated_at).toLocaleDateString('es-MX')}
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    <DialogDescription className="text-[11px] text-white/30 truncate">
+                      {user.full_name} · @{user.username}
+                    </DialogDescription>
+                  </div>
+                </div>
+                <button onClick={onClose}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center border border-white/[0.07] text-white/25 hover:text-white hover:bg-white/[0.06] transition-all shrink-0">
+                  <X className="w-3.5 h-3.5" />
+                </button>
               </div>
-            ) : (
-              // Edit Mode - Form
-              <Tabs defaultValue="personal" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 bg-slate-800 border-slate-700">
-                  <TabsTrigger value="personal" className="text-slate-300">
-                    Personal
-                  </TabsTrigger>
-                  <TabsTrigger value="business" className="text-slate-300">
-                    Negocio
-                  </TabsTrigger>
-                  <TabsTrigger value="location" className="text-slate-300">
-                    Ubicación
-                  </TabsTrigger>
-                </TabsList>
+            </DialogHeader>
 
-                <TabsContent value="personal" className="space-y-4 mt-4">
-                  <FormField
-                    label="Nombre Completo"
-                    value={formData.full_name || ''}
-                    onChange={(v) => handleInputChange('full_name', v)}
-                    error={errors.full_name}
-                    placeholder="Nombre completo"
-                  />
+            {/* ── Status pills ────────────────────────────────────────────── */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+              {[
+                { label: 'Tipo', value: user.user_type,         color: 'text-violet-400', bg: 'bg-violet-500/10 border-violet-500/20' },
+                { label: 'Plan', value: user.membership_status, color: 'text-amber-400',  bg: 'bg-amber-500/10 border-amber-500/20' },
+              ].map(({ label, value, color, bg }) => (
+                <div key={label} className={cn('flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl border', bg)}>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-white/20">{label}</p>
+                  <p className={cn('text-[11px] font-bold capitalize', color)}>{value || '—'}</p>
+                </div>
+              ))}
+              <div className="flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl border border-white/[0.07] bg-white/[0.02]">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-white/20">Activo</p>
+                <StatusPill active={!!user.is_active} trueLabel="Sí" falseLabel="No" />
+              </div>
+              <div className="flex flex-col items-center justify-center gap-1 py-2.5 rounded-xl border border-white/[0.07] bg-white/[0.02]">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-white/20">Verificado</p>
+                <StatusPill active={!!user.is_verified} trueLabel="Sí" falseLabel="No" />
+              </div>
+            </div>
 
-                  <FormField
-                    label="Teléfono"
-                    value={formData.phone || ''}
-                    onChange={(v) => handleInputChange('phone', v)}
-                    placeholder="+34 XXX XXX XXX"
-                  />
-                  <FormField
-                    label="Bio"
-                    value={formData.bio || ''}
-                    onChange={(v) => handleInputChange('bio', v)}
-                    placeholder="Descripción personal"
-                  />
-                  <div>
-                    <Label className="text-slate-300 mb-2 block">Nivel de Habilidad (NRTP)</Label>
-                    <Select
-                      value={formData.skill_level || ''}
-                      onValueChange={(v) => handleInputChange('skill_level', v)}
-                    >
-                      <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                        <SelectValue placeholder="Seleccionar nivel de habilidad" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-700">
-                        <SelectItem value="2.5" className="text-white">
-                          2.5 - Principiante
-                        </SelectItem>
-                        <SelectItem value="3.0" className="text-white">
-                          3.0 - Intermedio Bajo
-                        </SelectItem>
-                        <SelectItem value="3.5" className="text-white">
-                          3.5 - Intermedio
-                        </SelectItem>
-                        <SelectItem value="4.0" className="text-white">
-                          4.0 - Intermedio Alto
-                        </SelectItem>
-                        <SelectItem value="4.5" className="text-white">
-                          4.5 - Avanzado
-                        </SelectItem>
-                        <SelectItem value="5.0" className="text-white">
-                          5.0 - Profesional
-                        </SelectItem>
-                        <SelectItem value="5.5" className="text-white">
-                          5.5 - Élite
-                        </SelectItem>
+            {/* ── Content tabs ─────────────────────────────────────────────── */}
+            <Tabs defaultValue="personal">
+              <TabsList className="flex h-auto w-full gap-1 bg-white/[0.03] border border-white/[0.06] rounded-xl p-1 mb-4">
+                {TAB_CFG.map(({ value, label, icon: Icon }) => (
+                  <TabsTrigger key={value} value={value}
+                    className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg text-[11px] font-semibold text-white/30 hover:text-white/55 transition-all data-[state=active]:bg-[#ace600] data-[state=active]:text-black data-[state=active]:font-bold data-[state=active]:shadow-[0_0_8px_rgba(172,230,0,0.15)]">
+                    <Icon className="w-3 h-3 shrink-0" />{label}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              {/* ── VIEW MODE ────────────────────────────────────────────── */}
+              {mode === 'view' ? (
+                <>
+                  <TabsContent value="personal">
+                    <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl px-4">
+                      <DetailRow label="Nombre"     value={user.full_name} />
+                      <DetailRow label="Usuario"    value={user.username} />
+                      <DetailRow label="Email"      value={user.email} />
+                      <DetailRow label="Teléfono"   value={user.phone} />
+                      <DetailRow label="Nivel NRTP" value={user.skill_level} />
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="business">
+                    <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl px-4">
+                      <DetailRow label="Negocio"   value={user.business_name} />
+                      <DetailRow label="Contacto"  value={user.contact_person} />
+                      <DetailRow label="Puesto"    value={user.job_title} />
+                      <DetailRow label="CURP"      value={user.curp} />
+                      <DetailRow label="RFC"       value={user.rfc} />
+                      <DetailRow label="Sitio Web" value={user.website} />
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="location">
+                    <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl px-4">
+                      <DetailRow label="Estado"    value={user.state} />
+                      <DetailRow label="Ciudad"    value={user.city} />
+                      <DetailRow label="Dirección" value={user.address} />
+                      <DetailRow label="Latitud"   value={user.latitude?.toString()} />
+                      <DetailRow label="Longitud"  value={user.longitude?.toString()} />
+                    </div>
+                  </TabsContent>
+
+                  {/* Timestamps */}
+                  <div className="grid grid-cols-2 gap-3 mt-4">
+                    {[
+                      { label: 'Creado',       value: new Date(user.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }) },
+                      { label: 'Actualizado',  value: new Date(user.updated_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }) },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-3">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-1">{label}</p>
+                        <p className="text-xs font-semibold text-white/55">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                /* ── EDIT MODE ─────────────────────────────────────────── */
+                <>
+                  <TabsContent value="personal" className="space-y-3">
+                    <Field label="Nombre Completo" req error={errors.full_name}>
+                      <Input className={cn(inputCls, errors.full_name && 'border-red-500/40 focus-visible:border-red-500/60')}
+                        placeholder="Nombre completo"
+                        value={form.full_name ?? ''}
+                        onChange={e => set('full_name', e.target.value)} />
+                    </Field>
+                    <Field label="Teléfono">
+                      <Input className={inputCls} placeholder="+52 55 0000 0000"
+                        value={form.phone ?? ''}
+                        onChange={e => set('phone', e.target.value)} />
+                    </Field>
+                    <Field label="Nivel de Habilidad (NRTP)">
+                      <Select value={form.skill_level ?? ''} onValueChange={v => set('skill_level', v)}>
+                        <SelectTrigger className={selectCls}><SelectValue placeholder="Seleccionar nivel" /></SelectTrigger>
+                        <SelectContent className="bg-[#161c25] border-white/[0.08] rounded-xl shadow-2xl">
+                          {SKILL_LEVELS.map(s => (
+                            <SelectItem key={s.value} value={s.value} className="text-white/70 focus:bg-white/[0.06] focus:text-white">
+                              {s.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  </TabsContent>
+
+                  <TabsContent value="business" className="space-y-3">
+                    {[
+                      { key: 'business_name',  label: 'Nombre de Negocio',    ph: 'Nombre del negocio' },
+                      { key: 'contact_person', label: 'Persona de Contacto',  ph: 'Nombre del contacto' },
+                      { key: 'job_title',      label: 'Puesto',               ph: 'Puesto o título' },
+                      { key: 'curp',           label: 'CURP',                 ph: 'CURP' },
+                      { key: 'rfc',            label: 'RFC',                  ph: 'RFC' },
+                      { key: 'website',        label: 'Sitio Web',            ph: 'https://example.com' },
+                    ].map(({ key, label, ph }) => (
+                      <Field key={key} label={label}>
+                        <Input className={inputCls} placeholder={ph}
+                          value={(form as any)[key] ?? ''}
+                          onChange={e => set(key as keyof UpdateUserRequest, e.target.value)} />
+                      </Field>
+                    ))}
+                  </TabsContent>
+
+                  <TabsContent value="location" className="space-y-3">
+                    {[
+                      { key: 'state',   label: 'Estado',    ph: 'Estado',    type: 'text' },
+                      { key: 'city',    label: 'Ciudad',    ph: 'Ciudad',    type: 'text' },
+                      { key: 'address', label: 'Dirección', ph: 'Dirección', type: 'text' },
+                    ].map(({ key, label, ph }) => (
+                      <Field key={key} label={label}>
+                        <Input className={inputCls} placeholder={ph}
+                          value={(form as any)[key] ?? ''}
+                          onChange={e => set(key as keyof UpdateUserRequest, e.target.value)} />
+                      </Field>
+                    ))}
+                    <div className="grid grid-cols-2 gap-3">
+                      <Field label="Latitud" error={errors.latitude}>
+                        <Input type="number" className={cn(inputCls, errors.latitude && 'border-red-500/40')}
+                          placeholder="-90 a 90"
+                          value={form.latitude?.toString() ?? ''}
+                          onChange={e => set('latitude', e.target.value ? parseFloat(e.target.value) : null)} />
+                      </Field>
+                      <Field label="Longitud" error={errors.longitude}>
+                        <Input type="number" className={cn(inputCls, errors.longitude && 'border-red-500/40')}
+                          placeholder="-180 a 180"
+                          value={form.longitude?.toString() ?? ''}
+                          onChange={e => set('longitude', e.target.value ? parseFloat(e.target.value) : null)} />
+                      </Field>
+                    </div>
+                  </TabsContent>
+                </>
+              )}
+            </Tabs>
+
+            {/* ── Edit-only: status block ──────────────────────────────────── */}
+            {mode === 'edit' && (
+              <div className="mt-4 bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.05]">
+                  <div className="w-6 h-6 rounded-lg bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center shrink-0">
+                    <Shield className="w-3 h-3 text-[#ace600]" />
+                  </div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Estado y Membresía</p>
+                </div>
+                <div className="p-4 space-y-1">
+                  <Field label="Plan de Membresía">
+                    <Select value={form.membership_status ?? ''} onValueChange={v => set('membership_status', v)}>
+                      <SelectTrigger className={selectCls}><SelectValue placeholder="Seleccionar plan" /></SelectTrigger>
+                      <SelectContent className="bg-[#161c25] border-white/[0.08] rounded-xl shadow-2xl">
+                        {MEMBERSHIP_OPTIONS.map(o => (
+                          <SelectItem key={o.value} value={o.value} className="text-white/70 focus:bg-white/[0.06] focus:text-white">
+                            {o.label}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
+                  </Field>
+                  <div className="mt-3 bg-white/[0.02] border border-white/[0.05] rounded-xl px-4">
+                    <Toggle label="Usuario Activo" desc="El usuario puede acceder a la plataforma"
+                      checked={!!form.is_active} onChange={v => set('is_active', v)} />
+                    <Toggle label="Usuario Verificado" desc="Verificación de identidad completada"
+                      checked={!!form.is_verified} onChange={v => set('is_verified', v)} />
                   </div>
-                </TabsContent>
-
-                <TabsContent value="business" className="space-y-4 mt-4">
-                  <FormField
-                    label="Nombre de Negocio"
-                    value={formData.business_name || ''}
-                    onChange={(v) => handleInputChange('business_name', v)}
-                    placeholder="Nombre del negocio"
-                  />
-                  <FormField
-                    label="Persona de Contacto"
-                    value={formData.contact_person || ''}
-                    onChange={(v) => handleInputChange('contact_person', v)}
-                    placeholder="Nombre del contacto"
-                  />
-                  <FormField
-                    label="Puesto"
-                    value={formData.job_title || ''}
-                    onChange={(v) => handleInputChange('job_title', v)}
-                    placeholder="Puesto o título"
-                  />
-                  <FormField
-                    label="CURP"
-                    value={formData.curp || ''}
-                    onChange={(v) => handleInputChange('curp', v)}
-                    placeholder="CURP"
-                  />
-                  <FormField
-                    label="RFC"
-                    value={formData.rfc || ''}
-                    onChange={(v) => handleInputChange('rfc', v)}
-                    placeholder="RFC"
-                  />
-                  <FormField
-                    label="Sitio Web"
-                    value={formData.website || ''}
-                    onChange={(v) => handleInputChange('website', v)}
-                    placeholder="https://example.com"
-                  />
-                </TabsContent>
-
-                <TabsContent value="location" className="space-y-4 mt-4">
-                  <FormField
-                    label="Estado"
-                    value={formData.state || ''}
-                    onChange={(v) => handleInputChange('state', v)}
-                    placeholder="Estado"
-                  />
-                  <FormField
-                    label="Ciudad"
-                    value={formData.city || ''}
-                    onChange={(v) => handleInputChange('city', v)}
-                    placeholder="Ciudad"
-                  />
-                  <FormField
-                    label="Dirección"
-                    value={formData.address || ''}
-                    onChange={(v) => handleInputChange('address', v)}
-                    placeholder="Dirección"
-                  />
-                  <FormField
-                    label="Latitud"
-                    type="number"
-                    value={formData.latitude?.toString() || ''}
-                    onChange={(v) => handleInputChange('latitude', v ? parseFloat(v) : null)}
-                    error={errors.latitude}
-                    placeholder="-90 a 90"
-                  />
-                  <FormField
-                    label="Longitud"
-                    type="number"
-                    value={formData.longitude?.toString() || ''}
-                    onChange={(v) => handleInputChange('longitude', v ? parseFloat(v) : null)}
-                    error={errors.longitude}
-                    placeholder="-180 a 180"
-                  />
-                </TabsContent>
-              </Tabs>
+                </div>
+              </div>
             )}
 
-            {/* Status Fields - Both modes */}
-            {mode === 'edit' ? (
-              <Card className="border-slate-800 bg-slate-800/50">
-                <CardContent className="p-6 space-y-4">
-                  <div>
-                    <Label className="text-slate-300 mb-2 block">Membresía</Label>
-                    <Select
-                      value={formData.membership_status || ''}
-                      onValueChange={(v) => handleInputChange('membership_status', v)}
-                    >
-                      <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                        <SelectValue placeholder="Seleccionar membresía" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-700">
-                        <SelectItem value="free" className="text-white">
-                          Gratuita
-                        </SelectItem>
-                        <SelectItem value="basic" className="text-white">
-                          Básica
-                        </SelectItem>
-                        <SelectItem value="pro" className="text-white">
-                          Pro
-                        </SelectItem>
-                        <SelectItem value="premium" className="text-white">
-                          Premium
-                        </SelectItem>
-                        <SelectItem value="expired" className="text-white">
-                          Expirada
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.is_active || false}
-                        onChange={(e) => handleInputChange('is_active', e.target.checked)}
-                        className="rounded border-slate-700"
-                      />
-                      <span className="text-slate-300">Activo</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={formData.is_verified || false}
-                        onChange={(e) => handleInputChange('is_verified', e.target.checked)}
-                        className="rounded border-slate-700"
-                      />
-                      <span className="text-slate-300">Verificado</span>
-                    </label>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : null}
-
-            {/* Error Message */}
+            {/* ── Submit error ─────────────────────────────────────────────── */}
             {errors.submit && (
-              <Card className="border-red-800/50 bg-red-900/20">
-                <CardContent className="p-4 flex gap-3">
-                  <AlertTriangle className="h-5 w-5 text-red-400 flex-shrink-0 mt-0.5" />
-                  <p className="text-red-400 text-sm">{errors.submit}</p>
-                </CardContent>
-              </Card>
+              <div className="mt-4 flex items-start gap-2.5 p-3.5 bg-red-500/[0.06] border border-red-500/15 rounded-xl">
+                <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+                <p className="text-xs text-red-400/80">{errors.submit}</p>
+              </div>
             )}
-          </div>
 
-          <DialogFooter className="border-t border-slate-800 pt-4">
-            {mode === 'edit' ? (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={onClose}
-                  disabled={loading}
-                  className="border-slate-700 text-slate-300 hover:bg-slate-800"
-                >
-                  Cancelar
-                </Button>
-                <Button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  variant="destructive"
-                  disabled={loading}
-                  className="bg-red-900/50 text-red-400 hover:bg-red-900"
-                >
-                  Eliminar Usuario
-                </Button>
-                <Button
-                  onClick={handleSave}
-                  disabled={loading}
-                  className="bg-primary text-slate-900 hover:bg-primary/90"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Guardando...
-                    </>
-                  ) : (
-                    'Guardar Cambios'
-                  )}
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={onClose}
-                  className="border-slate-700 text-slate-300 hover:bg-slate-800"
-                >
+            {/* ── Footer actions ───────────────────────────────────────────── */}
+            <div className="flex gap-2 mt-5 pt-4 border-t border-white/[0.06]">
+              {mode === 'edit' ? (
+                <>
+                  <button onClick={onClose} disabled={loading}
+                    className="h-9 px-4 rounded-xl text-xs font-semibold border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/40 hover:text-white disabled:opacity-40 transition-all">
+                    Cancelar
+                  </button>
+                  <button onClick={() => setShowDeleteConfirm(true)} disabled={loading}
+                    className="h-9 px-4 rounded-xl text-xs font-bold border border-red-500/20 bg-red-500/[0.06] hover:bg-red-500/[0.12] text-red-400 disabled:opacity-40 transition-all">
+                    <Trash2 className="w-3.5 h-3.5 inline mr-1.5" />Eliminar
+                  </button>
+                  <button onClick={handleSave} disabled={loading}
+                    className="ml-auto h-9 px-5 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_12px_rgba(172,230,0,0.18)] disabled:opacity-50 transition-all">
+                    {loading
+                      ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Guardando…</>
+                      : <><Check className="w-3.5 h-3.5" />Guardar Cambios</>}
+                  </button>
+                </>
+              ) : (
+                <button onClick={onClose}
+                  className="ml-auto h-9 px-5 rounded-xl text-xs font-semibold border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/50 hover:text-white transition-all">
                   Cerrar
-                </Button>
-              </>
-            )}
-          </DialogFooter>
+                </button>
+              )}
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
-      {showDeleteConfirm && (
-        <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-          <AlertDialogContent className="bg-slate-900 border-slate-800">
+      {/* ── Delete confirm ───────────────────────────────────────────────────── */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent className="bg-[#0d1117] border-white/[0.09] rounded-2xl p-0 overflow-hidden max-w-sm">
+          <div className="h-0.5 bg-red-500/50" />
+          <div className="p-6">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-white flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-yellow-500" />
-                Eliminar Usuario
+              <div className="w-11 h-11 rounded-2xl bg-red-500/[0.08] border border-red-500/15 flex items-center justify-center mb-4">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+              </div>
+              <AlertDialogTitle className="text-base font-bold text-white mb-1">
+                ¿Eliminar este usuario?
               </AlertDialogTitle>
-              <AlertDialogDescription className="text-slate-400">
-                ¿Estás seguro de que deseas eliminar a {user.full_name}? Esta acción no se puede
-                deshacer.
+              <AlertDialogDescription className="text-xs text-white/35 leading-relaxed">
+                Esta acción no se puede deshacer. Se eliminarán permanentemente la cuenta de{' '}
+                <span className="font-semibold text-white/55">{user.full_name}</span> y todos sus datos.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700">
+            <AlertDialogFooter className="flex gap-2 mt-5 flex-row">
+              <AlertDialogCancel className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/50 hover:text-white text-xs font-semibold transition-all">
                 Cancelar
               </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDelete}
-                disabled={loading}
-                className="bg-red-900 text-red-50 hover:bg-red-800"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Eliminando...
-                  </>
-                ) : (
-                  'Eliminar'
-                )}
+              <AlertDialogAction onClick={handleDelete} disabled={loading}
+                className="flex-1 h-9 rounded-xl bg-red-500/80 hover:bg-red-500 text-white text-xs font-bold border-0 inline-flex items-center justify-center gap-1.5 disabled:opacity-50 transition-all">
+                {loading
+                  ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Eliminando…</>
+                  : <>Sí, eliminar</>}
               </AlertDialogAction>
             </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
-  );
-}
-
-// Helper Components
-function DetailField({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between items-start py-3 border-b border-slate-800 last:border-b-0">
-      <span className="text-slate-400 text-sm">{label}</span>
-      <span className="text-white text-sm font-medium">{value}</span>
-    </div>
-  );
-}
-
-interface FormFieldProps {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  error?: string;
-  placeholder?: string;
-  type?: string;
-  disabled?: boolean;
-}
-
-function FormField({
-  label,
-  value,
-  onChange,
-  error,
-  placeholder,
-  type = 'text',
-  disabled = false,
-}: FormFieldProps) {
-  return (
-    <div>
-      <Label className="text-slate-300 mb-2 block">{label}</Label>
-      <Input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        disabled={disabled}
-        className={`bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 focus:border-primary focus:ring-2 focus:ring-primary/20 ${
-          error ? 'border-red-500/50 focus:border-red-500' : ''
-        }`}
-      />
-      {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
-    </div>
   );
 }

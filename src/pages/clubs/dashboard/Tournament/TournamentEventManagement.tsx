@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
   Select,
   SelectContent,
@@ -39,6 +40,7 @@ import {
   Eye,
   Filter,
   Search,
+  CalendarDays,
 } from 'lucide-react';
 
 import { AppDispatch, RootState } from '@/store';
@@ -235,6 +237,7 @@ const labelCls = 'text-[11px] font-semibold uppercase tracking-widest text-white
 
 const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ tournamentId }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { tournamentEvents, eventRegistrations, eventGroups, eventMatches, loading, error } =
     useSelector((state: RootState) => state.tournaments);
   const { profile } = useSelector((state: any) => state.clubDashboard);
@@ -392,6 +395,9 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
       console.error('Failed to record match result:', err);
     }
   }
+
+  console.log('++++++++++++++++', eventMatches);
+
 
   /* ─── Calculated stats ── */
   const totalRegistrations = eventRegistrations.length;
@@ -1214,6 +1220,22 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
             {!selectedEvent && (
               <div className="p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl text-center">
                 <p className="text-xs text-white/30">Select an event from the Events tab first</p>
+              </div>
+            )}
+
+            {selectedEvent && eventMatches.length > 0 && (
+              <div className="flex justify-end mb-3">
+                <button
+                  onClick={() =>
+                    navigate(
+                      `/clubs/dashboard/tournaments/${tournamentId}/events/${selectedEvent.id}/schedule`,
+                    )
+                  }
+                  className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-[#ace600]/10 border border-[#ace600]/30 text-[#ace600] hover:bg-[#ace600]/20 rounded-lg transition-colors"
+                >
+                  <CalendarDays className="w-3.5 h-3.5" />
+                  Programar Horarios
+                </button>
               </div>
             )}
 

@@ -10,6 +10,8 @@ import {
   Shield,
   Trophy,
   Zap,
+  CheckSquare,
+  CalendarDays,
 } from 'lucide-react';
 
 const navItems: NavItem[] = [
@@ -31,12 +33,12 @@ const navItems: NavItem[] = [
     icon: Building2,
     description: 'Gestionar clubes',
   },
-  // {
-  //   title: 'Canchas',
-  //   url: '/admin/dashboard/courts',
-  //   icon: Trophy,
-  //   description: 'Gestionar canchas',
-  // },
+  {
+    title: 'Canchas',
+    url: '/admin/dashboard/courts',
+    icon: Trophy,
+    description: 'Gestionar canchas',
+  },
   {
     title: 'Estados',
     url: '/admin/dashboard/states',
@@ -44,22 +46,40 @@ const navItems: NavItem[] = [
     description: 'Gestionar estados',
   },
   {
-    title: 'Tournaments',
+    title: 'Validación de Torneos',
+    url: '/admin/dashboard/validation',
+    icon: Trophy,
+    description: 'Aprobar torneos estatales',
+  },
+  {
+    title: 'Gestión de Torneos',
     url: '/admin/dashboard/tournaments',
     icon: Trophy,
-    description: 'Manage national tournaments',
+    description: 'Gestionar torneos nacionales',
   },
+  // {
+  //   title: 'Panel de Torneo',
+  //   url: '/admin/dashboard/tournaments-view',
+  //   icon: Zap,
+  //   description: 'Monitorear torneos activos',
+  // },
+  // {
+  //   title: 'Eventos de Torneo',
+  //   url: '/admin/dashboard/events',
+  //   icon: Zap,
+  //   description: 'Aprobar eventos estatales',
+  // },
+  // {
+  //   title: 'Correcciones de Marcador',
+  //   url: '/admin/dashboard/corrections',
+  //   icon: CheckSquare,
+  //   description: 'Aprobar o rechazar correcciones de marcador',
+  // },
   {
-    title: 'Tournament Dashboard',
-    url: '/admin/dashboard/tournaments-view',
-    icon: Zap,
-    description: 'Monitor all tournaments',
-  },
-  {
-    title: 'Tournament Events',
-    url: '/admin/dashboard/events',
-    icon: Zap,
-    description: 'Approve state events',
+    title: 'Horarios',
+    url: '/admin/dashboard/schedule',
+    icon: CalendarDays,
+    description: 'Programar horarios de partidos',
   },
   {
     title: 'Mensajes',

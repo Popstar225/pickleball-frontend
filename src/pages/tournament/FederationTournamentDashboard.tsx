@@ -1,489 +1,1261 @@
+/**
+ * Federation Tournament Dashboard — full management for federation admins
+ */
+
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import {
   Trophy,
   Users,
   Swords,
   Target,
+  CheckCircle2,
   AlertTriangle,
   Loader2,
-  BarChart3,
   ChevronRight,
   Layers,
-  CheckCircle2,
+  ListChecks,
+  Medal,
+  BarChart3,
 } from 'lucide-react';
 
 import { AppDispatch, RootState } from '@/store';
 import {
-  fetchTournaments,
+  fetchTournament,
   fetchTournamentEvents,
   fetchEventGroups,
   fetchEventMatches,
+  fetchEventRegistrations,
+  generateGroups,
 } from '@/store/slices/tournamentsSlice';
+
+import GroupManagement from '@/components/tournament/GroupManagement';
 import GroupStandings from '@/components/tournament/GroupStandings';
+import MatchManagement from '@/components/tournament/MatchManagement';
 import QualifierSelection from '@/components/tournament/QualifierSelection';
-import SingleEliminationBracket from '@/components/tournament/SingleEliminationBracket';
+import TournamentBracket from '@/components/tournament/TournamentBracket';
+import BracketMatchScoreModal from '@/components/tournament/BracketMatchScoreModal';
+import TournamentStatusTimeline, {
+  Stage as TimelineStage,
+} from '@/components/tournament/TournamentStatusTimeline';
+import { cn } from '@/lib/utils';
+import { api } from '@/lib/api';
+import { markTournamentAsComplete } from '@/services/tournamentBracketService';
 
-/* ─── tab config ── */
-type Tab = 'overview' | 'standings' | 'qualifiers' | 'bracket';
+// ─── Types ────────────────────────────────────────────────────────────────────
+type StageKey =
+  | 'planning'
+  | 'groups'
+  | 'standings'
+  | 'matches'
+  | 'qualifiers'
+  | 'bracket'
+  | 'completed';
+type TabKey = 'overview' | 'groups' | 'standings' | 'matches' | 'qualifiers' | 'bracket';
 
-const TABS: {
-  id: Tab;
+interface PlayerMark {
+  user_id: string;
+  full_name: string;
+  matches_played: number;
+  matches_won: number;
+  matches_lost: number;
+  win_percentage: number;
+  ranking: number;
+}
+
+interface PlayerMarksResponse {
+  success: boolean;
+  eventId: string;
+  player_marks: PlayerMark[];
+  total_players: number;
+}
+
+interface Stage {
+  key: StageKey;
   label: string;
-  icon: React.ElementType;
-  needsTournament?: boolean;
-  needsGroups?: boolean;
-}[] = [
-  { id: 'overview', label: 'Overview', icon: BarChart3 },
-  { id: 'standings', label: 'Standings', icon: Layers, needsTournament: true, needsGroups: true },
-  { id: 'qualifiers', label: 'Qualifiers', icon: Target, needsTournament: true },
-  { id: 'bracket', label: 'Bracket', icon: Swords, needsTournament: true },
+  desc: string;
+}
+
+const STAGES: Stage[] = [
+  { key: 'planning', label: 'Planificación', desc: 'Configuración e inscripciones' },
+  { key: 'groups', label: 'Grupos', desc: 'Generar grupos balanceados' },
+  { key: 'standings', label: 'Tabla', desc: 'Resultados round-robin' },
+  { key: 'matches', label: 'Partidos', desc: 'Registrar resultados' },
+  { key: 'qualifiers', label: 'Clasificados', desc: 'Avanzar a eliminatoria' },
+  { key: 'bracket', label: 'Bracket', desc: 'Eliminación directa' },
+  { key: 'completed', label: 'Completado', desc: 'Torneo finalizado' },
 ];
 
-/* ─── status config ── */
-function statusCfg(status: string) {
-  if (status === 'in_progress' || status === 'registration_open')
-    return {
-      dot: 'bg-emerald-400',
-      text: 'text-emerald-400',
-      bg: 'bg-emerald-500/[0.08]',
-      border: 'border-emerald-500/20',
-    };
-  if (status === 'completed')
-    return {
-      dot: 'bg-white/30',
-      text: 'text-white/40',
-      bg: 'bg-white/[0.05]',
-      border: 'border-white/[0.08]',
-    };
-  return {
-    dot: 'bg-amber-400',
-    text: 'text-amber-400',
-    bg: 'bg-amber-500/[0.08]',
-    border: 'border-amber-500/20',
-  };
-}
+const TABS: { key: TabKey; label: string; icon: React.ElementType }[] = [
+  { key: 'overview', label: 'Resumen', icon: BarChart3 },
+  { key: 'groups', label: 'Grupos', icon: Layers },
+  { key: 'standings', label: 'Tabla', icon: ListChecks },
+  { key: 'matches', label: 'Partidos', icon: Swords },
+  { key: 'qualifiers', label: 'Clasificados', icon: Medal },
+  { key: 'bracket', label: 'Bracket', icon: Trophy },
+];
 
-function StatusBadge({ status }: { status: string }) {
-  const c = statusCfg(status);
-  return (
-    <Badge
-      variant="outline"
-      className={`text-[10px] font-bold uppercase tracking-widest hover:bg-transparent ${c.bg} ${c.border} ${c.text}`}
-    >
-      <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${c.dot}`} />
-      {status.replace(/_/g, ' ')}
-    </Badge>
-  );
-}
+const modalityCls: Record<string, string> = {
+  Singles: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+  Doubles: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+  Mixed: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+};
 
-/* ─── skill block color ── */
-function blockColor(block: string) {
-  const n = parseFloat(block);
-  if (n >= 5.0) return 'text-[#ace600] bg-[#ace600]/10 border-[#ace600]/20';
-  if (n >= 4.5) return 'text-sky-400 bg-sky-400/10 border-sky-400/20';
-  if (n >= 4.0) return 'text-violet-400 bg-violet-400/10 border-violet-400/20';
-  if (n >= 3.5) return 'text-amber-400 bg-amber-400/10 border-amber-400/20';
-  return 'text-white/40 bg-white/[0.05] border-white/[0.08]';
-}
-
-/* ── stat pill ── */
-function StatPill({
+// ─── Atoms ────────────────────────────────────────────────────────────────────
+function StatCard({
   icon: Icon,
-  value,
   label,
+  value,
+  sub,
+  color,
+  bg,
 }: {
   icon: React.ElementType;
-  value: string | number;
   label: string;
+  value: React.ReactNode;
+  sub: string;
+  color: string;
+  bg: string;
 }) {
   return (
-    <div className="flex items-center gap-1.5 text-xs text-white/40">
-      <Icon className="w-3 h-3 text-white/20" />
-      <span className="font-semibold text-white/60">{value}</span>
-      <span>{label}</span>
+    <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
+      <div className="min-w-0">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-1 truncate">
+          {label}
+        </p>
+        <p className={cn('text-[22px] font-bold leading-none', color)}>{value}</p>
+        <p className="text-[10px] text-white/20 mt-1">{sub}</p>
+      </div>
+      <div
+        className={cn('w-9 h-9 rounded-xl border flex items-center justify-center shrink-0', bg)}
+      >
+        <Icon className={cn('w-4 h-4', color)} />
+      </div>
     </div>
   );
 }
 
-/* ══════════════════════════════════════════════════════════════════ */
+function SectionHeading({
+  icon: Icon,
+  children,
+}: {
+  icon: React.ElementType;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-2.5 mb-4">
+      <div className="w-6 h-6 rounded-md bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center shrink-0">
+        <Icon className="w-3 h-3 text-[#ace600]" />
+      </div>
+      <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/30">
+        {children}
+      </span>
+      <div className="flex-1 h-px bg-white/[0.05]" />
+    </div>
+  );
+}
 
+function EmptyPanel({
+  icon: Icon,
+  title,
+  sub,
+}: {
+  icon: React.ElementType;
+  title: string;
+  sub?: string;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center py-20 gap-4 bg-[#0d1117] border border-white/[0.07] rounded-2xl">
+      <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
+        <Icon className="w-5 h-5 text-white/10" />
+      </div>
+      <div className="text-center">
+        <p className="text-sm font-semibold text-white/35 mb-1">{title}</p>
+        {sub && <p className="text-xs text-white/20 max-w-[220px] leading-relaxed">{sub}</p>}
+      </div>
+    </div>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between py-2.5 border-b border-white/[0.04] last:border-0">
+      <span className="text-xs text-white/25">{label}</span>
+      <span className="text-xs font-semibold text-white/70">{value}</span>
+    </div>
+  );
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
 const FederationTournamentDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<Tab>('overview');
-  const [selectedTournamentId, setSelectedTournamentId] = useState<string | null>(null);
-  const [activeEvent, setActiveEvent] = useState<string | null>(null);
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  const [activeTab, setActiveTab] = useState<TabKey>('overview');
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+
+  // ── Qualifier extraction state (for QualifierSelection component) ──
+  const [extractedQualifiers, setExtractedQualifiers] = useState<any[]>([]);
+
+  // ── Bracket data state ──
+  const [bracketRawData, setBracketRawData] = useState<any>(null);
+  const [bracketLoading, setBracketLoading] = useState(false);
+  const [isGeneratingBracket, setIsGeneratingBracket] = useState(false);
+  const [bracketError, setBracketError] = useState<string | null>(null);
+  const [qualifierError, setQualifierError] = useState<string | null>(null);
+
+  // ── Tournament completion state ──
+  const [isMarkingComplete, setIsMarkingComplete] = useState(false);
+  const [isTournamentComplete, setIsTournamentComplete] = useState(false);
+  const [playerMarks, setPlayerMarks] = useState<PlayerMark[]>([]);
+  const [loadingPlayerMarks, setLoadingPlayerMarks] = useState(false);
+  const [completionError, setCompletionError] = useState<string | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
-  const { tournaments, eventGroups, loading, error } = useSelector(
-    (state: RootState) => state.tournaments,
-  );
+  const { tournamentEvents, eventGroups, eventMatches, eventRegistrations, loading, error } =
+    useSelector((s: RootState) => s.tournaments);
 
-  const activeTournament = tournaments.find((t: any) => t.id === selectedTournamentId);
-
-  /* ── Load tournaments on mount ── */
-  useEffect(() => {
-    dispatch(
-      fetchTournaments({
-        organizer_type: 'admin',
-        limit: 50,
-      } as any),
-    ).catch((err: any) => console.error('Failed to load tournaments:', err));
-  }, [dispatch]);
-
-  /* ── Load events when tournament is selected ── */
-  useEffect(() => {
-    if (selectedTournamentId) {
-      dispatch(
-        fetchTournamentEvents({
-          tournamentId: selectedTournamentId,
-          limit: 20,
-        } as any),
-      ).catch((err: any) => console.error('Failed to load events:', err));
-    }
-  }, [selectedTournamentId, dispatch]);
-
-  /* ── Load groups and matches when event is selected ── */
-  useEffect(() => {
-    if (selectedTournamentId && activeEvent) {
-      dispatch(
-        fetchEventGroups({
-          tournamentId: selectedTournamentId,
-          eventId: activeEvent,
-        } as any),
-      ).catch((err: any) => console.error('Failed to load groups:', err));
-
-      dispatch(
-        fetchEventMatches({
-          tournamentId: selectedTournamentId,
-          eventId: activeEvent,
-        } as any),
-      ).catch((err: any) => console.error('Failed to load matches:', err));
-    }
-  }, [selectedTournamentId, activeEvent, dispatch]);
-
-  /* ── loading ── */
-  if (loading) {
+  // Redirect or show error if no tournament ID
+  if (!tournamentId) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-3">
-        <Loader2 className="w-6 h-6 text-[#ace600] animate-spin" />
-        <p className="text-sm text-white/25">Loading tournaments…</p>
+      <div className="space-y-5">
+        <div className="flex items-center gap-3 p-6 bg-red-500/[0.06] border border-red-500/15 rounded-2xl">
+          <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" />
+          <div>
+            <p className="text-sm font-semibold text-red-400 mb-1">Tournament ID Required</p>
+            <p className="text-xs text-red-400/70">Please select a tournament to manage</p>
+          </div>
+        </div>
       </div>
     );
   }
 
-  const isTabDisabled = (tab: (typeof TABS)[number]) => {
-    if (tab.needsTournament && !activeTournament) return true;
-    if (tab.needsGroups && (!eventGroups || eventGroups.length === 0)) return true;
-    return false;
+  /* ── Load tournament and its events on mount ── */
+  useEffect(() => {
+    if (tournamentId) {
+      dispatch(fetchTournament(tournamentId)).catch((err: any) =>
+        console.error('Failed to load tournament:', err),
+      );
+
+      dispatch(
+        fetchTournamentEvents({
+          tournamentId,
+          limit: 20,
+        } as any),
+      ).catch((err: any) => console.error('Failed to load events:', err));
+    }
+  }, [tournamentId, dispatch]);
+
+  /* ── Auto-select event when only one exists ── */
+  useEffect(() => {
+    if (!selectedEvent && tournamentEvents?.length === 1) {
+      setSelectedEvent(tournamentEvents[0]);
+    }
+  }, [tournamentEvents, selectedEvent]);
+
+  /* ── Load groups, matches, and registrations when event is selected ── */
+  useEffect(() => {
+    if (tournamentId && selectedEvent?.id) {
+      dispatch(fetchEventGroups({ tournamentId, eventId: selectedEvent.id } as any))
+        .then(() => console.log('[Fed] ✓ Groups loaded'))
+        .catch((err: any) => console.error('[Fed] ✗ Failed to load groups:', err));
+
+      dispatch(fetchEventMatches({ tournamentId, eventId: selectedEvent.id } as any))
+        .then(() => console.log('[Fed] ✓ Matches loaded'))
+        .catch((err: any) => console.error('[Fed] ✗ Failed to load matches:', err));
+
+      dispatch(fetchEventRegistrations({ tournamentId, eventId: selectedEvent.id } as any))
+        .then(() => console.log('[Fed] ✓ Registrations loaded'))
+        .catch((err: any) => console.error('[Fed] ✗ Failed to load registrations:', err));
+    }
+  }, [tournamentId, selectedEvent?.id, dispatch]);
+
+  // ── Qualifier handlers ──
+  const fetchAndSetQualifiers = async () => {
+    if (!tournamentId || !selectedEvent?.id) return;
+    setQualifierError(null);
+    try {
+      const response = await api.get(
+        `/tournaments/${tournamentId}/events/${selectedEvent.id}/qualifiers`,
+      );
+      const rawQualifiers: any[] = (response as any)?.qualifiers || [];
+      const transformed = rawQualifiers.map((q: any) => ({
+        userId: q.user_id,
+        userName: q.user_name,
+        position: q.seed_position,
+        groupId: q.group_id,
+        groupNumber: q.group_number,
+        matchesWon: q.matches_won || 0,
+        qualified: true,
+      }));
+      setExtractedQualifiers(transformed);
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || err?.message || 'Error al obtener clasificados';
+      setQualifierError(msg);
+      console.error('Failed to fetch qualifiers:', err);
+    }
   };
 
+  // Expose as the component prop (strategy ignored — we always fetch top-N from backend)
+  const handleExtractQualifiers = async (_strategy: string) => {
+    await fetchAndSetQualifiers();
+  };
+
+  // Auto-load qualifiers AND bracket status when the clasificados tab becomes active
+  useEffect(() => {
+    if (activeTab === 'qualifiers' && tournamentId && selectedEvent?.id) {
+      fetchAndSetQualifiers();
+      loadBracketData(); // needed to detect if bracket already exists (bracketExists flag)
+    }
+  }, [activeTab, tournamentId, selectedEvent?.id]);
+
+  const handleConfirmAdvancement = async () => {
+    if (!tournamentId || !selectedEvent?.id) return;
+    // If bracket was already auto-generated, just navigate
+    if (bracketExists) {
+      setActiveTab('bracket');
+      return;
+    }
+    setBracketError(null);
+    setIsGeneratingBracket(true);
+    try {
+      await api.post(
+        `/tournaments/${tournamentId}/events/${selectedEvent.id}/generate-bracket`,
+        { advance_count: 2 },
+      );
+      await loadBracketData();
+      setActiveTab('bracket');
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || err?.message || 'Error al generar bracket';
+      setBracketError(msg);
+      console.error('Failed to generate bracket:', err);
+    } finally {
+      setIsGeneratingBracket(false);
+    }
+  };
+
+  // ── Fetch bracket data ──
+  const loadBracketData = async () => {
+    if (!tournamentId || !selectedEvent?.id) return;
+    setBracketLoading(true);
+    try {
+      const response = await api.get(
+        `/tournaments/${tournamentId}/events/${selectedEvent.id}/bracket`,
+      );
+      setBracketRawData(response);
+    } catch (err) {
+      console.error('Failed to load bracket:', err);
+    } finally {
+      setBracketLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'bracket' && tournamentId && selectedEvent?.id) {
+      loadBracketData();
+    }
+  }, [activeTab, tournamentId, selectedEvent?.id]);
+
+  // Bracket match score modal state
+  const [bracketModal, setBracketModal] = useState<{
+    matchId: string;
+    player1: { id: string; name: string };
+    player2: { id: string; name: string };
+  } | null>(null);
+
+  const handleBracketMatchClick = (
+    matchId: string,
+    player1: { id: string; name: string },
+    player2: { id: string; name: string },
+  ) => {
+    setBracketModal({ matchId, player1, player2 });
+  };
+
+  const handleBracketScoreSubmit = async (payload: {
+    matchId: string;
+    winnerId: string;
+    loserId: string;
+    setScores: any[];
+    winnerBy: string;
+    reason?: string;
+  }) => {
+    if (!tournamentId || !selectedEvent?.id) return;
+    await api.put(
+      `/tournaments/${tournamentId}/events/${selectedEvent.id}/matches/${payload.matchId}`,
+      {
+        winner_id: payload.winnerId,
+        loser_id: payload.loserId,
+        set_scores: payload.setScores,
+        winner_by: payload.winnerBy,
+        ...(payload.reason ? { walkover_reason: payload.reason } : {}),
+      },
+    );
+    await loadBracketData();
+  };
+
+  // bracketRawData is the source of truth: matches[] from the real API
+  const bracketExists = ((bracketRawData as any)?.matches?.length ?? 0) > 0;
+
+  // Only count group_stage matches for completion — bracket matches must not count
+  const groupStageMatchesOnly = (eventMatches ?? []).filter(
+    (m: any) => m.match_type === 'group_stage' || (m.group_id && !m.match_type),
+  );
+  const allGroupMatchesDone =
+    groupStageMatchesOnly.length > 0 &&
+    groupStageMatchesOnly.every((m: any) => m.status === 'completed');
+
+  // Check if all bracket matches are completed
+  const allBracketMatchesDone =
+    bracketExists &&
+    ((bracketRawData as any)?.matches?.length ?? 0) > 0 &&
+    ((bracketRawData as any)?.matches?.every((m: any) => m.status === 'completed') ?? false);
+
+  // Current stage
+  const getCurrentStage = (): StageKey => {
+    if (!selectedEvent) return 'planning';
+    if (!eventGroups?.length) return 'groups';
+    if (!eventMatches?.length) return 'standings';
+    if (!allGroupMatchesDone) return 'matches';
+    if (!bracketExists) return 'qualifiers';
+    if (!allBracketMatchesDone) return 'bracket';
+    return 'completed';
+  };
+  const currentStage = getCurrentStage();
+
+  const isStageCompleted = (key: StageKey) =>
+    (key === 'groups' && (eventGroups?.length ?? 0) > 0) ||
+    (key === 'standings' && (eventMatches?.some((m: any) => m.status === 'completed') ?? false)) ||
+    (key === 'matches' && allGroupMatchesDone) ||
+    (key === 'qualifiers' && bracketExists) ||
+    (key === 'bracket' && allBracketMatchesDone) ||
+    (key === 'completed' && allBracketMatchesDone);
+
+  // Build stages with progress information for timeline
+  const buildStagesWithProgress = (): TimelineStage[] => {
+    const totalMatches = eventMatches?.length || 0;
+    const completedMatches = eventMatches?.filter((m: any) => m.status === 'completed').length || 0;
+    const registrations = eventRegistrations?.length || 0;
+
+    // Calculate bracket progress from bracketRawData (flat matches[])
+    const rawBracketMatches: any[] = (bracketRawData as any)?.matches ?? [];
+    const bracketTotalMatches = rawBracketMatches.length;
+    const bracketCompletedMatches = rawBracketMatches.filter(
+      (m: any) => m.status === 'completed',
+    ).length;
+
+    return STAGES.map((stage) => {
+      const isActive = stage.key === currentStage;
+      const isCompleted = isStageCompleted(stage.key);
+
+      let progress = undefined;
+      if (isActive) {
+        if (stage.key === 'groups') {
+          progress = {
+            current: Math.min(eventGroups?.length || 0, 1),
+            total: 1,
+            percent: eventGroups?.length ? 100 : 0,
+            label: eventGroups?.length ? 'Grupos generados' : 'Esperando generación...',
+          };
+        } else if (stage.key === 'matches') {
+          progress = {
+            current: completedMatches,
+            total: totalMatches,
+            percent: totalMatches > 0 ? (completedMatches / totalMatches) * 100 : 0,
+            label: `${completedMatches}/${totalMatches} partidos completados`,
+          };
+        } else if (stage.key === 'planning') {
+          progress = {
+            current: registrations,
+            total: Math.max(registrations, 1),
+            percent: registrations > 0 ? 100 : 50,
+            label: `${registrations} jugadores inscritos`,
+          };
+        } else if (stage.key === 'qualifiers') {
+          const qualifiersAdvanced = extractedQualifiers.length;
+          progress = {
+            current: qualifiersAdvanced,
+            total: qualifiersAdvanced || 1,
+            percent: qualifiersAdvanced > 0 ? 100 : 0,
+            label:
+              qualifiersAdvanced > 0
+                ? `${qualifiersAdvanced} jugadores clasificados`
+                : 'Extrayendo clasificados...',
+          };
+        } else if (stage.key === 'bracket') {
+          // Show bracket tournament progress
+          progress = {
+            current: bracketCompletedMatches,
+            total: Math.max(bracketTotalMatches, 1),
+            percent:
+              bracketTotalMatches > 0
+                ? (bracketCompletedMatches / bracketTotalMatches) * 100
+                : 0,
+            label:
+              bracketTotalMatches === 0
+                ? 'Esperando bracket...'
+                : `${bracketCompletedMatches}/${bracketTotalMatches} partidos completados`,
+          };
+        } else if (stage.key === 'completed') {
+          progress = {
+            current: 1,
+            total: 1,
+            percent: 100,
+            label: '¡Torneo finalizado exitosamente!',
+          };
+        }
+      }
+
+      return {
+        key: stage.key,
+        label: stage.label,
+        description: stage.desc,
+        completed: isCompleted,
+        isActive: isActive,
+        progress: progress,
+      };
+    });
+  };
+
+  const stagesWithProgress = buildStagesWithProgress();
+
+  const handleGenerateGroups = async () => {
+    if (!selectedEvent?.id || !tournamentId) return;
+    try {
+      await dispatch(
+        generateGroups({ tournamentId, eventId: selectedEvent.id }),
+      ).unwrap();
+      dispatch(fetchEventGroups({ tournamentId, eventId: selectedEvent.id } as any));
+      dispatch(fetchEventMatches({ tournamentId, eventId: selectedEvent.id } as any));
+    } catch (e) {
+      /* handled via error state */
+    }
+  };
+
+  const handleMatchUpdate = async (matchId: string, data: any) => {
+    if (!selectedEvent?.id || !tournamentId) return;
+
+    // Transform MatchManagement local format → backend API format
+    const apiData: any = {};
+
+    if (data.status === 'played' || data.set1) {
+      const set_scores: any[] = [];
+      if (data.set1) set_scores.push({ set: 1, player1: data.set1.p1, player2: data.set1.p2 });
+      if (data.set2) set_scores.push({ set: 2, player1: data.set2.p1, player2: data.set2.p2 });
+      if (data.set3) set_scores.push({ set: 3, player1: data.set3.p1, player2: data.set3.p2 });
+      apiData.winner_by = 'score';
+      apiData.set_scores = set_scores;
+      if (data.winner?.id) apiData.winner_id = data.winner.id;
+    } else if (data.status === 'walkover') {
+      apiData.winner_by = 'walkover';
+      if (data.winner?.id) apiData.winner_id = data.winner.id;
+      if (data.notes) apiData.walkover_reason = data.notes;
+    } else if (data.status === 'withdrawal') {
+      apiData.winner_by = 'withdrawal';
+      if (data.winner?.id) apiData.winner_id = data.winner.id;
+      if (data.notes) apiData.withdrawal_reason = data.notes;
+    } else if (data.status === 'disqualified') {
+      apiData.winner_by = 'disqualification';
+      if (data.winner?.id) apiData.winner_id = data.winner.id;
+      if (data.notes) apiData.disqualification_reason = data.notes;
+    }
+
+    const result: any = await api.put(
+      `/tournaments/${tournamentId}/events/${selectedEvent.id}/matches/${matchId}`,
+      apiData,
+    );
+
+    dispatch(fetchEventMatches({ tournamentId, eventId: selectedEvent.id } as any));
+
+    // Backend auto-generates bracket when last group match is recorded
+    if (result?.workflow?.bracket_generated) {
+      await loadBracketData();
+    }
+  };
+
+  // Fetch player marks/rankings for completed tournament
+  const fetchPlayerMarks = async () => {
+    if (!selectedEvent?.id || !tournamentId) return;
+    setLoadingPlayerMarks(true);
+    try {
+      const response = await api.get<PlayerMarksResponse>(
+        `/tournaments/${tournamentId}/events/${selectedEvent.id}/player-marks`,
+      );
+      if (response?.player_marks && Array.isArray(response.player_marks)) {
+        setPlayerMarks(response.player_marks);
+      }
+    } catch (err) {
+      console.error('Failed to fetch player marks:', err);
+    } finally {
+      setLoadingPlayerMarks(false);
+    }
+  };
+
+  const handleMarkTournamentComplete = async () => {
+    if (!selectedEvent?.id || !tournamentId || allBracketMatchesDone === false) return;
+
+    setIsMarkingComplete(true);
+    setCompletionError(null);
+    try {
+      const result = await markTournamentAsComplete(tournamentId, selectedEvent.id);
+      if (result?.success) {
+        setIsTournamentComplete(true);
+        setSelectedEvent((prev: any) => ({ ...prev, status: 'completed' }));
+        dispatch(fetchTournament(tournamentId));
+        await fetchPlayerMarks();
+      } else {
+        setCompletionError(result?.error || 'Failed to mark tournament as complete');
+      }
+    } catch (err) {
+      setCompletionError(err instanceof Error ? err.message : 'Error marking tournament complete');
+    } finally {
+      setIsMarkingComplete(false);
+    }
+  };
+
+  const groups = eventGroups || [];
+  const regs = eventRegistrations || [];
+  const events = tournamentEvents || [];
+  const completedMatches = (eventMatches || []).filter((m: any) => m.status === 'completed').length;
+
+  // Tab enabled states
+  const tabEnabled: Record<TabKey, boolean> = {
+    overview: true,
+    groups: !!selectedEvent,
+    standings: !!eventGroups?.length,
+    matches: !!eventGroups?.length && selectedEvent?.status !== 'draft',
+    qualifiers: completedMatches > 0 && !!eventGroups?.length,
+    bracket: extractedQualifiers.length > 0,
+  };
+
+  // Transform API match format → MatchManagement MatchRecord format
+  const matches = (eventMatches || []).map((m: any) => {
+    const scores: any[] = Array.isArray(m.setScores) ? m.setScores : [];
+    const isCompleted = m.status === 'completed';
+    return {
+      id: m.id,
+      player1: { id: m.player1?.id || null, name: m.player1?.name || 'TBD' },
+      player2: { id: m.player2?.id || null, name: m.player2?.name || 'TBD' },
+      status: isCompleted ? 'played' : m.status,
+      winner: undefined as any,
+      set1: scores[0] ? { p1: scores[0].player1, p2: scores[0].player2 } : undefined,
+      set2: scores[1] ? { p1: scores[1].player1, p2: scores[1].player2 } : undefined,
+      set3: scores[2] ? { p1: scores[2].player1, p2: scores[2].player2 } : undefined,
+    };
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-6 p-1">
-      {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-5">
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Federation Tournaments</h1>
-          <p className="text-sm text-white/35 mt-0.5">Manage tournaments across clubs and states</p>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-[22px] font-bold text-white tracking-tight">Gestión del Torneo</h1>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 border-amber-500/20 text-amber-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              Federación
+            </span>
+          </div>
+          <p className="text-xs text-white/25">
+            {selectedEvent
+              ? `${selectedEvent.skill_block} · ${selectedEvent.modality} · ${selectedEvent.gender}`
+              : 'Selecciona un evento para administrar'}
+          </p>
         </div>
-        {activeTournament && (
-          <Badge
-            variant="outline"
-            className="bg-[#ace600]/[0.08] border-[#ace600]/20 text-[#ace600] text-[11px] font-semibold"
+
+        {selectedEvent && (
+          <span
+            className={cn(
+              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-[10px] font-bold uppercase tracking-wider',
+              selectedEvent.status === 'completed'
+                ? 'bg-violet-500/10 border-violet-500/20 text-violet-400'
+                : selectedEvent.status === 'in_progress' || selectedEvent.status === 'registration_open'
+                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                  : 'bg-sky-500/10 border-sky-500/20 text-sky-400',
+            )}
           >
-            <Trophy className="w-3 h-3 mr-1.5" />
-            {activeTournament.name}
-          </Badge>
+            <span
+              className={cn(
+                'w-1.5 h-1.5 rounded-full',
+                selectedEvent.status === 'completed'
+                  ? 'bg-violet-400'
+                  : selectedEvent.status === 'in_progress'
+                    ? 'bg-emerald-400 animate-pulse'
+                    : 'bg-sky-400',
+              )}
+            />
+            {selectedEvent.status === 'completed'
+              ? 'COMPLETADO'
+              : selectedEvent.status?.replace(/_/g, ' ').toUpperCase() || 'ACTIVO'}
+          </span>
         )}
       </div>
 
-      {/* ── Error ── */}
+      {/* ── Error banner ────────────────────────────────────────────────────── */}
       {error && (
-        <div className="flex gap-2.5 bg-red-500/[0.06] border border-red-500/15 rounded-xl px-4 py-3">
-          <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-red-400">{error}</p>
+        <div className="flex items-start gap-3 p-3.5 bg-red-500/[0.06] border border-red-500/15 rounded-xl">
+          <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+          <p className="text-xs text-red-400/90">{error}</p>
         </div>
       )}
 
-      {/* ── Main card ── */}
-      <Card className="bg-[#0d1117] border-white/[0.07] rounded-2xl overflow-hidden p-0">
-        {/* Tab bar */}
-        <CardHeader className="p-0 border-b border-white/[0.06]">
-          <div className="flex overflow-x-auto">
-            {TABS.map(({ id, label, icon: Icon }) => {
-              const disabled = isTabDisabled(TABS.find((t) => t.id === id)!);
-              return (
-                <button
-                  key={id}
-                  onClick={() => !disabled && setActiveTab(id)}
-                  disabled={disabled}
-                  className={`flex items-center gap-2 px-5 py-3.5 text-xs font-semibold border-b-2 -mb-px whitespace-nowrap transition-all flex-shrink-0 ${
-                    activeTab === id
-                      ? 'text-[#ace600] border-[#ace600]'
-                      : disabled
-                        ? 'text-white/15 border-transparent cursor-not-allowed'
-                        : 'text-white/30 border-transparent hover:text-white/60'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {label}
-                </button>
-              );
-            })}
+      {/* ── Tournament Status Timeline ────────────────────────────────────── */}
+      {selectedEvent && (
+        <TournamentStatusTimeline
+          stages={stagesWithProgress}
+          currentStage={currentStage}
+          horizontalLayout={true}
+          showProgressLabels={true}
+        />
+      )}
+
+      {/* ── Event selector (when none selected) ─────────────────────────────── */}
+      {!selectedEvent && events.length > 0 && (
+        <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
+          <div className="px-5 py-4 border-b border-white/[0.06]">
+            <SectionHeading icon={Layers}>Selecciona un Evento</SectionHeading>
           </div>
-        </CardHeader>
-
-        <CardContent className="p-6">
-          {/* ── Overview ── */}
-          {activeTab === 'overview' && (
-            <div className="space-y-5">
-              {/* Tournament grid */}
-              {tournaments.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-14 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-center mb-4">
-                    <Trophy className="w-6 h-6 text-white/20" />
-                  </div>
-                  <p className="text-white/50 font-semibold text-sm mb-1">No tournaments found</p>
-                  <p className="text-white/20 text-xs">Create a tournament to get started.</p>
+          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {events.map((event: any) => (
+              <button
+                key={event.id}
+                onClick={() => setSelectedEvent(event)}
+                className="group text-left flex items-center gap-3.5 p-4 bg-white/[0.02] border border-white/[0.07] rounded-xl hover:border-[#ace600]/30 hover:bg-[#ace600]/[0.03] transition-all"
+              >
+                <div className="w-9 h-9 rounded-xl bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-[11px] font-black text-white/30 shrink-0 select-none group-hover:bg-[#ace600]/10 group-hover:border-[#ace600]/20 group-hover:text-[#ace600] transition-all">
+                  {event.skill_block?.slice(0, 2).toUpperCase() || '??'}
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {tournaments.map((tournament: any) => {
-                    const isSelected = selectedTournamentId === tournament.id;
-                    return (
-                      <button
-                        key={tournament.id}
-                        onClick={() => setSelectedTournamentId(tournament.id)}
-                        className={`text-left p-4 rounded-xl border transition-all ${
-                          isSelected
-                            ? 'bg-[#ace600]/[0.04] border-[#ace600]/30'
-                            : 'bg-white/[0.02] border-white/[0.07] hover:border-white/[0.14] hover:bg-white/[0.04]'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-3 mb-3">
-                          <div className="flex items-center gap-2.5">
-                            <div
-                              className={`w-8 h-8 rounded-lg flex items-center justify-center border flex-shrink-0 ${
-                                isSelected
-                                  ? 'bg-[#ace600]/10 border-[#ace600]/20'
-                                  : 'bg-white/[0.04] border-white/[0.08]'
-                              }`}
-                            >
-                              <Trophy
-                                className={`w-4 h-4 ${isSelected ? 'text-[#ace600]' : 'text-white/25'}`}
-                              />
-                            </div>
-                            <p className="text-sm font-bold text-white/85 leading-tight">
-                              {tournament.name}
-                            </p>
-                          </div>
-                          <StatusBadge status={tournament.status || 'pending'} />
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <StatPill
-                            icon={Users}
-                            value={tournament.current_participants || 0}
-                            label="players"
-                          />
-                          <StatPill
-                            icon={Layers}
-                            value={tournament.events?.length || 0}
-                            label="events"
-                          />
-                        </div>
-                        {isSelected && (
-                          <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center gap-1.5 text-[11px] text-[#ace600]/70 font-semibold">
-                            <CheckCircle2 className="w-3 h-3" /> Selected
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Event list for selected tournament */}
-              {selectedTournamentId && activeTournament && (
-                <>
-                  <Separator className="bg-white/[0.05]" />
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <Layers className="w-4 h-4 text-white/25" />
-                      <p className="text-sm font-semibold text-white/50">
-                        Events — {activeTournament.name}
-                      </p>
-                      <Badge
-                        variant="outline"
-                        className="ml-auto border-white/[0.06] bg-white/[0.04] text-white/25 text-[10px]"
-                      >
-                        {activeTournament.events?.length || 0}
-                      </Badge>
-                    </div>
-                    <div className="space-y-2">
-                      {activeTournament.events?.map((event: any) => {
-                        const isActive = activeEvent === event.id;
-                        return (
-                          <button
-                            key={event.id}
-                            onClick={() => setActiveEvent(event.id)}
-                            className={`w-full text-left flex items-center gap-4 p-3.5 rounded-xl border transition-all ${
-                              isActive
-                                ? 'bg-[#ace600]/[0.04] border-[#ace600]/25'
-                                : 'bg-white/[0.02] border-white/[0.07] hover:border-white/[0.14]'
-                            }`}
-                          >
-                            <Badge
-                              variant="outline"
-                              className={`text-[10px] font-bold border flex-shrink-0 ${blockColor(event.skill_block)}`}
-                            >
-                              {event.skill_block}
-                            </Badge>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-semibold text-white/60 capitalize">
-                                {event.modality} · {event.gender}
-                              </p>
-                            </div>
-                            <div className="flex items-center gap-3 text-xs text-white/30 flex-shrink-0">
-                              <span className="flex items-center gap-1">
-                                <Layers className="w-3 h-3" /> {event.groups?.length || 0} groups
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Users className="w-3 h-3" /> {event.registrations?.length || 0}
-                              </span>
-                              <ChevronRight
-                                className={`w-3.5 h-3.5 transition-colors ${isActive ? 'text-[#ace600]/50' : 'text-white/15'}`}
-                              />
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-                    {/* Navigate shortcuts */}
-                    {activeEvent && (
-                      <div className="flex gap-2 mt-4">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setActiveTab('standings')}
-                          disabled={!eventGroups || eventGroups.length === 0}
-                          className="flex-1 h-8 border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-white/50 hover:text-white text-xs font-semibold disabled:opacity-30"
-                        >
-                          <Layers className="w-3 h-3 mr-1.5" /> Standings
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setActiveTab('qualifiers')}
-                          className="flex-1 h-8 border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-white/50 hover:text-white text-xs font-semibold"
-                        >
-                          <Target className="w-3 h-3 mr-1.5" /> Qualifiers
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setActiveTab('bracket')}
-                          className="flex-1 h-8 border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-white/50 hover:text-white text-xs font-semibold"
-                        >
-                          <Swords className="w-3 h-3 mr-1.5" /> Bracket
-                        </Button>
-                      </div>
-                    )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-white/70 group-hover:text-white transition-colors truncate">
+                    {event.skill_block}
+                  </p>
+                  <div className="flex gap-1.5 mt-1.5">
+                    <span
+                      className={cn(
+                        'text-[10px] font-bold px-1.5 py-0.5 rounded-full border',
+                        modalityCls[event.modality] ??
+                          'bg-white/[0.05] text-white/25 border-white/[0.08]',
+                      )}
+                    >
+                      {event.modality}
+                    </span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-white/[0.05] border border-white/[0.08] text-white/25">
+                      {event.gender}
+                    </span>
                   </div>
-                </>
+                </div>
+                <ChevronRight className="w-4 h-4 text-white/15 group-hover:text-[#ace600]/60 shrink-0 transition-colors" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Stat strip ──────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-3 gap-2.5">
+        <StatCard
+          icon={Users}
+          label="Inscritos"
+          value={regs.length}
+          sub="jugadores"
+          color="text-sky-400"
+          bg="bg-sky-500/10 border-sky-500/20"
+        />
+        <StatCard
+          icon={Target}
+          label="Grupos"
+          value={groups.length}
+          sub="generados"
+          color="text-violet-400"
+          bg="bg-violet-500/10 border-violet-500/20"
+        />
+        <StatCard
+          icon={Swords}
+          label="Partidos"
+          value={`${completedMatches}/${matches.length}`}
+          sub="completados"
+          color="text-[#ace600]"
+          bg="bg-[#ace600]/10 border-[#ace600]/20"
+        />
+      </div>
+
+      {/* ── Tab bar ─────────────────────────────────────────────────────────── */}
+      <div className="flex gap-1.5 overflow-x-auto pb-px">
+        {TABS.map(({ key, label, icon: Icon }) => {
+          const enabled = tabEnabled[key];
+          const active = activeTab === key;
+          const isDone = isStageCompleted(key as StageKey);
+          return (
+            <button
+              key={key}
+              onClick={() => enabled && setActiveTab(key)}
+              disabled={!enabled}
+              className={cn(
+                'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold whitespace-nowrap shrink-0 transition-all',
+                active
+                  ? 'bg-[#ace600] text-black shadow-[0_0_10px_rgba(172,230,0,0.15)]'
+                  : !enabled
+                    ? 'bg-white/[0.02] border border-white/[0.05] text-white/15 cursor-not-allowed'
+                    : 'bg-[#0d1117] border border-white/[0.07] text-white/35 hover:text-white/65 hover:border-white/[0.12]',
               )}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              {label}
+              {!active && isDone && (
+                <CheckCircle2
+                  className={cn('w-3 h-3', active ? 'text-black/40' : 'text-[#ace600]')}
+                />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Tab panels ──────────────────────────────────────────────────────── */}
+
+      {/* Overview */}
+      {activeTab === 'overview' && (
+        <div className="space-y-4">
+          {!selectedEvent ? (
+            <EmptyPanel
+              icon={Target}
+              title="Selecciona un evento"
+              sub="Elige un evento arriba para ver los detalles del torneo"
+            />
+          ) : (
+            <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
+              <div className="px-5 py-4 border-b border-white/[0.06]">
+                <SectionHeading icon={Trophy}>Detalles del Evento</SectionHeading>
+              </div>
+              <div className="px-5 pb-4">
+                <InfoRow label="Categoría" value={selectedEvent.skill_block} />
+                <InfoRow
+                  label="Modalidad"
+                  value={
+                    <span
+                      className={cn(
+                        'px-2 py-0.5 rounded-full border text-[10px] font-bold',
+                        modalityCls[selectedEvent.modality] ??
+                          'bg-white/[0.05] text-white/30 border-white/[0.08]',
+                      )}
+                    >
+                      {selectedEvent.modality}
+                    </span>
+                  }
+                />
+                <InfoRow label="Género" value={selectedEvent.gender} />
+                <InfoRow label="Formato" value={selectedEvent.format ?? '—'} />
+                <InfoRow label="Inscritos" value={`${regs.length} jugadores`} />
+                <InfoRow
+                  label="Etapa Actual"
+                  value={
+                    <span className="inline-flex items-center gap-1.5 text-[#ace600] font-bold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#ace600] animate-pulse" />
+                      {STAGES.find((s) => s.key === currentStage)?.label}
+                    </span>
+                  }
+                />
+              </div>
             </div>
           )}
+        </div>
+      )}
 
-          {/* ── Standings ── */}
-          {activeTab === 'standings' && (
-            <div className="space-y-4">
-              {eventGroups && eventGroups.length > 0 ? (
-                eventGroups.map((group: any, idx: number) => (
-                  <div
-                    key={group.id}
-                    className="bg-white/[0.02] border border-white/[0.07] rounded-xl overflow-hidden"
-                  >
-                    <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.05]">
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 rounded-md bg-white/[0.06] flex items-center justify-center">
-                          <span className="text-[10px] font-bold text-white/40">{idx + 1}</span>
-                        </div>
-                        <p className="text-xs font-bold uppercase tracking-widest text-white/35">
-                          Group {idx + 1}
+      {/* Groups */}
+      {activeTab === 'groups' && selectedEvent && (
+        <div>
+          {selectedEvent.number_of_groups === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 gap-5 bg-[#0d1117] border border-white/[0.07] rounded-2xl">
+              <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
+                <Target className="w-6 h-6 text-white/10" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-semibold text-white/35 mb-1">Sin grupos generados</p>
+                <p className="text-xs text-white/20 max-w-[200px] leading-relaxed">
+                  Genera grupos balanceados a partir de los jugadores inscritos
+                </p>
+              </div>
+              <button
+                onClick={handleGenerateGroups}
+                disabled={loading}
+                className="inline-flex items-center gap-2 h-10 px-5 rounded-xl text-xs font-bold bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_14px_rgba(172,230,0,0.18)] transition-all disabled:opacity-50"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generando…
+                  </>
+                ) : (
+                  <>
+                    <Layers className="w-4 h-4" />
+                    Generar Grupos
+                  </>
+                )}
+              </button>
+            </div>
+          ) : (
+            <GroupManagement
+              tournamentId={tournamentId || ''}
+              eventId={selectedEvent.id}
+              eventName={selectedEvent.name}
+              eventStatus={selectedEvent.status}
+            />
+          )}
+        </div>
+      )}
+
+      {/* Standings */}
+      {activeTab === 'standings' && (
+        <div className="space-y-3">
+          {groups.length === 0 ? (
+            <EmptyPanel
+              icon={ListChecks}
+              title="Genera los grupos primero"
+              sub="La tabla de posiciones estará disponible una vez que se generen los grupos"
+            />
+          ) : (
+            groups.map((group: any, idx: number) => (
+              <div
+                key={group.id}
+                className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden"
+              >
+                <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-xl bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center text-xs font-black text-[#ace600]">
+                      {idx + 1}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white/80">Grupo {idx + 1}</p>
+                      <p className="text-xs text-white/25">
+                        {group.standings?.length || 0} jugadores · {group.matches?.length || 0}{' '}
+                        partidos
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-5">
+                  <GroupStandings
+                    groupName={`Grupo ${idx + 1}`}
+                    groupNumber={idx + 1}
+                    advanceCount={2}
+                    tournamentId={tournamentId}
+                    eventId={selectedEvent?.id}
+                    groupId={group.id}
+                  />
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* Matches */}
+      {activeTab === 'matches' && (
+        <div className="space-y-5">
+          {groupStageMatchesOnly.length === 0 ? (
+            <EmptyPanel
+              icon={Swords}
+              title="Sin partidos programados"
+              sub="Los partidos aparecerán aquí una vez que se generen los grupos"
+            />
+          ) : (() => {
+            // Group matches by group_id
+            const groupMap = new Map<string, { groupNumber: number; rawMatches: any[] }>();
+            groupStageMatchesOnly.forEach((m: any) => {
+              const gid = m.group_id || 'ungrouped';
+              if (!groupMap.has(gid)) {
+                const grp = (eventGroups ?? []).find((g: any) => g.id === gid);
+                groupMap.set(gid, { groupNumber: grp?.group_number ?? 0, rawMatches: [] });
+              }
+              groupMap.get(gid)!.rawMatches.push(m);
+            });
+
+            // Sort sections by group number
+            const sections = Array.from(groupMap.entries())
+              .sort(([, a], [, b]) => a.groupNumber - b.groupNumber);
+
+            return sections.map(([gid, { groupNumber, rawMatches }]) => {
+              const groupMatchRecords = rawMatches.map((m: any) => {
+                const scores: any[] = Array.isArray(m.setScores) ? m.setScores : [];
+                const isCompleted = m.status === 'completed';
+                return {
+                  id: m.id,
+                  player1: { id: m.player1?.id || null, name: m.player1?.name || 'TBD' },
+                  player2: { id: m.player2?.id || null, name: m.player2?.name || 'TBD' },
+                  status: isCompleted ? 'played' : m.status,
+                  winner: undefined as any,
+                  set1: scores[0] ? { p1: scores[0].player1, p2: scores[0].player2 } : undefined,
+                  set2: scores[1] ? { p1: scores[1].player1, p2: scores[1].player2 } : undefined,
+                  set3: scores[2] ? { p1: scores[2].player1, p2: scores[2].player2 } : undefined,
+                };
+              });
+              const doneCount = groupMatchRecords.filter(m => m.status !== 'pending').length;
+              const allDone = doneCount === groupMatchRecords.length;
+
+              return (
+                <div key={gid} className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
+                  {/* Group header */}
+                  <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06]">
+                    <div className="flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-xl bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center text-xs font-black text-[#ace600]">
+                        {groupNumber || '?'}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-white/80">
+                          {groupNumber ? `Grupo ${groupNumber}` : 'Sin grupo'}
+                        </p>
+                        <p className="text-[10px] text-white/25">
+                          {groupMatchRecords.length} partidos · {doneCount} completados
                         </p>
                       </div>
-                      <Badge
-                        variant="outline"
-                        className="border-white/[0.06] bg-white/[0.04] text-white/25 text-[10px]"
-                      >
-                        {group.standings?.length || 0} players
-                      </Badge>
                     </div>
-                    <div className="p-4">
-                      <GroupStandings
-                        groupName={`Group ${idx + 1}`}
-                        groupNumber={idx + 1}
-                        advanceCount={2}
-                        tournamentId={selectedTournamentId || undefined}
-                        eventId={activeEvent || undefined}
-                        groupId={group.id}
-                      />
-                    </div>
+                    {allDone && (
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
+                        <CheckCircle2 className="w-3 h-3" />
+                        Completo
+                      </span>
+                    )}
                   </div>
-                ))
-              ) : (
-                <div className="flex flex-col items-center justify-center py-14 text-center">
-                  <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-center mb-4">
-                    <Layers className="w-6 h-6 text-white/20" />
+                  <div className="p-4">
+                    <MatchManagement
+                      eventId={selectedEvent?.id || ''}
+                      matches={groupMatchRecords}
+                      onMatchUpdate={handleMatchUpdate}
+                      hideHeader
+                    />
                   </div>
-                  <p className="text-white/50 font-semibold text-sm mb-1">No groups yet</p>
-                  <p className="text-white/20 text-xs">
-                    No groups have been generated for this event.
-                  </p>
                 </div>
-              )}
+              );
+            });
+          })()}
+        </div>
+      )}
+
+      {/* Qualifiers */}
+      {activeTab === 'qualifiers' && (
+        <div className="space-y-3">
+          {qualifierError && (
+            <div className="flex items-start gap-3 p-3.5 bg-red-500/[0.06] border border-red-500/15 rounded-xl">
+              <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-bold text-red-400">Error al obtener clasificados</p>
+                <p className="text-[11px] text-red-400/70 mt-0.5">{qualifierError}</p>
+              </div>
             </div>
           )}
-
-          {/* ── Qualifiers ── */}
-          {activeTab === 'qualifiers' && activeTournament && (
+          {groups.length === 0 ? (
+            <EmptyPanel
+              icon={Medal}
+              title="Genera los grupos primero"
+              sub="La selección de clasificados estará disponible una vez que se generen los grupos"
+            />
+          ) : (
             <QualifierSelection
-              eventId={activeEvent || ''}
-              eventName={
-                activeTournament.events?.find((e: any) => e.id === activeEvent)?.skill_block || ''
-              }
-              groups={eventGroups || []}
-              qualifiers={[]}
+              eventId={selectedEvent?.id || ''}
+              eventName={`${selectedEvent?.skill_block} ${selectedEvent?.modality}` || ''}
+              groups={groups}
+              qualifiers={extractedQualifiers}
               advanceCount={2}
-              onExtractQualifiers={async (strategy) => {
-                console.log('Extract:', strategy);
-              }}
-              onConfirmAdvancement={async () => {
-                setActiveTab('bracket');
-              }}
+              onExtractQualifiers={handleExtractQualifiers}
+              onConfirmAdvancement={handleConfirmAdvancement}
             />
           )}
+        </div>
+      )}
 
-          {/* ── Bracket ── */}
-          {activeTab === 'bracket' && activeTournament && (
-            <SingleEliminationBracket
-              eventId={activeEvent || ''}
-              eventName={
-                activeTournament.events?.find((e: any) => e.id === activeEvent)?.skill_block || ''
-              }
-              bracketMatches={[]}
-              totalRounds={4}
-              onRecordResult={async (matchId, winnerId, score) => {
-                console.log('Result:', { matchId, winnerId, score });
-              }}
+      {/* Bracket */}
+      {activeTab === 'bracket' && (() => {
+        const hasGroupMatches = groupStageMatchesOnly.length > 0;
+        const hasBracket = bracketExists;
+
+        if (!hasGroupMatches && !hasBracket) {
+          return (
+            <EmptyPanel
+              icon={Trophy}
+              title="Sin partidos aún"
+              sub="Los partidos aparecerán aquí una vez que se generen los grupos"
             />
-          )}
-        </CardContent>
-      </Card>
+          );
+        }
+
+        return (
+          <div className="space-y-5">
+            {/* Group stage + elimination bracket */}
+            <TournamentBracket
+              bracketData={bracketRawData}
+              onMatchClick={handleBracketMatchClick}
+              groupMatches={groupStageMatchesOnly}
+              groups={eventGroups ?? []}
+            />
+
+            {/* Bracket score modal */}
+            {bracketModal && (
+              <BracketMatchScoreModal
+                matchId={bracketModal.matchId}
+                player1={bracketModal.player1}
+                player2={bracketModal.player2}
+                matchFormat={selectedEvent?.sets_format ?? 'best_of_3_to_11'}
+                onSubmit={handleBracketScoreSubmit}
+                onClose={() => setBracketModal(null)}
+              />
+            )}
+
+            {/* Generate bracket prompt */}
+            {!hasBracket && !bracketLoading && allGroupMatchesDone && (
+              <div className="flex flex-col items-center justify-center py-14 gap-4 bg-[#0d1117] border border-white/[0.07] rounded-2xl">
+                {bracketError && (
+                  <div className="flex items-start gap-2 px-4 py-2.5 bg-red-500/[0.08] border border-red-500/20 rounded-xl w-full max-w-sm">
+                    <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-red-400/80">{bracketError}</p>
+                  </div>
+                )}
+                <div className="w-12 h-12 rounded-2xl bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center">
+                  <Trophy className="w-5 h-5 text-[#ace600]" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-white/50 mb-1">Bracket no generado</p>
+                  <p className="text-xs text-white/25 max-w-[220px] leading-relaxed">
+                    Todos los partidos de grupos han finalizado. Genera el bracket de eliminación.
+                  </p>
+                </div>
+                <button
+                  onClick={handleConfirmAdvancement}
+                  disabled={isGeneratingBracket}
+                  className="inline-flex items-center gap-2 h-9 px-5 rounded-xl text-xs font-bold bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_14px_rgba(172,230,0,0.18)] transition-all disabled:opacity-60"
+                >
+                  {isGeneratingBracket ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Trophy className="w-3.5 h-3.5" />
+                  )}
+                  {isGeneratingBracket ? 'Generando…' : 'Generar Bracket'}
+                </button>
+              </div>
+            )}
+
+            {/* Bracket loading spinner */}
+            {bracketLoading && (
+              <div className="flex items-center justify-center py-16 gap-3 bg-[#0d1117] border border-white/[0.07] rounded-2xl">
+                <Loader2 className="w-4 h-4 text-[#ace600] animate-spin" />
+                <span className="text-xs text-white/30">Cargando bracket…</span>
+              </div>
+            )}
+
+            {/* Mark Complete Button */}
+            {hasBracket && allBracketMatchesDone && !isTournamentComplete && (
+              <div className="flex flex-col items-center justify-center gap-3 pt-4">
+                {completionError && (
+                  <div className="w-full flex items-start gap-2 px-4 py-3 bg-red-500/[0.08] border border-red-500/20 rounded-xl">
+                    <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                    <p className="text-xs text-red-400/80">{completionError}</p>
+                  </div>
+                )}
+                <button
+                  onClick={handleMarkTournamentComplete}
+                  disabled={isMarkingComplete}
+                  className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold bg-gradient-to-r from-emerald-500 to-[#ace600] hover:from-emerald-600 hover:to-[#b8f000] text-black shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all disabled:opacity-60"
+                >
+                  {isMarkingComplete ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Finalizando...
+                    </>
+                  ) : (
+                    <>
+                      <Trophy className="w-4 h-4" />
+                      ¡Finalizar Torneo!
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* Tournament Complete Alert + Rankings */}
+            {isTournamentComplete && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-center py-6 px-4 bg-emerald-500/[0.08] border border-emerald-500/30 rounded-2xl">
+                  <div className="text-center">
+                    <div className="flex justify-center mb-3">
+                      <Trophy className="w-8 h-8 text-emerald-400" />
+                    </div>
+                    <p className="text-sm font-bold text-emerald-400">¡Torneo Finalizado!</p>
+                    <p className="text-xs text-emerald-400/70 mt-1">El torneo ha sido marcado como completado</p>
+                  </div>
+                </div>
+
+                {loadingPlayerMarks ? (
+                  <div className="flex items-center justify-center py-8 gap-3 bg-[#0d1117] border border-white/[0.07] rounded-2xl">
+                    <Loader2 className="w-4 h-4 text-[#ace600] animate-spin" />
+                    <span className="text-xs text-white/30">Cargando clasificación…</span>
+                  </div>
+                ) : playerMarks && playerMarks.length > 0 ? (
+                  <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
+                    <div className="px-6 py-4 border-b border-white/[0.07]">
+                      <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                        <Medal className="w-4 h-4 text-[#ace600]" />
+                        Clasificación Final
+                      </h3>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-white/[0.07]">
+                            <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-white/50 bg-white/[0.02]">#</th>
+                            <th className="px-6 py-3 text-left text-[10px] font-bold uppercase tracking-wider text-white/50 bg-white/[0.02]">Jugador</th>
+                            <th className="px-6 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-white/50 bg-white/[0.02]">Partidos</th>
+                            <th className="px-6 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-white/50 bg-white/[0.02]">Ganados</th>
+                            <th className="px-6 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-white/50 bg-white/[0.02]">Perdidos</th>
+                            <th className="px-6 py-3 text-center text-[10px] font-bold uppercase tracking-wider text-white/50 bg-white/[0.02]">% Victorias</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {playerMarks.map((player, idx) => (
+                            <tr key={player.user_id} className="border-b border-white/[0.05] hover:bg-white/[0.02] transition-colors">
+                              <td className="px-6 py-3">
+                                <div className="flex items-center justify-center">
+                                  {idx === 0 ? (
+                                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-500/20 border border-amber-500/30 text-xs font-bold text-amber-400">🥇</span>
+                                  ) : idx === 1 ? (
+                                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gray-400/20 border border-gray-400/30 text-xs font-bold text-gray-300">🥈</span>
+                                  ) : idx === 2 ? (
+                                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-amber-700/20 border border-amber-700/30 text-xs font-bold text-amber-600">🥉</span>
+                                  ) : (
+                                    <span className="text-xs font-semibold text-white/50">{idx + 1}</span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-6 py-3">
+                                <span className="text-xs font-semibold text-white">{player.full_name}</span>
+                              </td>
+                              <td className="px-6 py-3 text-center">
+                                <span className="text-xs text-white/70">{player.matches_played}</span>
+                              </td>
+                              <td className="px-6 py-3 text-center">
+                                <span className="text-xs font-semibold text-[#4ade80]">{player.matches_won}</span>
+                              </td>
+                              <td className="px-6 py-3 text-center">
+                                <span className="text-xs text-white/50">{player.matches_lost}</span>
+                              </td>
+                              <td className="px-6 py-3 text-center">
+                                <span className="inline-flex items-center justify-center px-2 py-1 rounded-lg bg-[#ace600]/10 border border-[#ace600]/20 text-xs font-bold text-[#ace600]">
+                                  {player.win_percentage}%
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center py-8 px-4 bg-white/[0.02] border border-white/[0.07] rounded-2xl">
+                    <p className="text-xs text-white/40">No hay datos de clasificación disponibles</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 };

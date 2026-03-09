@@ -4,6 +4,7 @@ import { AppDispatch, RootState } from '../../../store';
 import { fetchAdminUsers, updateUser, deleteUser } from '../../../store/slices/usersSlice';
 import UserActionModal from './ActionModals/UserActionModal';
 import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 import { User } from '../../../types/api';
 import {
   Search,
@@ -140,6 +141,7 @@ export default function PlayersManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const [actionLoading, setActionLoading] = useState<string | null>(null); // Track which user is being acted on
 
   const buildParams = useCallback(() => {
     const p: Record<string, string> = {
@@ -255,6 +257,115 @@ export default function PlayersManagement() {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+
+  // ── Verify User Action ───────────────────────────────────────────────────
+  const handleVerifyUser = async (user: User) => {
+    try {
+      setActionLoading(user.id);
+      const newVerifiedStatus = !user.is_verified;
+      const response = await api.put(`/users/${user.id}`, {
+        is_verified: newVerifiedStatus
+      }) as { success: boolean; message?: string };
+      if (response?.success) {
+        toast({
+          title: newVerifiedStatus ? 'Verificado' : 'Verificación revocada',
+          description: `Usuario ${newVerifiedStatus ? 'verificado' : 'desverificado'} correctamente`,
+          duration: 3000
+        });
+        fetchUsers();
+      } else {
+        toast({
+          title: 'Error',
+          description: response?.message || 'Error al actualizar verificación',
+          variant: 'destructive',
+          duration: 3000
+        });
+      }
+    } catch (error: any) {
+      console.error('[handleVerifyUser]', error);
+      toast({
+        title: 'Error',
+        description: error?.response?.data?.message || 'Error al verificar usuario',
+        variant: 'destructive',
+        duration: 3000
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // ── Toggle User Active Status ────────────────────────────────────────────
+  const handleToggleActive = async (user: User) => {
+    try {
+      setActionLoading(user.id);
+      const newActiveStatus = !user.is_active;
+      const response = await api.put(`/users/${user.id}`, {
+        is_active: newActiveStatus
+      }) as { success: boolean; message?: string };
+      if (response?.success) {
+        toast({
+          title: newActiveStatus ? 'Activado' : 'Desactivado',
+          description: `Usuario ${newActiveStatus ? 'activado' : 'desactivado'} correctamente`,
+          duration: 3000
+        });
+        fetchUsers();
+      } else {
+        toast({
+          title: 'Error',
+          description: response?.message || 'Error al actualizar estado',
+          variant: 'destructive',
+          duration: 3000
+        });
+      }
+    } catch (error: any) {
+      console.error('[handleToggleActive]', error);
+      toast({
+        title: 'Error',
+        description: error?.response?.data?.message || 'Error al cambiar estado del usuario',
+        variant: 'destructive',
+        duration: 3000
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // ─── Delete User Action ───────────────────────────────────────────────────────────
+  const handleDeleteUser = async (user: User) => {
+    if (!confirm(`¿Eliminar usuario ${user.full_name || user.username}? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    try {
+      setActionLoading(user.id);
+      const response = await api.delete(`/users/${user.id}`) as { success: boolean; message?: string };
+      if (response?.success) {
+        toast({
+          title: 'Eliminado',
+          description: 'Usuario eliminado correctamente',
+          duration: 3000
+        });
+        fetchUsers();
+      } else {
+        toast({
+          title: 'Error',
+          description: response?.message || 'Error al eliminar usuario',
+          variant: 'destructive',
+          duration: 3000
+        });
+      }
+    } catch (error: any) {
+      console.error('[handleDeleteUser]', error);
+      toast({
+        title: 'Error',
+        description: error?.response?.data?.message || 'Error al eliminar usuario',
+        variant: 'destructive',
+        duration: 3000
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
 
   // ── Stats derived from current page ───────────────────────────────────────
   const activeCount = (users ?? []).filter((u: any) => u.is_active).length;
@@ -694,20 +805,29 @@ export default function PlayersManagement() {
                           >
                             <Edit className="w-3.5 h-3.5" /> Editar
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/[0.06] cursor-pointer focus:bg-white/[0.06] focus:text-white">
+                          <DropdownMenuItem
+                            onClick={() => handleVerifyUser(user)}
+                            disabled={actionLoading === user.id}
+                            className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/[0.06] cursor-pointer focus:bg-white/[0.06] focus:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
                             <ShieldCheck className="w-3.5 h-3.5" />
-                            {user.is_verified ? 'Revocar verificación' : 'Verificar'}
+                            {actionLoading === user.id ? 'Procesando...' : (user.is_verified ? 'Revocar verificación' : 'Verificar')}
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/[0.06] cursor-pointer focus:bg-white/[0.06] focus:text-white">
+                          <DropdownMenuItem
+                            onClick={() => handleToggleActive(user)}
+                            disabled={actionLoading === user.id}
+                            className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-sm text-white/60 hover:text-white hover:bg-white/[0.06] cursor-pointer focus:bg-white/[0.06] focus:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
                             <Ban className="w-3.5 h-3.5" />
-                            {user.is_active ? 'Desactivar' : 'Activar'}
+                            {actionLoading === user.id ? 'Procesando...' : (user.is_active ? 'Desactivar' : 'Activar')}
                           </DropdownMenuItem>
                           <DropdownMenuSeparator className="bg-white/[0.05] my-1" />
                           <DropdownMenuItem
-                            onClick={() => openModal(user, 'edit')}
-                            className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-sm text-red-400 hover:text-red-300 hover:bg-red-500/[0.08] cursor-pointer focus:bg-red-500/[0.08] focus:text-red-300"
+                            onClick={() => handleDeleteUser(user)}
+                            disabled={actionLoading === user.id}
+                            className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-sm text-red-400 hover:text-red-300 hover:bg-red-500/[0.08] cursor-pointer focus:bg-red-500/[0.08] focus:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <Trash2 className="w-3.5 h-3.5" /> Eliminar
+                            <Trash2 className="w-3.5 h-3.5" /> {actionLoading === user.id ? 'Eliminando...' : 'Eliminar'}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

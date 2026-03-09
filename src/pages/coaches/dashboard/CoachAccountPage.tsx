@@ -1,160 +1,110 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { User, Users, Edit, Trash2, Plus, Award, AlertCircle, Loader } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AppDispatch, RootState } from '@/store';
 import {
-  fetchCoachProfile,
-  updateCoachProfile,
-  deleteCoachAccount,
-  fetchCoachStudents,
-  addCoachStudent,
-  updateCoachStudent,
+  fetchCoachProfile, updateCoachProfile, deleteCoachAccount,
+  fetchCoachStudents, addCoachStudent, updateCoachStudent,
 } from '@/store/slices/coachDashboardSlice';
+import { Input } from '@/components/ui/input';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
+  User, Award, Users, Edit2, Trash2, Plus, AlertTriangle,
+  Loader2, CheckCircle2, X, Save, ShieldCheck, Star,
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-// Accent colour tokens
-const ACCENT = '#ace600';
-const ACCENT_DIM = 'rgba(172,230,0,0.12)';
-const ACCENT_BORD = 'rgba(172,230,0,0.25)';
+// ─── Tokens ───────────────────────────────────────────────────────────────────
+const inputCls =
+  'h-10 rounded-xl text-sm bg-white/[0.04] border-white/[0.09] text-white placeholder:text-white/20 ' +
+  'focus-visible:ring-0 focus-visible:border-[#ace600]/50 focus-visible:bg-[#ace600]/[0.03] transition-all ' +
+  'disabled:opacity-30 disabled:cursor-not-allowed';
 
-// ── Tiny inline SVG wrapper ─────────────────────────────────────────────────
-const Ico = ({ size = 16, children }: { size?: number; children: React.ReactNode }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    {children}
-  </svg>
-);
-const IcoUser = () => (
-  <Ico>
-    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-    <circle cx="12" cy="7" r="4" />
-  </Ico>
-);
-const IcoAward = () => (
-  <Ico>
-    <circle cx="12" cy="8" r="6" />
-    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
-  </Ico>
-);
-const IcoUsers = () => (
-  <Ico>
-    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-    <circle cx="9" cy="7" r="4" />
-    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-  </Ico>
-);
-const IcoEdit = () => (
-  <Ico>
-    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-  </Ico>
-);
-const IcoTrash = () => (
-  <Ico>
-    <polyline points="3 6 5 6 21 6" />
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-  </Ico>
-);
-const IcoPlus = () => (
-  <Ico>
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </Ico>
-);
-const IcoX = () => (
-  <Ico size={15}>
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
-  </Ico>
-);
-const IcoAlert = () => (
-  <Ico size={20}>
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-    <line x1="12" y1="9" x2="12" y2="13" />
-    <line x1="12" y1="17" x2="12.01" y2="17" />
-  </Ico>
-);
-const IcoSpin = () => (
-  <Ico>
-    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-  </Ico>
-);
-const IcoChevron = () => (
-  <Ico size={12}>
-    <polyline points="6 9 12 15 18 9" />
-  </Ico>
-);
+const labelCls = 'block text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1.5';
+const selectTriggerCls =
+  'h-10 rounded-xl text-sm bg-white/[0.04] border-white/[0.09] text-white focus:ring-0 focus:border-[#ace600]/50 transition-all data-[placeholder]:text-white/20 disabled:opacity-30';
 
-// ── Shared classes ──────────────────────────────────────────────────────────
-const inputCls = `w-full bg-[#111827] border border-white/10 rounded-xl text-[#f0f4ff] text-sm px-3.5 py-2.5
-  outline-none transition-all duration-150
-  focus:border-[#ace600] focus:ring-2 focus:ring-[#ace600]/20
-  disabled:opacity-40 disabled:cursor-not-allowed placeholder:text-white/20`;
-
-const labelCls = 'block text-[11px] font-semibold text-[#4a5a72] uppercase tracking-widest mb-1.5';
-
-// ── Card wrapper ────────────────────────────────────────────────────────────
-function Card({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+// ─── Atoms ────────────────────────────────────────────────────────────────────
+function Field({ label, req, children }: { label: string; req?: boolean; children: React.ReactNode }) {
   return (
-    <div
-      className={`bg-[#0d1421] border border-white/[0.06] hover:border-white/10 rounded-2xl overflow-hidden transition-colors ${className}`}
-    >
+    <div>
+      <label className={labelCls}>{label}{req && <span className="text-[#ace600] ml-0.5">*</span>}</label>
       {children}
     </div>
   );
 }
 
-// ── Card section icon + title row ───────────────────────────────────────────
-function CardHeading({
-  icon,
-  title,
-  desc,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  desc?: string;
+function SectionCard({ icon: Icon, iconColor, iconBg, title, desc, action, children }: {
+  icon: React.ElementType; iconColor: string; iconBg: string;
+  title: string; desc?: string; action?: React.ReactNode; children: React.ReactNode;
 }) {
   return (
-    <div className="px-7 pt-6">
-      <div className="flex items-center gap-2.5">
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-          style={{ background: ACCENT_DIM, border: `1px solid ${ACCENT_BORD}`, color: ACCENT }}
-        >
-          {icon}
+    <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
+      <div className="h-0.5 bg-gradient-to-r from-[#ace600]/30 via-[#ace600]/15 to-transparent" />
+      <div className="flex items-start justify-between gap-3 px-6 py-4 border-b border-white/[0.05]">
+        <div className="flex items-center gap-3">
+          <div className={cn('w-8 h-8 rounded-xl border flex items-center justify-center shrink-0', iconBg)}>
+            <Icon className={cn('w-4 h-4', iconColor)} />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-white leading-tight">{title}</p>
+            {desc && <p className="text-[11px] text-white/25 mt-0.5">{desc}</p>}
+          </div>
         </div>
-        <span className="font-bold text-base tracking-tight">{title}</span>
+        {action}
       </div>
-      {desc && <p className="text-[#4a5a72] text-[13px] mt-1 ml-[42px]">{desc}</p>}
+      <div className="px-6 py-5">{children}</div>
     </div>
   );
 }
 
-// ── Main page ───────────────────────────────────────────────────────────────
+function Initials({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' | 'lg' }) {
+  const letters = name.trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const sz = size === 'lg' ? 'w-16 h-16 rounded-2xl text-lg' : size === 'md' ? 'w-9 h-9 rounded-xl text-[11px]' : 'w-7 h-7 rounded-lg text-[9px]';
+  return (
+    <div className={cn('bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center font-black text-[#ace600] shrink-0 select-none', sz)}>
+      {letters || '?'}
+    </div>
+  );
+}
+
+function Tag({ label, color = 'lime' }: { label: string; color?: 'lime' | 'muted' }) {
+  return (
+    <span className={cn(
+      'inline-flex items-center px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest',
+      color === 'lime'
+        ? 'bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]'
+        : 'bg-white/[0.04] border-white/[0.08] text-white/35',
+    )}>
+      {label}
+    </span>
+  );
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
 export default function CoachAccountPage() {
   const { toast } = useToast();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { profile, profileLoading, profileError, students, studentsLoading } = useSelector(
-    (state: RootState) => state.coachDashboard,
-  );
+  const { profile, profileLoading, profileError, students, studentsLoading } =
+    useSelector((state: RootState) => state.coachDashboard);
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [isAddingStudent, setIsAddingStudent] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [formData, setFormData] = useState<any>(null);
-  const [newStudent, setNewStudent] = useState({ playerId: '', notes: '' });
-  const [isAddingStudentLoading, setIsAddingStudentLoading] = useState(false);
+  const [isEditing,           setIsEditing]           = useState(false);
+  const [isAddingStudent,     setIsAddingStudent]     = useState(false);
+  const [showDeleteConfirm,   setShowDeleteConfirm]   = useState(false);
+  const [formData,            setFormData]            = useState<any>(null);
+  const [newStudent,          setNewStudent]          = useState({ playerId: '', notes: '' });
+  const [addingStudentLoading,setAddingStudentLoading]= useState(false);
 
-  // ── Effects ───────────────────────────────────────────────────────────────
   useEffect(() => {
     dispatch(fetchCoachProfile());
     dispatch(fetchCoachStudents({ limit: 50, offset: 0 }));
@@ -163,721 +113,470 @@ export default function CoachAccountPage() {
   useEffect(() => {
     if (profile) {
       setFormData({
-        fullName: profile.fullName || '',
-        email: profile.email || '',
-        phone: profile.phone || '',
-        username: profile.username || '',
-        dateOfBirth: profile.dateOfBirth || '',
-        gender: profile.gender || '',
-        state: profile.state || '',
-        city: profile.city || '',
-        bio: profile.bio || '',
-        skillLevel: profile.skillLevel || '0',
+        fullName:        profile.fullName || '',
+        email:           profile.email || '',
+        phone:           profile.phone || '',
+        username:        profile.username || '',
+        dateOfBirth:     profile.dateOfBirth || '',
+        gender:          profile.gender || '',
+        state:           profile.state || '',
+        city:            profile.city || '',
+        bio:             profile.bio || '',
+        skillLevel:      profile.skillLevel || '0',
         experienceYears: profile.experienceYears || 0,
-        hourlyRate: profile.hourlyRate || '',
+        hourlyRate:      profile.hourlyRate || '',
         specializations: profile.specializations || [],
-        certifications: profile.certifications || [],
-        languages: profile.languages || [],
-        nrtpLevel: profile?.skillLevel || 'N/A',
-        // licenseType: profile?.coaching_license_number || 'N/A',
-        specialization: profile?.specializations || 'N/A',
-        experience: profile?.experienceYears || 'N/A',
+        certifications:  profile.certifications || [],
+        languages:       profile.languages || [],
+        nrtpLevel:       profile?.skillLevel || 'N/A',
+        specialization:  profile?.specializations || 'N/A',
+        experience:      profile?.experienceYears || 'N/A',
       });
     }
   }, [profile]);
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
+  const set = (k: string, v: any) => setFormData((p: any) => ({ ...p, [k]: v }));
+
   const handleSaveProfile = async () => {
     try {
-      await dispatch(
-        updateCoachProfile({
-          fullName: formData.fullName,
-          email: formData.email,
-          phone: formData.phone,
-          username: formData.username,
-          dateOfBirth: formData.dateOfBirth,
-          gender: formData.gender,
-          state: formData.state,
-          city: formData.city,
-          bio: formData.bio,
-          skillLevel: formData.skillLevel,
-          experienceYears: formData.experienceYears,
-          hourlyRate: formData.hourlyRate,
-          specializations: formData.specializations,
-          certifications: formData.certifications,
-          languages: formData.languages,
-        }),
-      ).unwrap();
+      await dispatch(updateCoachProfile({
+        fullName: formData.fullName, email: formData.email, phone: formData.phone,
+        username: formData.username, dateOfBirth: formData.dateOfBirth, gender: formData.gender,
+        state: formData.state, city: formData.city, bio: formData.bio,
+        skillLevel: formData.skillLevel, experienceYears: formData.experienceYears,
+        hourlyRate: formData.hourlyRate, specializations: formData.specializations,
+        certifications: formData.certifications, languages: formData.languages,
+      })).unwrap();
       setIsEditing(false);
-      toast({
-        title: 'Perfil actualizado',
-        description: 'Los cambios han sido guardados exitosamente.',
-      });
+      toast({ title: 'Perfil actualizado', description: 'Cambios guardados exitosamente.' });
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error?.message || 'No se pudo actualizar el perfil',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: error?.message || 'No se pudo actualizar', variant: 'destructive' });
     }
   };
 
   const handleDeleteAccount = async () => {
     try {
       await dispatch(deleteCoachAccount('confirm-delete')).unwrap();
-      toast({
-        title: 'Cuenta eliminada',
-        description: 'Tu cuenta ha sido eliminada permanentemente.',
-        variant: 'destructive',
-      });
-      setTimeout(() => {
-        window.location.href = '/auth/login';
-      }, 2000);
+      toast({ title: 'Cuenta eliminada', description: 'Tu cuenta fue eliminada.', variant: 'destructive' });
+      setTimeout(() => { window.location.href = '/auth/login'; }, 2000);
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error?.message || 'No se pudo eliminar la cuenta',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: error?.message || 'No se pudo eliminar', variant: 'destructive' });
     }
   };
 
   const handleAddStudent = async () => {
     if (!newStudent.playerId) {
-      toast({
-        title: 'Error',
-        description: 'Por favor selecciona un jugador.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: 'Selecciona un jugador.', variant: 'destructive' });
       return;
     }
-    setIsAddingStudentLoading(true);
+    setAddingStudentLoading(true);
     try {
-      await dispatch(
-        addCoachStudent({ playerId: newStudent.playerId, notes: newStudent.notes || '' }),
-      ).unwrap();
+      await dispatch(addCoachStudent({ playerId: newStudent.playerId, notes: newStudent.notes || '' })).unwrap();
       setNewStudent({ playerId: '', notes: '' });
       setIsAddingStudent(false);
       dispatch(fetchCoachStudents({ limit: 50, offset: 0 }));
-      toast({
-        title: 'Estudiante agregado',
-        description: 'El estudiante ha sido registrado exitosamente.',
-      });
+      toast({ title: 'Estudiante agregado', description: 'Registrado exitosamente.' });
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error?.message || 'No se pudo agregar el estudiante',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsAddingStudentLoading(false);
-    }
+      toast({ title: 'Error', description: error?.message || 'No se pudo agregar', variant: 'destructive' });
+    } finally { setAddingStudentLoading(false); }
   };
 
   const handleRemoveStudent = async (studentId: string) => {
     try {
-      await dispatch(
-        updateCoachStudent({ studentId, studentData: { status: 'inactive' } }),
-      ).unwrap();
+      await dispatch(updateCoachStudent({ studentId, studentData: { status: 'inactive' } })).unwrap();
       dispatch(fetchCoachStudents({ limit: 50, offset: 0 }));
-      toast({
-        title: 'Estudiante removido',
-        description: 'El estudiante ha sido marcado como inactivo.',
-      });
+      toast({ title: 'Estudiante removido', description: 'Marcado como inactivo.' });
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error?.message || 'No se pudo remover el estudiante',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: error?.message || 'No se pudo remover', variant: 'destructive' });
     }
   };
 
-  const initials = formData?.fullName
-    ? formData.fullName
-        .split(' ')
-        .map((n: string) => n[0])
-        .slice(0, 2)
-        .join('')
-    : '??';
-
   const activeCount = (students || []).filter((s: any) => s.status === 'active').length;
 
-  // ── Loading / error states ─────────────────────────────────────────────
-  if (profileLoading && !formData) {
-    return (
-      <div className="flex justify-center items-center h-96">
-        <span className="animate-spin" style={{ color: ACCENT }}>
-          <IcoSpin />
-        </span>
-      </div>
-    );
-  }
+  // ── Loading / Error ────────────────────────────────────────────────────────
+  if (profileLoading && !formData) return (
+    <div className="flex flex-col items-center justify-center h-96 gap-3">
+      <Loader2 className="w-5 h-5 animate-spin text-[#ace600]" />
+      <p className="text-xs text-white/20">Cargando perfil…</p>
+    </div>
+  );
 
-  if (profileError && !formData) {
-    return (
-      <div className="bg-red-950/60 border border-red-800 rounded-2xl p-6 flex gap-3">
-        <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-        <div>
-          <p className="text-red-200 font-medium">Error al cargar el perfil</p>
-          <p className="text-red-300 text-sm mt-1">{profileError}</p>
-        </div>
+  if (profileError && !formData) return (
+    <div className="flex items-start gap-3 p-4 bg-red-500/[0.06] border border-red-500/15 rounded-2xl">
+      <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+        <AlertTriangle className="w-4 h-4 text-red-400" />
       </div>
-    );
-  }
+      <div>
+        <p className="text-sm font-bold text-red-400 mb-0.5">Error al cargar el perfil</p>
+        <p className="text-xs text-red-400/60">{profileError}</p>
+      </div>
+    </div>
+  );
 
   if (!formData) return null;
 
-  // ── Render ───────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#080c14] text-[#f0f4ff]">
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap'); * { font-family: 'DM Sans', sans-serif; } .syne { font-family: 'Syne', sans-serif; }`}</style>
+    <div className="space-y-5 max-w-5xl mx-auto">
 
-      <div className="max-w-5xl mx-auto px-6 py-12 flex flex-col gap-6">
-        {/* ── Header ── */}
-        <div className="flex flex-wrap items-start justify-between gap-6 pb-8 border-b border-white/[0.06]">
-          <div className="flex items-center gap-5">
+      {/* ── Profile header ──────────────────────────────────────────────────── */}
+      <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
+        <div className="h-0.5 bg-gradient-to-r from-[#ace600]/50 via-[#ace600]/25 to-transparent" />
+        <div className="p-6 flex flex-wrap items-start justify-between gap-5">
+
+          {/* Identity */}
+          <div className="flex items-center gap-4">
             <div className="relative shrink-0">
-              <div
-                className="w-[72px] h-[72px] rounded-[18px] bg-gradient-to-br from-[#1e3a5f] to-[#0f2847] border border-white/10 flex items-center justify-center syne text-2xl font-bold"
-                style={{ color: ACCENT }}
-              >
-                {initials}
-              </div>
-              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#080c14]" />
+              <Initials name={formData.fullName || '??'} size="lg" />
+              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-[#0d1117]" />
             </div>
             <div>
-              <h1 className="syne text-2xl font-bold tracking-tight leading-tight">
-                {formData.fullName || 'Mi Cuenta'}
-              </h1>
-              <p className="text-[#7a8ba8] text-sm mt-1">
-                @{formData.username} · Entrenador Certificado
-              </p>
+              <div className="flex items-center gap-2 mb-0.5">
+                <h1 className="text-[20px] font-black text-white tracking-tight">
+                  {formData.fullName || 'Mi Cuenta'}
+                </h1>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]">
+                  <ShieldCheck className="w-2.5 h-2.5" /> Coach
+                </span>
+              </div>
+              <p className="text-xs text-white/30">@{formData.username} · Entrenador Certificado</p>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2.5">
-            <button
-              onClick={() => setIsEditing(!isEditing)}
-              disabled={profileLoading}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-white/10 text-[#f0f4ff] bg-transparent hover:bg-white/5 disabled:opacity-40 transition-all"
-            >
-              <IcoEdit /> {isEditing ? 'Cancelar' : 'Editar Perfil'}
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            <button onClick={() => setIsEditing(!isEditing)} disabled={profileLoading}
+              className={cn(
+                'inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-[11px] font-bold border transition-all disabled:opacity-40',
+                isEditing
+                  ? 'border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/50'
+                  : 'border-[#ace600]/20 bg-[#ace600]/[0.07] hover:bg-[#ace600]/[0.14] text-[#ace600]',
+              )}>
+              {isEditing ? <><X className="w-3.5 h-3.5" /> Cancelar</> : <><Edit2 className="w-3.5 h-3.5" /> Editar Perfil</>}
             </button>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              disabled={profileLoading}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium border border-red-500/20 text-red-400 bg-red-500/10 hover:bg-red-500/15 disabled:opacity-40 transition-all"
-            >
-              <IcoTrash /> Eliminar Cuenta
+            <button onClick={() => setShowDeleteConfirm(true)} disabled={profileLoading}
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-[11px] font-bold border border-red-500/20 bg-red-500/[0.06] hover:bg-red-500/[0.12] text-red-400 disabled:opacity-40 transition-all">
+              <Trash2 className="w-3.5 h-3.5" /> Eliminar Cuenta
             </button>
           </div>
         </div>
 
-        {/* ── Stats Bar ── */}
-        <div className="grid grid-cols-3 divide-x divide-white/[0.06] bg-[#111827] rounded-2xl overflow-hidden border border-white/[0.06]">
+        {/* Stat strip */}
+        <div className="grid grid-cols-3 border-t border-white/[0.05] divide-x divide-white/[0.05]">
           {[
-            { val: formData.experienceYears, lbl: 'Años de experiencia' },
-            { val: activeCount, lbl: 'Estudiantes activos' },
-            { val: formData.skillLevel, lbl: 'Nivel de habilidad' },
-          ].map(({ val, lbl }) => (
-            <div key={lbl} className="flex flex-col gap-1 px-6 py-5">
-              <span className="syne text-3xl font-bold tracking-tight" style={{ color: ACCENT }}>
-                {val}
-              </span>
-              <span className="text-xs text-[#4a5a72]">{lbl}</span>
+            { value: formData.experienceYears, label: 'Años exp.', icon: Star, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
+            { value: activeCount,              label: 'Estudiantes',  icon: Users, color: 'text-sky-400',  bg: 'bg-sky-500/10 border-sky-500/20' },
+            { value: formData.skillLevel,      label: 'Nivel NRTP',   icon: Award, color: 'text-[#ace600]', bg: 'bg-[#ace600]/10 border-[#ace600]/20' },
+          ].map(({ value, label, icon: Icon, color, bg }) => (
+            <div key={label} className="flex items-center gap-3 px-6 py-4">
+              <div className={cn('w-8 h-8 rounded-xl border flex items-center justify-center shrink-0', bg)}>
+                <Icon className={cn('w-3.5 h-3.5', color)} />
+              </div>
+              <div>
+                <p className={cn('text-xl font-black leading-none', color)}>{value}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mt-0.5">{label}</p>
+              </div>
             </div>
           ))}
         </div>
+      </div>
 
-        {/* ── Personal Info ── */}
-        <Card>
-          <CardHeading
-            icon={<IcoUser />}
-            title="Información Personal"
-            desc="Datos personales y de contacto"
-          />
-          <div className="px-7 py-6 flex flex-col gap-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {(
-                [
-                  { label: 'Nombre Completo', key: 'fullName' },
-                  { label: 'Nombre de Usuario', key: 'username' },
-                  { label: 'Correo Electrónico', key: 'email', type: 'email' },
-                  { label: 'Teléfono', key: 'phone' },
-                  { label: 'Estado', key: 'state' },
-                  { label: 'Ciudad', key: 'city' },
-                  { label: 'Tarifa por Hora', key: 'hourlyRate' },
-                  { label: 'Nivel de Habilidad', key: 'skillLevel', type: 'number', step: '0.1' },
-                ] as const
-              ).map(({ label, key, type = 'text', step }: any) => (
-                <div key={key}>
-                  <label className={labelCls}>{label}</label>
-                  <input
-                    className={inputCls}
-                    type={type}
-                    step={step}
-                    value={formData[key] || ''}
-                    onChange={(e) => setFormData({ ...formData, [key]: e.target.value })}
-                    disabled={!isEditing || profileLoading}
-                  />
-                </div>
-              ))}
+      {/* ── Personal Info ───────────────────────────────────────────────────── */}
+      <SectionCard
+        icon={User} iconColor="text-[#ace600]" iconBg="bg-[#ace600]/10 border-[#ace600]/20"
+        title="Información Personal" desc="Datos personales y de contacto">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              { label: 'Nombre Completo', key: 'fullName', req: true },
+              { label: 'Nombre de Usuario', key: 'username' },
+              { label: 'Correo Electrónico', key: 'email', type: 'email' },
+              { label: 'Teléfono', key: 'phone' },
+              { label: 'Estado', key: 'state' },
+              { label: 'Ciudad', key: 'city' },
+              { label: 'Tarifa por Hora', key: 'hourlyRate' },
+              { label: 'Nivel de Habilidad', key: 'skillLevel', type: 'number' },
+              { label: 'Años de Experiencia', key: 'experienceYears', type: 'number' },
+            ].map(({ label, key, req, type = 'text' }) => (
+              <Field key={key} label={label} req={req}>
+                <Input
+                  className={inputCls} type={type}
+                  value={formData[key] ?? ''}
+                  onChange={e => set(key, type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value)}
+                  disabled={!isEditing || profileLoading} />
+              </Field>
+            ))}
 
-              {/* Date of birth */}
-              <div>
-                <label className={labelCls}>Fecha de Nacimiento</label>
-                <input
-                  className={inputCls}
-                  type="date"
-                  value={formData.dateOfBirth?.split('T')[0] || ''}
-                  onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                  disabled={!isEditing || profileLoading}
-                />
-              </div>
+            <Field label="Fecha de Nacimiento">
+              <Input className={inputCls} type="date"
+                value={formData.dateOfBirth?.split('T')[0] || ''}
+                onChange={e => set('dateOfBirth', e.target.value)}
+                disabled={!isEditing || profileLoading} />
+            </Field>
 
-              {/* Gender */}
-              <div>
-                <label className={labelCls}>Género</label>
-                <div className="relative">
-                  <select
-                    className={`${inputCls} appearance-none pr-8 cursor-pointer`}
-                    value={formData.gender}
-                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                    disabled={!isEditing || profileLoading}
-                  >
-                    <option value="">Selecciona género</option>
-                    <option value="male">Masculino</option>
-                    <option value="female">Femenino</option>
-                    <option value="other">Otro</option>
-                  </select>
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#4a5a72]">
-                    <IcoChevron />
-                  </span>
-                </div>
-              </div>
+            <Field label="Género">
+              <Select value={formData.gender || ''} onValueChange={v => set('gender', v)} disabled={!isEditing || profileLoading}>
+                <SelectTrigger className={selectTriggerCls}><SelectValue placeholder="Selecciona género" /></SelectTrigger>
+                <SelectContent className="bg-[#161c25] border-white/[0.08] rounded-xl shadow-2xl">
+                  <SelectItem value="male"   className="text-white/70 focus:bg-white/[0.06] focus:text-white">Masculino</SelectItem>
+                  <SelectItem value="female" className="text-white/70 focus:bg-white/[0.06] focus:text-white">Femenino</SelectItem>
+                  <SelectItem value="other"  className="text-white/70 focus:bg-white/[0.06] focus:text-white">Otro</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
 
-              {/* Experience years */}
-              <div>
-                <label className={labelCls}>Años de Experiencia</label>
-                <input
-                  className={inputCls}
-                  type="number"
-                  value={formData.experienceYears}
-                  onChange={(e) =>
-                    setFormData({ ...formData, experienceYears: parseInt(e.target.value) })
-                  }
-                  disabled={!isEditing || profileLoading}
-                />
-              </div>
-            </div>
+          {/* Bio */}
+          <Field label="Biografía">
+            <textarea
+              rows={3}
+              value={formData.bio || ''}
+              onChange={e => set('bio', e.target.value)}
+              disabled={!isEditing || profileLoading}
+              placeholder="Cuéntanos sobre ti…"
+              className={cn(
+                'w-full rounded-xl text-sm px-3.5 py-2.5 resize-y',
+                'bg-white/[0.04] border border-white/[0.09] text-white placeholder:text-white/20',
+                'outline-none focus:border-[#ace600]/50 focus:bg-[#ace600]/[0.03] transition-all',
+                'disabled:opacity-30 disabled:cursor-not-allowed',
+              )} />
+          </Field>
 
-            {/* Bio */}
+          {/* Specializations */}
+          {formData.specializations?.length > 0 && (
             <div>
-              <label className={labelCls}>Biografía</label>
-              <textarea
-                className={`${inputCls} resize-y min-h-[88px]`}
-                value={formData.bio}
-                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                disabled={!isEditing || profileLoading}
-              />
+              <label className={labelCls}>Especializaciones</label>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {formData.specializations.map((s: string) => <Tag key={s} label={s} color="lime" />)}
+              </div>
             </div>
+          )}
 
-            {/* Specializations */}
-            {formData.specializations?.length > 0 && (
-              <div>
-                <label className={labelCls}>Especializaciones</label>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {formData.specializations.map((s: string) => (
-                    <span
-                      key={s}
-                      className="px-3 py-1 rounded-lg text-xs font-semibold"
-                      style={{
-                        background: ACCENT_DIM,
-                        border: `1px solid ${ACCENT_BORD}`,
-                        color: ACCENT,
-                      }}
-                    >
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Languages */}
-            {formData.languages?.length > 0 && (
-              <div>
-                <label className={labelCls}>Idiomas</label>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {formData.languages.map((l: string) => (
-                    <span
-                      key={l}
-                      className="px-3 py-1 rounded-lg text-xs font-semibold bg-white/5 border border-white/10 text-[#7a8ba8]"
-                    >
-                      {l}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Save / Cancel */}
-            {isEditing && (
-              <div className="flex gap-2.5 pt-4 border-t border-white/[0.06]">
-                <button
-                  onClick={handleSaveProfile}
-                  disabled={profileLoading}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold syne disabled:opacity-50 transition-all"
-                  style={{ background: ACCENT, color: '#080c14' }}
-                >
-                  {profileLoading ? (
-                    <>
-                      <span className="animate-spin">
-                        <IcoSpin />
-                      </span>{' '}
-                      Guardando...
-                    </>
-                  ) : (
-                    'Guardar Cambios'
-                  )}
-                </button>
-                <button
-                  onClick={() => setIsEditing(false)}
-                  disabled={profileLoading}
-                  className="px-5 py-2.5 rounded-xl text-sm font-medium border border-white/10 text-[#f0f4ff] hover:bg-white/5 disabled:opacity-50 transition-all"
-                >
-                  Cancelar
-                </button>
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* ── Credentials ── */}
-        <Card>
-          <CardHeading icon={<IcoAward />} title="Credenciales de Entrenador" />
-          <div className="px-7 py-6 flex flex-col gap-5">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {[
-                {
-                  lbl: 'Nivel NRTP',
-                  val: formData.nrtpLevel,
-                  badge: 'Verificado',
-                  badgeStyle: {
-                    background: ACCENT_DIM,
-                    border: `1px solid ${ACCENT_BORD}`,
-                    color: ACCENT,
-                  },
-                },
-                {
-                  lbl: 'Tipo de Licencia',
-                  val: formData.licenseType,
-                  badge: 'Activa',
-                  badgeStyle: {
-                    background: 'rgba(16,185,129,0.12)',
-                    border: '1px solid rgba(16,185,129,0.25)',
-                    color: '#34d399',
-                  },
-                },
-                { lbl: 'Especialización', val: formData.specialization, badge: null },
-                { lbl: 'Experiencia', val: formData.experience, badge: null },
-              ].map(({ lbl, val, badge, badgeStyle }: any) => (
-                <div
-                  key={lbl}
-                  className="bg-[#111827] border border-white/[0.06] rounded-xl p-4 flex flex-col gap-2.5"
-                >
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#4a5a72]">
-                    {lbl}
-                  </span>
-                  <span className="syne text-xl font-bold tracking-tight">{val}</span>
-                  {badge && (
-                    <span
-                      className="inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-semibold w-fit"
-                      style={badgeStyle}
-                    >
-                      {badge}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {formData.certifications?.length > 0 && (
-              <div>
-                <label className={labelCls}>Certificaciones</label>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {formData.certifications.map((c: string) => (
-                    <span
-                      key={c}
-                      className="px-3 py-1 rounded-lg text-xs font-semibold"
-                      style={{
-                        background: ACCENT_DIM,
-                        border: `1px solid ${ACCENT_BORD}`,
-                        color: ACCENT,
-                      }}
-                    >
-                      {c}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* ── Students ── */}
-        <Card>
-          <div className="flex items-start justify-between gap-3 px-7 pt-6">
+          {/* Languages */}
+          {formData.languages?.length > 0 && (
             <div>
-              <div className="flex items-center gap-2.5">
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                  style={{
-                    background: ACCENT_DIM,
-                    border: `1px solid ${ACCENT_BORD}`,
-                    color: ACCENT,
-                  }}
-                >
-                  <IcoUsers />
-                </div>
-                <span className="font-bold text-base tracking-tight">Mis Estudiantes</span>
+              <label className={labelCls}>Idiomas</label>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {formData.languages.map((l: string) => <Tag key={l} label={l} color="muted" />)}
               </div>
-              <p className="text-[#4a5a72] text-[13px] mt-1 ml-[42px]">
-                Gestiona tus estudiantes y sus sesiones
-              </p>
             </div>
-            <button
-              onClick={() => setIsAddingStudent(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold syne shrink-0 transition-all"
-              style={{ background: ACCENT, color: '#080c14' }}
-            >
-              <IcoPlus /> Agregar
-            </button>
+          )}
+
+          {/* Save bar */}
+          {isEditing && (
+            <div className="flex gap-2 pt-4 border-t border-white/[0.06]">
+              <button onClick={handleSaveProfile} disabled={profileLoading}
+                className="inline-flex items-center gap-1.5 h-9 px-5 rounded-xl text-xs font-bold bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_12px_rgba(172,230,0,0.18)] disabled:opacity-50 transition-all">
+                {profileLoading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Guardando…</> : <><Save className="w-3.5 h-3.5" />Guardar Cambios</>}
+              </button>
+              <button onClick={() => setIsEditing(false)} disabled={profileLoading}
+                className="h-9 px-4 rounded-xl text-xs font-semibold border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/40 hover:text-white disabled:opacity-40 transition-all">
+                Cancelar
+              </button>
+            </div>
+          )}
+        </div>
+      </SectionCard>
+
+      {/* ── Credentials ─────────────────────────────────────────────────────── */}
+      <SectionCard
+        icon={Award} iconColor="text-amber-400" iconBg="bg-amber-500/10 border-amber-500/20"
+        title="Credenciales de Entrenador">
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: 'Nivel NRTP',       value: formData.nrtpLevel,       badge: 'Verificado', badgeCls: 'bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]' },
+              { label: 'Tipo de Licencia', value: formData.licenseType,     badge: 'Activa',     badgeCls: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' },
+              { label: 'Especialización',  value: formData.specialization,  badge: null,          badgeCls: '' },
+              { label: 'Experiencia',      value: formData.experience,      badge: null,          badgeCls: '' },
+            ].map(({ label, value, badge, badgeCls }) => (
+              <div key={label}
+                className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 flex flex-col gap-2">
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/20">{label}</p>
+                <p className="text-lg font-black text-white/70 leading-tight truncate">{value ?? '—'}</p>
+                {badge && (
+                  <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-wider w-fit', badgeCls)}>
+                    <CheckCircle2 className="w-2.5 h-2.5" />{badge}
+                  </span>
+                )}
+              </div>
+            ))}
           </div>
 
-          <div className="px-7 py-5 overflow-x-auto">
-            {studentsLoading ? (
-              <div className="flex justify-center py-10">
-                <span className="animate-spin" style={{ color: ACCENT }}>
-                  <IcoSpin />
-                </span>
+          {formData.certifications?.length > 0 && (
+            <div>
+              <label className={labelCls}>Certificaciones</label>
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {formData.certifications.map((c: string) => <Tag key={c} label={c} color="lime" />)}
               </div>
-            ) : (
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr className="border-b border-white/[0.06]">
-                    {['Estudiante', 'Nivel', 'Estado', 'Acciones'].map((h) => (
-                      <th
-                        key={h}
-                        className="pb-3 text-left text-[11px] font-semibold uppercase tracking-widest text-[#4a5a72] px-3 first:pl-0"
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {(students || []).map((student: any) => (
-                    <tr
-                      key={student.id}
-                      className="border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02] transition-colors"
-                    >
-                      <td className="py-3.5 px-3 first:pl-0">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#1e3a5f] to-[#0f2847] border border-white/10 flex items-center justify-center syne text-[13px] font-bold shrink-0"
-                            style={{ color: ACCENT }}
-                          >
-                            {student.firstName?.[0]}
-                            {student.lastName?.[0]}
+            </div>
+          )}
+        </div>
+      </SectionCard>
+
+      {/* ── Students ────────────────────────────────────────────────────────── */}
+      <SectionCard
+        icon={Users} iconColor="text-sky-400" iconBg="bg-sky-500/10 border-sky-500/20"
+        title="Mis Estudiantes" desc="Gestiona tus estudiantes y sus sesiones"
+        action={
+          <button onClick={() => setIsAddingStudent(true)}
+            className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl text-[11px] font-bold bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_10px_rgba(172,230,0,0.15)] transition-all shrink-0">
+            <Plus className="w-3.5 h-3.5" /> Agregar
+          </button>
+        }>
+        {studentsLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <Loader2 className="w-5 h-5 animate-spin text-[#ace600]" />
+          </div>
+        ) : (students || []).length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 gap-2">
+            <Users className="w-8 h-8 text-white/[0.07]" />
+            <p className="text-xs text-white/20">Sin estudiantes todavía</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto -mx-6">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/[0.05]">
+                  {['Estudiante', 'Nivel', 'Estado', 'Acciones'].map(h => (
+                    <th key={h} className="px-6 py-2.5 text-left text-[10px] font-black uppercase tracking-widest text-white/20 first:pl-6">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {(students || []).map((student: any) => {
+                  const initials = `${student.firstName?.[0] ?? ''}${student.lastName?.[0] ?? ''}`;
+                  return (
+                    <tr key={student.id}
+                      className="border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02] transition-colors group">
+                      <td className="px-6 py-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center text-[10px] font-black text-[#ace600] shrink-0">
+                            {initials || '?'}
                           </div>
-                          <span className="font-medium text-sm">
+                          <span className="text-xs font-bold text-white/70 group-hover:text-white transition-colors">
                             {student.firstName} {student.lastName}
                           </span>
                         </div>
                       </td>
-                      <td className="py-3.5 px-3">
-                        <span
-                          className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold syne"
-                          style={{
-                            background: 'rgba(245,158,11,0.1)',
-                            border: '1px solid rgba(245,158,11,0.2)',
-                            color: '#fbbf24',
-                          }}
-                        >
+                      <td className="px-6 py-3.5">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest bg-amber-500/10 border-amber-500/20 text-amber-400">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
                           {student.level}
                         </span>
                       </td>
-                      <td className="py-3.5 px-3">
+                      <td className="px-6 py-3.5">
                         {student.status === 'active' ? (
-                          <span
-                            className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold"
-                            style={{
-                              background: 'rgba(16,185,129,0.12)',
-                              border: '1px solid rgba(16,185,129,0.25)',
-                              color: '#34d399',
-                            }}
-                          >
-                            Activo
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Activo
                           </span>
                         ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-semibold bg-white/5 border border-white/10 text-[#4a5a72]">
-                            Inactivo
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest bg-white/[0.04] border-white/[0.08] text-white/25">
+                            <span className="w-1.5 h-1.5 rounded-full bg-white/20" /> Inactivo
                           </span>
                         )}
                       </td>
-                      <td className="py-3.5 px-3">
-                        <div className="flex items-center gap-1">
-                          <button
-                            className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:bg-[rgba(172,230,0,0.12)]"
-                            style={{ color: ACCENT }}
-                          >
+                      <td className="px-6 py-3.5">
+                        <div className="flex items-center gap-1.5">
+                          <button className="h-7 px-2.5 rounded-lg text-[10px] font-bold border border-[#ace600]/20 bg-[#ace600]/[0.06] hover:bg-[#ace600]/[0.12] text-[#ace600] transition-all">
                             Ver Detalles
                           </button>
                           {student.status === 'active' && (
-                            <button
-                              onClick={() => handleRemoveStudent(student.id)}
-                              className="p-1.5 rounded-lg text-red-400 hover:bg-red-500/10 transition-all flex items-center"
-                            >
-                              <IcoTrash />
+                            <button onClick={() => handleRemoveStudent(student.id)}
+                              className="w-7 h-7 rounded-lg flex items-center justify-center border border-red-500/20 bg-red-500/[0.06] hover:bg-red-500/[0.12] text-red-400 transition-all">
+                              <Trash2 className="w-3 h-3" />
                             </button>
                           )}
                         </div>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        </Card>
-      </div>
+        )}
+      </SectionCard>
 
-      {/* ── Add Student Modal ── */}
-      {isAddingStudent && (
-        <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-6"
-          onClick={() => setIsAddingStudent(false)}
-        >
-          <div
-            className="bg-[#0d1421] border border-white/10 rounded-2xl w-full max-w-md overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-start justify-between px-7 pt-6">
-              <div>
-                <h2 className="syne text-lg font-bold">Agregar Nuevo Estudiante</h2>
-                <p className="text-[#7a8ba8] text-[13px] mt-1">
-                  Registra un nuevo estudiante en tu programa de coaching
-                </p>
-              </div>
-              <button
-                onClick={() => setIsAddingStudent(false)}
-                className="text-[#4a5a72] hover:text-[#f0f4ff] transition-colors p-1"
-              >
-                <IcoX />
-              </button>
-            </div>
-
-            <div className="px-7 py-5 flex flex-col gap-4">
-              <div>
-                <label className={labelCls}>ID del Jugador</label>
-                <input
-                  className={inputCls}
-                  value={newStudent.playerId}
-                  onChange={(e) => setNewStudent({ ...newStudent, playerId: e.target.value })}
-                  placeholder="ID del jugador"
-                />
-              </div>
-              <div>
-                <label className={labelCls}>Notas (opcional)</label>
-                <textarea
-                  className={`${inputCls} resize-y`}
-                  style={{ minHeight: 72 }}
-                  value={newStudent.notes}
-                  onChange={(e) => setNewStudent({ ...newStudent, notes: e.target.value })}
-                  placeholder="Notas sobre el estudiante"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2.5 px-7 pb-6 pt-2 border-t border-white/[0.06]">
-              <button
-                onClick={() => setIsAddingStudent(false)}
-                disabled={isAddingStudentLoading}
-                className="px-4 py-2.5 rounded-xl text-sm font-medium border border-white/10 text-[#f0f4ff] hover:bg-white/5 disabled:opacity-50 transition-all"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleAddStudent}
-                disabled={isAddingStudentLoading}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold syne disabled:opacity-50 transition-all"
-                style={{ background: ACCENT, color: '#080c14' }}
-              >
-                {isAddingStudentLoading ? (
-                  <>
-                    <span className="animate-spin">
-                      <IcoSpin />
-                    </span>{' '}
-                    Agregando...
-                  </>
-                ) : (
-                  'Agregar'
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Delete Confirm Modal ── */}
-      {showDeleteConfirm && (
-        <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-6"
-          onClick={() => setShowDeleteConfirm(false)}
-        >
-          <div
-            className="bg-[#0d1421] border border-white/10 rounded-2xl w-full max-w-sm overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-7 pt-6 flex items-start justify-between">
-              <div className="flex-1">
-                <div className="w-11 h-11 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 mb-4">
-                  <IcoAlert />
+      {/* ── Add Student Dialog ───────────────────────────────────────────────── */}
+      <Dialog open={isAddingStudent} onOpenChange={setIsAddingStudent}>
+        <DialogContent className="bg-[#0d1117] border-white/[0.09] rounded-2xl p-0 overflow-hidden max-w-md">
+          <div className="h-0.5 bg-gradient-to-r from-[#ace600]/50 via-[#ace600]/25 to-transparent" />
+          <div className="p-6">
+            <DialogHeader className="mb-5">
+              <div className="flex items-center gap-3 mb-1">
+                <div className="w-8 h-8 rounded-xl bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center shrink-0">
+                  <Plus className="w-4 h-4 text-[#ace600]" />
                 </div>
-                <h2 className="syne text-lg font-bold">¿Eliminar cuenta?</h2>
-                <p className="text-[#7a8ba8] text-[13px] mt-2 leading-relaxed">
-                  Esta acción no se puede deshacer. Se eliminará permanentemente tu cuenta y todos
-                  los datos asociados, incluyendo estudiantes y sesiones.
-                </p>
+                <DialogTitle className="text-base font-bold text-white">Agregar Estudiante</DialogTitle>
               </div>
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="text-[#4a5a72] hover:text-[#f0f4ff] transition-colors p-1 shrink-0 ml-4"
-              >
-                <IcoX />
-              </button>
+              <DialogDescription className="text-xs text-white/25 ml-11">
+                Registra un nuevo estudiante en tu programa de coaching
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3">
+              <Field label="ID del Jugador" req>
+                <Input className={inputCls} placeholder="ID del jugador"
+                  value={newStudent.playerId}
+                  onChange={e => setNewStudent(p => ({ ...p, playerId: e.target.value }))} />
+              </Field>
+              <Field label="Notas (opcional)">
+                <textarea rows={3} placeholder="Notas sobre el estudiante…"
+                  value={newStudent.notes}
+                  onChange={e => setNewStudent(p => ({ ...p, notes: e.target.value }))}
+                  className={cn(
+                    'w-full rounded-xl text-sm px-3.5 py-2.5 resize-y',
+                    'bg-white/[0.04] border border-white/[0.09] text-white placeholder:text-white/20',
+                    'outline-none focus:border-[#ace600]/50 transition-all',
+                  )} />
+              </Field>
             </div>
 
-            <div className="flex justify-end gap-2.5 px-7 pb-6 pt-5 border-t border-white/[0.06] mt-5">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2.5 rounded-xl text-sm font-medium border border-white/10 text-[#f0f4ff] hover:bg-white/5 transition-all"
-              >
+            <div className="flex gap-2 mt-5 pt-4 border-t border-white/[0.06]">
+              <button onClick={() => setIsAddingStudent(false)} disabled={addingStudentLoading}
+                className="flex-1 h-9 rounded-xl text-xs font-semibold border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/40 hover:text-white disabled:opacity-40 transition-all">
                 Cancelar
               </button>
-              <button
-                onClick={handleDeleteAccount}
-                disabled={profileLoading}
-                className="px-4 py-2.5 rounded-xl text-sm font-semibold bg-red-500 hover:bg-red-600 text-white disabled:opacity-50 transition-all"
-              >
-                Eliminar
+              <button onClick={handleAddStudent} disabled={addingStudentLoading}
+                className="flex-1 h-9 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-1.5 bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_12px_rgba(172,230,0,0.18)] disabled:opacity-50 transition-all">
+                {addingStudentLoading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Agregando…</> : <>Agregar Estudiante</>}
               </button>
             </div>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Delete confirm ───────────────────────────────────────────────────── */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent className="bg-[#0d1117] border-white/[0.09] rounded-2xl p-0 overflow-hidden max-w-sm">
+          <div className="h-0.5 bg-red-500/50" />
+          <div className="p-6">
+            <AlertDialogHeader>
+              <div className="w-11 h-11 rounded-2xl bg-red-500/[0.08] border border-red-500/15 flex items-center justify-center mb-4">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+              </div>
+              <AlertDialogTitle className="text-base font-bold text-white mb-1">
+                ¿Eliminar tu cuenta?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-xs text-white/35 leading-relaxed">
+                Esta acción no se puede deshacer. Se eliminarán permanentemente tu cuenta, estudiantes y todas las sesiones registradas.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex gap-2 mt-5 flex-row">
+              <AlertDialogCancel className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/50 hover:text-white text-xs font-semibold transition-all">
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteAccount} disabled={profileLoading}
+                className="flex-1 h-9 rounded-xl bg-red-500/80 hover:bg-red-500 text-white text-xs font-bold border-0 inline-flex items-center justify-center gap-1.5 disabled:opacity-50 transition-all">
+                {profileLoading ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Eliminando…</> : 'Sí, eliminar'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

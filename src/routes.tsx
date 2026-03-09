@@ -37,7 +37,13 @@ import DashboardHome from './pages/admin/dashboard/DashboardHome';
 import PlayersManagement from './pages/admin/dashboard/PlayersManagement';
 import FederationTournamentManagementPage from './pages/admin/dashboard/Tournament/FederationTournamentManagementPage';
 import FederationTournamentEventManagement from './pages/admin/dashboard/Tournament/TournamentEventManagement';
+import FederationTournamentDetails from './pages/admin/dashboard/Tournament/TournamentDetails';
+import FederationTournamentEdit from './pages/admin/dashboard/Tournament/TournamentEdit';
 import FederationEventsPage from './pages/admin/dashboard/FederationEvents';
+import FederationScheduleOverviewPage from './pages/admin/dashboard/FederationScheduleOverviewPage';
+import FederationScoreCorrectionsPage from './pages/admin/dashboard/FederationScoreCorrectionsPage';
+import AdminTournamentValidationPage from './pages/admin/dashboard/AdminTournamentValidation';
+import MemberManagement from './pages/admin/dashboard/StateDashboard/MemberManagement';
 
 // State Dashboard pages
 import StateDashboardLayout from './pages/state/dashboard/StateDashboardLayout';
@@ -46,6 +52,9 @@ import StateAccountPage from './pages/state/dashboard/StateAccountPage';
 import TournamentValidationPage from './pages/state/dashboard/TournamentValidation';
 import StateTournamentManagementPage from './pages/state/dashboard/StateTournamentManagement';
 import StateTournamentEventManagement from './pages/state/dashboard/Tournament/TournamentEventManagement';
+import StateTournamentDetails from './pages/state/dashboard/Tournament/StateTournamentDetails';
+import StateTournamentEdit from './pages/state/dashboard/Tournament/StateTournamentEdit';
+import StateScheduleOverviewPage from './pages/state/dashboard/StateScheduleOverviewPage';
 import EventValidationPage from './pages/state/dashboard/EventValidation';
 import StatePlayersManagement from './pages/state/dashboard/StatePlayersManagement';
 import StateClubsManagement from './pages/state/dashboard/StateClubsManagement';
@@ -59,6 +68,7 @@ import PlayerCredentialsPage from './pages/players/dashboard/CredentialsPage';
 import PlayerClubsPage from './pages/players/dashboard/ClubsPage';
 import PlayerSearchPage from './pages/players/dashboard/PlayersPage';
 import PlayerTournamentsPage from './pages/players/dashboard/TournamentsPage';
+import PlayerActiveTournamentsPage from './pages/players/dashboard/PlayerActiveTournamentsPage';
 import PlayerMessagesPage from './pages/players/dashboard/MessagesPage';
 import PlayerPaymentsPage from './pages/players/dashboard/PaymentsPage';
 
@@ -87,6 +97,8 @@ import ClubVenuesPage from './pages/clubs/dashboard/VenuesManagement';
 import TournamentEventManagement from './pages/clubs/dashboard/Tournament/TournamentEventManagement';
 import TournamentManagement from './pages/clubs/dashboard/Tournament/TournamentManagement';
 import ClubTournamentManagementPage from './pages/clubs/dashboard/Tournament/ClubTournamentManagementPage';
+import MatchSchedulePage from './pages/clubs/dashboard/Tournament/MatchSchedulePage';
+import ClubScheduleOverviewPage from './pages/clubs/dashboard/ClubScheduleOverviewPage';
 import TournamentCreation from './pages/clubs/dashboard/Tournament/TournamentCreation';
 import TournamentDetails from './pages/clubs/dashboard/Tournament/TournamentDetails';
 import TournamentEdit from './pages/clubs/dashboard/Tournament/TournamentEdit';
@@ -112,8 +124,21 @@ import StateTournamentDashboard from './pages/tournament/StateTournamentDashboar
 import PlayerTournamentView from './pages/tournament/PlayerTournamentView';
 import CoachTournamentView from './pages/tournament/CoachTournamentView';
 import CoachDashboardComponent from './pages/coaches/dashboard/CoachTournamentDashboard';
+import CoachTeamRegistrationPage from './pages/coaches/dashboard/CoachTeamRegistrationPage';
 import { MapPin } from 'lucide-react';
 import StatesManagement from './pages/admin/dashboard/StatesManagement';
+
+// Referee pages
+import RefereeDashboardPage from './pages/referee/RefereeDashboardPage';
+import MatchRefereeScreen from './pages/referee/MatchRefereeScreen';
+
+// Score Correction pages
+import ClubScoreCorrectionsPage from './pages/clubs/dashboard/ClubScoreCorrectionsPage';
+import StateScoreCorrectionsPage from './pages/state/dashboard/StateScoreCorrectionsPage';
+
+// State extra pages
+import StateMessagesPage from './pages/state/dashboard/StateMessagesPage';
+import StateStatistics from './pages/state/dashboard/StateStatistics';
 
 // Wrapper components for routes with parameters
 const TournamentEventManagementWrapper: React.FC = () => {
@@ -129,6 +154,26 @@ const FederationTournamentEventManagementWrapper: React.FC = () => {
 const StateTournamentEventManagementWrapper: React.FC = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
   return <StateTournamentEventManagement tournamentId={tournamentId || ''} />;
+};
+
+const StateTournamentDetailsWrapper: React.FC = () => {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  return <StateTournamentDetails tournamentId={tournamentId || ''} />;
+};
+
+const StateTournamentEditWrapper: React.FC = () => {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  return <StateTournamentEdit tournamentId={tournamentId || ''} />;
+};
+
+const FederationTournamentDetailsWrapper: React.FC = () => {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  return <FederationTournamentDetails tournamentId={tournamentId || ''} />;
+};
+
+const FederationTournamentEditWrapper: React.FC = () => {
+  const { tournamentId } = useParams<{ tournamentId: string }>();
+  return <FederationTournamentEdit tournamentId={tournamentId || ''} />;
 };
 
 const TournamentDetailsWrapper: React.FC = () => {
@@ -362,6 +407,19 @@ export const routes = [
     element: <InsufficientEntries />,
     public: true,
   },
+  // Referee standalone routes (no layout shell)
+  {
+    key: 'referee-dashboard',
+    path: '/referee/dashboard',
+    element: <RefereeDashboardPage />,
+    public: false,
+  },
+  {
+    key: 'referee-match',
+    path: '/referee/match/:matchId',
+    element: <MatchRefereeScreen />,
+    public: false,
+  },
   {
     key: 'admin-dashboard',
     path: '/admin/dashboard',
@@ -369,7 +427,7 @@ export const routes = [
     subroutes: [
       {
         key: 'dashboard-home',
-        path: '/admin/dashboard/home',
+        path: '/admin/dashboard',
         element: <DashboardHome />,
         public: false,
       },
@@ -440,9 +498,57 @@ export const routes = [
         public: false,
       },
       {
+        key: 'federation-tournament-details',
+        path: '/admin/dashboard/tournaments/:tournamentId',
+        element: <FederationTournamentDetailsWrapper />,
+        public: false,
+      },
+      {
+        key: 'federation-tournament-edit',
+        path: '/admin/dashboard/tournaments/:tournamentId/edit',
+        element: <FederationTournamentEditWrapper />,
+        public: false,
+      },
+      {
+        key: 'federation-match-schedule',
+        path: '/admin/dashboard/tournaments/:tournamentId/events/:eventId/schedule',
+        element: <MatchSchedulePage />,
+        public: false,
+      },
+      {
+        key: 'federation-schedule-overview',
+        path: '/admin/dashboard/schedule',
+        element: <FederationScheduleOverviewPage />,
+        public: false,
+      },
+      {
+        key: 'federation-corrections',
+        path: '/admin/dashboard/corrections',
+        element: <FederationScoreCorrectionsPage />,
+        public: false,
+      },
+      {
         key: 'federation-tournament-view',
         path: '/admin/dashboard/tournaments-view',
         element: <FederationTournamentDashboard />,
+        public: false,
+      },
+      {
+        key: 'federation-tournament-view-id',
+        path: '/admin/dashboard/tournaments/view/:tournamentId',
+        element: <FederationTournamentDashboard />,
+        public: false,
+      },
+      {
+        key: 'admin-tournament-validation',
+        path: '/admin/dashboard/validation',
+        element: <AdminTournamentValidationPage />,
+        public: false,
+      },
+      {
+        key: 'admin-member-management',
+        path: '/admin/dashboard/members',
+        element: <MemberManagement />,
         public: false,
       },
     ],
@@ -489,8 +595,38 @@ export const routes = [
         public: false,
       },
       {
+        key: 'state-tournament-details',
+        path: '/state/dashboard/tournaments/:tournamentId',
+        element: <StateTournamentDetailsWrapper />,
+        public: false,
+      },
+      {
+        key: 'state-tournament-edit',
+        path: '/state/dashboard/tournaments/:tournamentId/edit',
+        element: <StateTournamentEditWrapper />,
+        public: false,
+      },
+      {
+        key: 'state-match-schedule',
+        path: '/state/dashboard/tournaments/:tournamentId/events/:eventId/schedule',
+        element: <MatchSchedulePage />,
+        public: false,
+      },
+      {
+        key: 'state-schedule-overview',
+        path: '/state/dashboard/schedule',
+        element: <StateScheduleOverviewPage />,
+        public: false,
+      },
+      {
         key: 'state-tournament-view',
         path: '/state/dashboard/tournaments-view',
+        element: <StateTournamentDashboard />,
+        public: false,
+      },
+      {
+        key: 'state-tournament-view-id',
+        path: '/state/dashboard/tournaments/view/:tournamentId',
         element: <StateTournamentDashboard />,
         public: false,
       },
@@ -516,6 +652,24 @@ export const routes = [
         key: 'state-courts-management',
         path: '/state/dashboard/courts',
         element: <StateCourtsManagement />,
+        public: false,
+      },
+      {
+        key: 'state-corrections',
+        path: '/state/dashboard/corrections',
+        element: <StateScoreCorrectionsPage />,
+        public: false,
+      },
+      {
+        key: 'state-messages',
+        path: '/state/dashboard/messages',
+        element: <StateMessagesPage />,
+        public: false,
+      },
+      {
+        key: 'state-stats',
+        path: '/state/dashboard/stats',
+        element: <StateStatistics />,
         public: false,
       },
     ],
@@ -564,7 +718,7 @@ export const routes = [
       {
         key: 'player-tournament-view',
         path: '/players/dashboard/tournaments-view',
-        element: <PlayerTournamentView />,
+        element: <PlayerActiveTournamentsPage />,
         public: false,
       },
       {
@@ -671,6 +825,12 @@ export const routes = [
         element: <CoachDashboardComponent />,
         public: false,
       },
+      {
+        key: 'coach-team-registration',
+        path: '/coaches/dashboard/tournaments/register',
+        element: <CoachTeamRegistrationPage />,
+        public: false,
+      },
     ],
   },
   {
@@ -774,6 +934,24 @@ export const routes = [
         key: 'club-tournament-view',
         path: '/clubs/dashboard/tournaments/view/:tournamentId',
         element: <ClubTournamentDashboard />,
+        public: false,
+      },
+      {
+        key: 'club-corrections',
+        path: '/clubs/dashboard/corrections',
+        element: <ClubScoreCorrectionsPage />,
+        public: false,
+      },
+      {
+        key: 'club-schedule-overview',
+        path: '/clubs/dashboard/schedule',
+        element: <ClubScheduleOverviewPage />,
+        public: false,
+      },
+      {
+        key: 'club-match-schedule',
+        path: '/clubs/dashboard/tournaments/:tournamentId/events/:eventId/schedule',
+        element: <MatchSchedulePage />,
         public: false,
       },
     ],

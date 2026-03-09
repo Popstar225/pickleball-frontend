@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store';
 import {
@@ -86,16 +85,16 @@ function AddMemberDialog({
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  onSubmit: (d: { playerId: string; membershipFee: number; notes?: string }) => Promise<void>;
+  onSubmit: (d: { userId: string }) => Promise<void>;
   loading: boolean;
 }) {
-  const [form, setForm] = useState({ playerId: '', membershipFee: 300, notes: '' });
-  const reset = () => setForm({ playerId: '', membershipFee: 300, notes: '' });
+  const [userId, setUserId] = useState('');
+  const reset = () => setUserId('');
 
   const handleClose = (v: boolean) => { if (!v) reset(); onOpenChange(v); };
   const handleSubmit = async () => {
-    if (!form.playerId) return;
-    await onSubmit({ playerId: form.playerId, membershipFee: form.membershipFee, notes: form.notes || undefined });
+    if (!userId.trim()) return;
+    await onSubmit({ userId: userId.trim() });
     reset(); onOpenChange(false);
   };
 
@@ -104,42 +103,22 @@ function AddMemberDialog({
       <DialogContent className="p-0 gap-0 bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-sm shadow-[0_32px_80px_rgba(0,0,0,0.6)] overflow-hidden">
         <div className="px-6 pt-6 pb-4 border-b border-white/[0.06]">
           <h2 className="text-base font-bold text-white">Agregar Nuevo Miembro</h2>
-          <p className="text-xs text-white/35 mt-1">Invita a un jugador registrado a tu club</p>
+          <p className="text-xs text-white/35 mt-1">Ingresa el ID del usuario registrado en la plataforma</p>
         </div>
-        <div className="px-6 py-5 space-y-4">
-          <div>
-            <label className={labelCls}>ID del Jugador <span className="text-[#ace600]">*</span></label>
-            <Input
-              placeholder="ID del jugador en la plataforma"
-              value={form.playerId}
-              onChange={(e) => setForm({ ...form, playerId: e.target.value })}
-              className={inputCls}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Cuota de Membresía ($)</label>
-            <Input
-              type="number" min={0}
-              value={form.membershipFee}
-              onChange={(e) => setForm({ ...form, membershipFee: Number(e.target.value) })}
-              className={inputCls}
-            />
-          </div>
-          <div>
-            <label className={labelCls}>Notas <span className="normal-case text-white/20">(opcional)</span></label>
-            <Input
-              placeholder="Observaciones adicionales..."
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              className={inputCls}
-            />
-          </div>
+        <div className="px-6 py-5">
+          <label className={labelCls}>ID del Usuario <span className="text-[#ace600]">*</span></label>
+          <Input
+            placeholder="ID del usuario en la plataforma"
+            value={userId}
+            onChange={(e) => setUserId(e.target.value)}
+            className={inputCls}
+          />
         </div>
         <div className="flex gap-2.5 px-6 pb-6 pt-2 border-t border-white/[0.06]">
           <button onClick={() => handleClose(false)} disabled={loading} className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 hover:text-white text-sm font-semibold transition-all disabled:opacity-40">
             Cancelar
           </button>
-          <button onClick={handleSubmit} disabled={!form.playerId || loading} className="flex-1 h-9 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black text-sm font-bold transition-all shadow-[0_0_16px_rgba(172,230,0,0.2)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+          <button onClick={handleSubmit} disabled={!userId.trim() || loading} className="flex-1 h-9 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black text-sm font-bold transition-all shadow-[0_0_16px_rgba(172,230,0,0.2)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" strokeWidth={2.5} />}
             Agregar
           </button>
@@ -291,7 +270,6 @@ function StatCard({ label, value, loading, accent }: { label: string; value: num
 /* ══════════════════════════════════════════════════════════════════ */
 
 export default function ClubMembersPage() {
-  const { clubId } = useParams<{ clubId: string }>();
   const dispatch = useDispatch<AppDispatch>();
   const {
     members = [],
@@ -308,16 +286,19 @@ export default function ClubMembersPage() {
   const [showAdd, setShowAdd]             = useState(false);
   const [deleteDialog, setDeleteDialog]   = useState<{ open: boolean; id: string | null; name: string }>({ open: false, id: null, name: '' });
 
+  const refreshMembers = useCallback(() => {
+    dispatch(fetchClubMembers({ status: filterStatus || undefined }));
+  }, [dispatch, filterStatus]);
+
   useEffect(() => {
-    if (!clubId) return;
-    dispatch(fetchClubMembers({ clubId, status: filterStatus || undefined }));
+    refreshMembers();
     dispatch(fetchClubStatistics());
     return () => {
       setShowAdd(false);
       setDeleteDialog({ open: false, id: null, name: '' });
       dispatch(clearError());
     };
-  }, [dispatch, clubId, filterStatus]);
+  }, [dispatch, filterStatus]);
 
   const filtered = members.filter((m) => {
     const q = search.toLowerCase();
@@ -336,18 +317,18 @@ export default function ClubMembersPage() {
     inactive: members.filter((m) => m.membershipStatus === 'inactive').length,
   };
 
-  const handleAddMember = useCallback(async (data: { playerId: string; membershipFee: number; notes?: string }) => {
+  const handleAddMember = useCallback(async (data: { userId: string }) => {
     await dispatch(addClubMember(data)).unwrap();
     toast.success('Miembro agregado exitosamente');
-    dispatch(fetchClubMembers({ clubId: clubId!, status: filterStatus || undefined }));
+    refreshMembers();
     dispatch(fetchClubStatistics());
-  }, [dispatch, clubId, filterStatus]);
+  }, [dispatch, refreshMembers]);
 
   const handleEditMember = (member: ClubMember) => {
     const next = member.membershipStatus === 'active' ? 'inactive' : 'active';
     dispatch(updateClubMember({ memberId: member.id, membershipStatus: next }))
       .unwrap()
-      .then(() => toast.success('Estado actualizado'))
+      .then(() => { toast.success('Estado actualizado'); refreshMembers(); })
       .catch(() => toast.error('Error al actualizar el miembro'));
   };
 
@@ -357,10 +338,10 @@ export default function ClubMembersPage() {
       await dispatch(removeClubMember(deleteDialog.id)).unwrap();
       toast.success('Miembro eliminado exitosamente');
       setDeleteDialog({ open: false, id: null, name: '' });
-      dispatch(fetchClubMembers({ clubId: clubId!, status: filterStatus || undefined }));
+      refreshMembers();
       dispatch(fetchClubStatistics());
     } catch { toast.error('Error al eliminar el miembro'); }
-  }, [dispatch, clubId, filterStatus, deleteDialog.id]);
+  }, [dispatch, refreshMembers, deleteDialog.id]);
 
   /* ── Render ── */
   return (

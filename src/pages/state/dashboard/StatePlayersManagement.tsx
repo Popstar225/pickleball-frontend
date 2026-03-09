@@ -1,15 +1,22 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect, useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  Users,
+  Search,
+  MoreHorizontal,
+  Eye,
+  Edit2,
+  Trash2,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  ShieldCheck,
+  AlertTriangle,
+} from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -18,551 +25,614 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Users,
-  Search,
-  Filter,
-  X,
-  ChevronDown,
-  MoreHorizontal,
-  Eye,
-  Edit2,
-  Trash2,
-  CheckCircle2,
-  AlertCircle,
-  Loader,
-  ChevronsLeft,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsRight,
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { AppDispatch, RootState } from '@/store';
-import { fetchAdminUsers, updateUser, deleteUser } from '@/store/slices/usersSlice';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import type { RootState } from '@/store';
+import { api } from '@/lib/api';
 import UserActionModal from '@/pages/admin/dashboard/ActionModals/UserActionModal';
 
-const userTypeCfg: { [key: string]: { label: string; color: string } } = {
-  player: { label: 'Jugador', color: '#3b82f6' },
-  coach: { label: 'Entrenador', color: '#8b5cf6' },
-  club: { label: 'Club', color: '#10b981' },
-  partner: { label: 'Socio', color: '#f59e0b' },
+/* ─── shared styles ── */
+const selTrigger =
+  'h-9 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white/70 px-3 focus:border-white/20 transition-colors w-full';
+const selContent = 'bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl';
+const selItem = 'text-white/70 focus:bg-white/[0.06] focus:text-white';
+
+/* ─── helpers ── */
+function fmtDate(d?: string | null) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('es-MX', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
+function initials(name?: string | null) {
+  if (!name) return '?';
+  return name
+    .split(' ')
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
+}
+
+/* ─── badge configs ── */
+const typeCfg: Record<string, { label: string; color: string; bg: string; border: string }> = {
+  player: { label: 'Jugador', color: 'text-blue-400', bg: 'bg-blue-500/[0.08]', border: 'border-blue-500/20' },
+  coach: { label: 'Entrenador', color: 'text-purple-400', bg: 'bg-purple-500/[0.08]', border: 'border-purple-500/20' },
+  club: { label: 'Club', color: 'text-emerald-400', bg: 'bg-emerald-500/[0.08]', border: 'border-emerald-500/20' },
+  partner: { label: 'Socio', color: 'text-amber-400', bg: 'bg-amber-500/[0.08]', border: 'border-amber-500/20' },
 };
 
-const membershipCfg: { [key: string]: { label: string; color: string } } = {
-  free: { label: 'Gratis', color: '#6b7280' },
-  basic: { label: 'Básico', color: '#0ea5e9' },
-  pro: { label: 'Pro', color: '#f59e0b' },
-  premium: { label: 'Premium', color: '#ec4899' },
-  expired: { label: 'Expirado', color: '#ef4444' },
+const memberCfg: Record<string, { label: string; color: string; bg: string; border: string }> = {
+  free: { label: 'Gratis', color: 'text-white/40', bg: 'bg-white/[0.04]', border: 'border-white/[0.07]' },
+  basic: { label: 'Básico', color: 'text-sky-400', bg: 'bg-sky-500/[0.08]', border: 'border-sky-500/20' },
+  pro: { label: 'Pro', color: 'text-amber-400', bg: 'bg-amber-500/[0.08]', border: 'border-amber-500/20' },
+  premium: { label: 'Premium', color: 'text-[#ace600]', bg: 'bg-[#ace600]/[0.08]', border: 'border-[#ace600]/20' },
+  expired: { label: 'Expirado', color: 'text-red-400', bg: 'bg-red-500/[0.08]', border: 'border-red-500/20' },
 };
 
-const TypeBadge = ({ type }: { type: string }) => {
-  const config = userTypeCfg[type] || { label: type, color: '#ffffff' };
+function Pill({ cfg }: { cfg: { label: string; color: string; bg: string; border: string } }) {
   return (
-    <Badge
-      style={{
-        backgroundColor: `${config.color}20`,
-        color: config.color,
-        border: `1px solid ${config.color}40`,
-      }}
+    <span
+      className={`inline-flex items-center text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${cfg.bg} ${cfg.border} ${cfg.color}`}
     >
-      {config.label}
-    </Badge>
+      {cfg.label}
+    </span>
   );
-};
+}
 
-const MemberBadge = ({ membership }: { membership: string }) => {
-  const config = membershipCfg[membership] || { label: membership, color: '#ffffff' };
+/* ─── Delete confirm dialog ── */
+function DeleteDialog({
+  open,
+  name,
+  onConfirm,
+  onCancel,
+  loading,
+}: {
+  open: boolean;
+  name: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  loading: boolean;
+}) {
   return (
-    <Badge
-      style={{
-        backgroundColor: `${config.color}20`,
-        color: config.color,
-        border: `1px solid ${config.color}40`,
-      }}
-    >
-      {config.label}
-    </Badge>
+    <Dialog open={open} onOpenChange={(v) => !v && onCancel()}>
+      <DialogContent className="bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-sm p-0 shadow-2xl overflow-hidden">
+        <div className="p-6">
+          <div className="w-11 h-11 rounded-2xl bg-red-500/[0.08] border border-red-500/15 flex items-center justify-center mb-4">
+            <Trash2 className="w-5 h-5 text-red-400" />
+          </div>
+          <h2 className="text-base font-bold text-white mb-1">¿Eliminar miembro?</h2>
+          <p className="text-sm text-white/35 leading-relaxed">
+            Estás a punto de eliminar a{' '}
+            <span className="text-white/60 font-medium">"{name}"</span>. Esta acción no puede deshacerse.
+          </p>
+        </div>
+        <div className="flex gap-2.5 px-6 pb-6">
+          <button
+            onClick={onCancel}
+            disabled={loading}
+            className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 hover:text-white text-sm font-semibold transition-all"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={loading}
+            className="flex-1 h-9 rounded-xl bg-red-500/80 hover:bg-red-500 text-white text-sm font-bold transition-all flex items-center justify-center gap-2"
+          >
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            Eliminar
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
-};
+}
 
-const StatusBadge = ({ status }: { status: string }) => {
-  return status === 'active' ? (
-    <Badge className="gap-1 bg-green-500/10 text-green-400 border-green-500/20">
-      <CheckCircle2 className="w-3 h-3" />
-      Activo
-    </Badge>
-  ) : (
-    <Badge className="gap-1 bg-red-500/10 text-red-400 border-red-500/20">
-      <AlertCircle className="w-3 h-3" />
-      Inactivo
-    </Badge>
+/* ─── Stat card ── */
+function StatCard({
+  label,
+  value,
+  accent,
+  loading,
+}: {
+  label: string;
+  value: number | string;
+  accent?: boolean;
+  loading: boolean;
+}) {
+  return (
+    <div className="bg-[#0d1117] border border-white/[0.07] rounded-xl px-4 py-3.5">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">{label}</p>
+      <p className={`text-2xl font-bold ${accent ? 'text-[#ace600]' : 'text-white'}`}>
+        {loading ? '—' : value}
+      </p>
+    </div>
   );
-};
+}
 
-const FilterChip = ({ label, onRemove }: { label: string; onRemove: () => void }) => (
-  <Badge
-    className="gap-2 bg-[#ace600]/10 text-[#ace600] border-[#ace600]/20 cursor-pointer"
-    onClick={onRemove}
-  >
-    {label}
-    <X className="w-3 h-3" />
-  </Badge>
-);
+/* ══════════════════════════════════════════════════════════════════ */
 
 export default function StatePlayersManagement() {
-  const { toast } = useToast();
-  const dispatch = useDispatch<AppDispatch>();
-  const { users, loading, pagination } = useSelector((state: RootState) => state.users);
-  const { user: currentUser } = useSelector((state: RootState) => state.auth);
+  const currentUser = useSelector((state: RootState) => state.auth.user);
+
+  const [members, setMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [pagination, setPagination] = useState<{ total: number; page: number; pages: number } | null>(null);
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({
-    user_type: 'all',
-    is_active: 'all',
-    is_verified: 'all',
-    membership_status: 'all',
-  });
+  const [filterType, setFilterType] = useState('all');
+  const [filterActive, setFilterActive] = useState('all');
+  const [filterMembership, setFilterMembership] = useState('all');
+
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'view' | 'edit'>('view');
+  const [editDialog, setEditDialog] = useState<{ open: boolean; user: any | null }>({ open: false, user: null });
+  const [editForm, setEditForm] = useState<{ is_active: boolean; membership_status: string }>({ is_active: true, membership_status: 'free' });
+  const [editLoading, setEditLoading] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: '',
+    name: '',
+  });
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ page: page.toString(), limit: limit.toString() });
+      if (search) params.append('search', search);
+      if (filterType !== 'all') params.append('user_type', filterType);
+      if (filterActive !== 'all') params.append('is_active', filterActive);
+      if (filterMembership !== 'all') params.append('membership_status', filterMembership);
+
+      const res: any = await api.get(`/states/members?${params}`);
+      if (res?.success === false) {
+        throw new Error(res?.message || 'Error al cargar miembros');
+      }
+      setMembers(res?.data?.users ?? []);
+      setPagination(res?.pagination ?? null);
+    } catch (e: any) {
+      toast.error(e?.message || 'No se pudieron cargar los miembros');
+    } finally {
+      setLoading(false);
+    }
+  }, [page, limit, search, filterType, filterActive, filterMembership]);
 
   useEffect(() => {
-    const params: any = {
-      page,
-      limit,
-      state: currentUser?.state,
-    };
+    load();
+  }, [load]);
 
-    if (search) params.search = search;
-    if (filters.user_type !== 'all') params.user_type = filters.user_type;
-    if (filters.is_active !== 'all') params.is_active = filters.is_active === 'true';
-    if (filters.is_verified !== 'all') params.is_verified = filters.is_verified === 'true';
-    if (filters.membership_status !== 'all') params.membership_status = filters.membership_status;
+  const totalPages = Math.ceil((pagination?.total || 0) / limit);
+  const activeCount = members.filter((u) => u.is_active).length;
+  const verifiedCount = members.filter((u) => u.is_verified).length;
 
-    // Exclude state and admin users - only show players, coaches, clubs, partners
-    params.user_type_not = ['state', 'admin'];
-
-    dispatch(fetchAdminUsers(params));
-  }, [dispatch, page, limit, search, filters, currentUser?.state]);
-
-  const handleClearFilters = () => {
-    setSearch('');
-    setFilters({
-      user_type: 'all',
-      is_active: 'all',
-      is_verified: 'all',
-      membership_status: 'all',
-    });
-    setPage(1);
-  };
-
-  const openUserModal = (user: any, mode: 'view' | 'edit' = 'view') => {
+  const openViewModal = (user: any) => {
     setSelectedUser(user);
-    setModalMode(mode);
     setIsModalOpen(true);
   };
 
-  const handleDeleteUser = async (userId: string) => {
-    if (!window.confirm('¿Estás seguro de que deseas eliminar este usuario?')) return;
+  const openEditDialog = (user: any) => {
+    setEditForm({ is_active: user.is_active ?? true, membership_status: user.membership_status ?? 'free' });
+    setEditDialog({ open: true, user });
+  };
 
+  const handleEditSave = async () => {
+    if (!editDialog.user) return;
+    setEditLoading(true);
     try {
-      await dispatch(deleteUser(userId)).unwrap();
-      toast({
-        title: 'Usuario eliminado',
-        description: 'El usuario ha sido eliminado correctamente',
-      });
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error?.message || 'No se pudo eliminar el usuario',
-        variant: 'destructive',
-      });
+      await api.put(`/states/members/${editDialog.user.id}`, editForm);
+      toast.success('Miembro actualizado correctamente');
+      setEditDialog({ open: false, user: null });
+      load();
+    } catch (e: any) {
+      toast.error(e?.message || 'No se pudo actualizar el miembro');
+    } finally {
+      setEditLoading(false);
     }
   };
 
-  const activeCount = users?.filter((u: any) => u.is_active)?.length || 0;
-  const verifiedCount = users?.filter((u: any) => u.is_verified)?.length || 0;
-  const proCount = users?.filter((u: any) => u.membership_status === 'pro')?.length || 0;
-
-  const hasActiveFilters =
-    search ||
-    filters.user_type !== 'all' ||
-    filters.is_active !== 'all' ||
-    filters.is_verified !== 'all' ||
-    filters.membership_status !== 'all';
+  const handleDelete = async () => {
+    setDeleteLoading(true);
+    try {
+      await api.delete(`/states/members/${deleteDialog.id}`);
+      toast.success('Miembro eliminado correctamente');
+      setDeleteDialog({ open: false, id: '', name: '' });
+      load();
+    } catch (e: any) {
+      toast.error(e?.message || 'No se pudo eliminar el miembro');
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-1">
+
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Users className="w-6 h-6 text-[#ace600]" />
-          Gestión de Jugadores
-        </h1>
-        <p className="text-sm text-white/35 mt-1">Administra los jugadores en tu estado</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Miembros del Estado</h1>
+          <p className="text-sm text-white/35 mt-0.5">
+            Administra todos los miembros registrados en{' '}
+            <span className="text-white/60 font-medium">{currentUser?.state || 'tu estado'}</span>
+          </p>
+        </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-[#0d1117] border-white/[0.07]">
-          <CardContent className="pt-6">
-            <div className="text-sm text-white/50 mb-1">Total de Jugadores</div>
-            <div className="text-2xl font-bold text-white">{pagination?.total || 0}</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-[#0d1117] border-white/[0.07]">
-          <CardContent className="pt-6">
-            <div className="text-sm text-white/50 mb-1">Activos</div>
-            <div className="text-2xl font-bold text-[#ace600]">{activeCount}</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-[#0d1117] border-white/[0.07]">
-          <CardContent className="pt-6">
-            <div className="text-sm text-white/50 mb-1">Verificados</div>
-            <div className="text-2xl font-bold text-blue-400">{verifiedCount}</div>
-          </CardContent>
-        </Card>
-        <Card className="bg-[#0d1117] border-white/[0.07]">
-          <CardContent className="pt-6">
-            <div className="text-sm text-white/50 mb-1">Plan Pro</div>
-            <div className="text-2xl font-bold text-yellow-400">{proCount}</div>
-          </CardContent>
-        </Card>
+      {/* Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatCard label="Total" value={pagination?.total || 0} loading={loading} accent />
+        <StatCard label="Activos" value={activeCount} loading={loading} />
+        <StatCard label="Verificados" value={verifiedCount} loading={loading} />
+        <StatCard label="Esta página" value={members.length} loading={loading} />
       </div>
 
       {/* Filters */}
-      <Card className="bg-[#0d1117] border-white/[0.07]">
-        <CardHeader>
-          <CardTitle className="text-sm text-white flex items-center gap-2">
-            <Filter className="w-4 h-4" />
-            Filtros
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex gap-3">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
-              <Input
-                placeholder="Buscar jugador..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-                className="pl-10 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20"
-              />
+      <div className="flex flex-col sm:flex-row gap-3">
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
+          <input
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            placeholder="Buscar por nombre o email…"
+            className="w-full h-9 bg-white/[0.04] border border-white/[0.08] rounded-lg pl-8 pr-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-white/20 transition-colors"
+          />
+        </div>
+
+        <Select value={filterType} onValueChange={(v) => { setFilterType(v); setPage(1); }}>
+          <SelectTrigger className={`${selTrigger} sm:w-40`}><SelectValue placeholder="Tipo" /></SelectTrigger>
+          <SelectContent className={selContent}>
+            {[['all','Todos los tipos'],['player','Jugador'],['coach','Entrenador'],['club','Club'],['partner','Socio']].map(([v, l]) => (
+              <SelectItem key={v} value={v} className={selItem}>{l}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filterMembership} onValueChange={(v) => { setFilterMembership(v); setPage(1); }}>
+          <SelectTrigger className={`${selTrigger} sm:w-40`}><SelectValue placeholder="Membresía" /></SelectTrigger>
+          <SelectContent className={selContent}>
+            {[['all','Todas'],['free','Gratis'],['basic','Básico'],['pro','Pro'],['premium','Premium'],['expired','Expirado']].map(([v, l]) => (
+              <SelectItem key={v} value={v} className={selItem}>{l}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select value={filterActive} onValueChange={(v) => { setFilterActive(v); setPage(1); }}>
+          <SelectTrigger className={`${selTrigger} sm:w-36`}><SelectValue placeholder="Estado" /></SelectTrigger>
+          <SelectContent className={selContent}>
+            <SelectItem value="all" className={selItem}>Todos</SelectItem>
+            <SelectItem value="true" className={selItem}>Activos</SelectItem>
+            <SelectItem value="false" className={selItem}>Inactivos</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Table card */}
+      <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
+
+        {/* Card header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-white/30" />
+            <span className="text-sm font-semibold text-white/60">Miembros registrados</span>
+          </div>
+          {!loading && (
+            <span className="text-[11px] font-semibold text-white/25 bg-white/[0.04] border border-white/[0.06] px-2.5 py-0.5 rounded-full">
+              {pagination?.total ?? members.length} en total
+            </span>
+          )}
+        </div>
+
+        {/* Loading */}
+        {loading && (
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <Loader2 className="w-6 h-6 text-[#ace600] animate-spin" />
+            <p className="text-sm text-white/25">Cargando miembros…</p>
+          </div>
+        )}
+
+        {/* Empty */}
+        {!loading && members.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-center mb-4">
+              <Users className="w-6 h-6 text-white/20" />
             </div>
-            {hasActiveFilters && (
-              <Button
-                onClick={handleClearFilters}
-                size="sm"
-                variant="outline"
-                className="border-white/[0.08] text-white/50 hover:text-white"
+            <p className="text-white/50 font-semibold text-sm mb-1">Sin miembros</p>
+            <p className="text-white/20 text-xs max-w-xs">
+              No se encontraron miembros con los filtros seleccionados.
+            </p>
+          </div>
+        )}
+
+        {/* Table */}
+        {!loading && members.length > 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-white/[0.06]">
+                  {['Miembro', 'Tipo', 'Membresía', 'Estado', 'Verificado', 'Registro', ''].map((h) => (
+                    <th
+                      key={h}
+                      className="text-left py-3 px-4 text-[11px] font-bold uppercase tracking-widest text-white/25"
+                    >
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {members.map((user: any) => (
+                  <tr
+                    key={user.id}
+                    className="border-b border-white/[0.04] hover:bg-white/[0.015] transition-colors group"
+                  >
+                    {/* Member */}
+                    <td className="py-3 px-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center text-[11px] font-black text-[#ace600] flex-shrink-0">
+                          {initials(user.name || user.full_name)}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-white/90 font-semibold text-sm truncate leading-tight">
+                            {user.name || user.full_name || '—'}
+                          </p>
+                          <p className="text-[11px] text-white/35 truncate">{user.email}</p>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Type */}
+                    <td className="py-3 px-4">
+                      <Pill cfg={typeCfg[user.user_type] ?? { label: user.user_type, color: 'text-white/40', bg: 'bg-white/[0.04]', border: 'border-white/[0.07]' }} />
+                    </td>
+
+                    {/* Membership */}
+                    <td className="py-3 px-4">
+                      <Pill cfg={memberCfg[user.membership_status ?? 'free'] ?? memberCfg.free} />
+                    </td>
+
+                    {/* Active */}
+                    <td className="py-3 px-4">
+                      {user.is_active ? (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/[0.08] border border-emerald-500/20 text-emerald-400">
+                          <CheckCircle2 className="w-3 h-3" /> Activo
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-red-500/[0.08] border border-red-500/20 text-red-400">
+                          <XCircle className="w-3 h-3" /> Inactivo
+                        </span>
+                      )}
+                    </td>
+
+                    {/* Verified */}
+                    <td className="py-3 px-4">
+                      {user.is_verified ? (
+                        <ShieldCheck className="w-4 h-4 text-blue-400" />
+                      ) : (
+                        <AlertTriangle className="w-4 h-4 text-white/20" />
+                      )}
+                    </td>
+
+                    {/* Date */}
+                    <td className="py-3 px-4 text-[11px] text-white/35 whitespace-nowrap">
+                      {fmtDate(user.created_at)}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="py-3 px-4">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="w-7 h-7 rounded-lg flex items-center justify-center text-white/25 hover:text-white/60 hover:bg-white/[0.06] transition-all opacity-0 group-hover:opacity-100">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className="bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl p-1 w-40"
+                        >
+                          <DropdownMenuItem
+                            onClick={() => openViewModal(user)}
+                            className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
+                          >
+                            <Eye className="w-3.5 h-3.5" /> Ver detalle
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => openEditDialog(user)}
+                            className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" /> Editar
+                          </DropdownMenuItem>
+                          <div className="h-px bg-white/[0.06] my-1" />
+                          <DropdownMenuItem
+                            onClick={() =>
+                              setDeleteDialog({ open: true, id: user.id, name: user.name || user.full_name || '' })
+                            }
+                            className="flex items-center gap-2.5 text-red-400 hover:text-red-300 focus:text-red-300 hover:bg-red-500/[0.06] focus:bg-red-500/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" /> Eliminar
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {!loading && totalPages > 1 && (
+          <div className="flex items-center justify-between px-5 py-4 border-t border-white/[0.06]">
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-white/25">
+                Pág. {page} de {totalPages}
+              </p>
+              <Select value={limit.toString()} onValueChange={(v) => { setLimit(parseInt(v)); setPage(1); }}>
+                <SelectTrigger className="w-28 h-7 text-xs bg-white/[0.04] border border-white/[0.08] rounded-lg text-white/50">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className={selContent}>
+                  {['5','10','25','50'].map((v) => (
+                    <SelectItem key={v} value={v} className={selItem}>{v} por pág.</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setPage(1)}
+                disabled={page === 1}
+                className="w-7 h-7 rounded-lg flex items-center justify-center border border-white/[0.08] bg-white/[0.04] text-white/40 hover:text-white hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
               >
-                Limpiar filtros
-              </Button>
-            )}
-          </div>
+                <ChevronsLeft className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="w-7 h-7 rounded-lg flex items-center justify-center border border-white/[0.08] bg-white/[0.04] text-white/40 hover:text-white hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" />
+              </button>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <Select
-              value={filters.user_type}
-              onValueChange={(v) => setFilters({ ...filters, user_type: v })}
-            >
-              <SelectTrigger className="h-10 rounded-xl bg-white/[0.04] border-white/[0.08] text-white">
-                <SelectValue placeholder="Tipo de usuario" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#0d1117] border-white/[0.08]">
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="player">Jugador</SelectItem>
-                <SelectItem value="coach">Entrenador</SelectItem>
-                <SelectItem value="club">Club</SelectItem>
-                <SelectItem value="partner">Socio</SelectItem>
-              </SelectContent>
-            </Select>
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + i;
+                if (p > totalPages) return null;
+                return (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`w-7 h-7 rounded-lg text-xs font-semibold transition-all border ${
+                      p === page
+                        ? 'bg-[#ace600] text-black border-[#ace600]/50 shadow-[0_0_10px_rgba(172,230,0,0.2)]'
+                        : 'border-white/[0.08] bg-white/[0.04] text-white/40 hover:text-white hover:bg-white/[0.08]'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
 
-            <Select
-              value={filters.is_verified}
-              onValueChange={(v) => setFilters({ ...filters, is_verified: v })}
-            >
-              <SelectTrigger className="h-10 rounded-xl bg-white/[0.04] border-white/[0.08] text-white">
-                <SelectValue placeholder="Verificación" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#0d1117] border-white/[0.08]">
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="true">Verificado</SelectItem>
-                <SelectItem value="false">Pendiente</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.is_active}
-              onValueChange={(v) => setFilters({ ...filters, is_active: v })}
-            >
-              <SelectTrigger className="h-10 rounded-xl bg-white/[0.04] border-white/[0.08] text-white">
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#0d1117] border-white/[0.08]">
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="true">Activo</SelectItem>
-                <SelectItem value="false">Inactivo</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select
-              value={filters.membership_status}
-              onValueChange={(v) => setFilters({ ...filters, membership_status: v })}
-            >
-              <SelectTrigger className="h-10 rounded-xl bg-white/[0.04] border-white/[0.08] text-white">
-                <SelectValue placeholder="Membresía" />
-              </SelectTrigger>
-              <SelectContent className="bg-[#0d1117] border-white/[0.08]">
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="free">Gratis</SelectItem>
-                <SelectItem value="basic">Básico</SelectItem>
-                <SelectItem value="pro">Pro</SelectItem>
-                <SelectItem value="premium">Premium</SelectItem>
-                <SelectItem value="expired">Expirado</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {hasActiveFilters && (
-            <div className="flex flex-wrap gap-2 pt-2">
-              {search && (
-                <FilterChip label={`Búsqueda: ${search}`} onRemove={() => setSearch('')} />
-              )}
-              {filters.user_type !== 'all' && (
-                <FilterChip
-                  label={`Tipo: ${filters.user_type}`}
-                  onRemove={() => setFilters({ ...filters, user_type: 'all' })}
-                />
-              )}
-              {filters.is_verified !== 'all' && (
-                <FilterChip
-                  label={`Verificado: ${filters.is_verified}`}
-                  onRemove={() => setFilters({ ...filters, is_verified: 'all' })}
-                />
-              )}
-              {filters.is_active !== 'all' && (
-                <FilterChip
-                  label={`Estado: ${filters.is_active}`}
-                  onRemove={() => setFilters({ ...filters, is_active: 'all' })}
-                />
-              )}
-              {filters.membership_status !== 'all' && (
-                <FilterChip
-                  label={`Membresía: ${filters.membership_status}`}
-                  onRemove={() => setFilters({ ...filters, membership_status: 'all' })}
-                />
-              )}
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                className="w-7 h-7 rounded-lg flex items-center justify-center border border-white/[0.08] bg-white/[0.04] text-white/40 hover:text-white hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setPage(totalPages)}
+                disabled={page >= totalPages}
+                className="w-7 h-7 rounded-lg flex items-center justify-center border border-white/[0.08] bg-white/[0.04] text-white/40 hover:text-white hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronsRight className="w-3.5 h-3.5" />
+              </button>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )}
+      </div>
 
-      {/* Results */}
-      <Card className="bg-[#0d1117] border-white/[0.07]">
-        <CardHeader>
-          <CardTitle className="text-sm text-white">
-            Resultados ({pagination?.total || 0} jugadores)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader className="w-6 h-6 text-[#ace600] animate-spin" />
-            </div>
-          ) : users && users.length > 0 ? (
-            <>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-white/[0.07]">
-                      <th className="text-left py-3 px-4 text-white/50 font-medium">Jugador</th>
-                      <th className="text-left py-3 px-4 text-white/50 font-medium">Email</th>
-                      <th className="text-left py-3 px-4 text-white/50 font-medium">Tipo</th>
-                      <th className="text-left py-3 px-4 text-white/50 font-medium">Membresía</th>
-                      <th className="text-left py-3 px-4 text-white/50 font-medium">Estado</th>
-                      <th className="text-left py-3 px-4 text-white/50 font-medium">Registro</th>
-                      <th className="text-left py-3 px-4 text-white/50 font-medium">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((user: any) => (
-                      <tr
-                        key={user.id}
-                        className="border-b border-white/[0.04] hover:bg-white/[0.02] transition-colors"
-                      >
-                        <td className="py-3 px-4 text-white font-medium">{user.name}</td>
-                        <td className="py-3 px-4 text-white/60 text-xs">{user.email}</td>
-                        <td className="py-3 px-4">
-                          <TypeBadge type={user.user_type} />
-                        </td>
-                        <td className="py-3 px-4">
-                          <MemberBadge membership={user.membership_status || 'free'} />
-                        </td>
-                        <td className="py-3 px-4">
-                          <StatusBadge status={user.is_active ? 'active' : 'inactive'} />
-                        </td>
-                        <td className="py-3 px-4 text-white/60 text-xs">
-                          {new Date(user.created_at).toLocaleDateString('es-MX')}
-                        </td>
-                        <td className="py-3 px-4">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                              align="end"
-                              className="bg-[#0d1117] border-white/[0.08]"
-                            >
-                              <DropdownMenuItem
-                                onClick={() => openUserModal(user, 'view')}
-                                className="text-white/70 cursor-pointer"
-                              >
-                                <Eye className="w-4 h-4 mr-2" />
-                                Ver
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => openUserModal(user, 'edit')}
-                                className="text-white/70 cursor-pointer"
-                              >
-                                <Edit2 className="w-4 h-4 mr-2" />
-                                Editar
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleDeleteUser(user.id)}
-                                className="text-red-400 cursor-pointer"
-                              >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Eliminar
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination */}
-              <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/[0.07]">
-                <div className="text-sm text-white/50">
-                  Página {page} de {Math.ceil((pagination?.total || 0) / limit)}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setPage(1)}
-                    disabled={page === 1}
-                    className="border-white/[0.08]"
-                  >
-                    <ChevronsLeft className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page === 1}
-                    className="border-white/[0.08]"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </Button>
-                  {Array.from({
-                    length: Math.min(5, Math.ceil((pagination?.total || 0) / limit)),
-                  }).map((_, i) => {
-                    const pageNum = Math.max(1, page - 2) + i;
-                    if (pageNum > Math.ceil((pagination?.total || 0) / limit)) return null;
-                    return (
-                      <Button
-                        key={pageNum}
-                        size="sm"
-                        variant={page === pageNum ? 'default' : 'outline'}
-                        onClick={() => setPage(pageNum)}
-                        className={
-                          page === pageNum ? 'bg-[#ace600] text-black' : 'border-white/[0.08]'
-                        }
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() =>
-                      setPage((p) => Math.min(Math.ceil((pagination?.total || 0) / limit), p + 1))
-                    }
-                    disabled={page >= Math.ceil((pagination?.total || 0) / limit)}
-                    className="border-white/[0.08]"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setPage(Math.ceil((pagination?.total || 0) / limit))}
-                    disabled={page >= Math.ceil((pagination?.total || 0) / limit)}
-                    className="border-white/[0.08]"
-                  >
-                    <ChevronsRight className="w-4 h-4" />
-                  </Button>
-                </div>
-                <Select
-                  value={limit.toString()}
-                  onValueChange={(v) => {
-                    setLimit(parseInt(v));
-                    setPage(1);
-                  }}
-                >
-                  <SelectTrigger className="w-24 h-8 text-xs bg-white/[0.04] border-white/[0.08]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#0d1117] border-white/[0.08]">
-                    <SelectItem value="5">5 por página</SelectItem>
-                    <SelectItem value="10">10 por página</SelectItem>
-                    <SelectItem value="25">25 por página</SelectItem>
-                    <SelectItem value="50">50 por página</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
-          ) : (
-            <div className="text-center py-12 text-white/50">No se encontraron jugadores</div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Modal */}
+      {/* View modal */}
       {selectedUser && (
         <UserActionModal
           isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedUser(null);
-          }}
+          onClose={() => { setIsModalOpen(false); setSelectedUser(null); }}
           user={selectedUser}
-          mode={modalMode}
-          onSaveSuccess={() => {
-            setIsModalOpen(false);
-            setSelectedUser(null);
-            dispatch(
-              fetchAdminUsers({
-                page,
-                limit,
-                state: currentUser?.state,
-              }),
-            );
-          }}
+          mode="view"
+          onSaveSuccess={() => { setIsModalOpen(false); setSelectedUser(null); }}
         />
       )}
+
+      {/* Edit status dialog */}
+      <Dialog open={editDialog.open} onOpenChange={(v) => !v && setEditDialog({ open: false, user: null })}>
+        <DialogContent className="bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-sm p-0 shadow-2xl overflow-hidden">
+          <div className="p-6 space-y-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-9 h-9 rounded-xl bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center">
+                <Edit2 className="w-4 h-4 text-[#ace600]" />
+              </div>
+              <div>
+                <h2 className="text-sm font-bold text-white">Editar miembro</h2>
+                <p className="text-[11px] text-white/35">{editDialog.user?.full_name || editDialog.user?.name}</p>
+              </div>
+            </div>
+
+            {/* Membership status */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1.5">Plan de Membresía</label>
+              <Select value={editForm.membership_status} onValueChange={(v) => setEditForm((p) => ({ ...p, membership_status: v }))}>
+                <SelectTrigger className="h-9 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white/70 focus:border-white/20 transition-colors">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl">
+                  {[['free','Gratis'],['basic','Básico'],['pro','Pro'],['premium','Premium'],['expired','Expirado']].map(([v, l]) => (
+                    <SelectItem key={v} value={v} className="text-white/70 focus:bg-white/[0.06] focus:text-white">{l}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Active toggle */}
+            <div className="flex items-center justify-between py-3 border-t border-white/[0.06]">
+              <div>
+                <p className="text-xs font-semibold text-white/70">Usuario Activo</p>
+                <p className="text-[10px] text-white/25">El usuario puede acceder a la plataforma</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditForm((p) => ({ ...p, is_active: !p.is_active }))}
+                style={{ background: editForm.is_active ? '#ace600' : 'rgba(255,255,255,0.1)', borderRadius: 999, height: 22, width: 40 }}
+                className="relative shrink-0 transition-all duration-200 focus:outline-none"
+              >
+                <span
+                  className="absolute top-0.5 left-0.5 w-[18px] h-[18px] rounded-full bg-white shadow transition-transform duration-200"
+                  style={{ transform: editForm.is_active ? 'translateX(18px)' : 'translateX(0)' }}
+                />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex gap-2.5 px-6 pb-6">
+            <button
+              onClick={() => setEditDialog({ open: false, user: null })}
+              disabled={editLoading}
+              className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 hover:text-white text-sm font-semibold transition-all"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleEditSave}
+              disabled={editLoading}
+              className="flex-1 h-9 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black text-sm font-bold transition-all flex items-center justify-center gap-2"
+            >
+              {editLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+              Guardar
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirm dialog */}
+      <DeleteDialog
+        open={deleteDialog.open}
+        name={deleteDialog.name}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteDialog({ open: false, id: '', name: '' })}
+        loading={deleteLoading}
+      />
     </div>
   );
 }

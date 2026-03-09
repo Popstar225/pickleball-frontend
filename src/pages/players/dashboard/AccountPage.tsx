@@ -7,7 +7,7 @@ import {
   updatePlayerProfile,
   deletePlayerAccount,
 } from '@/store/slices/playerDashboardSlice';
-import { Autocomplete } from '@/components/ui/autocomplete';
+import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
 import { getFullImageUrl } from '@/common/tools';
 import {
   User, Activity, Shield, Mail, Phone, Calendar, MapPin,
@@ -15,16 +15,6 @@ import {
   Swords, Bell, Loader2, AlertTriangle, Check, ChevronDown,
 } from 'lucide-react';
 
-// ─── Mexico States ────────────────────────────────────────────────────────────
-const mexicoStates: Record<string, string> = {
-  AG:'Aguascalientes', BC:'Baja California', BS:'Baja California Sur', CH:'Chihuahua',
-  CL:'Colima', CM:'Campeche', CO:'Coahuila', CS:'Chiapas', DF:'Ciudad de México',
-  DG:'Durango', GR:'Guerrero', GT:'Guanajuato', HG:'Hidalgo', JA:'Jalisco',
-  ME:'Estado de México', MI:'Michoacán', MO:'Morelos', NA:'Nayarit', NL:'Nuevo León',
-  OA:'Oaxaca', PB:'Puebla', QE:'Querétaro', QR:'Quintana Roo', SI:'Sinaloa',
-  SL:'San Luis Potosí', SO:'Sonora', TB:'Tabasco', TL:'Tlaxcala', TM:'Tamaulipas',
-  VE:'Veracruz', YU:'Yucatán', ZA:'Zacatecas',
-};
 
 const NAV_TABS = [
   { id: 'profile',     label: 'Perfil',        icon: User     },
@@ -426,13 +416,11 @@ export default function PlayerAccountPage() {
 
               <div>
                 <label className={labelCls}>Estado</label>
-                <Autocomplete
-                  options={Object.values(mexicoStates)}
+                <StateAutocomplete
                   value={form.state || profile?.state || ''}
                   onChange={v => set('state', v)}
                   disabled={!isEditing || profileLoading}
                   placeholder="Selecciona estado…"
-                  className={inputCls}
                 />
               </div>
             </div>

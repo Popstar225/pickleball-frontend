@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   Shield,
   Sparkles,
+  MapPin,
 } from 'lucide-react';
 
 const RequiredFieldsPage = () => {
@@ -26,6 +27,8 @@ const RequiredFieldsPage = () => {
     confirmPassword: '',
     full_name: '',
     business_name: '',
+    latitude: '',
+    longitude: '',
     privacy_policy_accepted: false,
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -103,6 +106,14 @@ const RequiredFieldsPage = () => {
       toast.error('Las contraseñas no coinciden');
       return false;
     }
+    if (!formData.latitude || isNaN(parseFloat(formData.latitude))) {
+      toast.error('La latitud es requerida');
+      return false;
+    }
+    if (!formData.longitude || isNaN(parseFloat(formData.longitude))) {
+      toast.error('La longitud es requerida');
+      return false;
+    }
     if (userType === 'club' || userType === 'partner') {
       if (!formData.business_name) {
         toast.error('El nombre del negocio es requerido');
@@ -140,6 +151,8 @@ const RequiredFieldsPage = () => {
         password: formData.password,
         full_name: formData.full_name,
         business_name: formData.business_name,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
         privacy_policy_accepted: formData.privacy_policy_accepted,
       }),
     );
@@ -173,6 +186,8 @@ const RequiredFieldsPage = () => {
         password: formData.password,
         full_name: formData.full_name,
         business_name: formData.business_name,
+        latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
+        longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
         privacy_policy_accepted: Boolean(formData.privacy_policy_accepted),
       };
 
@@ -252,6 +267,23 @@ const RequiredFieldsPage = () => {
       },
     ];
 
+    const locationFields = [
+      {
+        name: 'latitude',
+        label: 'Latitud',
+        type: 'text',
+        placeholder: 'Ej. 19.4326',
+        icon: MapPin,
+      },
+      {
+        name: 'longitude',
+        label: 'Longitud',
+        type: 'text',
+        placeholder: 'Ej. -99.1332',
+        icon: MapPin,
+      },
+    ];
+
     if (userType === 'club' || userType === 'partner') {
       return [
         ...baseFields,
@@ -262,6 +294,7 @@ const RequiredFieldsPage = () => {
           placeholder: 'Ingresa el nombre de tu negocio u organización',
           icon: Building2,
         },
+        ...locationFields,
       ];
     } else {
       return [
@@ -273,6 +306,7 @@ const RequiredFieldsPage = () => {
           placeholder: 'Ingresa tu nombre completo',
           icon: User,
         },
+        ...locationFields,
       ];
     }
   };
@@ -349,7 +383,7 @@ const RequiredFieldsPage = () => {
 
               {/* Form Fields */}
               <div className="px-8 py-8 space-y-6">
-                {getRequiredFields().map((field, index) => {
+                {getRequiredFields().map((field) => {
                   const Icon = field.icon;
                   return (
                     <div key={field.name} className="group/field">
@@ -362,7 +396,7 @@ const RequiredFieldsPage = () => {
 
                       <div className="relative">
                         {/* Icon */}
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/field:text-primary transition-colors duration-300">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none text-slate-500 group-focus-within/field:text-primary transition-colors duration-300">
                           <Icon className="w-6 h-6" />
                         </div>
 

@@ -162,7 +162,7 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
       await dispatch(
         updateTournamentDetails({ id: currentTournament.id, updates: { ...form } as any }),
       ).unwrap();
-      navigate(`/tournaments/${currentTournament.id}`);
+      navigate(`/admin/dashboard/tournaments/${currentTournament.id}`);
     } catch (err: any) {
       setError(err?.message || 'Failed to save changes.');
     } finally {

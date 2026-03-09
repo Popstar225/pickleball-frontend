@@ -4,582 +4,473 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import {
-  fetchVenuesByClub,
-  fetchVenueById,
-  createVenue,
-  updateVenue,
-  deleteVenue,
-  clearSelectedVenue,
+  fetchVenuesByClub, createVenue, updateVenue, deleteVenue,
 } from '@/store/slices/venuesSlice';
 import { fetchClubProfile } from '@/store/slices/clubDashboardSlice';
 import type { Venue } from '@/store/slices/venuesSlice';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { MEXICAN_STATES } from '@/constants/constants';
+import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
-import { AlertCircle, Plus, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import {
+  AlertCircle, Plus, Trash2, Edit2, ChevronLeft, ChevronRight,
+  Loader2, MapPin, DollarSign, LayoutGrid, Layers, Phone, X,
+} from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
-const ACCENT = '#ace600';
+// ─── Tokens ───────────────────────────────────────────────────────────────────
+const inputCls =
+  'h-10 rounded-xl text-sm bg-white/[0.04] border-white/[0.09] text-white placeholder:text-white/20 ' +
+  'focus-visible:ring-0 focus-visible:border-[#ace600]/50 focus-visible:bg-[#ace600]/[0.03] transition-all';
 
+const labelCls = 'block text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1.5';
+
+const selectTriggerCls =
+  'h-10 rounded-xl text-sm bg-white/[0.04] border-white/[0.09] text-white ' +
+  'focus:ring-0 focus:border-[#ace600]/50 transition-all data-[placeholder]:text-white/20';
+
+// ─── Config ───────────────────────────────────────────────────────────────────
+const COURT_TYPES  = ['covered', 'indoor', 'outdoor'] as const;
+const SURFACE_TYPES = ['wood', 'concrete', 'acrylic', 'tartan', 'other'] as const;
+const FILTER_OPTIONS = [
+  { value: 'all',   label: 'Todos' },
+  { value: 'true',  label: 'Activos' },
+  { value: 'false', label: 'Inactivos' },
+];
+
+const labelOf = (v: string) => v.charAt(0).toUpperCase() + v.slice(1);
+
+type FormData = {
+  name: string; state: string; address: string; phone: string; whatsapp: string;
+  court_type: string; surface_type: string; base_price_per_hour: number;
+  number_of_courts: number; description: string; facilities: string[];
+};
+
+const emptyForm: FormData = {
+  name: '', state: '', address: '', phone: '', whatsapp: '',
+  court_type: 'outdoor', surface_type: 'concrete',
+  base_price_per_hour: 0, number_of_courts: 1, description: '', facilities: [],
+};
+
+// ─── Field atom ───────────────────────────────────────────────────────────────
+function Field({ label, req, children }: { label: string; req?: boolean; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className={labelCls}>
+        {label}{req && <span className="text-[#ace600] ml-0.5">*</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
 export default function VenuesManagement() {
   const dispatch = useDispatch<AppDispatch>();
-  const { venues, loading, error } = useSelector((state: RootState) => state.venues);
-  const { profile, profileLoading } = useSelector((state: RootState) => state.clubDashboard);
-
-  // Get clubId from club profile
+  const { venues, loading, error } = useSelector((s: RootState) => s.venues);
+  const { profile, profileLoading } = useSelector((s: RootState) => s.clubDashboard);
   const clubId = profile?.id;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [filterActive, setFilterActive] = useState<string>('all');
-  const itemsPerPage = 10;
+  const [isOpen,     setIsOpen]     = useState(false);
+  const [isEdit,     setIsEdit]     = useState(false);
+  const [editId,     setEditId]     = useState<string | null>(null);
+  const [search,     setSearch]     = useState('');
+  const [page,       setPage]       = useState(1);
+  const [filter,     setFilter]     = useState('all');
+  const [form,       setForm]       = useState<FormData>(emptyForm);
+  const PER_PAGE = 9;
 
-  // Form state
-  const [formData, setFormData] = useState({
-    name: '',
-    state: '',
-    address: '',
-    phone: '',
-    whatsapp: '',
-    court_type: 'outdoor',
-    surface_type: 'concrete',
-    base_price_per_hour: 0,
-    number_of_courts: 1,
-    description: '',
-    facilities: [] as string[],
-  });
+  useEffect(() => { dispatch(fetchClubProfile()); }, [dispatch]);
 
-  const [editingVenueId, setEditingVenueId] = useState<string | null>(null);
-
-  // First, fetch club profile to get clubId
-  useEffect(() => {
-    dispatch(fetchClubProfile());
-  }, [dispatch]);
-
-  // Then, fetch venues once clubId is available
   useEffect(() => {
     if (!clubId) return;
+    dispatch(fetchVenuesByClub({
+      clubId, page, limit: PER_PAGE,
+      isActive: filter === 'true' ? true : filter === 'false' ? false : undefined,
+    }));
+  }, [dispatch, clubId, page, filter]);
 
-    dispatch(
-      fetchVenuesByClub({
-        clubId,
-        page: currentPage,
-        limit: itemsPerPage,
-        isActive: filterActive === 'true' ? true : filterActive === 'false' ? false : undefined,
-      }),
-    );
-  }, [dispatch, clubId, currentPage, filterActive]);
-
-  const handleOpenModal = (venue?: Venue) => {
-    if (venue) {
-      setFormData({
-        name: venue.name,
-        state: venue.state,
-        address: venue.address,
-        phone: venue.phone || '',
-        whatsapp: venue.whatsapp || '',
-        court_type: venue.court_type,
-        surface_type: venue.surface_type,
-        base_price_per_hour: venue.base_price_per_hour,
-        number_of_courts: venue.number_of_courts,
-        description: venue.description || '',
-        facilities: venue.facilities || [],
-      });
-      setEditingVenueId(venue.id);
-      setIsEditMode(true);
-    } else {
-      setFormData({
-        name: '',
-        state: '',
-        address: '',
-        phone: '',
-        whatsapp: '',
-        court_type: 'outdoor',
-        surface_type: 'concrete',
-        base_price_per_hour: 0,
-        number_of_courts: 1,
-        description: '',
-        facilities: [],
-      });
-      setEditingVenueId(null);
-      setIsEditMode(false);
-    }
-    setIsModalOpen(true);
+  const openCreate = () => { setForm(emptyForm); setEditId(null); setIsEdit(false); setIsOpen(true); };
+  const openEdit   = (v: Venue) => {
+    setForm({
+      name: v.name, state: v.state, address: v.address,
+      phone: v.phone ?? '', whatsapp: v.whatsapp ?? '',
+      court_type: v.court_type, surface_type: v.surface_type,
+      base_price_per_hour: v.base_price_per_hour,
+      number_of_courts: v.number_of_courts,
+      description: v.description ?? '', facilities: v.facilities ?? [],
+    });
+    setEditId(v.id); setIsEdit(true); setIsOpen(true);
   };
+  const closeModal = () => { setIsOpen(false); setEditId(null); setIsEdit(false); };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setEditingVenueId(null);
-    setIsEditMode(false);
-  };
+  const setF = (k: keyof FormData, v: any) => setForm(p => ({ ...p, [k]: v }));
 
   const handleSubmit = async () => {
+    if (!form.name.trim()) { toast.error('Ingresa el nombre del venue'); return; }
     try {
-      if (!formData.name.trim()) {
-        toast.error('Please enter venue name');
-        return;
-      }
-
-      if (isEditMode && editingVenueId) {
-        await dispatch(
-          updateVenue({
-            id: editingVenueId,
-            data: {
-              ...formData,
-              club_id: clubId,
-            },
-          }),
-        ).unwrap();
-        toast.success('Venue updated successfully');
+      if (isEdit && editId) {
+        await dispatch(updateVenue({ id: editId, data: { ...form, club_id: clubId } })).unwrap();
+        toast.success('Venue actualizado');
       } else {
-        await dispatch(
-          createVenue({
-            ...formData,
-            club_id: clubId,
-          }),
-        ).unwrap();
-        toast.success('Venue created successfully');
+        await dispatch(createVenue({ ...form, club_id: clubId })).unwrap();
+        toast.success('Venue creado');
       }
-      handleCloseModal();
-    } catch (error: any) {
-      toast.error(error || 'Failed to save venue');
-    }
+      closeModal();
+    } catch (e: any) { toast.error(e || 'Error al guardar'); }
   };
 
-  const handleDelete = async (venueId: string) => {
-    if (!confirm('Are you sure you want to delete this venue?')) return;
-
+  const handleDelete = async (id: string) => {
+    if (!confirm('¿Eliminar este venue?')) return;
     try {
-      await dispatch(deleteVenue(venueId)).unwrap();
-      toast.success('Venue deleted successfully');
-    } catch (error: any) {
-      toast.error(error || 'Failed to delete venue');
-    }
+      await dispatch(deleteVenue(id)).unwrap();
+      toast.success('Venue eliminado');
+    } catch (e: any) { toast.error(e || 'Error al eliminar'); }
   };
 
-  const filteredVenues = venues.filter((venue) =>
-    venue.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  const filtered     = venues.filter(v => v.name.toLowerCase().includes(search.toLowerCase()));
+  const paginated    = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const totalPages   = Math.ceil(filtered.length / PER_PAGE);
+
+  // ── Loading / no club ────────────────────────────────────────────────────────
+  if (profileLoading) return (
+    <div className="flex items-center justify-center h-96">
+      <Loader2 className="w-5 h-5 animate-spin text-[#ace600]" />
+    </div>
   );
 
-  const paginatedVenues = filteredVenues.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
+  if (!clubId) return (
+    <div className="flex flex-col items-center justify-center py-20 gap-3">
+      <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+        <AlertCircle className="w-5 h-5 text-amber-400" />
+      </div>
+      <p className="text-sm text-white/30 text-center max-w-[260px] leading-relaxed">
+        No se pudo cargar el perfil del club. Asegúrate de estar autenticado como administrador.
+      </p>
+    </div>
   );
 
-  const totalPages = Math.ceil(filteredVenues.length / itemsPerPage);
-
-  // Guard: Wait for club profile to load
-  if (profileLoading) {
-    return (
-      <div className="min-h-screen bg-[#080c14] text-[#f0f4ff] p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-center items-center h-96">
-            <Loader2 className="w-8 h-8 animate-spin" style={{ color: ACCENT }} />
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!clubId) {
-    return (
-      <div className="min-h-screen bg-[#080c14] text-[#f0f4ff] p-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center py-12">
-            <AlertCircle className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-            <p className="text-[#4a5a72] mb-4">
-              Unable to load venues. Please ensure you are logged in as a club administrator.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
+  // ─────────────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-[#080c14] text-[#f0f4ff] p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+    <div className="space-y-5">
+
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-[22px] font-bold text-white tracking-tight">Gestión de Venues</h1>
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ace600] animate-pulse" />
+              {filtered.length} venues
+            </span>
+          </div>
+          <p className="text-xs text-white/25">Administra los venues y canchas de tu club</p>
+        </div>
+        <button onClick={openCreate}
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-bold bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_14px_rgba(172,230,0,0.18)] transition-all">
+          <Plus className="w-3.5 h-3.5" /> Agregar Venue
+        </button>
+      </div>
+
+      {/* ── Search + filter ─────────────────────────────────────────────────── */}
+      <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-4 flex gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-[180px]">
+          <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 pointer-events-none" />
+          <Input className={cn(inputCls, 'pl-10 pr-9')}
+            placeholder="Buscar venues…"
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1); }} />
+          {search && (
+            <button onClick={() => setSearch('')}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50 transition-colors">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
+
+        {/* Filter pills */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {FILTER_OPTIONS.map(o => (
+            <button key={o.value} onClick={() => { setFilter(o.value); setPage(1); }}
+              className={cn(
+                'h-10 px-4 rounded-xl text-[11px] font-bold border transition-all',
+                filter === o.value
+                  ? 'bg-[#ace600] border-[#ace600] text-black shadow-[0_0_8px_rgba(172,230,0,0.15)]'
+                  : 'bg-white/[0.03] border-white/[0.07] text-white/30 hover:text-white/55 hover:border-white/[0.12]',
+              )}>
+              {o.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Error ───────────────────────────────────────────────────────────── */}
+      {error && (
+        <div className="flex items-start gap-3 p-4 bg-red-500/[0.06] border border-red-500/15 rounded-2xl">
+          <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
           <div>
-            <h1 className="text-3xl font-bold mb-2">Venues Management</h1>
-            <p className="text-[#4a5a72]">Manage your club venues and courts</p>
+            <p className="text-sm font-semibold text-red-400 mb-0.5">Error</p>
+            <p className="text-xs text-red-400/60">{error}</p>
           </div>
-          <Button
-            onClick={() => handleOpenModal()}
-            className="flex items-center gap-2 bg-[#ace600] hover:bg-[#95b300] text-black"
-          >
-            <Plus className="w-4 h-4" />
-            Add Venue
-          </Button>
+        </div>
+      )}
+
+      {/* ── Content ─────────────────────────────────────────────────────────── */}
+      {loading && venues.length === 0 ? (
+        <div className="flex items-center justify-center h-56">
+          <Loader2 className="w-5 h-5 animate-spin text-[#ace600]" />
         </div>
 
-        {/* Search and Filters */}
-        <div className="flex gap-4 mb-6 flex-wrap">
-          <Input
-            placeholder="Search venues..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="flex-1 bg-[#111827] border-white/10 text-white placeholder:text-white/30"
-          />
-          <Select value={filterActive} onValueChange={setFilterActive}>
-            <SelectTrigger className="w-40 bg-[#111827] border-white/10">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-[#111827] border-white/10">
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="true">Active</SelectItem>
-              <SelectItem value="false">Inactive</SelectItem>
-            </SelectContent>
-          </Select>
+      ) : paginated.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-4 bg-[#0d1117] border border-white/[0.07] rounded-2xl">
+          <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
+            <LayoutGrid className="w-5 h-5 text-white/10" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-white/35 mb-1">Sin venues encontrados</p>
+            <p className="text-xs text-white/20 mb-4">Crea tu primer venue para comenzar</p>
+            <button onClick={openCreate}
+              className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-bold bg-[#ace600] hover:bg-[#c0f000] text-black transition-all">
+              <Plus className="w-3.5 h-3.5" /> Crear Venue
+            </button>
+          </div>
         </div>
 
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 shrink-0" />
-            <div>
-              <div className="font-medium text-red-400">Error</div>
-              <div className="text-sm text-red-300">{error}</div>
-            </div>
-          </div>
-        )}
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {paginated.map(venue => (
+              <div key={venue.id}
+                className="group bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden hover:border-white/[0.12] transition-all">
+                {/* Accent bar */}
+                <div className={cn('h-0.5', venue.is_active
+                  ? 'bg-gradient-to-r from-[#ace600]/60 via-[#ace600]/30 to-transparent'
+                  : 'bg-white/[0.04]')} />
 
-        {/* Loading State */}
-        {loading && venues.length === 0 ? (
-          <div className="flex justify-center items-center h-96">
-            <Loader2 className="w-8 h-8 animate-spin" style={{ color: ACCENT }} />
-          </div>
-        ) : paginatedVenues.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-[#4a5a72] mb-4">No venues found</p>
-            <Button
-              onClick={() => handleOpenModal()}
-              className="bg-[#ace600] hover:bg-[#95b300] text-black"
-            >
-              Create Your First Venue
-            </Button>
-          </div>
-        ) : (
-          <>
-            {/* Venues Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-              {paginatedVenues.map((venue) => (
-                <div
-                  key={venue.id}
-                  className="bg-[#111827] border border-white/10 rounded-xl p-4 hover:border-white/20 transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-white mb-1">{venue.name}</h3>
-                      <p className="text-xs text-[#4a5a72]">{venue.address}</p>
+                <div className="p-4">
+                  {/* Name + status */}
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-white/80 group-hover:text-white transition-colors truncate">
+                        {venue.name}
+                      </p>
+                      <p className="text-[11px] text-white/25 flex items-center gap-1 mt-0.5 truncate">
+                        <MapPin className="w-3 h-3 shrink-0" />{venue.address}
+                      </p>
                     </div>
-                    <Badge
-                      className={`shrink-0 ml-2 ${
-                        venue.is_active
-                          ? 'bg-green-500/20 text-green-400'
-                          : 'bg-gray-500/20 text-gray-400'
-                      }`}
-                    >
-                      {venue.is_active ? 'Active' : 'Inactive'}
-                    </Badge>
+                    <span className={cn(
+                      'inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider shrink-0',
+                      venue.is_active
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                        : 'bg-white/[0.04] text-white/25 border-white/[0.08]',
+                    )}>
+                      <span className={cn('w-1.5 h-1.5 rounded-full', venue.is_active ? 'bg-emerald-400' : 'bg-white/20')} />
+                      {venue.is_active ? 'Activo' : 'Inactivo'}
+                    </span>
                   </div>
 
-                  <div className="space-y-2 mb-4 py-3 border-y border-white/10">
-                    <div className="text-xs">
-                      <span className="text-[#4a5a72]">State:</span>
-                      <span className="ml-2 text-white">{venue.state}</span>
-                    </div>
-                    <div className="text-xs">
-                      <span className="text-[#4a5a72]">Courts:</span>
-                      <span className="ml-2 text-white">{venue.number_of_courts}</span>
-                    </div>
-                    <div className="text-xs">
-                      <span className="text-[#4a5a72]">Type:</span>
-                      <span className="ml-2 text-white capitalize">{venue.court_type}</span>
-                    </div>
-                    <div className="text-xs">
-                      <span className="text-[#4a5a72]">Price/Hour:</span>
-                      <span className="ml-2 text-white">${venue.base_price_per_hour}</span>
-                    </div>
+                  {/* Meta grid */}
+                  <div className="grid grid-cols-2 gap-1.5 mb-4">
+                    {[
+                      { icon: MapPin,      label: 'Estado',    value: venue.state },
+                      { icon: LayoutGrid,  label: 'Canchas',   value: `${venue.number_of_courts}` },
+                      { icon: Layers,      label: 'Tipo',      value: labelOf(venue.court_type) },
+                      { icon: DollarSign,  label: 'Precio/hr', value: `$${venue.base_price_per_hour}` },
+                    ].map(({ icon: Icon, label, value }) => (
+                      <div key={label} className="flex items-center gap-2 px-2.5 py-2 bg-white/[0.02] border border-white/[0.05] rounded-xl">
+                        <Icon className="w-3 h-3 text-white/20 shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-[9px] font-bold uppercase tracking-widest text-white/20 leading-none mb-0.5">{label}</p>
+                          <p className="text-[11px] font-semibold text-white/60 truncate">{value}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
                   {/* Actions */}
                   <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleOpenModal(venue)}
-                      className="flex-1 bg-[#ace600]/10 hover:bg-[#ace600]/20 text-[#ace600] border border-[#ace600]/30"
-                    >
-                      <Edit2 className="w-3 h-3 mr-1" />
-                      Edit
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => handleDelete(venue.id)}
-                      className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30"
-                    >
-                      <Trash2 className="w-3 h-3 mr-1" />
-                      Delete
-                    </Button>
+                    <button onClick={() => openEdit(venue)}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] font-bold border border-[#ace600]/20 bg-[#ace600]/[0.06] hover:bg-[#ace600]/[0.12] text-[#ace600] transition-all">
+                      <Edit2 className="w-3 h-3" /> Editar
+                    </button>
+                    <button onClick={() => handleDelete(venue.id)}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] font-bold border border-red-500/20 bg-red-500/[0.06] hover:bg-red-500/[0.12] text-red-400 transition-all">
+                      <Trash2 className="w-3 h-3" /> Eliminar
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                  className="border-white/10"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <div className="text-sm text-[#4a5a72]">
-                  Page {currentPage} of {totalPages}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages}
-                  className="border-white/10"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
               </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Modal for Create/Edit */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="bg-[#0d1421] border-white/10 max-h-screen overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-white">
-              {isEditMode ? 'Edit Venue' : 'Create New Venue'}
-            </DialogTitle>
-            <DialogDescription className="text-[#4a5a72]">
-              {isEditMode
-                ? 'Update venue details. Courts will be automatically created/updated.'
-                : 'Add a new venue to your club. Courts will be automatically created based on the count.'}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="space-y-4 py-4">
-            {/* Name */}
-            <div>
-              <label className="text-xs font-semibold text-[#4a5a72] uppercase tracking-widest mb-2 block">
-                Venue Name *
-              </label>
-              <Input
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="e.g., Downtown Courts"
-                className="bg-[#111827] border-white/10 text-white placeholder:text-white/30"
-              />
-            </div>
-
-            {/* State */}
-            <div>
-              <label className="text-xs font-semibold text-[#4a5a72] uppercase tracking-widest mb-2 block">
-                State *
-              </label>
-              <Select
-                value={formData.state}
-                onValueChange={(v) => setFormData({ ...formData, state: v })}
-              >
-                <SelectTrigger className="bg-[#111827] border-white/10 text-white">
-                  <SelectValue placeholder="Select a state" />
-                </SelectTrigger>
-                <SelectContent className="bg-[#111827] border-white/10">
-                  {MEXICAN_STATES.map((state) => (
-                    <SelectItem key={state} value={state}>
-                      {state}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Address */}
-            <div>
-              <label className="text-xs font-semibold text-[#4a5a72] uppercase tracking-widest mb-2 block">
-                Address *
-              </label>
-              <Input
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                placeholder="Street address"
-                className="bg-[#111827] border-white/10 text-white placeholder:text-white/30"
-              />
-            </div>
-
-            {/* Phone & WhatsApp */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-semibold text-[#4a5a72] uppercase tracking-widest mb-2 block">
-                  Phone
-                </label>
-                <Input
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="Phone number"
-                  className="bg-[#111827] border-white/10 text-white placeholder:text-white/30"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-[#4a5a72] uppercase tracking-widest mb-2 block">
-                  WhatsApp
-                </label>
-                <Input
-                  value={formData.whatsapp}
-                  onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                  placeholder="WhatsApp number"
-                  className="bg-[#111827] border-white/10 text-white placeholder:text-white/30"
-                />
-              </div>
-            </div>
-
-            {/* Court Type & Surface Type */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-semibold text-[#4a5a72] uppercase tracking-widest mb-2 block">
-                  Court Type *
-                </label>
-                <Select
-                  value={formData.court_type}
-                  onValueChange={(v) => setFormData({ ...formData, court_type: v })}
-                >
-                  <SelectTrigger className="bg-[#111827] border-white/10 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#111827] border-white/10">
-                    <SelectItem value="covered">Covered</SelectItem>
-                    <SelectItem value="indoor">Indoor</SelectItem>
-                    <SelectItem value="outdoor">Outdoor</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-[#4a5a72] uppercase tracking-widest mb-2 block">
-                  Surface Type *
-                </label>
-                <Select
-                  value={formData.surface_type}
-                  onValueChange={(v) => setFormData({ ...formData, surface_type: v })}
-                >
-                  <SelectTrigger className="bg-[#111827] border-white/10 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#111827] border-white/10">
-                    <SelectItem value="wood">Wood</SelectItem>
-                    <SelectItem value="concrete">Concrete</SelectItem>
-                    <SelectItem value="acrylic">Acrylic</SelectItem>
-                    <SelectItem value="tartan">Tartan</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Price per Hour & Number of Courts */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-semibold text-[#4a5a72] uppercase tracking-widest mb-2 block">
-                  Base Price/Hour ($) *
-                </label>
-                <Input
-                  type="number"
-                  value={formData.base_price_per_hour}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      base_price_per_hour: parseFloat(e.target.value) || 0,
-                    })
-                  }
-                  placeholder="0.00"
-                  className="bg-[#111827] border-white/10 text-white placeholder:text-white/30"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-[#4a5a72] uppercase tracking-widest mb-2 block">
-                  Number of Courts * (Auto-creates courts)
-                </label>
-                <Input
-                  type="number"
-                  value={formData.number_of_courts}
-                  onChange={(e) =>
-                    setFormData({ ...formData, number_of_courts: parseInt(e.target.value) || 1 })
-                  }
-                  placeholder="1"
-                  min="1"
-                  className="bg-[#111827] border-white/10 text-white placeholder:text-white/30"
-                />
-              </div>
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="text-xs font-semibold text-[#4a5a72] uppercase tracking-widest mb-2 block">
-                Description
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Venue description"
-                rows={3}
-                className="w-full bg-[#111827] border border-white/10 rounded-lg px-3 py-2 text-white placeholder:text-white/30"
-              />
-            </div>
+            ))}
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-3 justify-end pt-4 border-t border-white/10">
-            <Button variant="outline" onClick={handleCloseModal} className="border-white/10">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="bg-[#ace600] hover:bg-[#95b300] text-black"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : isEditMode ? (
-                'Update Venue'
-              ) : (
-                'Create Venue'
-              )}
-            </Button>
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 pt-2">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                className="w-8 h-8 rounded-xl flex items-center justify-center border border-white/[0.07] text-white/25 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed hover:bg-white/[0.05] transition-all">
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+                <button key={n} onClick={() => setPage(n)}
+                  className={cn(
+                    'w-8 h-8 rounded-xl text-[11px] font-bold border transition-all',
+                    n === page
+                      ? 'bg-[#ace600] border-[#ace600] text-black shadow-[0_0_8px_rgba(172,230,0,0.15)]'
+                      : 'border-white/[0.07] text-white/30 hover:text-white hover:bg-white/[0.05]',
+                  )}>
+                  {n}
+                </button>
+              ))}
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
+                className="w-8 h-8 rounded-xl flex items-center justify-center border border-white/[0.07] text-white/25 hover:text-white disabled:opacity-20 disabled:cursor-not-allowed hover:bg-white/[0.05] transition-all">
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── Create / Edit Modal ──────────────────────────────────────────────── */}
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="bg-[#0d1117] border-white/[0.09] rounded-2xl p-0 overflow-hidden max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className={cn('h-0.5', isEdit
+            ? 'bg-gradient-to-r from-sky-400/60 via-sky-400/30 to-transparent'
+            : 'bg-gradient-to-r from-[#ace600]/60 via-[#ace600]/30 to-transparent')} />
+
+          <div className="p-6">
+            <DialogHeader className="mb-5">
+              <div className="flex items-center gap-3 mb-1">
+                <div className={cn(
+                  'w-8 h-8 rounded-xl border flex items-center justify-center shrink-0',
+                  isEdit ? 'bg-sky-500/10 border-sky-500/20' : 'bg-[#ace600]/10 border-[#ace600]/20',
+                )}>
+                  {isEdit
+                    ? <Edit2 className="w-4 h-4 text-sky-400" />
+                    : <Plus className="w-4 h-4 text-[#ace600]" />}
+                </div>
+                <DialogTitle className="text-base font-bold text-white">
+                  {isEdit ? 'Editar Venue' : 'Nuevo Venue'}
+                </DialogTitle>
+              </div>
+              <DialogDescription className="text-xs text-white/25 ml-11">
+                {isEdit
+                  ? 'Actualiza los detalles del venue. Las canchas se actualizarán automáticamente.'
+                  : 'Agrega un nuevo venue. Las canchas se crearán según el número indicado.'}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {/* Name */}
+              <Field label="Nombre del Venue" req>
+                <Input className={inputCls} placeholder="Ej. Canchas Centro"
+                  value={form.name} onChange={e => setF('name', e.target.value)} />
+              </Field>
+
+              {/* State */}
+              <Field label="Estado" req>
+                <StateAutocomplete value={form.state} onChange={v => setF('state', v)} placeholder="Buscar estado…" />
+              </Field>
+
+              {/* Address */}
+              <Field label="Dirección" req>
+                <Input className={inputCls} placeholder="Calle, número, colonia"
+                  value={form.address} onChange={e => setF('address', e.target.value)} />
+              </Field>
+
+              {/* Phone + WhatsApp */}
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Teléfono">
+                  <Input className={inputCls} placeholder="+52 55 0000 0000"
+                    value={form.phone} onChange={e => setF('phone', e.target.value)} />
+                </Field>
+                <Field label="WhatsApp">
+                  <Input className={inputCls} placeholder="+52 55 0000 0000"
+                    value={form.whatsapp} onChange={e => setF('whatsapp', e.target.value)} />
+                </Field>
+              </div>
+
+              {/* Court type + Surface */}
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Tipo de Cancha" req>
+                  <Select value={form.court_type} onValueChange={v => setF('court_type', v)}>
+                    <SelectTrigger className={selectTriggerCls}><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-[#161c25] border-white/[0.08] rounded-xl shadow-2xl">
+                      {COURT_TYPES.map(t => (
+                        <SelectItem key={t} value={t} className="text-white/70 focus:bg-white/[0.06] focus:text-white">
+                          {labelOf(t)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field label="Superficie" req>
+                  <Select value={form.surface_type} onValueChange={v => setF('surface_type', v)}>
+                    <SelectTrigger className={selectTriggerCls}><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-[#161c25] border-white/[0.08] rounded-xl shadow-2xl">
+                      {SURFACE_TYPES.map(t => (
+                        <SelectItem key={t} value={t} className="text-white/70 focus:bg-white/[0.06] focus:text-white">
+                          {labelOf(t)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
+
+              {/* Price + Courts */}
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Precio Base / Hora ($)" req>
+                  <Input type="number" className={inputCls} placeholder="0.00"
+                    value={form.base_price_per_hour}
+                    onChange={e => setF('base_price_per_hour', parseFloat(e.target.value) || 0)} />
+                </Field>
+                <Field label="Número de Canchas" req>
+                  <Input type="number" className={inputCls} placeholder="1" min={1}
+                    value={form.number_of_courts}
+                    onChange={e => setF('number_of_courts', parseInt(e.target.value) || 1)} />
+                </Field>
+              </div>
+
+              {/* Description */}
+              <Field label="Descripción">
+                <textarea
+                  rows={3}
+                  placeholder="Descripción del venue…"
+                  value={form.description}
+                  onChange={e => setF('description', e.target.value)}
+                  className={cn(
+                    'w-full rounded-xl text-sm px-3.5 py-2.5 resize-y',
+                    'bg-white/[0.04] border border-white/[0.09] text-white placeholder:text-white/20',
+                    'outline-none focus:border-[#ace600]/50 focus:bg-[#ace600]/[0.03] transition-all',
+                  )}
+                />
+              </Field>
+            </div>
+
+            {/* Modal actions */}
+            <div className="flex gap-2 mt-6 pt-4 border-t border-white/[0.06]">
+              <button onClick={closeModal}
+                className="flex-1 h-10 rounded-xl text-xs font-semibold border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/40 hover:text-white transition-all">
+                Cancelar
+              </button>
+              <button onClick={handleSubmit} disabled={loading}
+                className={cn(
+                  'flex-1 h-10 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50',
+                  isEdit
+                    ? 'bg-sky-500 hover:bg-sky-400 text-white shadow-[0_0_12px_rgba(14,165,233,0.18)]'
+                    : 'bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_12px_rgba(172,230,0,0.18)]',
+                )}>
+                {loading
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando…</>
+                  : isEdit ? 'Actualizar Venue' : 'Crear Venue'
+                }
+              </button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

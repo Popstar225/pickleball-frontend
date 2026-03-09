@@ -111,7 +111,7 @@ export default function DashboardLayoutBase({
             <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
               {item.badge}
             </span>
-          )}
+          )}x 
         </Link>
       ))}
     </nav>
@@ -358,7 +358,7 @@ export default function DashboardLayoutBase({
 
                     <div className="p-2">
                       <Link
-                        to={`${basePath}/profile`}
+                        to={`${basePath}/account`}
                         className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
                         onClick={() => setUserMenuOpen(false)}
                       >

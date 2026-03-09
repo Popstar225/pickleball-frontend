@@ -156,6 +156,14 @@ export interface CoachMessage {
   read: boolean;
 }
 
+export interface CoachEarnings {
+  totalEarned: number;
+  thisMonth: number;
+  lastMonth: number;
+  pending: number;
+  available: number;
+}
+
 export interface CoachPayment {
   id: string;
   paymentDate: string;
@@ -253,6 +261,7 @@ interface CoachDashboardState {
   students: CoachStudent[];
   messages: CoachMessage[];
   payments: CoachPayment[];
+  earnings: CoachEarnings | null;
 
   // Loading states
   profileLoading: boolean;
@@ -262,6 +271,7 @@ interface CoachDashboardState {
   studentsLoading: boolean;
   messagesLoading: boolean;
   paymentsLoading: boolean;
+  earningsLoading: boolean;
 
   // Error states
   profileError: string | null;
@@ -271,6 +281,7 @@ interface CoachDashboardState {
   studentsError: string | null;
   messagesError: string | null;
   paymentsError: string | null;
+  earningsError: string | null;
 
   // coach team registrations (players in tournaments where coach is assigned as judge)
   teamRegistrations: TeamRegistration[];
@@ -297,6 +308,7 @@ const initialState: CoachDashboardState = {
   students: [],
   messages: [],
   payments: [],
+  earnings: null,
 
   profileLoading: false,
   credentialsLoading: false,
@@ -305,6 +317,7 @@ const initialState: CoachDashboardState = {
   studentsLoading: false,
   messagesLoading: false,
   paymentsLoading: false,
+  earningsLoading: false,
 
   profileError: null,
   credentialsError: null,
@@ -313,6 +326,7 @@ const initialState: CoachDashboardState = {
   studentsError: null,
   messagesError: null,
   paymentsError: null,
+  earningsError: null,
 
   teamRegistrations: [],
   teamRegistrationsLoading: false,
@@ -504,6 +518,20 @@ export const fetchCoachPayments = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || error.message || 'Failed to fetch payments',
+      );
+    }
+  },
+);
+
+export const fetchCoachEarnings = createAsyncThunk(
+  'coachDashboard/fetchEarnings',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get('/coaches/earnings');
+      return (response as any).data as CoachEarnings;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Failed to fetch earnings',
       );
     }
   },
@@ -871,6 +899,20 @@ const coachDashboardSlice = createSlice({
       .addCase(fetchCoachPayments.rejected, (state, action) => {
         state.paymentsLoading = false;
         state.paymentsError = action.payload as string;
+      })
+
+      // Fetch Coach Earnings
+      .addCase(fetchCoachEarnings.pending, (state) => {
+        state.earningsLoading = true;
+        state.earningsError = null;
+      })
+      .addCase(fetchCoachEarnings.fulfilled, (state, action) => {
+        state.earningsLoading = false;
+        state.earnings = action.payload;
+      })
+      .addCase(fetchCoachEarnings.rejected, (state, action) => {
+        state.earningsLoading = false;
+        state.earningsError = action.payload as string;
       })
 
       // Fetch My Credential
