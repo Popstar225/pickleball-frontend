@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Facebook,
   Instagram,
@@ -15,34 +16,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import logoImage from '@/assets/images/Logos/Logo pickleball compressed.png';
 
-const footerLinks = {
-  'Acerca de FEDMEX': [
-    { label: 'Sobre nosotros', href: '/about/who-we-are' },
-    { label: 'Misión y visión', href: '/about/who-we-are' },
-    { label: 'Liderazgo', href: '/about/board-of-directors' },
-    { label: 'Clubes miembros', href: '/associations' },
-    { label: 'Beneficios', href: '/about/benefits' },
-  ],
-  Recursos: [
-    { label: 'Reglas y reglamentos', href: '/rules' },
-    { label: 'Programa de árbitros', href: '/training/referees' },
-    { label: 'Estándares de equipamiento', href: '/rules' },
-    { label: 'Descargas', href: '/rules' },
-  ],
-  Eventos: [
-    { label: 'Calendario de torneos', href: '/federation/tournaments' },
-    { label: 'Encontrar canchas', href: '/federation/courts' },
-    { label: 'Eventos regionales', href: '/federation/tournaments' },
-    { label: 'Programas juveniles', href: '/players/categories' },
-  ],
-  Jugadores: [
-    { label: 'Ranking', href: '/players/ranking' },
-    { label: 'Destacados de jugadores', href: '/players/showcase' },
-    { label: 'Categorías', href: '/players/categories' },
-    { label: 'Buscar jugadores', href: '/players/search' },
-  ],
-};
-
 const socialLinks = [
   { icon: Facebook, href: '#', label: 'Facebook' },
   { icon: Instagram, href: '#', label: 'Instagram' },
@@ -51,10 +24,39 @@ const socialLinks = [
 ];
 
 const Footer = () => {
+  const { t } = useTranslation();
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   const toggleSection = (title: string) => {
     setExpandedSection(expandedSection === title ? null : title);
+  };
+
+  const footerLinks = {
+    [t('footer.about_section')]: [
+      { label: t('footer.about_us'), href: '/about/who-we-are' },
+      { label: t('footer.mission'), href: '/about/who-we-are' },
+      { label: t('footer.leadership'), href: '/about/board-of-directors' },
+      { label: t('footer.member_clubs'), href: '/associations' },
+      { label: t('footer.benefits'), href: '/about/benefits' },
+    ],
+    [t('footer.resources_section')]: [
+      { label: t('footer.rules_regs'), href: '/rules' },
+      { label: t('footer.referee_program'), href: '/training/referees' },
+      { label: t('footer.equipment'), href: '/rules' },
+      { label: t('footer.downloads'), href: '/rules' },
+    ],
+    [t('footer.events_section')]: [
+      { label: t('footer.tournament_calendar'), href: '/federation/tournaments' },
+      { label: t('footer.find_courts'), href: '/federation/courts' },
+      { label: t('footer.regional_events'), href: '/federation/tournaments' },
+      { label: t('footer.youth_programs'), href: '/players/categories' },
+    ],
+    [t('footer.players_section')]: [
+      { label: t('footer.rankings'), href: '/players/ranking' },
+      { label: t('footer.highlights'), href: '/players/showcase' },
+      { label: t('footer.categories'), href: '/players/categories' },
+      { label: t('footer.search'), href: '/players/search' },
+    ],
   };
 
   return (
@@ -65,20 +67,18 @@ const Footer = () => {
           <div className="flex flex-col lg:flex-row items-center justify-between gap-4 sm:gap-6">
             <div className="text-center lg:text-left">
               <h3 className="font-display text-xl sm:text-2xl text-white mb-1 sm:mb-2">
-                Mantente Actualizado con FEDMEX
+                {t('footer.newsletter_title')}
               </h3>
-              <p className="text-white/60 text-sm sm:text-base">
-                Obtén las últimas noticias, actualizaciones de torneos y ofertas exclusivas.
-              </p>
+              <p className="text-white/60 text-sm sm:text-base">{t('footer.newsletter_sub')}</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
               <Input
                 type="email"
-                placeholder="Ingresa tu correo electrónico"
+                placeholder={t('footer.newsletter_placeholder')}
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40 w-full sm:min-w-[280px] h-11"
               />
               <Button className="bg-primary text-primary-foreground hover:bg-lime-dark whitespace-nowrap h-11 w-full sm:w-auto">
-                Suscribirse
+                {t('footer.newsletter_btn')}
               </Button>
             </div>
           </div>
@@ -169,7 +169,7 @@ const Footer = () => {
               />
               <div>
                 <span className="font-display text-xl text-white">FEDMEX</span>
-                <p className="text-xs text-white/60">Federación de Pickleball</p>
+                <p className="text-xs text-white/60">{t('footer.federation_tag')}</p>
               </div>
             </div>
 
@@ -223,16 +223,16 @@ const Footer = () => {
           <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-4">
             {/* Copyright & Legal Links */}
             <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-white/40 text-center sm:text-left">
-              <span>© 2026 FEDMEX Pickleball. Todos los Derechos Reservados.</span>
+              <span>{t('footer.copyright')}</span>
               <div className="flex items-center gap-3 sm:gap-4">
                 <a href="#" className="hover:text-white transition-colors">
-                  Privacidad
+                  {t('footer.privacy')}
                 </a>
                 <a href="#" className="hover:text-white transition-colors">
-                  Términos
+                  {t('footer.terms')}
                 </a>
                 <a href="#" className="hover:text-white transition-colors">
-                  Cookies
+                  {t('footer.cookies')}
                 </a>
               </div>
             </div>

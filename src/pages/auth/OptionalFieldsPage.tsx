@@ -15,7 +15,6 @@ import {
   Award,
   Upload,
   X,
-  FileText,
   Image as ImageIcon,
   ArrowLeft,
   ArrowRight,
@@ -38,8 +37,6 @@ const OptionalFieldsPage = () => {
     state: '',
     city: '',
     address: '',
-    latitude: '',
-    longitude: '',
     timezone: '',
     curp: '',
     rfc: '',
@@ -50,11 +47,10 @@ const OptionalFieldsPage = () => {
 
   const [files, setFiles] = useState({
     profile_photo: null as File | null,
-    verification_document: null as File | null,
   });
   const [userType, setUserType] = useState<string>('');
   const [requiredFields, setRequiredFields] = useState<any>({});
-  const [dragActive, setDragActive] = useState({ profile: false, document: false });
+  const [dragActive, setDragActive] = useState({ profile: false });
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -123,7 +119,7 @@ const OptionalFieldsPage = () => {
     }));
   };
 
-  const handleDrag = (e: React.DragEvent, type: 'profile' | 'document') => {
+  const handleDrag = (e: React.DragEvent, type: 'profile') => {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === 'dragenter' || e.type === 'dragover') {
@@ -133,7 +129,7 @@ const OptionalFieldsPage = () => {
     }
   };
 
-  const handleDrop = (e: React.DragEvent, name: string, type: 'profile' | 'document') => {
+  const handleDrop = (e: React.DragEvent, name: string, type: 'profile') => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive((prev) => ({ ...prev, [type]: false }));
@@ -161,7 +157,7 @@ const OptionalFieldsPage = () => {
       },
       {
         name: 'city',
-        label: 'Ciudad',
+        label: 'Municipio o Alcaldía',
         type: 'text',
         placeholder: 'ej., Guadalajara',
         icon: MapPin,
@@ -179,6 +175,7 @@ const OptionalFieldsPage = () => {
         type: 'url',
         placeholder: 'https://tusitio.com',
         icon: Globe,
+        optional: true,
       },
     ];
 
@@ -195,7 +192,7 @@ const OptionalFieldsPage = () => {
           name: 'gender',
           label: 'Género',
           type: 'select',
-          options: ['masculino', 'femenino', 'otro', 'prefiero_no_decir'],
+          options: ['masculino', 'femenino'],
           icon: User,
         },
         {
@@ -204,6 +201,7 @@ const OptionalFieldsPage = () => {
           type: 'select',
           options: ['2.5', '3.5', '4.5', '5+'],
           icon: Award,
+          seeMoreLink: '/players/categories',
         },
         { name: 'curp', label: 'CURP', type: 'text', placeholder: '18 caracteres', icon: FileText },
         ...baseFields,
@@ -240,17 +238,6 @@ const OptionalFieldsPage = () => {
 
   const handleRegister = async () => {
     try {
-      if (userType === 'player' || userType === 'coach') {
-        if (!files.profile_photo) {
-          toast.error('La foto de perfil es requerida para jugadores y entrenadores');
-          return;
-        }
-        if (!files.verification_document) {
-          toast.error('El documento de verificación es requerido para jugadores y entrenadores');
-          return;
-        }
-      }
-
       const formDataToSend = new FormData();
 
       formDataToSend.append('user_type', userType);
@@ -269,16 +256,10 @@ const OptionalFieldsPage = () => {
       if (files.profile_photo) {
         formDataToSend.append('profile_photo', files.profile_photo);
       }
-      if (files.verification_document) {
-        formDataToSend.append('verification_document', files.verification_document);
-      }
 
       const validationErrors = [];
 
       if (userType === 'player' || userType === 'coach') {
-        if (!files.profile_photo) validationErrors.push('La foto de perfil es requerida');
-        if (!files.verification_document)
-          validationErrors.push('El documento de verificación es requerido');
         if (!requiredFields.full_name || requiredFields.full_name.trim() === '') {
           validationErrors.push('El nombre completo es requerido');
         }
@@ -443,9 +424,24 @@ const OptionalFieldsPage = () => {
 
     return (
       <div key={field.name} className="group/field">
-        <label htmlFor={field.name} className="block text-sm font-semibold text-slate-300 mb-2.5">
-          {field.label}
-        </label>
+        <div className="flex items-center justify-between mb-2.5">
+          <label htmlFor={field.name} className="block text-sm font-semibold text-slate-300">
+            {field.label}
+            {field.optional && (
+              <span className="ml-2 text-xs font-normal text-slate-500">Opcional</span>
+            )}
+          </label>
+          {field.seeMoreLink && (
+            <a
+              href={field.seeMoreLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-primary hover:text-lime-400 underline transition-colors duration-200"
+            >
+              Ver más
+            </a>
+          )}
+        </div>
 
         <div className="relative">
           {!field.type.includes('select') &&
@@ -582,205 +578,127 @@ const OptionalFieldsPage = () => {
             </p>
           </div>
 
-          {/* File Upload Section - Only for Players and Coaches */}
-          {(userType === 'player' || userType === 'coach') && (
-            <div className="group relative mb-8">
-              <div className="absolute -inset-2 bg-gradient-to-r from-primary to-lime-500 rounded-3xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-700" />
+          {/* Profile Photo & Info Section - All user types */}
+          <div className="group relative mb-8">
+            <div className="absolute -inset-2 bg-gradient-to-r from-primary to-lime-500 rounded-3xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-700" />
 
-              <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl border border-slate-700/50 group-hover:border-primary/50 transition-all duration-700 overflow-hidden">
-                {/* Header */}
-                <div className="relative px-8 py-6 border-b border-slate-700/50">
-                  <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent" />
-                  <div className="relative z-10">
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
-                        <Shield className="w-5 h-5 text-primary" />
-                      </div>
-                      Documentos Requeridos
-                    </h2>
-                    <p className="text-slate-400 mt-2 ml-13">
-                      Sube tu foto de perfil y documento de verificación
-                    </p>
-                  </div>
-                </div>
-
-                {/* Info Banner */}
-                <div className="px-8 pt-6">
-                  <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 backdrop-blur-sm">
-                    <div className="flex items-start gap-3">
-                      <AlertCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <div className="text-sm text-slate-300 leading-relaxed">
-                        <strong className="text-primary">¿Por qué son requeridos?</strong> Las fotos
-                        de perfil ayudan a otros jugadores a reconocerte, y los documentos de
-                        verificación aseguran la seguridad y autenticidad de nuestra comunidad.
-                        Estos documentos se almacenan de forma segura y solo se usan para propósitos
-                        de verificación.
-                      </div>
+            <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl border border-slate-700/50 group-hover:border-primary/50 transition-all duration-700 overflow-hidden">
+              {/* Header */}
+              <div className="relative px-8 py-6 border-b border-slate-700/50">
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent" />
+                <div className="relative z-10">
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+                      <Shield className="w-5 h-5 text-primary" />
                     </div>
-                  </div>
+                    Foto de Perfil e Información
+                  </h2>
+                  <p className="text-slate-400 mt-2 ml-13">
+                    Sube tu foto de perfil y revisa la información importante
+                  </p>
                 </div>
+              </div>
 
-                {/* File Upload Areas */}
-                <div className="px-8 py-8 grid md:grid-cols-2 gap-6">
-                  {/* Profile Photo Upload */}
-                  <div className="space-y-3">
-                    <label className="block text-sm font-semibold text-slate-300">
-                      Foto de Perfil
-                      <span className="text-primary ml-1">*</span>
-                      <span className="text-xs text-slate-500 ml-2">(Requerido)</span>
-                    </label>
-
-                    <div
-                      onDragEnter={(e) => handleDrag(e, 'profile')}
-                      onDragLeave={(e) => handleDrag(e, 'profile')}
-                      onDragOver={(e) => handleDrag(e, 'profile')}
-                      onDrop={(e) => handleDrop(e, 'profile_photo', 'profile')}
-                      className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 
-                      ${
-                        dragActive.profile
-                          ? 'border-primary bg-primary/5 scale-[1.02]'
-                          : 'border-slate-700/50 hover:border-primary/50 hover:bg-slate-800/30'
-                      }`}
-                    >
-                      {files.profile_photo ? (
-                        <div className="space-y-4">
-                          <div className="relative w-24 h-24 mx-auto">
-                            <img
-                              src={URL.createObjectURL(files.profile_photo)}
-                              alt="Vista previa del perfil"
-                              className="w-full h-full object-cover rounded-full border-4 border-primary/30"
-                            />
-                            <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                              <CheckCircle2 className="w-5 h-5 text-slate-900" />
-                            </div>
-                          </div>
-                          <p className="text-sm text-slate-300 font-medium truncate px-4">
-                            {files.profile_photo.name}
-                          </p>
-                          <button
-                            onClick={() => handleFileChange('profile_photo', null)}
-                            className="group/btn inline-flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-700 
-                            text-slate-300 rounded-lg transition-all duration-300 text-sm font-medium"
-                          >
-                            <X className="w-4 h-4" />
-                            Eliminar Foto
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          <div className="w-16 h-16 mx-auto rounded-full bg-primary/20 border-2 border-primary/30 flex items-center justify-center">
-                            <ImageIcon className="w-8 h-8 text-primary" />
-                          </div>
-                          <div className="space-y-2">
-                            <p className="text-slate-300 font-medium">
-                              Haz clic para subir o arrastra y suelta
-                            </p>
-                            <p className="text-xs text-slate-500">PNG, JPG, WebP hasta 5MB</p>
-                          </div>
-                          <input
-                            id="profile_photo"
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) =>
-                              handleFileChange('profile_photo', e.target.files?.[0] || null)
-                            }
-                            className="hidden"
-                          />
-                          <button
-                            onClick={() => document.getElementById('profile_photo')?.click()}
-                            className="group/btn inline-flex items-center gap-2 px-6 py-3 bg-primary/20 hover:bg-primary 
-                            text-primary hover:text-slate-900 border border-primary/30 rounded-xl 
-                            transition-all duration-300 font-semibold"
-                          >
-                            <Upload className="w-5 h-5" />
-                            Seleccionar Foto
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Verification Document Upload */}
-                  <div className="space-y-3">
-                    <label className="block text-sm font-semibold text-slate-300">
-                      Documento de Verificación
-                      <span className="text-primary ml-1">*</span>
-                      <span className="text-xs text-slate-500 ml-2">(INE/Pasaporte)</span>
-                    </label>
-
-                    <div
-                      onDragEnter={(e) => handleDrag(e, 'document')}
-                      onDragLeave={(e) => handleDrag(e, 'document')}
-                      onDragOver={(e) => handleDrag(e, 'document')}
-                      onDrop={(e) => handleDrop(e, 'verification_document', 'document')}
-                      className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 
-                      ${
-                        dragActive.document
-                          ? 'border-primary bg-primary/5 scale-[1.02]'
-                          : 'border-slate-700/50 hover:border-primary/50 hover:bg-slate-800/30'
-                      }`}
-                    >
-                      {files.verification_document ? (
-                        <div className="space-y-4">
-                          <div className="relative w-20 h-24 mx-auto">
-                            <div className="w-full h-full bg-slate-700/50 rounded-lg border-4 border-primary/30 flex items-center justify-center">
-                              <FileText className="w-10 h-10 text-primary" />
-                            </div>
-                            <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                              <CheckCircle2 className="w-5 h-5 text-slate-900" />
-                            </div>
-                          </div>
-                          <p className="text-sm text-slate-300 font-medium truncate px-4">
-                            {files.verification_document.name}
-                          </p>
-                          <button
-                            onClick={() => handleFileChange('verification_document', null)}
-                            className="group/btn inline-flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-700 
-                            text-slate-300 rounded-lg transition-all duration-300 text-sm font-medium"
-                          >
-                            <X className="w-4 h-4" />
-                            Eliminar Documento
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          <div className="w-16 h-16 mx-auto rounded-xl bg-lime-500/20 border-2 border-lime-500/30 flex items-center justify-center">
-                            <FileText className="w-8 h-8 text-lime-500" />
-                          </div>
-                          <div className="space-y-2">
-                            <p className="text-slate-300 font-medium">
-                              Haz clic para subir o arrastra y suelta
-                            </p>
-                            <p className="text-xs text-slate-500">PDF, PNG, JPG hasta 5MB</p>
-                          </div>
-                          <input
-                            id="verification_document"
-                            type="file"
-                            accept=".pdf,.png,.jpg,.jpeg"
-                            onChange={(e) =>
-                              handleFileChange('verification_document', e.target.files?.[0] || null)
-                            }
-                            className="hidden"
-                          />
-                          <button
-                            onClick={() =>
-                              document.getElementById('verification_document')?.click()
-                            }
-                            className="group/btn inline-flex items-center gap-2 px-6 py-3 bg-lime-500/20 hover:bg-lime-500 
-                            text-lime-500 hover:text-slate-900 border border-lime-500/30 rounded-xl 
-                            transition-all duration-300 font-semibold"
-                          >
-                            <Upload className="w-5 h-5" />
-                            Seleccionar Documento
-                          </button>
-                        </div>
-                      )}
+              {/* Info Banner */}
+              <div className="px-8 pt-6">
+                <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 backdrop-blur-sm">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div className="text-sm text-slate-300 leading-relaxed">
+                      <strong className="text-primary">¿Por qué son requeridos?</strong> La
+                      federación de Pickleball al ser una federación oficial, colabora con la CONADE
+                      (Comisión Nacional del deporte) para integrar la información de los deportistas
+                      en todo el país. La información que se te solicita se entrega directamente al
+                      RENADE (Registro nacional del deporte), el cuál usa esta información para
+                      generar tu RUD (Registro único del deporte) la cual sirve para poder participar
+                      en torneos oficiales o internacionales avalados por el comité olímpico
+                      nacional, obtener becas, reconocimientos, entre otras cosas. Por ende, es muy
+                      importante que la información que proporcionas sea correcta.
                     </div>
                   </div>
                 </div>
               </div>
+
+              {/* Profile Photo Upload */}
+              <div className="px-8 py-8 max-w-sm">
+                <div className="space-y-3">
+                  <label className="block text-sm font-semibold text-slate-300">
+                    Foto de Perfil
+                    <span className="text-xs text-slate-500 ml-2">(Opcional)</span>
+                  </label>
+
+                  <div
+                    onDragEnter={(e) => handleDrag(e, 'profile')}
+                    onDragLeave={(e) => handleDrag(e, 'profile')}
+                    onDragOver={(e) => handleDrag(e, 'profile')}
+                    onDrop={(e) => handleDrop(e, 'profile_photo', 'profile')}
+                    className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300
+                    ${
+                      dragActive.profile
+                        ? 'border-primary bg-primary/5 scale-[1.02]'
+                        : 'border-slate-700/50 hover:border-primary/50 hover:bg-slate-800/30'
+                    }`}
+                  >
+                    {files.profile_photo ? (
+                      <div className="space-y-4">
+                        <div className="relative w-24 h-24 mx-auto">
+                          <img
+                            src={URL.createObjectURL(files.profile_photo)}
+                            alt="Vista previa del perfil"
+                            className="w-full h-full object-cover rounded-full border-4 border-primary/30"
+                          />
+                          <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                            <CheckCircle2 className="w-5 h-5 text-slate-900" />
+                          </div>
+                        </div>
+                        <p className="text-sm text-slate-300 font-medium truncate px-4">
+                          {files.profile_photo.name}
+                        </p>
+                        <button
+                          onClick={() => handleFileChange('profile_photo', null)}
+                          className="group/btn inline-flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-700
+                          text-slate-300 rounded-lg transition-all duration-300 text-sm font-medium"
+                        >
+                          <X className="w-4 h-4" />
+                          Eliminar Foto
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="w-16 h-16 mx-auto rounded-full bg-primary/20 border-2 border-primary/30 flex items-center justify-center">
+                          <ImageIcon className="w-8 h-8 text-primary" />
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-slate-300 font-medium">
+                            Haz clic para subir o arrastra y suelta
+                          </p>
+                          <p className="text-xs text-slate-500">PNG, JPG, WebP hasta 5MB</p>
+                        </div>
+                        <input
+                          id="profile_photo"
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) =>
+                            handleFileChange('profile_photo', e.target.files?.[0] || null)
+                          }
+                          className="hidden"
+                        />
+                        <button
+                          onClick={() => document.getElementById('profile_photo')?.click()}
+                          className="group/btn inline-flex items-center gap-2 px-6 py-3 bg-primary/20 hover:bg-primary
+                          text-primary hover:text-slate-900 border border-primary/30 rounded-xl
+                          transition-all duration-300 font-semibold"
+                        >
+                          <Upload className="w-5 h-5" />
+                          Seleccionar Foto
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
-          )}
+          </div>
 
           {/* Optional Fields Grid */}
           <div className="grid lg:grid-cols-2 gap-6 mb-8">
@@ -856,24 +774,6 @@ const OptionalFieldsPage = () => {
             </button>
 
             <div className="flex flex-col sm:flex-row gap-4 flex-1 w-full sm:w-auto">
-              {/* Skip Button - Only for clubs and partners */}
-              {userType !== 'player' && userType !== 'coach' && (
-                <button
-                  onClick={handleSkip}
-                  disabled={loading}
-                  className="group/btn relative overflow-hidden px-6 py-4 rounded-xl border border-slate-700/50 
-                  bg-slate-800/30 backdrop-blur-sm text-slate-300 font-semibold
-                  hover:border-primary/50 hover:bg-slate-800/50 transition-all duration-300
-                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-700/50
-                  w-full sm:flex-1"
-                >
-                  <div className="relative z-10 flex items-center justify-center gap-2">
-                    <span>{loading ? 'Creando Cuenta...' : 'Omitir y Registrarse Ahora'}</span>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-1000" />
-                </button>
-              )}
-
               {/* Complete Registration Button */}
               <button
                 onClick={handleRegister}
