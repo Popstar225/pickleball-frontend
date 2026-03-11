@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
 import { Mexico } from '@/constants/constants';
+import { AvatarCropDialog } from '@/components/ui/AvatarCropDialog';
 import {
   Phone,
   MapPin,
@@ -54,6 +55,8 @@ const OptionalFieldsPage = () => {
   const [userType, setUserType] = useState<string>('');
   const [requiredFields, setRequiredFields] = useState<any>({});
   const [dragActive, setDragActive] = useState({ profile: false });
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropFileName, setCropFileName] = useState<string>('');
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -116,10 +119,24 @@ const OptionalFieldsPage = () => {
   };
 
   const handleFileChange = (name: string, file: File | null) => {
-    setFiles((prev) => ({
-      ...prev,
-      [name]: file,
-    }));
+    if (name === 'profile_photo' && file) {
+      setCropFileName(file.name);
+      const reader = new FileReader();
+      reader.onload = () => setCropSrc(reader.result as string);
+      reader.readAsDataURL(file);
+      return;
+    }
+    setFiles((prev) => ({ ...prev, [name]: file }));
+  };
+
+  const handleCropComplete = (croppedFile: File) => {
+    setFiles((prev) => ({ ...prev, profile_photo: croppedFile }));
+    setCropSrc(null);
+  };
+
+  const handleCropCancel = () => {
+    setCropSrc(null);
+    setCropFileName('');
   };
 
   const handleDrag = (e: React.DragEvent, type: 'profile') => {
@@ -534,6 +551,14 @@ const OptionalFieldsPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
+      {cropSrc && (
+        <AvatarCropDialog
+          imageSrc={cropSrc}
+          originalFileName={cropFileName}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
+      )}
       {/* Background Effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse" />
