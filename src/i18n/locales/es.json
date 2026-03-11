@@ -298,7 +298,11 @@
       "validate_issues": "Por favor, soluciona los siguientes problemas:",
       "toast_success": "¡Registro exitoso! ¡Bienvenido a la comunidad de pickleball!",
       "toast_success_skip": "¡Registro exitoso! Puedes completar tu perfil más tarde.",
-      "toast_error_server": "Registro fallido - Respuesta inválida del servidor"
+      "toast_error_server": "Registro fallido - Respuesta inválida del servidor",
+      "crop_title": "Recortar foto de perfil",
+      "crop_hint": "Arrastra para mover · Desliza para acercar",
+      "crop_cancel": "Cancelar",
+      "crop_apply": "Aplicar recorte"
     }
   },
   "userTypes": {

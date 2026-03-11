@@ -298,7 +298,11 @@
       "validate_issues": "Please fix the following issues:",
       "toast_success": "Registration successful! Welcome to the pickleball community!",
       "toast_success_skip": "Registration successful! You can complete your profile later.",
-      "toast_error_server": "Registration failed - Invalid response from server"
+      "toast_error_server": "Registration failed - Invalid response from server",
+      "crop_title": "Crop profile photo",
+      "crop_hint": "Drag to move · Scroll to zoom",
+      "crop_cancel": "Cancel",
+      "crop_apply": "Apply crop"
     }
   },
   "userTypes": {
