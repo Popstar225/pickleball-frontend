@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppDispatch, RootState } from '../../store';
 import { registerUser } from '../../store/slices/authSlice';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import {
   User,
   Mail,
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 
 const RequiredFieldsPage = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -88,29 +90,29 @@ const RequiredFieldsPage = () => {
 
   const validateForm = () => {
     if (!formData.username || formData.username.length < 3) {
-      toast.error('El nombre de usuario debe tener al menos 3 caracteres');
+      toast.error(t('auth.requiredFields.validate_username'));
       return false;
     }
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      toast.error('Por favor ingresa una dirección de correo válida');
+      toast.error(t('auth.requiredFields.validate_email'));
       return false;
     }
     if (!formData.password || formData.password.length < 3) {
-      toast.error('La contraseña debe tener al menos 3 caracteres');
+      toast.error(t('auth.requiredFields.validate_password_len'));
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      toast.error('Las contraseñas no coinciden');
+      toast.error(t('auth.requiredFields.validate_password_match'));
       return false;
     }
     if (userType === 'club' || userType === 'partner') {
       if (!formData.business_name) {
-        toast.error('El nombre del negocio es requerido');
+        toast.error(t('auth.requiredFields.validate_business_name'));
         return false;
       }
     } else {
       if (!formData.full_name) {
-        toast.error('El nombre completo es requerido');
+        toast.error(t('auth.requiredFields.validate_full_name'));
         return false;
       }
     }
@@ -123,7 +125,7 @@ const RequiredFieldsPage = () => {
       typeof formData.privacy_policy_accepted,
     );
     if (!formData.privacy_policy_accepted) {
-      toast.error('Debes aceptar la política de privacidad para continuar');
+      toast.error(t('auth.requiredFields.validate_privacy'));
       return false;
     }
     return true;
@@ -159,9 +161,7 @@ const RequiredFieldsPage = () => {
     if (!validateForm()) return;
 
     if (userType === 'player' || userType === 'coach') {
-      toast.error(
-        'Los jugadores y entrenadores deben completar el proceso de registro completo incluyendo archivos de documentos',
-      );
+      toast.error(t('auth.requiredFields.validate_player_coach'));
       return;
     }
 
@@ -195,7 +195,7 @@ const RequiredFieldsPage = () => {
 
       if (apiResponse?.data?.user && apiResponse?.data?.tokens) {
         localStorage.removeItem('registration_user_type');
-        toast.success('¡Registro exitoso! ¡Bienvenido a la comunidad de pickleball!');
+        toast.success(t('auth.requiredFields.toast_success'));
 
         const userType = apiResponse.data.user.user_type;
         switch (userType) {
@@ -212,11 +212,11 @@ const RequiredFieldsPage = () => {
             navigate('/clubs/dashboard');
         }
       } else {
-        toast.error('Registro fallido - Respuesta inválida del servidor');
+        toast.error(t('auth.requiredFields.toast_error_server'));
         console.error('Registration failed - Invalid response structure:', apiResponse);
       }
     } catch (err) {
-      toast.error(error || 'Registro fallido');
+      toast.error(error || t('auth.requiredFields.toast_error_server'));
     }
   };
 
@@ -224,30 +224,30 @@ const RequiredFieldsPage = () => {
     const baseFields = [
       {
         name: 'username',
-        label: 'Nombre de Usuario',
+        label: t('auth.requiredFields.field_username'),
         type: 'text',
-        placeholder: 'Elige un nombre de usuario único',
+        placeholder: t('auth.requiredFields.field_username_placeholder'),
         icon: User,
       },
       {
         name: 'email',
-        label: 'Correo Electrónico',
+        label: t('auth.requiredFields.field_email'),
         type: 'email',
-        placeholder: 'tu.correo@ejemplo.com',
+        placeholder: t('auth.requiredFields.field_email_placeholder'),
         icon: Mail,
       },
       {
         name: 'password',
-        label: 'Contraseña',
+        label: t('auth.requiredFields.field_password'),
         type: 'password',
-        placeholder: 'Crea una contraseña segura',
+        placeholder: t('auth.requiredFields.field_password_placeholder'),
         icon: Lock,
       },
       {
         name: 'confirmPassword',
-        label: 'Confirmar Contraseña',
+        label: t('auth.requiredFields.field_confirm_password'),
         type: 'password',
-        placeholder: 'Re-ingresa tu contraseña',
+        placeholder: t('auth.requiredFields.field_confirm_password_placeholder'),
         icon: Lock,
       },
     ];
@@ -257,9 +257,9 @@ const RequiredFieldsPage = () => {
         ...baseFields,
         {
           name: 'business_name',
-          label: 'Nombre del Negocio',
+          label: t('auth.requiredFields.field_business_name'),
           type: 'text',
-          placeholder: 'Ingresa el nombre de tu negocio u organización',
+          placeholder: t('auth.requiredFields.field_business_name_placeholder'),
           icon: Building2,
         },
       ];
@@ -268,25 +268,16 @@ const RequiredFieldsPage = () => {
         ...baseFields,
         {
           name: 'full_name',
-          label: 'Nombre Completo',
+          label: t('auth.requiredFields.field_full_name'),
           type: 'text',
-          placeholder: 'Ingresa tu nombre completo',
+          placeholder: t('auth.requiredFields.field_full_name_placeholder'),
           icon: User,
         },
       ];
     }
   };
 
-  const getUserTypeLabel = () => {
-    const labels: Record<string, string> = {
-      player: 'Jugador',
-      coach: 'Entrenador',
-      club: 'Club',
-      partner: 'Socio',
-      state: 'Federación Estatal',
-    };
-    return labels[userType] || userType;
-  };
+  const getUserTypeLabel = () => t(`userTypes.${userType}.title`) || userType;
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
@@ -311,18 +302,18 @@ const RequiredFieldsPage = () => {
             <div className="inline-block mb-4">
               <span className="inline-flex items-center gap-2 text-primary text-sm font-bold tracking-wider uppercase bg-primary/10 px-6 py-2.5 rounded-full border border-primary/20 backdrop-blur-sm">
                 <Sparkles className="w-4 h-4" />
-                <span>Paso 1 de 2</span>
+                <span>{t('auth.requiredFields.step')}</span>
               </span>
             </div>
 
             <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
               <span className="block bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent leading-tight">
-                Crea Tu Cuenta de {getUserTypeLabel()}
+                {t('auth.requiredFields.heading', { role: getUserTypeLabel() })}
               </span>
             </h3>
 
             <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-              Únete a la comunidad de pickleball con algunos detalles esenciales
+              {t('auth.requiredFields.subtitle')}
             </p>
           </div>
 
@@ -339,10 +330,10 @@ const RequiredFieldsPage = () => {
                     <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
                       <Shield className="w-5 h-5 text-primary" />
                     </div>
-                    Detalles de la Cuenta
+                    {t('auth.requiredFields.account_details')}
                   </h2>
                   <p className="text-slate-400 mt-2 ml-13">
-                    Estos campos son necesarios para crear tu cuenta
+                    {t('auth.requiredFields.account_details_sub')}
                   </p>
                 </div>
               </div>
@@ -438,10 +429,10 @@ const RequiredFieldsPage = () => {
                     <div className="w-10 h-10 rounded-xl bg-lime-500/20 border border-lime-500/30 flex items-center justify-center">
                       <Shield className="w-5 h-5 text-lime-500" />
                     </div>
-                    Política de Privacidad
+                    {t('auth.requiredFields.privacy_title')}
                   </h2>
                   <p className="text-slate-400 mt-2 ml-13">
-                    Por favor lee y acepta nuestra política de privacidad para continuar
+                    {t('auth.requiredFields.privacy_sub')}
                   </p>
                 </div>
               </div>
@@ -476,22 +467,19 @@ const RequiredFieldsPage = () => {
 
                   <div className="flex-1 text-sm text-slate-300 leading-relaxed">
                     <label htmlFor="privacy_policy_accepted" className="cursor-pointer font-medium">
-                      He leído y acepto la{' '}
+                      {t('auth.requiredFields.privacy_accept')}{' '}
                       <a
                         href="/privacy-policy"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:text-lime-500 underline transition-colors duration-300"
                       >
-                        Política de Privacidad
+                        {t('auth.requiredFields.privacy_link')}
                       </a>{' '}
-                      y acepto la recopilación y el uso de mi información personal tal como se
-                      describe.
+                      {t('auth.requiredFields.privacy_accept_rest')}
                     </label>
                     <p className="mt-3 text-slate-400 text-xs leading-relaxed">
-                      Esto incluye el consentimiento para procesar tus datos personales, enviarte
-                      comunicaciones sobre tu cuenta, y compartir información con otros jugadores
-                      cuando uses la función de búsqueda de jugadores.
+                      {t('auth.requiredFields.privacy_desc')}
                     </p>
                   </div>
                 </div>
@@ -511,7 +499,7 @@ const RequiredFieldsPage = () => {
             >
               <div className="flex items-center justify-center gap-2">
                 <ArrowLeft className="w-5 h-5 group-hover/btn:-translate-x-1 transition-transform duration-300" />
-                <span>Atrás</span>
+                <span>{t('auth.requiredFields.back')}</span>
               </div>
             </button>
 
@@ -528,7 +516,7 @@ const RequiredFieldsPage = () => {
                   w-full sm:flex-1"
                 >
                   <div className="relative z-10 flex items-center justify-center gap-2">
-                    <span>{loading ? 'Creando Cuenta...' : 'Omitir y Registrarse Ahora'}</span>
+                    <span>{loading ? t('auth.requiredFields.creating') : t('auth.requiredFields.skip')}</span>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-1000" />
                 </button>
@@ -545,7 +533,7 @@ const RequiredFieldsPage = () => {
                 w-full sm:flex-1"
               >
                 <div className="relative z-10 flex items-center justify-center gap-2">
-                  <span>Continuar</span>
+                  <span>{t('auth.requiredFields.continue')}</span>
                   <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300" />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-1000" />
