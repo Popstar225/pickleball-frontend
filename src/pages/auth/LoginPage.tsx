@@ -20,7 +20,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useTranslation } from 'react-i18next';
 
 // Import your images
 import loginHeroImage from '@/assets/images/login-hero.jpg'; // Main hero image
@@ -29,7 +28,6 @@ import playerActionImage from '@/assets/images/blogs/image7.png'; // Action shot
 import logoImage from '@/assets/images/Logos/Logo pickleball compressed.png'; // Your logo
 
 const LoginPage = () => {
-  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -188,14 +186,14 @@ const LoginPage = () => {
                 {/* Badge */}
                 <div className="inline-flex items-center gap-2 text-primary text-xs sm:text-sm font-bold tracking-wider uppercase bg-primary/10 px-4 py-2 rounded-full border border-primary/20 backdrop-blur-sm w-fit">
                   <Sparkles className="w-4 h-4" />
-                  <span>{t('auth.login.title')}</span>
+                  <span>Inicio Seguro</span>
                 </div>
 
                 <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent pt-3">
-                  {t('auth.login.heading')}
+                  Iniciar Sesión
                 </CardTitle>
                 <CardDescription className="text-slate-400 text-sm sm:text-base">
-                  {t('auth.login.subtitle')}
+                  Ingresa tus credenciales para acceder a tu panel
                 </CardDescription>
               </CardHeader>
 
@@ -204,7 +202,7 @@ const LoginPage = () => {
                   {/* Email Field */}
                   <div className="space-y-2">
                     <Label htmlFor="email" className="text-slate-300 text-sm font-medium">
-                      {t('auth.login.email')}
+                      Correo Electrónico
                     </Label>
                     <div className="relative group/input">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within/input:text-primary transition-colors duration-300 pointer-events-none z-10" />
@@ -215,7 +213,7 @@ const LoginPage = () => {
                         required
                         value={formData.email}
                         onChange={handleChange}
-                        placeholder={t('auth.login.email_placeholder')}
+                        placeholder="tu.correo@ejemplo.com"
                         disabled={isAnyActionPending}
                         className="h-12 sm:h-14 pl-12 pr-4 bg-slate-950/50 border-slate-700 text-white placeholder:text-slate-500 text-sm sm:text-base focus-visible:ring-primary/50 focus-visible:border-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm rounded-xl"
                       />
@@ -226,14 +224,14 @@ const LoginPage = () => {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="password" className="text-slate-300 text-sm font-medium">
-                        {t('auth.login.password')}
+                        Password
                       </Label>
                       <Link
                         to="/forgot-password"
                         className="text-xs sm:text-sm text-primary hover:text-lime-500 transition-colors duration-300 font-medium"
                         style={{ pointerEvents: isAnyActionPending ? 'none' : 'auto' }}
                       >
-                        {t('auth.login.forgot')}
+                        ¿Olvidaste?
                       </Link>
                     </div>
                     <div className="relative group/input">
@@ -274,11 +272,11 @@ const LoginPage = () => {
                       {isAnyActionPending ? (
                         <>
                           <div className="w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
-                          <span>{t('auth.login.btn_loading')}</span>
+                          <span>Iniciando sesión...</span>
                         </>
                       ) : (
                         <>
-                          <span>{t('auth.login.btn')}</span>
+                          <span>Iniciar Sesión</span>
                           <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300" />
                         </>
                       )}
@@ -294,7 +292,7 @@ const LoginPage = () => {
                   </div>
                   <div className="relative flex justify-center text-xs sm:text-sm">
                     <span className="px-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-500">
-                      {t('auth.login.no_account')}
+                      ¿Nuevo en la plataforma?
                     </span>
                   </div>
                 </div>
@@ -302,13 +300,13 @@ const LoginPage = () => {
                 {/* Sign Up Link */}
                 <div className="text-center">
                   <p className="text-sm sm:text-base text-slate-400">
-                    {t('auth.login.no_account')}{' '}
+                    ¿No tienes una cuenta?{' '}
                     <Link
                       to="/register/select-type"
                       className="inline-flex items-center gap-2 text-primary hover:text-lime-500 font-semibold transition-colors duration-300 group/link"
                       style={{ pointerEvents: isAnyActionPending ? 'none' : 'auto' }}
                     >
-                      <span>{t('auth.login.create_account')}</span>
+                      <span>Crear cuenta</span>
                       <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform duration-300" />
                     </Link>
                   </p>
@@ -325,7 +323,7 @@ const LoginPage = () => {
           <div className="mt-6 sm:mt-8 text-center space-y-2">
             <p className="text-xs sm:text-sm text-slate-500 flex items-center justify-center gap-2">
               <Shield className="w-4 h-4" />
-              {t('auth.login.secure')}
+              Protegido por cifrado estándar de la industria
             </p>
           </div>
         </div>

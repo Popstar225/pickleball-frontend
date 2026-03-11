@@ -124,8 +124,6 @@
     "today": "Today",
     "no_events": "No scheduled events",
     "all_events": "All Events",
-    "prize": "Prize:",
-    "more_events": "+{{count}} more",
     "days": {
       "mon": "Mon",
       "tue": "Tue",
@@ -193,14 +191,7 @@
       "clubs": "Clubs",
       "view_details": "View details",
       "continue_as": "Continue as {{role}}",
-      "select_role": "Select a role to continue",
-      "get_started": "GET STARTED",
-      "join_community": "Join the Pickleball Community",
-      "select_details": "Select your role from the list to see detailed features and benefits tailored for you.",
-      "whats_included": "What's Included",
-      "designed_for": "This account type is designed specifically for your needs in the pickleball community.",
-      "features_count": "{{count}} features",
-      "secure_reg": "Secure registration • Change anytime in settings"
+      "select_role": "Select a role to continue"
     },
     "requiredFields": {
       "step": "Step 1 of 2",
@@ -216,17 +207,7 @@
       "back": "Back",
       "skip": "Skip and Register Now",
       "creating": "Creating Account...",
-      "continue": "Continue",
-      "field_username": "Username",
-      "field_username_placeholder": "Choose a unique username",
-      "field_password": "Password",
-      "field_password_placeholder": "Create a secure password",
-      "field_confirm_password": "Confirm Password",
-      "field_confirm_password_placeholder": "Re-enter your password",
-      "field_business_name": "Business Name",
-      "field_business_name_placeholder": "Enter your business or organization name",
-      "field_full_name": "Full Name",
-      "field_full_name_placeholder": "Enter your full name"
+      "continue": "Continue"
     },
     "optionalFields": {
       "step": "Step 2 of 2",
@@ -312,10 +293,7 @@
       "microsite_dev": "Microsite in development",
       "cta_title": "Your State Not Listed?",
       "cta_subtitle": "Contact us for more information about how to affiliate with the Mexican Pickleball Federation",
-      "contact": "Contact Us",
-      "active_badge": "Active",
-      "no_results_title": "No results found",
-      "no_results_hint": "Try a different search term"
+      "contact": "Contact Us"
     },
     "rules": {
       "label": "Official Documentation",
@@ -456,11 +434,7 @@
       "men": "Men",
       "women": "Women",
       "juniors": "Juniors",
-      "professionals": "Professionals",
-      "complete": "Complete Rankings",
-      "email_placeholder": "Your email address",
-      "subscribe": "Subscribe",
-      "search_results": "{{count}} players found for \"{{query}}\""
+      "professionals": "Professionals"
     },
     "categories": {
       "label": "Classification System",
@@ -524,14 +498,7 @@
       "cta_title": "Are you a pickleball player?",
       "cta_sub": "Register with FEDMEX and appear in the official directory of Mexican players",
       "cta_register": "Register Now",
-      "cta_info": "More Information",
-      "stat_players": "Players",
-      "stat_states": "States",
-      "stat_levels": "Levels",
-      "level_label": "Level",
-      "tournaments_label": "Tournaments",
-      "wins_label": "Wins",
-      "joined_community": "Join the community"
+      "cta_info": "More Information"
     },
     "tournaments": {
       "title": "Tournaments",

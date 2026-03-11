@@ -124,8 +124,6 @@
     "today": "Hoy",
     "no_events": "Sin eventos programados",
     "all_events": "Todos los Eventos",
-    "prize": "Premio:",
-    "more_events": "+{{count}} más",
     "days": {
       "mon": "Lun",
       "tue": "Mar",
@@ -193,14 +191,7 @@
       "clubs": "Clubes",
       "view_details": "Ver detalles",
       "continue_as": "Continuar como {{role}}",
-      "select_role": "Selecciona un rol para continuar",
-      "get_started": "COMENCEMOS",
-      "join_community": "Únete a la Comunidad de Pickleball",
-      "select_details": "Selecciona tu rol de la lista para ver características y beneficios detallados.",
-      "whats_included": "Qué Incluye",
-      "designed_for": "Este tipo de cuenta está diseñado específicamente para tus necesidades en la comunidad de pickleball.",
-      "features_count": "{{count}} características",
-      "secure_reg": "Registro seguro • Cambia en cualquier momento en configuración"
+      "select_role": "Selecciona un rol para continuar"
     },
     "requiredFields": {
       "step": "Paso 1 de 2",
@@ -216,17 +207,7 @@
       "back": "Atrás",
       "skip": "Omitir y Registrarse Ahora",
       "creating": "Creando Cuenta...",
-      "continue": "Continuar",
-      "field_username": "Nombre de Usuario",
-      "field_username_placeholder": "Elige un nombre de usuario único",
-      "field_password": "Contraseña",
-      "field_password_placeholder": "Crea una contraseña segura",
-      "field_confirm_password": "Confirmar Contraseña",
-      "field_confirm_password_placeholder": "Re-ingresa tu contraseña",
-      "field_business_name": "Nombre del Negocio",
-      "field_business_name_placeholder": "Ingresa el nombre de tu negocio u organización",
-      "field_full_name": "Nombre Completo",
-      "field_full_name_placeholder": "Ingresa tu nombre completo"
+      "continue": "Continuar"
     },
     "optionalFields": {
       "step": "Paso 2 de 2",
@@ -312,10 +293,7 @@
       "microsite_dev": "Micrositio en desarrollo",
       "cta_title": "¿Tu Estado No Aparece?",
       "cta_subtitle": "Contáctanos para más información sobre cómo afiliarte a la Federación Mexicana de Pickleball",
-      "contact": "Contáctanos",
-      "active_badge": "Activa",
-      "no_results_title": "No se encontraron resultados",
-      "no_results_hint": "Intenta con otro término de búsqueda"
+      "contact": "Contáctanos"
     },
     "rules": {
       "label": "Documentación Oficial",
@@ -456,11 +434,7 @@
       "men": "Hombres",
       "women": "Mujeres",
       "juniors": "Juniors",
-      "professionals": "Profesionales",
-      "complete": "Clasificación Completa",
-      "email_placeholder": "Tu correo electrónico",
-      "subscribe": "Suscribirse",
-      "search_results": "{{count}} jugadores encontrados para \"{{query}}\""
+      "professionals": "Profesionales"
     },
     "categories": {
       "label": "Sistema de Clasificación",
@@ -524,14 +498,7 @@
       "cta_title": "¿Eres jugador de pickleball?",
       "cta_sub": "Regístrate en FEDMEX y aparece en el directorio oficial de jugadores de México",
       "cta_register": "Registrarme ahora",
-      "cta_info": "Más información",
-      "stat_players": "Jugadores",
-      "stat_states": "Estados",
-      "stat_levels": "Niveles",
-      "level_label": "Nivel",
-      "tournaments_label": "Torneos",
-      "wins_label": "Victorias",
-      "joined_community": "Únete a la comunidad"
+      "cta_info": "Más información"
     },
     "tournaments": {
       "title": "Torneos",

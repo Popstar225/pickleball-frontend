@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useTranslation } from 'react-i18next';
 
 // Import images
 import playerImage from '@/assets/images/blogs/Image8-1.png';
@@ -27,7 +26,6 @@ import partnerImage from '@/assets/images/_DSC8895.png';
 import stateImage from '@/assets/images/blogs/Image9-1.png';
 
 const SelectUserTypePage = () => {
-  const { t } = useTranslation();
   const [selectedType, setSelectedType] = useState<string>('');
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
@@ -199,43 +197,44 @@ const SelectUserTypePage = () => {
                 {/* Default State */}
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl">
                   <Sparkles className="w-4 h-4 text-primary" />
-                  <span className="text-primary text-sm font-semibold">{t('auth.selectType.get_started')}</span>
+                  <span className="text-primary text-sm font-semibold">GET STARTED</span>
                 </div>
 
                 <div>
                   <h2 className="text-5xl xl:text-6xl font-bold leading-tight mb-4">
                     <span className="bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
-                      {t('auth.selectType.join_community')}
+                      Join the Pickleball Community
                     </span>
                   </h2>
                   <p className="text-xl text-slate-400 leading-relaxed">
-                    {t('auth.selectType.select_details')}
+                    Select your role from the list to see detailed features and benefits tailored
+                    for you.
                   </p>
                 </div>
 
                 {/* Benefits */}
                 <div className="space-y-4 pt-4">
-                  <h3 className="text-lg font-semibold text-white">{t('auth.selectType.why_us')}</h3>
+                  <h3 className="text-lg font-semibold text-white">Why Choose Us</h3>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-slate-300 text-sm font-medium">{t('auth.selectType.platform')}</p>
-                        <p className="text-slate-500 text-xs">{t('auth.selectType.platform_desc')}</p>
+                        <p className="text-slate-300 text-sm font-medium">Comprehensive Platform</p>
+                        <p className="text-slate-500 text-xs">Everything you need in one place</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-slate-300 text-sm font-medium">{t('auth.selectType.community')}</p>
-                        <p className="text-slate-500 text-xs">{t('auth.selectType.community_desc')}</p>
+                        <p className="text-slate-300 text-sm font-medium">Active Community</p>
+                        <p className="text-slate-500 text-xs">50K+ members nationwide</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-slate-300 text-sm font-medium">{t('auth.selectType.secure')}</p>
-                        <p className="text-slate-500 text-xs">{t('auth.selectType.secure_desc')}</p>
+                        <p className="text-slate-300 text-sm font-medium">Secure & Trusted</p>
+                        <p className="text-slate-500 text-xs">Bank-level encryption</p>
                       </div>
                     </div>
                   </div>
