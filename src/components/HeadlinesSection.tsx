@@ -4,11 +4,13 @@ import { playerShowcases } from '@/data/mockData';
 import Carousel from 'react-multi-carousel';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import 'react-multi-carousel/lib/styles.css';
 import './styles/HeadlinesSection.css';
 
 const HeadlinesSection = () => {
+  const { t } = useTranslation();
   const cardTitles = ['Talento', 'El futuro', 'Prodigio', 'jugadora'];
 
   const navigate = useNavigate();
@@ -64,11 +66,11 @@ const HeadlinesSection = () => {
         <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8 md:mb-10 lg:mb-12">
           <div className="inline-block mb-2 sm:mb-3 md:mb-4">
             <span className="text-primary text-[10px] sm:text-xs md:text-sm font-bold uppercase tracking-wider bg-primary/10 px-3 sm:px-4 md:px-6 py-1 sm:py-1.5 md:py-2 rounded-full border border-primary/20">
-              Jugadores Destacados
+              {t('headlines.title')}
             </span>
           </div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent mb-3 sm:mb-4 md:mb-5 lg:mb-6 px-2">
-            Talentos mexicanos
+            {t('headlines.subtitle')}
           </h2>
           <p className="text-slate-400 text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed px-4 sm:px-2 md:px-0">
             Los mejores momentos y jugadas más destacadas del mundo del pickleball

@@ -11,13 +11,12 @@ import {
   Swords,
   MessageSquare,
   Receipt,
-  CalendarCheck,
 } from 'lucide-react';
 import PlayerTournamentsPage from './TournamentsPage';
 
 const navItems: NavItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Panel',
     url: '/players/dashboard',
     icon: LayoutDashboard,
     description: 'Vista general',
@@ -57,12 +56,6 @@ const navItems: NavItem[] = [
     url: '/players/dashboard/tournaments-view',
     icon: Swords,
     description: 'Ver progreso en mis torneos activos',
-  },
-  {
-    title: 'Reservar Cancha',
-    url: '/players/dashboard/courts',
-    icon: CalendarCheck,
-    description: 'Reservar tiempo en canchas',
   },
   {
     title: 'Mensajes',

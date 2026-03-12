@@ -1,6 +1,6 @@
-export const baseURL = 'http://localhost:5000/api/v1';
-export const imageBaseURL = 'http://localhost:5000';
-// For development, use localhost
-// For production, you would use:
-// export const baseURL = 'https://pickleball-backend-production.up.railway.app/api/v1';
-// export const imageBaseURL = 'https://pickleball-backend-production.up.railway.app';
+const API_URI = import.meta.env.VITE_API_URI || 'http://localhost:5000';
+
+export const baseURL = `${API_URI}/api/v1`;
+export const imageBaseURL = API_URI;
+
+export const siteBaseURL = import.meta.env.VITE_BASIC_URI || 'http://localhost:8080';

@@ -71,7 +71,6 @@ import PlayerTournamentsPage from './pages/players/dashboard/TournamentsPage';
 import PlayerActiveTournamentsPage from './pages/players/dashboard/PlayerActiveTournamentsPage';
 import PlayerMessagesPage from './pages/players/dashboard/MessagesPage';
 import PlayerPaymentsPage from './pages/players/dashboard/PaymentsPage';
-import CourtReservationPage from './pages/players/dashboard/CourtReservationPage';
 
 // Partner Dashboard pages
 import PartnerDashboardLayout from './pages/partners/dashboard/PartnerDashboardLayout';
@@ -732,12 +731,6 @@ export const routes = [
         key: 'player-dashboard-payments',
         path: '/players/dashboard/payments',
         element: <PlayerPaymentsPage />,
-        public: false,
-      },
-      {
-        key: 'player-dashboard-courts',
-        path: '/players/dashboard/courts',
-        element: <CourtReservationPage />,
         public: false,
       },
       {
