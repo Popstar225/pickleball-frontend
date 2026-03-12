@@ -86,7 +86,6 @@ const navItems: NavItem[] = [
     url: '/admin/dashboard/messages',
     icon: MessageSquare,
     description: 'Ver mensajes',
-    badge: 3,
   },
 ];
 
