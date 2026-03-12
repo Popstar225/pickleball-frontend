@@ -71,6 +71,7 @@ import PlayerTournamentsPage from './pages/players/dashboard/TournamentsPage';
 import PlayerActiveTournamentsPage from './pages/players/dashboard/PlayerActiveTournamentsPage';
 import PlayerMessagesPage from './pages/players/dashboard/MessagesPage';
 import PlayerPaymentsPage from './pages/players/dashboard/PaymentsPage';
+import CourtReservationPage from './pages/players/dashboard/CourtReservationPage';
 
 // Partner Dashboard pages
 import PartnerDashboardLayout from './pages/partners/dashboard/PartnerDashboardLayout';
@@ -127,10 +128,6 @@ import CoachDashboardComponent from './pages/coaches/dashboard/CoachTournamentDa
 import CoachTeamRegistrationPage from './pages/coaches/dashboard/CoachTeamRegistrationPage';
 import { MapPin } from 'lucide-react';
 import StatesManagement from './pages/admin/dashboard/StatesManagement';
-
-// Microsite pages
-import PublicMicrositePage from './pages/microsites/PublicMicrositePage';
-import MicrositeDashboardPage from './pages/microsites/MicrositeDashboardPage';
 
 // Referee pages
 import RefereeDashboardPage from './pages/referee/RefereeDashboardPage';
@@ -324,12 +321,6 @@ export const routes = [
     key: 'partners',
     path: '/partners',
     element: <Partners />,
-    public: true,
-  },
-  {
-    key: 'public-microsite',
-    path: '/microsite/:type/:username',
-    element: <PublicMicrositePage />,
     public: true,
   },
   {
@@ -677,12 +668,6 @@ export const routes = [
         public: false,
       },
       {
-        key: 'state-microsite',
-        path: '/state/dashboard/microsite',
-        element: <MicrositeDashboardPage />,
-        public: false,
-      },
-      {
         key: 'state-stats',
         path: '/state/dashboard/stats',
         element: <StateStatistics />,
@@ -747,6 +732,12 @@ export const routes = [
         key: 'player-dashboard-payments',
         path: '/players/dashboard/payments',
         element: <PlayerPaymentsPage />,
+        public: false,
+      },
+      {
+        key: 'player-dashboard-courts',
+        path: '/players/dashboard/courts',
+        element: <CourtReservationPage />,
         public: false,
       },
       {
@@ -956,12 +947,6 @@ export const routes = [
         key: 'club-corrections',
         path: '/clubs/dashboard/corrections',
         element: <ClubScoreCorrectionsPage />,
-        public: false,
-      },
-      {
-        key: 'club-microsite',
-        path: '/clubs/dashboard/microsite',
-        element: <MicrositeDashboardPage />,
         public: false,
       },
       {

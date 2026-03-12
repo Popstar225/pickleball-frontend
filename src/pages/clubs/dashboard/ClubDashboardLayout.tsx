@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
 import type { RootState } from '@/store';
-import { LayoutDashboard, User, Users, Trophy, MessageSquare, Receipt, CalendarDays, Globe } from 'lucide-react';
+import { LayoutDashboard, User, Users, Trophy, MessageSquare, Receipt, CheckSquare, CalendarDays } from 'lucide-react';
 
 const navItems: NavItem[] = [
   {
@@ -45,12 +45,6 @@ const navItems: NavItem[] = [
     url: '/clubs/dashboard/schedule',
     icon: CalendarDays,
     description: 'Programar horarios de partidos',
-  },
-  {
-    title: 'Micrositio',
-    url: '/clubs/dashboard/microsite',
-    icon: Globe,
-    description: 'Gestionar página pública del club',
   },
   {
     title: 'Mensajes',

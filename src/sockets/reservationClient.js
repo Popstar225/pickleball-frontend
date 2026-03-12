@@ -9,10 +9,9 @@
  */
 
 import io from 'socket.io-client';
-import { imageBaseURL } from '@/lib/const';
 
 // Initialize socket connection to reservations namespace
-const socket = io(`${imageBaseURL}/reservations`, {
+const socket = io('http://localhost:5000/reservations', {
   auth: {
     token: localStorage.getItem('authToken'),
   },

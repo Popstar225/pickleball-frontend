@@ -9,10 +9,9 @@
  */
 
 import io from 'socket.io-client';
-import { imageBaseURL } from '@/lib/const';
 
 // Initialize socket connection to messaging namespace
-const socket = io(`${imageBaseURL}/messaging`, {
+const socket = io('http://localhost:5000/messaging', {
   auth: {
     token: localStorage.getItem('authToken'),
   },
