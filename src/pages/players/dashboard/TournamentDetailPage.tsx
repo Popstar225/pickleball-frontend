@@ -89,9 +89,9 @@ const typeBadge: Record<string, string> = {
 };
 
 const typeLabel: Record<string, string> = {
-  local: 'Local (Ciudad/Área)',
-  state: 'Estatal (Entidad Federativa)',
-  national: 'Campeonato Nacional',
+  local: 'Local (City/Area)',
+  state: 'State (Federal Entity)',
+  national: 'National Championship',
 };
 
 const EventCard: React.FC<{
@@ -113,7 +113,7 @@ const EventCard: React.FC<{
                 {event.skill_block} {event.gender}'s {event.modality}
               </h3>
               <p className="text-xs text-white/30 mt-0.5">
-                {event.modality === 'Doubles' ? 'Equipos' : 'Jugadores'}: {event.current_participants}/
+                {event.modality === 'Doubles' ? 'Teams' : 'Players'}: {event.current_participants}/
                 {event.max_participants}
               </p>
             </div>
@@ -122,22 +122,22 @@ const EventCard: React.FC<{
             {event.registered ? (
               <Badge className="bg-[#ace600]/10 text-[#ace600] border-[#ace600]/20">
                 <CheckCircle2 className="w-3 h-3 mr-1" />
-                Inscrito
+                Registered
               </Badge>
             ) : isFull ? (
               <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20">
                 <Clock className="w-3 h-3 mr-1" />
-                Lista de Espera
+                Waitlist
               </Badge>
             ) : event.eligible ? (
               <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
                 <Zap className="w-3 h-3 mr-1" />
-                Disponible
+                Available
               </Badge>
             ) : (
               <Badge className="bg-red-500/10 text-red-400 border-red-500/20">
                 <XCircle className="w-3 h-3 mr-1" />
-                No Elegible
+                Ineligible
               </Badge>
             )}
           </div>
@@ -157,7 +157,7 @@ const EventCard: React.FC<{
                 style={{ width: `${Math.min(capacityPercent, 100)}%` }}
               />
             </div>
-            <p className="text-[10px] text-white/25 mt-1">{capacityPercent.toFixed(0)}% Lleno</p>
+            <p className="text-[10px] text-white/25 mt-1">{capacityPercent.toFixed(0)}% Full</p>
           </div>
 
           {/* Ineligibility Reasons */}
@@ -180,7 +180,7 @@ const EventCard: React.FC<{
                 size="sm"
                 className="w-full h-8 bg-white/[0.05] text-white/50 text-xs font-semibold"
               >
-                Ya Inscrito
+                Already Registered
               </Button>
             ) : (
               <Button
@@ -193,7 +193,7 @@ const EventCard: React.FC<{
                   event.eligible && !isFull ? 'bg-[#ace600] hover:bg-[#c0f000] text-black' : '',
                 )}
               >
-                {isRegistering ? 'Inscribiendo...' : isFull ? 'Unirse a Lista de Espera' : 'Inscribirse'}
+                {isRegistering ? 'Registering...' : isFull ? 'Join Waitlist' : 'Register'}
               </Button>
             )}
           </div>

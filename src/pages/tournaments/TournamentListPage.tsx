@@ -84,7 +84,7 @@ const TournamentListPage: React.FC = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Trophy className="w-12 h-12 text-blue-600 mx-auto mb-4 animate-bounce" />
-          <p className="text-gray-600">Cargando torneos...</p>
+          <p className="text-gray-600">Loading tournaments...</p>
         </div>
       </div>
     );
@@ -97,9 +97,9 @@ const TournamentListPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Torneos</h1>
+              <h1 className="text-3xl font-bold text-gray-900">Tournaments</h1>
               <p className="text-gray-600 mt-2">
-                Explora y regístrate en los próximos torneos de pickleball
+                Browse and register for upcoming pickleball tournaments
               </p>
             </div>
           </div>
@@ -114,7 +114,7 @@ const TournamentListPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <Search className="w-5 h-5 text-gray-400" />
               <Input
-                placeholder="Buscar torneos por nombre o ubicación..."
+                placeholder="Search tournaments by name or location..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="flex-1"
@@ -123,26 +123,26 @@ const TournamentListPage: React.FC = () => {
             <div className="flex gap-4 flex-wrap">
               <div className="flex-1 min-w-[200px]">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nivel del torneo
+                  Tournament Level
                 </label>
                 <select
                   value={filterLevel}
                   onChange={(e) => setFilterLevel(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="all">Todos los niveles</option>
-                  <option value="Beginner">Principiante</option>
-                  <option value="Intermediate">Intermedio</option>
-                  <option value="Advanced">Avanzado</option>
-                  <option value="Professional">Profesional</option>
+                  <option value="all">All Levels</option>
+                  <option value="Beginner">Beginner</option>
+                  <option value="Intermediate">Intermediate</option>
+                  <option value="Advanced">Advanced</option>
+                  <option value="Professional">Professional</option>
                 </select>
               </div>
               <div className="flex-1 min-w-[200px]">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">State</label>
                 <StateAutocomplete
                   value={filterState}
                   onChange={setFilterState}
-                  placeholder="Selecciona estado..."
+                  placeholder="Select state..."
                 />
               </div>
             </div>
@@ -153,7 +153,7 @@ const TournamentListPage: React.FC = () => {
         {filteredTournaments.length === 0 ? (
           <div className="text-center py-12">
             <Trophy className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-600 text-lg">No se encontraron torneos con tu búsqueda</p>
+            <p className="text-gray-600 text-lg">No tournaments found matching your criteria</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -184,14 +184,14 @@ const TournamentListPage: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-2 text-gray-700">
                       <Users className="w-4 h-4" />
-                      <span className="text-sm">{tournament.current_events} eventos</span>
+                      <span className="text-sm">{tournament.current_events} events</span>
                     </div>
                   </div>
 
                   <div className="flex gap-2 mb-4">
                     {tournament.age_restrictions && (
                       <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                        Edad: {tournament.age_restrictions}
+                        Age: {tournament.age_restrictions}
                       </span>
                     )}
                     {tournament.gender_restrictions && (
@@ -206,7 +206,7 @@ const TournamentListPage: React.FC = () => {
                     className="w-full"
                     disabled={!tournament.registrations_open}
                   >
-                    {tournament.registrations_open ? 'Ver detalles' : 'Inscripciones cerradas'}
+                    {tournament.registrations_open ? 'View Details' : 'Registrations Closed'}
                   </Button>
                 </div>
               </div>

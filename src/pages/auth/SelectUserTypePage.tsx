@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store';
 import { userTypes } from '@/constants/constants';
-import { useTranslation } from 'react-i18next';
 import {
   User,
   Users,
@@ -30,7 +29,7 @@ const SelectUserTypePage = () => {
   const [selectedType, setSelectedType] = useState<string>('');
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
-  const { t } = useTranslation();
+
   // Redirect to dashboard if already authenticated
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -102,6 +101,8 @@ const SelectUserTypePage = () => {
     }
   };
 
+  const selectedUserType = userTypes.find((t) => t.type === selectedType);
+
   return (
     <div className="min-h-screen bg-slate-950 flex">
       {/* Left Side - Preview Panel */}
@@ -117,7 +118,7 @@ const SelectUserTypePage = () => {
             >
               <img
                 src={getImage(userType.type)}
-                alt={t(`userTypes.${userType.type}.title`)}
+                alt={userType.title}
                 className="w-full h-full object-cover object-center"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-slate-950/50 to-slate-950/40" />
@@ -150,8 +151,8 @@ const SelectUserTypePage = () => {
               <Shield className="w-7 h-7 text-slate-900" />
             </div>
             <div>
-              <h3 className="text-white font-bold text-lg">{t('auth.selectType.federation_name')}</h3>
-              <p className="text-slate-400 text-sm">{t('auth.selectType.official_reg')}</p>
+              <h3 className="text-white font-bold text-lg">Pickleball Federation</h3>
+              <p className="text-slate-400 text-sm">Official Registration</p>
             </div>
           </div>
 
@@ -163,28 +164,29 @@ const SelectUserTypePage = () => {
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 backdrop-blur-xl">
                   <Sparkles className="w-4 h-4 text-primary" />
                   <span className="text-primary text-sm font-semibold">
-                    {t(`userTypes.${selectedType}.title`)}
+                    {selectedUserType?.title}
                   </span>
                 </div>
 
                 {/* Description */}
                 <div>
                   <h2 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-4">
-                    {t(`userTypes.${selectedType}.description`)}
+                    {selectedUserType?.description}
                   </h2>
                   <p className="text-lg text-slate-400">
-                    {t('auth.selectType.designed_for')}
+                    This account type is designed specifically for your needs in the pickleball
+                    community.
                   </p>
                 </div>
 
                 {/* Features List */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">{t('auth.selectType.whats_included')}</h3>
+                  <h3 className="text-lg font-semibold text-white">What's Included</h3>
                   <ul className="space-y-3">
-                    {[1, 2, 3, 4].map((i) => (
-                      <li key={i} className="flex items-start gap-3 text-slate-300">
+                    {selectedUserType?.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-slate-300">
                         <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-base leading-relaxed">{t(`userTypes.${selectedType}.f${i}`)}</span>
+                        <span className="text-base leading-relaxed">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -195,43 +197,44 @@ const SelectUserTypePage = () => {
                 {/* Default State */}
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl">
                   <Sparkles className="w-4 h-4 text-primary" />
-                  <span className="text-primary text-sm font-semibold">{t('auth.selectType.get_started')}</span>
+                  <span className="text-primary text-sm font-semibold">GET STARTED</span>
                 </div>
 
                 <div>
                   <h2 className="text-5xl xl:text-6xl font-bold leading-tight mb-4">
                     <span className="bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
-                      {t('auth.selectType.join_community')}
+                      Join the Pickleball Community
                     </span>
                   </h2>
                   <p className="text-xl text-slate-400 leading-relaxed">
-                    {t('auth.selectType.select_details')}
+                    Select your role from the list to see detailed features and benefits tailored
+                    for you.
                   </p>
                 </div>
 
                 {/* Benefits */}
                 <div className="space-y-4 pt-4">
-                  <h3 className="text-lg font-semibold text-white">{t('auth.selectType.why_us')}</h3>
+                  <h3 className="text-lg font-semibold text-white">Why Choose Us</h3>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-slate-300 text-sm font-medium">{t('auth.selectType.platform')}</p>
-                        <p className="text-slate-500 text-xs">{t('auth.selectType.platform_desc')}</p>
+                        <p className="text-slate-300 text-sm font-medium">Comprehensive Platform</p>
+                        <p className="text-slate-500 text-xs">Everything you need in one place</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-slate-300 text-sm font-medium">{t('auth.selectType.community')}</p>
-                        <p className="text-slate-500 text-xs">{t('auth.selectType.community_desc')}</p>
+                        <p className="text-slate-300 text-sm font-medium">Active Community</p>
+                        <p className="text-slate-500 text-xs">50K+ members nationwide</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-slate-300 text-sm font-medium">{t('auth.selectType.secure')}</p>
-                        <p className="text-slate-500 text-xs">{t('auth.selectType.secure_desc')}</p>
+                        <p className="text-slate-300 text-sm font-medium">Secure & Trusted</p>
+                        <p className="text-slate-500 text-xs">Bank-level encryption</p>
                       </div>
                     </div>
                   </div>
@@ -244,15 +247,15 @@ const SelectUserTypePage = () => {
           <div className="grid grid-cols-3 gap-6 pt-8 border-t border-white/10">
             <div className="text-center">
               <div className="text-3xl font-bold text-primary mb-1">50K+</div>
-              <div className="text-sm text-slate-500">{t('auth.selectType.members')}</div>
+              <div className="text-sm text-slate-500">Miembros</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-lime-500 mb-1">1000+</div>
-              <div className="text-sm text-slate-500">{t('auth.selectType.events')}</div>
+              <div className="text-sm text-slate-500">Eventos</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-primary mb-1">150+</div>
-              <div className="text-sm text-slate-500">{t('auth.selectType.clubs')}</div>
+              <div className="text-sm text-slate-500">Clubes</div>
             </div>
           </div>
         </div>
@@ -276,8 +279,8 @@ const SelectUserTypePage = () => {
                 <Shield className="w-7 h-7 text-slate-900" />
               </div>
               <div>
-                <h3 className="text-white font-bold text-lg">{t('auth.selectType.federation_name')}</h3>
-                <p className="text-slate-400 text-sm">{t('auth.selectType.official_reg')}</p>
+                <h3 className="text-white font-bold text-lg">Pickleball Federation</h3>
+                <p className="text-slate-400 text-sm">Official Registration</p>
               </div>
             </div>
 
@@ -286,13 +289,13 @@ const SelectUserTypePage = () => {
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
                 <Sparkles className="w-3.5 h-3.5 text-primary" />
                 <span className="text-primary text-xs font-semibold tracking-wide">
-                  {t('auth.selectType.step')}
+                  STEP 1 OF 3
                 </span>
               </div>
 
               {/* Title */}
-              <h1 className="text-3xl font-bold text-white">{t('auth.selectType.title')}</h1>
-              <p className="text-slate-400">{t('auth.selectType.subtitle')}</p>
+              <h1 className="text-3xl font-bold text-white">Select Your Role</h1>
+              <p className="text-slate-400">Choose the option that best describes you</p>
             </div>
           </div>
 
@@ -344,7 +347,7 @@ const SelectUserTypePage = () => {
                                 isSelected ? 'text-primary' : 'text-white'
                               }`}
                             >
-                              {t(`userTypes.${userType.type}.title`)}
+                              {userType.title}
                             </h3>
 
                             {/* Selection Indicator */}
@@ -368,11 +371,11 @@ const SelectUserTypePage = () => {
                               }`}
                             >
                               <CheckCircle2 className="w-3 h-3" />
-                              <span>{t('auth.selectType.features_count', { count: userType.features.length })}</span>
+                              <span>{userType.features.length} features</span>
                             </div>
                             {isSelected && (
                               <div className="flex items-center gap-1 text-xs text-primary">
-                                <span>{t('auth.selectType.view_details')}</span>
+                                <span>View details</span>
                                 <ChevronRight className="w-3 h-3" />
                               </div>
                             )}
@@ -396,11 +399,11 @@ const SelectUserTypePage = () => {
               <span className="relative z-10 flex items-center justify-center gap-2">
                 {selectedType ? (
                   <>
-                    {t('auth.selectType.continue_as', { role: t(`userTypes.${selectedType}.title`) })}
+                    Continue as {selectedUserType?.title}
                     <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300" />
                   </>
                 ) : (
-                  t('auth.selectType.select_role')
+                  'Select a role to continue'
                 )}
               </span>
 
@@ -411,7 +414,7 @@ const SelectUserTypePage = () => {
             {/* Security Note */}
             <div className="flex items-center justify-center gap-2 text-slate-500 text-xs">
               <Shield className="w-3.5 h-3.5" />
-              <span>{t('auth.selectType.secure_reg')}</span>
+              <span>Secure registration • Change anytime in settings</span>
             </div>
           </div>
         </div>

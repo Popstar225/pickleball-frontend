@@ -1,10 +1,8 @@
 import { Play, Clock, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { newsArticles, videoRecaps } from '@/data/mockData';
-import { useTranslation } from 'react-i18next';
 
 const NewsSection = () => {
-  const { t } = useTranslation();
   const handleArticleClick = (articleId: any) => {
     console.log(`Article clicked: ${articleId} - navigate to article detail page`);
   };
@@ -22,13 +20,13 @@ const NewsSection = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-6 sm:mb-8 md:mb-10">
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-foreground font-bold tracking-tight">
-            {t('news.label')}
+            ALREDEDOR DE LA SELECCIÓN
           </h2>
           <button
             onClick={handleViewAllNews}
             className="text-primary font-medium flex items-center gap-1 hover:underline text-sm sm:text-base whitespace-nowrap hover:text-primary/80 transition-colors group mt-2 sm:mt-0"
           >
-            {t('news.view_all')}
+            Ver todo
             <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>
@@ -128,7 +126,7 @@ const NewsSection = () => {
             onClick={handleViewAllNews}
             className="w-full py-3 bg-primary/5 text-primary font-medium rounded-lg flex items-center justify-center gap-2 hover:bg-primary/10 transition-colors"
           >
-            {t('news.view_all_news')}
+            Ver todas las noticias
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
