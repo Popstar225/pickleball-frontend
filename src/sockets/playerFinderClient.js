@@ -9,9 +9,10 @@
  */
 
 import io from 'socket.io-client';
+import { imageBaseURL } from '@/lib/const';
 
 // Initialize socket connection to player finder namespace
-const socket = io('http://localhost:5000/player-finder', {
+const socket = io(`${imageBaseURL}/player-finder`, {
   auth: {
     token: localStorage.getItem('authToken'),
   },

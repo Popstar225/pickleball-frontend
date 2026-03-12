@@ -34,6 +34,9 @@ const CoachProfile = () => {
       level: 'Advanced'
     },
     {
+
+
+      
       id: 2,
       name: 'Sports Psychology Certification',
       issuer: 'National Coaching Institute',

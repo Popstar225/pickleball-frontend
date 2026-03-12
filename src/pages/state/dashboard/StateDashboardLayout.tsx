@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
 import { RootState } from '@/store';
-import { LayoutDashboard, User, Trophy, Zap, Users, Building2, Grid3X3, MessageSquare, BarChart2, CheckSquare, CalendarDays } from 'lucide-react';
+import { LayoutDashboard, User, Trophy, Zap, Users, Building2, Grid3X3, MessageSquare, BarChart2, CheckSquare, CalendarDays, Globe } from 'lucide-react';
 
 const navItems: NavItem[] = [
   {
@@ -58,6 +58,12 @@ const navItems: NavItem[] = [
   //   icon: CheckSquare,
   //   description: 'Aprobar o rechazar correcciones de marcador',
   // },
+  {
+    title: 'Micrositio',
+    url: '/state/dashboard/microsite',
+    icon: Globe,
+    description: 'Gestionar página pública del estado',
+  },
   {
     title: 'Mensajes',
     url: '/state/dashboard/messages',

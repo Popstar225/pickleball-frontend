@@ -13,9 +13,10 @@
 // ============================================================================
 
 import io from 'socket.io-client';
+import { imageBaseURL } from '@/lib/const';
 
 // Initialize socket connection to tournament bracket namespace
-const socket = io('http://localhost:5000/tournament-bracket', {
+const socket = io(`${imageBaseURL}/tournament-bracket`, {
   auth: {
     token: localStorage.getItem('authToken'), // JWT token from authentication
   },

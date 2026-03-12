@@ -479,7 +479,7 @@ export const fetchCoachMessages = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const response = await api.get(`/messages?type=inbox&limit=${limit}&offset=${offset}`);
+      const response = await api.get('/coaches/messages', { params: { limit, offset } });
       return (response as any).data?.messages || (response as any).data;
     } catch (error: any) {
       return rejectWithValue(
@@ -496,7 +496,7 @@ export const sendCoachMessage = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const response = await api.post('/messages', { recipient_id: recipientId, subject, content: body });
+      const response = await api.post('/coaches/messages', { recipientId, subject, body });
       return (response as any).data;
     } catch (error: any) {
       return rejectWithValue(
