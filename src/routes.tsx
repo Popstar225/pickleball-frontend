@@ -135,6 +135,7 @@ import MatchRefereeScreen from './pages/referee/MatchRefereeScreen';
 // Score Correction pages
 import ClubScoreCorrectionsPage from './pages/clubs/dashboard/ClubScoreCorrectionsPage';
 import StateScoreCorrectionsPage from './pages/state/dashboard/StateScoreCorrectionsPage';
+import ClubMessagesPage from './pages/clubs/dashboard/ClubMessagesPage';
 
 // State extra pages
 import StateMessagesPage from './pages/state/dashboard/StateMessagesPage';
@@ -886,6 +887,12 @@ export const routes = [
         key: 'club-dashboard-members',
         path: '/clubs/dashboard/members',
         element: <ClubMembersPage />,
+        public: false,
+      },
+      {
+        key: 'club-dashboard-messages',
+        path: '/clubs/dashboard/messages',
+        element: <ClubMessagesPage />,
         public: false,
       },
       {

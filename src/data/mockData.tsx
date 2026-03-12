@@ -53,57 +53,57 @@ import { Play, Award, TrendingUp, Star } from 'lucide-react';
 // Estructura del Menú de Navegación (traducido al español)
 export const navigationMenu = [
   {
-    labelKey: 'nav.about',
+    label: 'Nosotros',
     hasDropdown: true,
     items: [
-      { labelKey: 'nav.about_benefits', href: '/about/benefits' },
-      { labelKey: 'nav.about_board', href: '/about/board' },
-      { labelKey: 'nav.about_who', href: '/about/who-we-are' },
-      { labelKey: 'nav.about_international', href: '/about/international' },
+      { label: 'Beneficios de Afiliarse', href: '/about/benefits' },
+      { label: 'Junta Directiva', href: '/about/board' },
+      { label: '¿Quiénes Somos?', href: '/about/who-we-are' },
+      { label: 'Federación Internacional', href: '/about/international' },
     ],
   },
   {
-    labelKey: 'nav.rules',
+    label: 'Reglas',
     hasDropdown: false,
     href: '/rules',
   },
   {
-    labelKey: 'nav.associations',
+    label: 'Asociaciones',
     hasDropdown: false,
     href: '/associations',
   },
   {
-    labelKey: 'nav.partners',
+    label: 'Socios',
     hasDropdown: true,
-    items: [{ labelKey: 'nav.partners_list', href: '/partners' }],
+    items: [{ label: 'Socios', href: '/partners' }],
   },
   {
-    labelKey: 'nav.players',
+    label: 'Jugadores',
     hasDropdown: true,
     items: [
-      { labelKey: 'nav.players_ranking', href: '/players/ranking' },
-      { labelKey: 'nav.players_showcase', href: '/players/showcase' },
-      { labelKey: 'nav.players_categories', href: '/players/categories' },
-      { labelKey: 'nav.players_search', href: '/players/search' },
+      { label: 'Ranking', href: '/players/ranking' },
+      { label: 'Vitrina de Jugadores', href: '/players/showcase' },
+      { label: 'Categorías (NRTP)', href: '/players/categories' },
+      { label: 'Búsqueda de Jugadores', href: '/players/search' },
     ],
   },
   {
-    labelKey: 'nav.training',
+    label: 'Capacitación',
     hasDropdown: true,
-    items: [{ labelKey: 'nav.training_referees', href: '/training/referees' }],
+    items: [{ label: 'Árbitros', href: '/training/referees' }],
   },
   {
-    labelKey: 'nav.federation',
+    label: 'Federación',
     hasDropdown: true,
     items: [
-      { labelKey: 'nav.federation_courts', href: '/federation/courts' },
-      { labelKey: 'nav.federation_tournaments', href: '/federation/tournaments' },
+      { label: 'Canchas', href: '/federation/courts' },
+      { label: 'Torneos', href: '/federation/tournaments' },
     ],
   },
   {
-    labelKey: 'nav.communication',
+    label: 'Comunicación',
     hasDropdown: true,
-    items: [{ labelKey: 'nav.communication_press', href: '/communication/press' }],
+    items: [{ label: 'Comunicados de Prensa', href: '/communication/press' }],
   },
 ];
 

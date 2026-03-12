@@ -3,28 +3,20 @@ import heroImage from '@/assets/hero-player.jpg';
 import { TrendingUp, Trophy, Volume2, VolumeX } from 'lucide-react';
 import { playerRankings, countryFlags } from '@/data/mockData';
 import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 import heroVideo from '@/assets/videos/Home.mp4';
 const HeroSection = () => {
-  const { t } = useTranslation();
+  const [selectedRankingCategory, setSelectedRankingCategory] = useState('Doubles');
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const navigate = useNavigate();
-
-  const rankingCategories = [
-    { key: 'doubles', label: t('hero.doubles') },
-    { key: 'singles', label: t('hero.singles') },
-    { key: 'mixed', label: t('hero.mixed') },
-  ];
-  const [selectedRankingCategory, setSelectedRankingCategory] = useState('doubles');
 
   const handleJoin = () => {
-    navigate('/register');
+    console.log('Join clicked - open registration/join modal');
+    // Navigate to registration or open modal
   };
 
   const handleLearnMore = () => {
-    navigate('/about/benefits');
+    console.log('Learn More clicked - scroll or navigate to more info');
+    // Scroll to next section or navigate
   };
 
   const handleToggleMute = () => {
@@ -67,16 +59,16 @@ const HeroSection = () => {
         <div className="grid lg:grid-cols-10 gap-4 sm:gap-6 lg:gap-8 items-end">
           <div className="lg:col-span-7 animate-fade-in">
             <p className="text-primary font-bold text-xs sm:text-xs tracking-wider mb-1 sm:mb-1.5 uppercase">
-              {t('hero.tagline')}
+              FORMA PARTE DE LA
             </p>
             <h1 className="font-display text-lg sm:text-2xl md:text-4xl lg:text-5xl font-bold text-lime-dark leading-tight mb-2 sm:mb-0">
-              {t('hero.title1')}
+              FEDERACIÓN NACIONAL
             </h1>
             <h2 className="font-display text-lg sm:text-2xl md:text-4xl lg:text-5xl font-bold text-lime-dark leading-tight mb-3 sm:mb-3">
-              {t('hero.title2')}
+              DE PICKLEBALL EN MEXICO
             </h2>
             <p className="w-full text-white/80 text-xs sm:text-xs md:text-sm mb-3 sm:mb-4 leading-snug">
-              {t('hero.subtitle')}{' '}
+              Federación oficial avalada por la Comisión Nacional del Deporte (CONADE) Y la{' '}
               <br className="hidden sm:block" />
               Federación internacional de Pickleball "<b>Unified World Pickleball Federation</b>"
             </p>
@@ -85,14 +77,14 @@ const HeroSection = () => {
                 className="bg-white text-white bg-lime-dark hover:bg-lime-dark text-xs px-5 sm:px-6 py-2 animate-pulse-glow w-full sm:w-auto"
                 onClick={handleJoin}
               >
-                {t('hero.join_btn')}
+                Únete!
               </Button>
               <Button
                 variant="outline"
                 className="btn-outline-light text-white bg-white/10 hover:bg-white/10 font-semibold text-xs px-5 sm:px-6 py-2 w-full sm:w-auto"
                 onClick={handleLearnMore}
               >
-                {t('hero.more_info_btn')}
+                Más información
               </Button>
             </div>
           </div>
@@ -103,22 +95,22 @@ const HeroSection = () => {
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1.5 sm:gap-2">
                   <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary shrink-0" />
                   <h3 className="font-display text-[11px] sm:text-xs md:text-sm text-white font-semibold truncate">
-                    {t('hero.ranking_title')}
+                    Ranking Nacional
                   </h3>
                 </div>
                 <div className="flex gap-0.5 bg-white/10 rounded-lg p-0.5 w-full overflow-x-auto">
-                  {rankingCategories.map((cat) => (
+                  {['Dobles', 'Individuales', 'Mixtos'].map((category) => (
                     <button
-                      key={cat.key}
-                      onClick={() => setSelectedRankingCategory(cat.key)}
+                      key={category}
+                      onClick={() => setSelectedRankingCategory(category)}
                       className={`flex-1 px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 text-[10px] sm:text-xs font-bold transition-all duration-300 relative whitespace-nowrap shrink-0 ${
-                        selectedRankingCategory === cat.key
+                        selectedRankingCategory === category
                           ? 'text-primary bg-white/20 rounded-md'
                           : 'text-white/60 hover:text-white/80'
                       }`}
                     >
-                      {cat.label}
-                      {selectedRankingCategory === cat.key && (
+                      {category}
+                      {selectedRankingCategory === category && (
                         <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-primary to-transparent rounded-full"></div>
                       )}
                     </button>
@@ -128,8 +120,8 @@ const HeroSection = () => {
 
               <div className="p-1.5 sm:p-2 md:p-3 max-h-[420px] sm:max-h-[520px] overflow-y-auto">
                 <div className="flex items-center justify-between text-[9px] sm:text-[10px] text-white mb-1.5 sm:mb-2 px-1.5">
-                  <span>{t('hero.rank_player')}</span>
-                  <span>{t('hero.points')}</span>
+                  <span>Rango/Jugador</span>
+                  <span>Puntos</span>
                 </div>
 
                 <div className="space-y-1 sm:space-y-1">
@@ -198,7 +190,7 @@ const HeroSection = () => {
                 </div>
 
                 <button className="w-full mt-1.5 sm:mt-2 text-[9px] sm:text-[10px] text-white font-medium hover:underline">
-                  {t('hero.view_all')}
+                  Ver todas las clasificaciones →
                 </button>
               </div>
             </div>

@@ -10,11 +10,8 @@ import {
   Map,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useTranslation } from 'react-i18next';
 
 const TournamentSection = () => {
-  const { t } = useTranslation();
-
   const handleJoinAsOrganizer = (type: string) => {
     console.log(`Join as ${type} clicked - open registration form or navigate`);
   };
@@ -24,10 +21,10 @@ const TournamentSection = () => {
       <div className="container mx-auto px-3 sm:px-4">
         <div className="text-center mb-10 sm:mb-12">
           <h2 className="font-display text-2xl sm:text-3xl md:text-5xl text-foreground mb-3 sm:mb-4">
-            {t('tournamentSection.organize_label')}
+            Organiza
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base px-2">
-            {t('tournamentSection.organize_title')} {t('tournamentSection.organize_sub')}
+            ¿Interesado en organizar un torneo sancionado por FEDMEX? Únete a nuestra red de
           </p>
         </div>
 
@@ -35,23 +32,23 @@ const TournamentSection = () => {
           {[
             {
               icon: FileText,
-              title: t('tournamentSection.feature_registration'),
-              description: t('tournamentSection.feature_registration_desc'),
+              title: 'Registro',
+              description: 'Proceso simple de registro en línea para organizadores',
             },
             {
               icon: Trophy,
-              title: t('tournamentSection.feature_sanction'),
-              description: t('tournamentSection.feature_sanction_desc'),
+              title: 'Sanción',
+              description: 'Reconocimiento oficial de la federación y puntos de ranking',
             },
             {
               icon: Calendar,
-              title: t('tournamentSection.feature_schedule'),
-              description: t('tournamentSection.feature_schedule_desc'),
+              title: 'Programación',
+              description: 'Fechas y formatos de torneo flexibles',
             },
             {
               icon: Users,
-              title: t('tournamentSection.feature_support'),
-              description: t('tournamentSection.feature_support_desc'),
+              title: 'Apoyo',
+              description: 'Equipo dedicado para ayudarte en cada paso del camino',
             },
           ].map((item, index) => {
             const IconComponent = item.icon;
@@ -87,11 +84,14 @@ const TournamentSection = () => {
                 className="bg-primary text-secondary-foreground hover:bg-navy-light text-xs sm:text-base px-6 sm:px-8 w-full mb-5 font-semibold"
                 onClick={() => handleJoinAsOrganizer('club')}
               >
-                {t('tournamentSection.join_club')}
+                Únete como club
                 <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
               </Button>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed flex-grow">
-                {t('tournamentSection.join_club_desc')}
+                Elige esta opción para registrar tu <b>club público</b> con jugadores que practican
+                Pickleball regularmente. Con esta opción, podrás organizar torneos, publicar canchas
+                en alquiler y recibir información importante sobre el pickleball federado, clave
+                para el crecimiento de tu club.
               </p>
             </div>
           </div>
@@ -109,11 +109,15 @@ const TournamentSection = () => {
                 className="border-secondary text-secondary hover:bg-secondary/10 text-xs sm:text-base px-6 sm:px-8 w-full mb-5 font-semibold"
                 onClick={() => handleJoinAsOrganizer('partner')}
               >
-                {t('tournamentSection.join_partner')}
+                Únete como socio
                 <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
               </Button>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed flex-grow">
-                {t('tournamentSection.join_partner_desc')}
+                Elige esta opción para registrar un club{' '}
+                <b>privado, resort, hotel, canchas, instalaciones o cualquier otra entidad</b>{' '}
+                involucrada en la práctica del Pickleball. Con esta opción, puedes organizar torneos
+                y publicar canchas para alquilar, además de recibir información importante sobre el
+                pickleball federado que será clave para el crecimiento de tu club.
               </p>
             </div>
           </div>
@@ -131,11 +135,14 @@ const TournamentSection = () => {
                 className="border-amber-500 text-amber-600 hover:bg-amber-500/10 text-xs sm:text-base px-6 sm:px-8 w-full mb-5 font-semibold"
                 onClick={() => handleJoinAsOrganizer('state')}
               >
-                {t('tournamentSection.join_state')}
+                Únete como estado
                 <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
               </Button>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed flex-grow">
-                {t('tournamentSection.join_state_desc')}
+                Elige esta opción si deseas <b>dirigir el Pickleball en un estado</b>, coordinar
+                torneos municipales, organizar torneos clasificatorios estatales, gestionar
+                jugadores y gestionar todo lo relacionado con el Pickleball en tu estado. (Requiere
+                requisitos previos y autorización).
               </p>
             </div>
           </div>

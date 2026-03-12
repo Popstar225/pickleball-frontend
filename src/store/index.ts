@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
+import messagesReducer from './slices/messagesSlice';
 import usersReducer from './slices/usersSlice';
 import clubsReducer from './slices/clubsSlice';
 import tournamentsReducer from './slices/tournamentsSlice';
@@ -33,6 +34,7 @@ import tournamentSetupReducer from './slices/tournamentSetupSlice';
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    messages: messagesReducer,
     users: usersReducer,
     clubs: clubsReducer,
     tournaments: tournamentsReducer,
