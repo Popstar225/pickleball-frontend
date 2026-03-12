@@ -1,6 +1,9 @@
-export const baseURL = 'http://localhost:5000/api/v1';
-export const imageBaseURL = 'http://localhost:5000';
-// For development, use localhost
-// For production, you would use:
-// export const baseURL = 'https://pickleball-backend-production.up.railway.app/api/v1';
-// export const imageBaseURL = 'https://pickleball-backend-production.up.railway.app';
+const isProd = import.meta.env.PROD;
+
+export const baseURL = true
+  ? 'https://pickleball-backend-omega.vercel.app/api/v1'
+  : (import.meta.env.VITE_API_URI ?? 'http://localhost:5000/api/v1');
+
+export const imageBaseURL = true
+  ? 'https://pickleball-backend-omega.vercel.app'
+  : 'http://localhost:5000';

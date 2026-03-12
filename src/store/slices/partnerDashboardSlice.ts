@@ -176,8 +176,8 @@ export const fetchPartnerMessages = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const data = await apiCall(`/api/v1/messages?type=inbox&limit=${limit}&offset=${offset}`);
-      return data?.data?.messages || [];
+      const data = await apiCall(`/api/partners/messages?limit=${limit}&offset=${offset}`);
+      return data.data.messages;
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -191,9 +191,9 @@ export const sendPartnerMessage = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const data = await apiCall('/api/v1/messages', {
+      const data = await apiCall('/api/partners/messages', {
         method: 'POST',
-        body: JSON.stringify({ recipient_id: recipientId, subject, content: body }),
+        body: JSON.stringify({ recipientId, subject, body }),
       });
       return data.data;
     } catch (error: any) {

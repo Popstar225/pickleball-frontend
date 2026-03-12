@@ -63,28 +63,24 @@ import { fetchClubs, updateClub, deleteClub } from '@/store/slices/clubsSlice';
 import { RootState, AppDispatch } from '@/store';
 
 // Types
-type SubscriptionPlan = 'basic' | 'pro' | 'premium';
+type MembershipStatus = 'basic' | 'pro' | 'premium';
 
 interface Club {
   id: string;
-  name: string;
+  business_name: string;
   contact_person?: string;
-  contact_email: string;
-  contact_phone?: string;
+  email: string;
+  phone?: string;
   state?: string;
   city?: string;
   address?: string;
   website?: string;
-  subscription_plan: SubscriptionPlan;
-  membership_status: string;
+  membership_status: MembershipStatus;
   is_verified: boolean;
   is_active: boolean;
-  is_featured?: boolean;
   member_count?: number;
-  court_count?: number;
-  average_rating?: string;
-  total_tournaments?: number;
-  createdAt: string;
+  created_at: string;
+  updated_at?: string;
 }
 
 interface PaginationData {
@@ -94,7 +90,7 @@ interface PaginationData {
   pages: number;
 }
 
-type SortField = 'name' | 'contact_email' | 'createdAt' | 'state';
+type SortField = 'business_name' | 'email' | 'created_at' | 'state';
 type SortOrder = 'asc' | 'desc';
 
 export default function ClubsManagement() {
@@ -126,7 +122,7 @@ export default function ClubsManagement() {
   const [membershipFilter, setMembershipFilter] = useState('all');
 
   // Sorting
-  const [sortField, setSortField] = useState<SortField>('createdAt');
+  const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   // Stats
@@ -185,9 +181,9 @@ export default function ClubsManagement() {
       const searchLower = search.toLowerCase();
       filtered = filtered.filter(
         (club) =>
-          club.name?.toLowerCase().includes(searchLower) ||
+          club.business_name?.toLowerCase().includes(searchLower) ||
           club.contact_person?.toLowerCase().includes(searchLower) ||
-          club.contact_email?.toLowerCase().includes(searchLower) ||
+          club.email?.toLowerCase().includes(searchLower) ||
           club.state?.toLowerCase().includes(searchLower),
       );
     }
@@ -213,7 +209,7 @@ export default function ClubsManagement() {
 
     // Membership filter
     if (membershipFilter !== 'all') {
-      filtered = filtered.filter((club) => club.subscription_plan === membershipFilter);
+      filtered = filtered.filter((club) => club.membership_status === membershipFilter);
     }
 
     return filtered;
@@ -259,7 +255,7 @@ export default function ClubsManagement() {
       total: clubs.length,
       verified: clubs.filter((c) => c.is_verified).length,
       pending: clubs.filter((c) => !c.is_verified).length,
-      premium: clubs.filter((c) => c.subscription_plan === 'premium').length,
+      premium: clubs.filter((c) => c.membership_status === 'premium').length,
       active: clubs.filter((c) => c.is_active).length,
     });
   }, [sortedClubs, pagination.limit, clubs]);
@@ -298,7 +294,7 @@ export default function ClubsManagement() {
     verifiedFilter !== 'all' ||
     membershipFilter !== 'all';
 
-  const getMembershipColor = (status: SubscriptionPlan) => {
+  const getMembershipColor = (status: MembershipStatus) => {
     const colors = {
       basic: 'bg-slate-700/50 text-slate-300 border-slate-600',
       pro: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
@@ -683,21 +679,21 @@ export default function ClubsManagement() {
                 <TableRow className="border-slate-700 hover:bg-transparent">
                   <TableHead className="text-slate-400">
                     <button
-                      onClick={() => handleSort('name')}
+                      onClick={() => handleSort('business_name')}
                       className="flex items-center gap-2 hover:text-white transition-colors"
                     >
                       Club
-                      {getSortIcon('name')}
+                      {getSortIcon('business_name')}
                     </button>
                   </TableHead>
                   <TableHead className="text-slate-400">Contacto</TableHead>
                   <TableHead className="text-slate-400">
                     <button
-                      onClick={() => handleSort('contact_email')}
+                      onClick={() => handleSort('email')}
                       className="flex items-center gap-2 hover:text-white transition-colors"
                     >
                       Email
-                      {getSortIcon('contact_email')}
+                      {getSortIcon('email')}
                     </button>
                   </TableHead>
                   <TableHead className="text-slate-400">
@@ -713,11 +709,11 @@ export default function ClubsManagement() {
                   <TableHead className="text-slate-400">Estado</TableHead>
                   <TableHead className="text-slate-400">
                     <button
-                      onClick={() => handleSort('createdAt')}
+                      onClick={() => handleSort('created_at')}
                       className="flex items-center gap-2 hover:text-white transition-colors"
                     >
                       Registro
-                      {getSortIcon('createdAt')}
+                      {getSortIcon('created_at')}
                     </button>
                   </TableHead>
                   <TableHead className="text-slate-400 w-12"></TableHead>
@@ -770,7 +766,7 @@ export default function ClubsManagement() {
                           <div className="relative">
                             <div className="h-10 w-10 bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 rounded-lg flex items-center justify-center">
                               <span className="text-sm font-bold text-primary">
-                                {club.name
+                                {club.business_name
                                   ?.split(' ')
                                   .map((n) => n[0])
                                   .join('')
@@ -783,7 +779,7 @@ export default function ClubsManagement() {
                             )}
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-white">{club.name}</p>
+                            <p className="text-sm font-medium text-white">{club.business_name}</p>
                             <p className="text-xs text-slate-500">
                               {club.city && `${club.city}, `}
                               {club.state}
@@ -794,10 +790,10 @@ export default function ClubsManagement() {
                       <TableCell>
                         <div className="text-sm">
                           <p className="text-slate-300">{club.contact_person || '-'}</p>
-                          {club.contact_phone && (
+                          {club.phone && (
                             <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
                               <Phone className="h-3 w-3" />
-                              {club.contact_phone}
+                              {club.phone}
                             </p>
                           )}
                         </div>
@@ -805,7 +801,7 @@ export default function ClubsManagement() {
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <Mail className="h-4 w-4 text-slate-500" />
-                          <span className="text-sm text-slate-300">{club.contact_email}</span>
+                          <span className="text-sm text-slate-300">{club.email}</span>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -818,10 +814,10 @@ export default function ClubsManagement() {
                         <Badge
                           className={cn(
                             'border text-xs font-medium',
-                            getMembershipColor(club.subscription_plan),
+                            getMembershipColor(club.membership_status),
                           )}
                         >
-                          {club.subscription_plan}
+                          {club.membership_status}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -843,7 +839,7 @@ export default function ClubsManagement() {
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-slate-400">
-                          {formatDate(club.createdAt)}
+                          {formatDate(club.created_at)}
                         </span>
                       </TableCell>
                       <TableCell>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch, RootState } from '@/store';
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/store';
 import { logout } from '@/store/slices/authSlice';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -16,8 +16,6 @@ import {
   LogOut,
   User,
   Settings,
-  MessageSquare,
-  Megaphone,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -56,19 +54,9 @@ export default function DashboardLayoutBase({
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [notifOpen, setNotifOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const unreadMessages = useSelector((s: RootState) => s.messages.unreadTotal);
-  const announcementsUnread = useSelector((s: RootState) => s.messages.announcementsUnread);
-  const conversations = useSelector((s: RootState) => s.messages.conversations);
-  const announcements = useSelector((s: RootState) => s.messages.announcements);
-
-  const totalUnread = unreadMessages + announcementsUnread;
-  const unreadConvs = conversations.filter((c) => c.unread_count > 0).slice(0, 4);
-  const unreadAnns = announcements.filter((a) => !a.is_read).slice(0, 4);
-  const messagesPath = `${basePath}/messages`;
 
   const handleLogout = () => {
     dispatch(logout());
@@ -112,24 +100,18 @@ export default function DashboardLayoutBase({
           {!collapsed && (
             <>
               <span className="flex-1">{item.title}</span>
-              {(() => {
-                const count = item.url.includes('/messages') ? unreadMessages : (item.badge ?? 0);
-                return count > 0 ? (
-                  <span className="flex h-5 min-w-5 px-1 items-center justify-center rounded-full bg-red-500 text-xs text-white font-bold">
-                    {count > 99 ? '99+' : count}
-                  </span>
-                ) : null;
-              })()}
+              {item.badge && (
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                  {item.badge}
+                </span>
+              )}
             </>
           )}
-          {collapsed && (() => {
-            const count = item.url.includes('/messages') ? unreadMessages : (item.badge ?? 0);
-            return count > 0 ? (
-              <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white font-bold">
-                {count > 9 ? '9+' : count}
-              </span>
-            ) : null;
-          })()}
+          {collapsed && item.badge && (
+            <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+              {item.badge}
+            </span>
+          )}x 
         </Link>
       ))}
     </nav>
@@ -313,131 +295,14 @@ export default function DashboardLayoutBase({
               )}
             </div>
 
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="relative hover:bg-slate-800 text-slate-400 hover:text-white"
-                onClick={() => setNotifOpen(!notifOpen)}
-              >
-                <Bell className="h-5 w-5" />
-                {totalUnread > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 px-0.5 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white leading-none">
-                    {totalUnread > 99 ? '99+' : totalUnread}
-                  </span>
-                )}
-              </Button>
-
-              {notifOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
-                  <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-lg border border-slate-700 bg-slate-800 shadow-2xl">
-                    <div className="flex items-center justify-between border-b border-slate-700 px-4 py-3">
-                      <span className="text-sm font-semibold text-white">Notificaciones</span>
-                      {totalUnread > 0 && (
-                        <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">
-                          {totalUnread}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="max-h-96 overflow-y-auto">
-                      {unreadConvs.length === 0 && unreadAnns.length === 0 ? (
-                        <div className="flex flex-col items-center gap-2 py-8 text-slate-400">
-                          <Bell className="h-8 w-8 opacity-40" />
-                          <p className="text-sm">Sin notificaciones nuevas</p>
-                        </div>
-                      ) : (
-                        <>
-                          {unreadConvs.length > 0 && (
-                            <div>
-                              <div className="flex items-center gap-2 px-4 py-2">
-                                <MessageSquare className="h-3.5 w-3.5 text-slate-400" />
-                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                                  Mensajes
-                                </span>
-                              </div>
-                              {unreadConvs.map((conv) => (
-                                <button
-                                  key={conv.partner_id}
-                                  className="w-full px-4 py-2.5 text-left hover:bg-slate-700/60 transition-colors"
-                                  onClick={() => {
-                                    setNotifOpen(false);
-                                    navigate(messagesPath);
-                                  }}
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-slate-900">
-                                      {(conv.partner_name || '?')[0].toUpperCase()}
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                      <div className="flex items-center justify-between">
-                                        <span className="text-sm font-medium text-white truncate">
-                                          {conv.partner_name}
-                                        </span>
-                                        {conv.unread_count > 0 && (
-                                          <span className="ml-2 flex-shrink-0 rounded-full bg-red-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
-                                            {conv.unread_count}
-                                          </span>
-                                        )}
-                                      </div>
-                                      <p className="text-xs text-slate-400 truncate">{conv.last_message}</p>
-                                    </div>
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
-                          )}
-
-                          {unreadAnns.length > 0 && (
-                            <div className={unreadConvs.length > 0 ? 'border-t border-slate-700' : ''}>
-                              <div className="flex items-center gap-2 px-4 py-2">
-                                <Megaphone className="h-3.5 w-3.5 text-amber-400" />
-                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
-                                  Anuncios
-                                </span>
-                              </div>
-                              {unreadAnns.map((ann) => (
-                                <button
-                                  key={ann.id}
-                                  className="w-full px-4 py-2.5 text-left hover:bg-slate-700/60 transition-colors"
-                                  onClick={() => {
-                                    setNotifOpen(false);
-                                    navigate(messagesPath);
-                                  }}
-                                >
-                                  <div className="flex items-center gap-3">
-                                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-400">
-                                      <Megaphone className="h-4 w-4" />
-                                    </div>
-                                    <div className="min-w-0 flex-1">
-                                      <p className="text-sm font-medium text-white truncate">{ann.subject}</p>
-                                      <p className="text-xs text-slate-400 truncate">{ann.sender_name}</p>
-                                    </div>
-                                  </div>
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-
-                    <div className="border-t border-slate-700 p-2">
-                      <button
-                        className="w-full rounded-lg px-3 py-2 text-center text-sm font-medium text-primary hover:bg-slate-700 transition-colors"
-                        onClick={() => {
-                          setNotifOpen(false);
-                          navigate(messagesPath);
-                        }}
-                      >
-                        Ver todos los mensajes
-                      </button>
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative hover:bg-slate-800 text-slate-400 hover:text-white"
+            >
+              <Bell className="h-5 w-5" />
+              <span className="absolute right-1.5 top-1.5 flex h-2 w-2 rounded-full bg-red-500" />
+            </Button>
 
             <div className="relative">
               <Button
