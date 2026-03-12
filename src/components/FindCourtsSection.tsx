@@ -1,15 +1,12 @@
 import { Button } from '@/components/ui/button';
 import { MapPin, Clock, Star } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
 import courtsImage from '@/assets/images/courts.jpg';
 
 const FindCourtsSection = () => {
-  const { t } = useTranslation();
-
   const handleBookCourt = () => {
     console.log('Book a court clicked - navigate to booking page or open booking modal');
+    // Navigate to court booking or open booking modal
   };
-
   return (
     <section className="relative py-20 overflow-hidden">
       <div className="absolute inset-0">
@@ -20,13 +17,13 @@ const FindCourtsSection = () => {
       <div className="relative container mx-auto px-3 sm:px-4">
         <div className="max-w-xl ml-auto text-right">
           <h2 className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-3 sm:mb-4">
-            {t('findCourts.label')}
+            ¿DÓNDE JUGAR?
             <br />
-            {t('findCourts.title')}
+            ENCUENTRA CANCHAS CERCA DE TI
           </h2>
 
           <p className="text-white/90 text-sm sm:text-lg mb-6 sm:mb-8 leading-relaxed">
-            {t('findCourts.subtitle')}
+            Reserva tu pista sin hacer cola. Reservas de pistas fáciles, rápidas y cómodas.
           </p>
 
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-end mb-6 sm:mb-8">
@@ -35,22 +32,22 @@ const FindCourtsSection = () => {
               className="bg-primary text-primary-foreground hover:bg-lime-dark font-semibold text-xs sm:text-base px-6 sm:px-8 w-full sm:w-auto"
               onClick={handleBookCourt}
             >
-              {t('findCourts.btn')}
+              Reserva una cancha
             </Button>
           </div>
 
           <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6 justify-end text-sm sm:text-base">
             <div className="flex items-center gap-2 text-white/80">
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span>{t('findCourts.locations')}</span>
+              <span>500+ Ubicaciones</span>
             </div>
             <div className="flex items-center gap-2 text-white/80">
               <Clock className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span>{t('findCourts.instant')}</span>
+              <span>Reserva Instantánea</span>
             </div>
             <div className="flex items-center gap-2 text-white/80">
               <Star className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
-              <span>{t('findCourts.rated')}</span>
+              <span>Mejor valorado</span>
             </div>
           </div>
         </div>

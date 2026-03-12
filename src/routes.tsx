@@ -71,7 +71,6 @@ import PlayerTournamentsPage from './pages/players/dashboard/TournamentsPage';
 import PlayerActiveTournamentsPage from './pages/players/dashboard/PlayerActiveTournamentsPage';
 import PlayerMessagesPage from './pages/players/dashboard/MessagesPage';
 import PlayerPaymentsPage from './pages/players/dashboard/PaymentsPage';
-import CourtReservationPage from './pages/players/dashboard/CourtReservationPage';
 
 // Partner Dashboard pages
 import PartnerDashboardLayout from './pages/partners/dashboard/PartnerDashboardLayout';
@@ -136,6 +135,7 @@ import MatchRefereeScreen from './pages/referee/MatchRefereeScreen';
 // Score Correction pages
 import ClubScoreCorrectionsPage from './pages/clubs/dashboard/ClubScoreCorrectionsPage';
 import StateScoreCorrectionsPage from './pages/state/dashboard/StateScoreCorrectionsPage';
+import ClubMessagesPage from './pages/clubs/dashboard/ClubMessagesPage';
 
 // State extra pages
 import StateMessagesPage from './pages/state/dashboard/StateMessagesPage';
@@ -735,12 +735,6 @@ export const routes = [
         public: false,
       },
       {
-        key: 'player-dashboard-courts',
-        path: '/players/dashboard/courts',
-        element: <CourtReservationPage />,
-        public: false,
-      },
-      {
         key: 'player-dashboard-registrations',
         path: '/players/dashboard/registrations',
         element: <PlayerTournamentsPage />,
@@ -893,6 +887,12 @@ export const routes = [
         key: 'club-dashboard-members',
         path: '/clubs/dashboard/members',
         element: <ClubMembersPage />,
+        public: false,
+      },
+      {
+        key: 'club-dashboard-messages',
+        path: '/clubs/dashboard/messages',
+        element: <ClubMessagesPage />,
         public: false,
       },
       {
