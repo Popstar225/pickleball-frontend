@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { boardOfDirectors } from '@/data/mockData';
@@ -17,6 +18,7 @@ import {
 import { useState, useEffect, useRef } from 'react';
 
 const BoardOfDirectors = () => {
+  const { t } = useTranslation();
   const [screenWidth, setScreenWidth] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -75,7 +77,7 @@ const BoardOfDirectors = () => {
               <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10">
                 <div className="bg-gradient-to-r from-primary to-lime-500 text-slate-900 px-3 py-1 rounded-full font-bold uppercase tracking-wider shadow-lg shadow-primary/50 flex items-center gap-1 whitespace-nowrap text-xs sm:text-sm">
                   <Award className="w-3 h-3" />
-                  <span>Presidente</span>
+                  <span>{t('pages.boardOfDirectors.president')}</span>
                 </div>
               </div>
             )}
@@ -168,7 +170,7 @@ const BoardOfDirectors = () => {
                   backdrop-blur-sm flex items-center gap-2"
                 >
                   <Users className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span>Consejo Directivo</span>
+                  <span>{t('pages.boardOfDirectors.label')}</span>
                 </span>
               </div>
 
@@ -178,13 +180,13 @@ const BoardOfDirectors = () => {
                 font-bold mb-4 sm:mb-6"
               >
                 <span className="block bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent">
-                  Junta Directiva
+                  {t('pages.boardOfDirectors.title')}
                 </span>
                 <span
-                  className="block text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl 
+                  className="block text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl
                   text-primary mt-2 sm:mt-4"
                 >
-                  2026–2030
+                  {t('pages.boardOfDirectors.period')}
                 </span>
               </h1>
 
@@ -193,7 +195,7 @@ const BoardOfDirectors = () => {
                 className="text-white/70 text-base sm:text-lg md:text-xl lg:text-2xl 
                 leading-relaxed mb-6 sm:mb-8 px-4"
               >
-                Conoce al equipo de liderazgo que guía el futuro del Pickleball en México
+                {t('pages.boardOfDirectors.subtitle')}
               </p>
             </div>
           </div>
@@ -209,7 +211,7 @@ const BoardOfDirectors = () => {
                   className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl 
                   font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-3"
                 >
-                  Presidente
+                  {t('pages.boardOfDirectors.president')}
                 </h2>
               </div>
               <div className="flex justify-center">
@@ -230,7 +232,7 @@ const BoardOfDirectors = () => {
                   className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl 
                   font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-3"
                 >
-                  Vicepresidentes
+                  {t('pages.boardOfDirectors.vice_presidents')}
                 </h2>
               </div>
               <div
@@ -252,7 +254,7 @@ const BoardOfDirectors = () => {
                   className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl 
                   font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-3"
                 >
-                  Directores
+                  {t('pages.boardOfDirectors.directors')}
                 </h2>
               </div>
               <div
@@ -282,14 +284,13 @@ const BoardOfDirectors = () => {
                     className="text-xl sm:text-2xl md:text-3xl lg:text-4xl 
                     font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-3 sm:mb-4"
                   >
-                    Únete a Nuestra Comunidad
+                    {t('pages.boardOfDirectors.cta_title')}
                   </h3>
                   <p
                     className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl 
                     mb-6 sm:mb-8"
                   >
-                    Conviértete en parte de la comunidad de Pickleball de más rápido crecimiento en
-                    México
+                    {t('pages.boardOfDirectors.cta_sub')}
                   </p>
                   <a
                     href="/register"
@@ -299,7 +300,7 @@ const BoardOfDirectors = () => {
                       rounded-xl sm:rounded-2xl hover:shadow-xl md:hover:shadow-2xl hover:shadow-primary/50 
                       transition-all duration-500 ease-out overflow-hidden"
                   >
-                    <span className="relative z-10">Comenzar Ahora</span>
+                    <span className="relative z-10">{t('pages.boardOfDirectors.cta_btn')}</span>
                     <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-500" />
                   </a>
                 </div>

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Filter, MapPin, Trophy, Users, SlidersHorizontal, X } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -17,6 +18,7 @@ import {
 import { playerRankings, countryFlags } from '@/data/mockData';
 
 const PlayerSearch = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedState, setSelectedState] = useState('');
   const [selectedLevel, setSelectedLevel] = useState('all');
@@ -57,31 +59,30 @@ const PlayerSearch = () => {
               <div className="inline-block mb-6 animate-fade-in">
                 <span className="inline-flex items-center gap-2 text-primary text-sm font-bold tracking-widest uppercase bg-primary/10 px-6 py-3 rounded-full border border-primary/20 backdrop-blur-sm">
                   <Users className="w-4 h-4" />
-                  <span>Directorio de Jugadores</span>
+                  <span>{t('pages.playerSearch.label')}</span>
                 </span>
               </div>
 
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
-                Encuentra
-                <span className="block text-primary mt-2">jugadores</span>
+                {t('pages.playerSearch.title')}
               </h1>
 
               <p className="text-white/80 text-xl max-w-2xl mx-auto leading-relaxed mb-8">
-                Conecta con la comunidad de pickleball en toda la República Mexicana
+                {t('pages.playerSearch.subtitle')}
               </p>
 
               <div className="flex flex-wrap justify-center gap-6 mt-12">
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-8 py-4">
                   <div className="text-3xl font-bold text-white mb-1">{playerRankings.length}+</div>
-                  <div className="text-white/70 text-sm">Jugadores</div>
+                  <div className="text-white/70 text-sm">{t('pages.playerSearch.stat_players')}</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-8 py-4">
                   <div className="text-3xl font-bold text-white mb-1">10+</div>
-                  <div className="text-white/70 text-sm">Estados</div>
+                  <div className="text-white/70 text-sm">{t('pages.playerSearch.stat_states')}</div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl px-8 py-4">
                   <div className="text-3xl font-bold text-white mb-1">7</div>
-                  <div className="text-white/70 text-sm">Niveles</div>
+                  <div className="text-white/70 text-sm">{t('pages.playerSearch.stat_levels')}</div>
                 </div>
               </div>
             </div>
@@ -105,7 +106,7 @@ const PlayerSearch = () => {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                         <Input
                           type="text"
-                          placeholder="Buscar por nombre del jugador..."
+                          placeholder={t('pages.playerSearch.search_placeholder')}
                           value={searchTerm}
                           onChange={(e) => setSearchTerm(e.target.value)}
                           className="pl-12 h-14 text-lg border-slate-200 dark:border-slate-700 focus:border-primary focus:ring-2 focus:ring-primary/20 rounded-xl"
@@ -121,7 +122,7 @@ const PlayerSearch = () => {
                         onClick={() => setShowFilters(!showFilters)}
                       >
                         <SlidersHorizontal className="w-5 h-5" />
-                        Filtros
+                        {t('pages.playerSearch.filters')}
                         {activeFiltersCount > 0 && (
                           <Badge className="bg-primary text-primary-foreground ml-1 px-2">
                             {activeFiltersCount}
@@ -130,14 +131,14 @@ const PlayerSearch = () => {
                       </Button>
                       <Button className="h-14 gap-2 px-8 rounded-xl bg-gradient-to-r from-primary to-lime-500 hover:shadow-lg hover:shadow-primary/50 transition-all duration-300 font-semibold">
                         <Search className="w-5 h-5" />
-                        Buscar
+                        {t('common.search')}
                       </Button>
                     </div>
 
                     {showFilters && (
                       <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700/50">
                         <div className="flex items-center justify-between mb-6">
-                          <h3 className="text-lg font-bold text-foreground">Filtros de búsqueda</h3>
+                          <h3 className="text-lg font-bold text-foreground">{t('pages.playerSearch.filter_title')}</h3>
                           {activeFiltersCount > 0 && (
                             <Button
                               variant="ghost"
@@ -150,7 +151,7 @@ const PlayerSearch = () => {
                               className="text-primary hover:text-primary hover:bg-primary/10"
                             >
                               <X className="w-4 h-4 mr-1" />
-                              Limpiar filtros
+                              {t('pages.playerSearch.clear_filters')}
                             </Button>
                           )}
                         </div>
@@ -158,25 +159,25 @@ const PlayerSearch = () => {
                         <div className="grid md:grid-cols-3 gap-6">
                           <div>
                             <label className="text-sm font-semibold text-foreground mb-3 block">
-                              Estado
+                              {t('pages.playerSearch.state')}
                             </label>
                             <StateAutocomplete
                               value={selectedState}
                               onChange={setSelectedState}
-                              placeholder="Buscar estado..."
+                              placeholder={t('pages.playerSearch.state_placeholder')}
                               className="h-12 border-slate-200 dark:border-slate-700 rounded-xl"
                             />
                           </div>
                           <div>
                             <label className="text-sm font-semibold text-foreground mb-3 block">
-                              Nivel NRTP
+                              {t('pages.playerSearch.nrtp_level')}
                             </label>
                             <Select value={selectedLevel} onValueChange={setSelectedLevel}>
                               <SelectTrigger className="h-12 border-slate-200 dark:border-slate-700 rounded-xl">
-                                <SelectValue placeholder="Todos los niveles" />
+                                <SelectValue placeholder={t('pages.playerSearch.all_levels')} />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="all">Todos los niveles</SelectItem>
+                                <SelectItem value="all">{t('pages.playerSearch.all_levels')}</SelectItem>
                                 {levels.map((level) => (
                                   <SelectItem key={level} value={level}>
                                     {level}
@@ -187,17 +188,17 @@ const PlayerSearch = () => {
                           </div>
                           <div>
                             <label className="text-sm font-semibold text-foreground mb-3 block">
-                              Modalidad
+                              {t('pages.playerSearch.modality')}
                             </label>
                             <Select value={selectedModality} onValueChange={setSelectedModality}>
                               <SelectTrigger className="h-12 border-slate-200 dark:border-slate-700 rounded-xl">
-                                <SelectValue placeholder="Todas las modalidades" />
+                                <SelectValue placeholder={t('pages.playerSearch.all_modalities')} />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="all">Todas las modalidades</SelectItem>
-                                <SelectItem value="singles">Singles</SelectItem>
-                                <SelectItem value="doubles">Dobles</SelectItem>
-                                <SelectItem value="mixed">Mixtos</SelectItem>
+                                <SelectItem value="all">{t('pages.playerSearch.all_modalities')}</SelectItem>
+                                <SelectItem value="singles">{t('pages.playerSearch.singles')}</SelectItem>
+                                <SelectItem value="doubles">{t('pages.playerSearch.doubles')}</SelectItem>
+                                <SelectItem value="mixed">{t('pages.playerSearch.mixed')}</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
@@ -213,22 +214,22 @@ const PlayerSearch = () => {
                   <p className="text-2xl font-bold text-foreground">
                     {filteredPlayers.length}
                     <span className="text-muted-foreground font-normal ml-2">
-                      jugadores encontrados
+                      {t('pages.playerSearch.players_found')}
                     </span>
                   </p>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Mostrando resultados actualizados
+                    {t('pages.playerSearch.showing_results')}
                   </p>
                 </div>
                 <Select defaultValue="ranking">
                   <SelectTrigger className="w-56 h-12 border-slate-200 dark:border-slate-700 rounded-xl">
-                    <SelectValue placeholder="Ordenar por" />
+                    <SelectValue placeholder={t('pages.playerSearch.sort_by')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ranking">Ranking</SelectItem>
-                    <SelectItem value="name">Nombre A-Z</SelectItem>
-                    <SelectItem value="points">Puntos (Mayor a menor)</SelectItem>
-                    <SelectItem value="recent">Recién añadidos</SelectItem>
+                    <SelectItem value="ranking">{t('pages.playerSearch.sort_ranking')}</SelectItem>
+                    <SelectItem value="name">{t('pages.playerSearch.sort_name')}</SelectItem>
+                    <SelectItem value="points">{t('pages.playerSearch.sort_points')}</SelectItem>
+                    <SelectItem value="recent">{t('pages.playerSearch.sort_recent')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -290,15 +291,15 @@ const PlayerSearch = () => {
 
                             <div className="flex flex-wrap gap-3 mt-4">
                               <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl px-4 py-2">
-                                <div className="text-xs text-muted-foreground">Nivel</div>
+                                <div className="text-xs text-muted-foreground">{t('pages.playerSearch.level')}</div>
                                 <div className="font-bold text-foreground">4.5</div>
                               </div>
                               <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl px-4 py-2">
-                                <div className="text-xs text-muted-foreground">Torneos</div>
+                                <div className="text-xs text-muted-foreground">{t('pages.playerSearch.tournaments')}</div>
                                 <div className="font-bold text-foreground">12</div>
                               </div>
                               <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl px-4 py-2">
-                                <div className="text-xs text-muted-foreground">Victorias</div>
+                                <div className="text-xs text-muted-foreground">{t('pages.playerSearch.wins')}</div>
                                 <div className="font-bold text-foreground">8</div>
                               </div>
                             </div>
@@ -309,11 +310,11 @@ const PlayerSearch = () => {
                               variant="outline"
                               className="flex-1 sm:flex-none h-12 px-6 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 font-semibold transition-all duration-300"
                             >
-                              Ver perfil
+                              {t('pages.playerSearch.view_profile')}
                             </Button>
                             <Button className="flex-1 sm:flex-none h-12 gap-2 px-6 rounded-xl bg-gradient-to-r from-primary to-lime-500 hover:shadow-lg hover:shadow-primary/50 font-semibold transition-all duration-300">
                               <Users className="w-4 h-4" />
-                              Conectar
+                              {t('pages.playerSearch.connect')}
                             </Button>
                           </div>
                         </div>
@@ -335,10 +336,10 @@ const PlayerSearch = () => {
                     </div>
                   </div>
                   <h3 className="text-2xl font-bold text-foreground mb-3">
-                    No se encontraron jugadores
+                    {t('pages.playerSearch.no_results')}
                   </h3>
                   <p className="text-muted-foreground text-lg mb-6">
-                    Intenta ajustar los filtros de búsqueda o busca con otros términos
+                    {t('pages.playerSearch.no_results_hint')}
                   </p>
                   <Button
                     variant="outline"
@@ -350,7 +351,7 @@ const PlayerSearch = () => {
                     }}
                     className="h-12 px-6 rounded-xl border-2 border-primary text-primary hover:bg-primary hover:text-white font-semibold transition-all duration-300"
                   >
-                    Limpiar búsqueda
+                    {t('pages.playerSearch.clear_search')}
                   </Button>
                 </div>
               )}
@@ -363,7 +364,7 @@ const PlayerSearch = () => {
                       disabled
                       className="h-12 px-6 rounded-xl border-2 border-slate-200 dark:border-slate-700 font-semibold"
                     >
-                      Anterior
+                      {t('common.previous')}
                     </Button>
                     <Button className="h-12 px-6 rounded-xl bg-gradient-to-r from-primary to-lime-500 text-white font-bold shadow-lg shadow-primary/25">
                       1
@@ -384,11 +385,11 @@ const PlayerSearch = () => {
                       variant="outline"
                       className="h-12 px-6 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 font-semibold transition-all duration-300"
                     >
-                      Siguiente
+                      {t('common.next')}
                     </Button>
                   </div>
                   <p className="text-center text-muted-foreground text-sm mt-6">
-                    Página 1 de 3 • {filteredPlayers.length} resultados totales
+                    {t('pages.playerSearch.page_info', { page: 1, total: 3, count: filteredPlayers.length })}
                   </p>
                 </div>
               )}
@@ -421,16 +422,16 @@ const PlayerSearch = () => {
                   <div className="relative z-10">
                     <div className="inline-block mb-6">
                       <span className="text-primary text-xs font-bold uppercase tracking-widest bg-primary/10 px-6 py-2 rounded-full border border-primary/30">
-                        Únete a la comunidad
+                        {t('pages.playerSearch.cta_label')}
                       </span>
                     </div>
 
                     <h3 className="text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-white via-slate-200 to-white bg-clip-text text-transparent mb-6">
-                      ¿Eres jugador de pickleball?
+                      {t('pages.playerSearch.cta_title')}
                     </h3>
 
                     <p className="text-slate-400 text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
-                      Regístrate en FEDMEX y aparece en el directorio oficial de jugadores de México
+                      {t('pages.playerSearch.cta_sub')}
                     </p>
 
                     <div className="flex flex-wrap gap-6 justify-center">
@@ -439,7 +440,7 @@ const PlayerSearch = () => {
                         className="group relative inline-flex items-center gap-3 bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-bold px-12 py-6 rounded-2xl hover:shadow-2xl hover:shadow-primary/50 transition-all duration-500 overflow-hidden"
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000" />
-                        <span className="relative z-10">Registrarme ahora</span>
+                        <span className="relative z-10">{t('pages.playerSearch.cta_register')}</span>
                         <Trophy className="w-6 h-6 relative z-10 group-hover:rotate-12 transition-transform duration-500" />
                       </a>
 
@@ -447,7 +448,7 @@ const PlayerSearch = () => {
                         href="/contact"
                         className="group inline-flex items-center gap-3 bg-slate-800/50 backdrop-blur-sm text-white font-bold px-12 py-6 rounded-2xl border-2 border-slate-700 hover:border-primary hover:bg-slate-800 transition-all duration-500"
                       >
-                        <span>Más información</span>
+                        <span>{t('pages.playerSearch.cta_info')}</span>
                         <svg
                           className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-500"
                           fill="none"

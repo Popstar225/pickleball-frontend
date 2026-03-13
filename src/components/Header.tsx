@@ -1,17 +1,20 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronDown, Search, Globe, User, LogOut } from 'lucide-react';
+import { Menu, X, ChevronDown, User, LogOut } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { navigationMenu } from '@/data/mockData';
 import { RootState, AppDispatch } from '@/store';
 import { logout } from '@/store/slices/authSlice';
 import logoFedmex from '@/assets/logo-fedmex.png';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { t } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -55,38 +58,38 @@ const Header = () => {
     switch (user?.user_type) {
       case 'player':
         links.push(
-          { label: 'Mi Cuenta', href: '/players/account', icon: User },
-          { label: 'Mi Dashboard', href: '/players/dashboard', icon: User },
+          { label: t('header.my_account'), href: '/players/account', icon: User },
+          { label: t('header.my_dashboard'), href: '/players/dashboard', icon: User },
         );
         break;
       case 'coach':
         links.push(
-          { label: 'Mi Cuenta', href: '/coach/account', icon: User },
-          { label: 'Mi Dashboard', href: '/coach/dashboard', icon: User },
+          { label: t('header.my_account'), href: '/coach/account', icon: User },
+          { label: t('header.my_dashboard'), href: '/coach/dashboard', icon: User },
         );
         break;
       case 'club':
         links.push(
-          { label: 'Mi Cuenta', href: '/clubs/account', icon: User },
-          { label: 'Mi Dashboard', href: '/clubs/dashboard', icon: User },
+          { label: t('header.my_account'), href: '/clubs/account', icon: User },
+          { label: t('header.my_dashboard'), href: '/clubs/dashboard', icon: User },
         );
         break;
       case 'partner':
         links.push(
-          { label: 'Mi Cuenta', href: '/partner/account', icon: User },
-          { label: 'Mi Dashboard', href: '/partner/dashboard', icon: User },
+          { label: t('header.my_account'), href: '/partner/account', icon: User },
+          { label: t('header.my_dashboard'), href: '/partner/dashboard', icon: User },
         );
         break;
       case 'state':
         links.push(
-          { label: 'Mi Cuenta', href: '/state/account', icon: User },
-          { label: 'Mi Dashboard', href: '/state/dashboard', icon: User },
+          { label: t('header.my_account'), href: '/state/account', icon: User },
+          { label: t('header.my_dashboard'), href: '/state/dashboard', icon: User },
         );
         break;
       case 'admin':
         links.push(
-          { label: 'Mi Cuenta', href: '/admin/account', icon: User },
-          { label: 'Mi Dashboard', href: '/admin/dashboard', icon: User },
+          { label: t('header.my_account'), href: '/admin/account', icon: User },
+          { label: t('header.my_dashboard'), href: '/admin/dashboard', icon: User },
         );
         break;
       default:
@@ -104,21 +107,11 @@ const Header = () => {
           <div className="flex items-center justify-between h-8 sm:h-10 text-[10px] sm:text-xs">
             <div className="hidden md:flex items-center gap-3 lg:gap-6">
               <span className="text-white/60">FEDMEX Pickleball A.C.</span>
-              <span className="text-white/60 hidden lg:inline">Gira Profesional</span>
-              <span className="text-white/60 hidden xl:inline">Campeonato Nacional</span>
+              <span className="text-white/60 hidden lg:inline">{t('header.topbar_gira')}</span>
+              <span className="text-white/60 hidden xl:inline">{t('header.topbar_nacional')}</span>
             </div>
             <div className="flex items-center gap-2 sm:gap-4 ml-auto">
-              <button className="flex items-center gap-1 text-white/60 hover:text-white transition-colors">
-                <Globe className="w-3 h-3" />
-                <span className="hidden xs:inline">ES</span>
-                <ChevronDown className="w-3 h-3" />
-              </button>
-              <button className="text-white/60 hover:text-white transition-colors p-1">
-                <Search className="w-4 h-4" />
-              </button>
-              <button className="text-white/60 hover:text-white transition-colors p-1">
-                <User className="w-4 h-4" />
-              </button>
+              <LanguageSwitcher />
             </div>
           </div>
         </div>
@@ -192,14 +185,14 @@ const Header = () => {
                     className="border-2 border-primary text-primary text-xs lg:text-sm px-4 lg:px-6 py-2 lg:py-2.5 font-semibold rounded-lg transition-all duration-300 hover:bg-primary hover:text-white hover:shadow-lg hover:shadow-primary/50"
                     onClick={() => navigate('/login')}
                   >
-                    Iniciar sesión
+                    {t('header.login')}
                   </Button>
                   <Button
                     size="sm"
                     className="bg-gradient-to-r from-primary via-lime-400 to-lime-500 text-slate-900 text-xs lg:text-sm px-4 lg:px-6 py-2 lg:py-2.5 font-semibold rounded-lg shadow-lg shadow-primary/50 ring-2 ring-lime-500/20 hover:ring-lime-500/40 hover:shadow-2xl hover:shadow-lime-500/50 transition-all duration-300 hover:scale-110"
                     onClick={() => navigate('/register')}
                   >
-                    Registrarse
+                    {t('header.register')}
                   </Button>
                 </>
               ) : (
@@ -221,7 +214,7 @@ const Header = () => {
                   {userDropdownOpen && (
                     <div className="absolute top-full right-0 mt-1 bg-card border border-border rounded-lg shadow-xl py-2 min-w-[200px] z-50">
                       <div className="px-4 py-2 border-b border-border">
-                        <p className="text-xs text-slate-400">Tipo de cuenta</p>
+                        <p className="text-xs text-slate-400">{t('header.account_type')}</p>
                         <p className="text-sm font-medium text-white capitalize">
                           {user?.user_type}
                         </p>
@@ -243,7 +236,7 @@ const Header = () => {
                         className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Cerrar Sesión</span>
+                        <span>{t('header.logout')}</span>
                       </button>
                     </div>
                   )}
@@ -255,7 +248,7 @@ const Header = () => {
             <button
               className="xl:hidden p-2 text-white -mr-2"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
+              aria-label={mobileMenuOpen ? t('header.close_menu') : t('header.open_menu')}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -334,7 +327,7 @@ const Header = () => {
                         setMobileMenuOpen(false);
                       }}
                     >
-                      Iniciar sesión
+                      {t('header.login')}
                     </Button>
                     <Button
                       className="flex-1 bg-primary text-primary-foreground hover:bg-lime-dark h-11"
@@ -343,13 +336,13 @@ const Header = () => {
                         setMobileMenuOpen(false);
                       }}
                     >
-                      Registrarse
+                      {t('header.register')}
                     </Button>
                   </>
                 ) : (
                   <>
                     <div className="px-3 py-3 rounded-md bg-white/5 flex-1">
-                      <p className="text-xs text-slate-400 mb-1">Conectado como</p>
+                      <p className="text-xs text-slate-400 mb-1">{t('header.logged_in_as')}</p>
                       <p className="text-sm font-medium text-white">
                         {user?.username || 'Usuario'}
                       </p>
@@ -377,7 +370,7 @@ const Header = () => {
                       }}
                     >
                       <LogOut className="w-4 h-4 mr-2" />
-                      Cerrar Sesión
+                      {t('header.logout')}
                     </Button>
                   </>
                 )}

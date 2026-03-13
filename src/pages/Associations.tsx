@@ -1,11 +1,13 @@
 import { MapPin, ExternalLink, Building2, Sparkles, Search, Users, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { stateAssociations } from '@/data/mockData';
 
 const Associations = () => {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredAssociations = stateAssociations.filter(
@@ -39,19 +41,18 @@ const Associations = () => {
               <div className="inline-block animate-fade-in">
                 <span className="inline-flex items-center gap-2 text-primary text-sm font-bold tracking-widest uppercase bg-primary/10 px-6 py-3 rounded-full border border-primary/20 backdrop-blur-sm">
                   <Building2 className="w-4 h-4" />
-                  <span>Red Nacional</span>
+                  <span>{t('pages.associations.label')}</span>
                 </span>
               </div>
 
               <div className="space-y-4">
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">
                   <span className="block bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent">
-                    Asociaciones Estatales
+                    {t('pages.associations.title')}
                   </span>
                 </h1>
                 <p className="text-xl md:text-2xl text-white/80 max-w-3xl mx-auto leading-relaxed">
-                  Red de asociaciones afiliadas a la Federación Mexicana de Pickleball en todo el
-                  país
+                  {t('pages.associations.subtitle')}
                 </p>
               </div>
 
@@ -67,17 +68,17 @@ const Associations = () => {
                   <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
                     {totalStates}
                   </div>
-                  <div className="text-sm text-white/60">Estados</div>
+                  <div className="text-sm text-white/60">{t('pages.associations.states')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
                     {activeAssociations}
                   </div>
-                  <div className="text-sm text-white/60">Activas</div>
+                  <div className="text-sm text-white/60">{t('pages.associations.active')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-bold text-primary mb-2">100%</div>
-                  <div className="text-sm text-white/60">Cobertura</div>
+                  <div className="text-sm text-white/60">{t('pages.associations.coverage')}</div>
                 </div>
               </div>
             </div>
@@ -98,7 +99,7 @@ const Associations = () => {
                       <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                       <input
                         type="text"
-                        placeholder="Buscar por estado o nombre de asociación..."
+                        placeholder={t('pages.associations.search_placeholder')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full bg-slate-950/50 border border-slate-700 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 transition-colors"
@@ -106,7 +107,7 @@ const Associations = () => {
                     </div>
                     <div className="hidden md:flex items-center gap-2 text-sm text-slate-400">
                       <span>{filteredAssociations.length}</span>
-                      <span>resultados</span>
+                      <span>{t('pages.associations.results')}</span>
                     </div>
                   </div>
                 </div>
@@ -159,7 +160,7 @@ const Associations = () => {
                             <div className="absolute top-3 right-3">
                               <div className="flex items-center gap-2 bg-primary/90 backdrop-blur-sm text-slate-900 text-xs font-bold px-3 py-1.5 rounded-full border border-primary">
                                 <div className="w-1.5 h-1.5 bg-slate-900 rounded-full animate-pulse" />
-                                <span>Activa</span>
+                                <span>{t('pages.associations.active')}</span>
                               </div>
                             </div>
                           </>
@@ -174,7 +175,7 @@ const Associations = () => {
                             {/* Coming Soon Badge */}
                             <div className="absolute top-3 right-3">
                               <div className="flex items-center gap-2 bg-slate-700/90 backdrop-blur-sm text-slate-400 text-xs font-medium px-3 py-1.5 rounded-full border border-slate-600">
-                                <span>Próximamente</span>
+                                <span>{t('pages.associations.coming_soon')}</span>
                               </div>
                             </div>
                           </>
@@ -206,13 +207,13 @@ const Associations = () => {
                             to={association.href}
                             className="group/link relative inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-semibold px-5 py-3 rounded-xl hover:shadow-xl hover:shadow-primary/30 transition-all duration-500 overflow-hidden text-sm w-full"
                           >
-                            <span className="relative z-10">Ver Micrositio</span>
+                            <span className="relative z-10">{t('pages.associations.view_microsite')}</span>
                             <ExternalLink className="w-4 h-4 relative z-10 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform duration-500" />
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover/link:translate-x-[200%] transition-transform duration-1000" />
                           </Link>
                         ) : (
                           <div className="inline-flex items-center justify-center gap-2 text-sm text-slate-600 italic bg-slate-800/50 px-4 py-3 rounded-xl border border-slate-700/30 w-full">
-                            <span>Micrositio en desarrollo</span>
+                            <span>{t('pages.associations.microsite_dev')}</span>
                           </div>
                         )}
 
@@ -233,9 +234,9 @@ const Associations = () => {
                     <Search className="w-10 h-10 text-slate-600" />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-2">
-                    No se encontraron resultados
+                    {t('pages.associations.no_results')}
                   </h3>
-                  <p className="text-slate-400">Intenta con otro término de búsqueda</p>
+                  <p className="text-slate-400">{t('pages.associations.no_results_hint')}</p>
                 </div>
               )}
             </div>
@@ -263,17 +264,16 @@ const Associations = () => {
                   </div>
 
                   <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                    ¿Tu Estado No Aparece?
+                    {t('pages.associations.cta_title')}
                   </h3>
                   <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-                    Contáctanos para más información sobre cómo afiliarte a la Federación Mexicana
-                    de Pickleball
+                    {t('pages.associations.cta_subtitle')}
                   </p>
                   <Link
                     to="/contact"
                     className="group inline-flex items-center gap-3 bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-bold px-10 py-5 rounded-2xl hover:shadow-2xl hover:shadow-primary/50 transition-all duration-500 overflow-hidden relative"
                   >
-                    <span className="relative z-10">Contáctanos</span>
+                    <span className="relative z-10">{t('pages.associations.contact')}</span>
                     <svg
                       className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-500"
                       fill="none"

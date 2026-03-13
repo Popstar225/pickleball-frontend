@@ -1,6 +1,7 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import coachImage from '@/assets/images/_DSC7870.png';
+import { useTranslation } from 'react-i18next';
 import {
   Target,
   Eye,
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 
 const WhoWeAre = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
       <main className="flex-1">
@@ -55,7 +57,7 @@ const WhoWeAre = () => {
                     rounded-full border border-primary/20 backdrop-blur-sm"
                   >
                     <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span>Acerca de Nosotros</span>
+                    <span>{t('pages.whoWeAre.label')}</span>
                   </span>
                 </div>
 
@@ -66,11 +68,11 @@ const WhoWeAre = () => {
                       className="block bg-gradient-to-r from-white via-white to-slate-300 
                       bg-clip-text text-transparent leading-tight"
                     >
-                      ¿Quiénes Somos?
+                      {t('pages.whoWeAre.title')}
                     </span>
                   </h1>
                   <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl text-primary font-semibold">
-                    Federación Mexicana de Pickleball
+                    {t('pages.whoWeAre.org_name')}
                   </h2>
                 </div>
 
@@ -83,17 +85,13 @@ const WhoWeAre = () => {
                     className="relative pl-4 sm:pl-5 md:pl-6 border-l-2 sm:border-l-3 md:border-l-4 
                     border-primary/50"
                   >
-                    Somos una institución que busca promover el desarrollo del pickleball en México,
-                    generando sinergia con todas las instituciones en nuestro país responsables de
-                    promover el deporte, la excelencia y un estilo de vida saludable.
+                    {t('pages.whoWeAre.desc1')}
                   </p>
                   <p
                     className="relative pl-4 sm:pl-5 md:pl-6 border-l-2 sm:border-l-3 md:border-l-4 
                     border-lime-500/50"
                   >
-                    Nos esforzamos por proporcionar a los atletas mexicanos las herramientas
-                    necesarias para alcanzar su máximo potencial, permitiéndoles competir a nivel
-                    nacional e internacional.
+                    {t('pages.whoWeAre.desc2')}
                   </p>
                 </div>
 
@@ -103,19 +101,19 @@ const WhoWeAre = () => {
                     <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1 sm:mb-2">
                       5K+
                     </div>
-                    <div className="text-xs sm:text-sm text-white/60">Miembros</div>
+                    <div className="text-xs sm:text-sm text-white/60">{t('pages.whoWeAre.stat_members')}</div>
                   </div>
                   <div className="text-center p-3 sm:p-4 rounded-xl bg-slate-800/30 backdrop-blur-sm">
                     <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1 sm:mb-2">
                       32
                     </div>
-                    <div className="text-xs sm:text-sm text-white/60">Estados</div>
+                    <div className="text-xs sm:text-sm text-white/60">{t('pages.whoWeAre.stat_states')}</div>
                   </div>
                   <div className="text-center p-3 sm:p-4 rounded-xl bg-slate-800/30 backdrop-blur-sm">
                     <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1 sm:mb-2">
                       100+
                     </div>
-                    <div className="text-xs sm:text-sm text-white/60">Canchas</div>
+                    <div className="text-xs sm:text-sm text-white/60">{t('pages.whoWeAre.stat_courts')}</div>
                   </div>
                 </div>
               </div>
@@ -160,14 +158,14 @@ const WhoWeAre = () => {
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-primary rounded-full animate-pulse" />
                         <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                          Liderazgo Profesional
+                          {t('pages.rules.leadership')}
                         </span>
                       </div>
                       <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1">
-                        Coaching de Elite
+                        {t('pages.rules.coaching')}
                       </h3>
                       <p className="text-xs sm:text-sm text-white/80">
-                        Formando campeones mexicanos
+                        {t('pages.rules.forming')}
                       </p>
                     </div>
                   </div>
@@ -235,14 +233,14 @@ const WhoWeAre = () => {
                   bg-primary/10 px-4 py-1.5 sm:px-5 sm:py-2 md:px-6 md:py-2.5 
                   rounded-full border border-primary/20"
                 >
-                  Nuestros Cimientos
+                  {t('pages.whoWeAre.foundations')}
                 </span>
               </div>
               <h2
                 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold 
                 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-3 sm:mb-4"
               >
-                Misión y Visión
+                {t('pages.whoWeAre.mission_vision')}
               </h2>
               <div className="flex items-center justify-center gap-2 sm:gap-3">
                 <div
@@ -308,7 +306,7 @@ const WhoWeAre = () => {
                       className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4 
                       group-hover:text-primary transition-colors duration-500"
                     >
-                      Nuestra Misión
+                      {t('pages.whoWeAre.mission_title')}
                     </h3>
 
                     {/* Description */}
@@ -316,9 +314,7 @@ const WhoWeAre = () => {
                       className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed 
                       group-hover:text-slate-300 transition-colors duration-500 flex-1"
                     >
-                      Promover, desarrollar y regular el pickleball en todo México, creando
-                      oportunidades para atletas de todos los niveles para crecer y destacar en este
-                      deporte dinámico.
+                      {t('pages.whoWeAre.mission_text')}
                     </p>
 
                     {/* Divider */}
@@ -385,7 +381,7 @@ const WhoWeAre = () => {
                       className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4 
                       group-hover:text-lime-400 transition-colors duration-500"
                     >
-                      Nuestra Visión
+                      {t('pages.whoWeAre.vision_title')}
                     </h3>
 
                     {/* Description */}
@@ -393,9 +389,7 @@ const WhoWeAre = () => {
                       className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed 
                       group-hover:text-slate-300 transition-colors duration-500 flex-1"
                     >
-                      Establecer a México como una nación líder en pickleball, con atletas de clase
-                      mundial, instalaciones y una comunidad próspera de jugadores en todos los
-                      estados.
+                      {t('pages.whoWeAre.vision_text')}
                     </p>
 
                     {/* Divider */}
@@ -430,14 +424,14 @@ const WhoWeAre = () => {
                   bg-primary/10 px-4 py-1.5 sm:px-5 sm:py-2 md:px-6 md:py-2.5 
                   rounded-full border border-primary/20"
                 >
-                  Qué nos Impulsa
+                  {t('pages.whoWeAre.values_title')}
                 </span>
               </div>
               <h2
                 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold 
                 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-3 sm:mb-4"
               >
-                Nuestros Valores Centrales
+                {t('pages.whoWeAre.values_sub')}
               </h2>
             </div>
 
@@ -446,23 +440,23 @@ const WhoWeAre = () => {
               {[
                 {
                   icon: Award,
-                  title: 'Excelencia',
-                  desc: 'Buscamos los más altos estándares en todo lo que hacemos',
+                  title: t('pages.whoWeAre.value_excellence'),
+                  desc: t('pages.whoWeAre.value_excellence_desc'),
                 },
                 {
                   icon: Users,
-                  title: 'Comunidad',
-                  desc: 'Construyendo fuertes conexiones en todo México',
+                  title: t('pages.whoWeAre.value_community'),
+                  desc: t('pages.whoWeAre.value_community_desc'),
                 },
                 {
                   icon: TrendingUp,
-                  title: 'Crecimiento',
-                  desc: 'Desarrollo continuo y mejora',
+                  title: t('pages.whoWeAre.value_growth'),
+                  desc: t('pages.whoWeAre.value_growth_desc'),
                 },
                 {
                   icon: Shield,
-                  title: 'Integridad',
-                  desc: 'Transparencia y conducta ética siempre',
+                  title: t('pages.whoWeAre.value_integrity'),
+                  desc: t('pages.whoWeAre.value_integrity_desc'),
                 },
               ].map((value, index) => (
                 <div key={index} className="group relative">
@@ -534,7 +528,7 @@ const WhoWeAre = () => {
                     className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold 
                     bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-3 sm:mb-4"
                   >
-                    Únete al Movimiento
+                    {t('pages.whoWeAre.cta_title')}
                   </h3>
 
                   {/* Description */}
@@ -542,7 +536,7 @@ const WhoWeAre = () => {
                     className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 
                     max-w-2xl mx-auto px-2"
                   >
-                    Sé parte de la comunidad de Pickleball de más rápido crecimiento de México
+                    {t('pages.whoWeAre.cta_sub')}
                   </p>
 
                   {/* Button */}
@@ -555,7 +549,7 @@ const WhoWeAre = () => {
                       rounded-xl sm:rounded-2xl hover:shadow-xl md:hover:shadow-2xl 
                       hover:shadow-primary/50 transition-all duration-500 overflow-hidden relative"
                   >
-                    <span className="relative z-10 whitespace-nowrap">Comienza Hoy</span>
+                    <span className="relative z-10 whitespace-nowrap">{t('pages.whoWeAre.cta_btn')}</span>
                     <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-500" />
                     <div
                       className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent 

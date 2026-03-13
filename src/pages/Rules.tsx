@@ -1,4 +1,5 @@
 import { FileText, Download, Sparkles, Shield, BookOpen, Award } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import Director from '../assets/images/_DSC7870.png';
 
 import Equipment from '../assets/images/rules/equipment.png';
@@ -10,40 +11,42 @@ import reglamentoEquipamiento from '@/assets/documents/Reglamento del equipamien
 import reglamentoDeportivo from '@/assets/documents/Reglamento deportivo.pdf';
 import reglamentoTecnico from '@/assets/documents/Reglamento técnico.pdf';
 
-const rulesDocuments = [
-  {
-    id: 1,
-    title: 'Reglas Técnicas',
-    description: 'Reglas oficiales del juego de Pickleball',
-    fileUrl: reglamentoTecnico, // Use the imported URL directly
-    fileName: 'Reglamento técnico.pdf',
-    icon: BookOpen,
-    color: 'primary',
-    image: Technical,
-  },
-  {
-    id: 2,
-    title: 'Reglas de Equipamiento',
-    description: 'Especificaciones de paletas, pelotas y equipo aprobado',
-    fileUrl: reglamentoEquipamiento, // Use the imported URL directly
-    fileName: 'Reglamento del equipamiento.pdf',
-    icon: Shield,
-    color: 'lime-500',
-    image: Equipment,
-  },
-  {
-    id: 3,
-    title: 'Reglamento Deportivo',
-    description: 'Normativas para competencias y torneos oficiales',
-    fileUrl: reglamentoDeportivo, // Use the imported URL directly
-    fileName: 'Reglamento deportivo.pdf',
-    icon: Award,
-    color: 'primary',
-    image: Sports,
-  },
-];
-
 const Rules = () => {
+  const { t } = useTranslation();
+
+  const rulesDocuments = [
+    {
+      id: 1,
+      title: t('pages.rules.tech_rules'),
+      description: t('pages.rules.tech_rules_desc'),
+      fileUrl: reglamentoTecnico,
+      fileName: 'Reglamento técnico.pdf',
+      icon: BookOpen,
+      color: 'primary',
+      image: Technical,
+    },
+    {
+      id: 2,
+      title: t('pages.rules.equip_rules'),
+      description: t('pages.rules.equip_rules_desc'),
+      fileUrl: reglamentoEquipamiento,
+      fileName: 'Reglamento del equipamiento.pdf',
+      icon: Shield,
+      color: 'lime-500',
+      image: Equipment,
+    },
+    {
+      id: 3,
+      title: t('pages.rules.sports_reg'),
+      description: t('pages.rules.sports_reg_desc'),
+      fileUrl: reglamentoDeportivo,
+      fileName: 'Reglamento deportivo.pdf',
+      icon: Award,
+      color: 'primary',
+      image: Sports,
+    },
+  ];
+
   const handleDownload = (fileUrl: string, downloadName: string) => {
     const link = document.createElement('a');
     link.href = fileUrl;
@@ -76,18 +79,18 @@ const Rules = () => {
                 <div className="inline-block animate-fade-in">
                   <span className="inline-flex items-center gap-2 text-primary text-sm font-bold tracking-widest uppercase bg-primary/10 px-6 py-3 rounded-full border border-primary/20 backdrop-blur-sm">
                     <Sparkles className="w-4 h-4" />
-                    <span>Documentación Oficial</span>
+                    <span>{t('pages.rules.label')}</span>
                   </span>
                 </div>
 
                 <div className="space-y-4">
                   <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">
                     <span className="block bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent">
-                      Reglamentos
+                      {t('pages.rules.title')}
                     </span>
                   </h1>
                   <p className="text-xl md:text-2xl text-white/80 leading-relaxed">
-                    Documentos oficiales y reglamentos de la Federación Mexicana de Pickleball
+                    {t('pages.rules.subtitle')}
                   </p>
                 </div>
 
@@ -100,15 +103,15 @@ const Rules = () => {
                 <div className="grid grid-cols-3 gap-6 pt-8">
                   <div className="text-center">
                     <div className="text-3xl md:text-4xl font-bold text-primary mb-2">3</div>
-                    <div className="text-sm text-white/60">Documentos</div>
+                    <div className="text-sm text-white/60">{t('pages.rules.documents')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl md:text-4xl font-bold text-primary mb-2">100%</div>
-                    <div className="text-sm text-white/60">Oficial</div>
+                    <div className="text-sm text-white/60">{t('pages.rules.official')}</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl md:text-4xl font-bold text-primary mb-2">2025</div>
-                    <div className="text-sm text-white/60">Actualizado</div>
+                    <div className="text-sm text-white/60">{t('pages.rules.updated')}</div>
                   </div>
                 </div>
               </div>
@@ -126,7 +129,7 @@ const Rules = () => {
                   <div className="relative z-10 rounded-2xl overflow-hidden w-full h-full">
                     <img
                       src={Director}
-                      alt="Entrenador de Pickleball FEDMEX"
+                      alt={t('pages.rules.coach_alt')}
                       className="w-full h-full object-cover"
                     />
 
@@ -136,12 +139,12 @@ const Rules = () => {
                       <div className="flex items-center gap-2 mb-2">
                         <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                         <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                          Liderazgo Profesional
+                          {t('pages.rules.leadership')}
                         </span>
                       </div>
-                      <h3 className="text-xl sm:text-2xl font-bold mb-1">Coaching de Elite</h3>
+                      <h3 className="text-xl sm:text-2xl font-bold mb-1">{t('pages.rules.coaching')}</h3>
                       <p className="text-xs sm:text-sm text-white/80">
-                        Formando campeones mexicanos
+                        {t('pages.rules.forming')}
                       </p>
                     </div>
                   </div>
@@ -213,7 +216,7 @@ const Rules = () => {
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                           <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
                             <FileText className="w-4 h-4 flex-shrink-0" />
-                            <span>Formato PDF</span>
+                            <span>{t('pages.rules.pdf_format')}</span>
                           </div>
 
                           <button
@@ -221,7 +224,7 @@ const Rules = () => {
                             className="group/btn relative inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-bold text-sm sm:text-base px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 rounded-lg sm:rounded-xl hover:shadow-lg sm:hover:shadow-2xl hover:shadow-primary/50 transition-all duration-500 overflow-hidden whitespace-nowrap"
                           >
                             <Download className="w-4 h-4 sm:w-5 sm:h-5 relative z-10 group-hover/btn:translate-y-1 transition-transform duration-500 flex-shrink-0" />
-                            <span className="relative z-10">Descargar PDF</span>
+                            <span className="relative z-10">{t('pages.rules.download')}</span>
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-1000" />
                           </button>
                         </div>
@@ -256,17 +259,16 @@ const Rules = () => {
                   </div>
 
                   <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                    ¿Necesitas Ayuda?
+                    {t('pages.rules.cta_title')}
                   </h3>
                   <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-                    Si tienes dudas sobre los reglamentos o necesitas información adicional, no
-                    dudes en contactarnos.
+                    {t('pages.rules.cta_subtitle')}
                   </p>
                   <a
                     href="/contact"
                     className="group inline-flex items-center gap-3 bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-bold px-10 py-5 rounded-2xl hover:shadow-2xl hover:shadow-primary/50 transition-all duration-500 overflow-hidden relative"
                   >
-                    <span className="relative z-10">Contáctanos</span>
+                    <span className="relative z-10">{t('pages.rules.contact')}</span>
                     <svg
                       className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-500"
                       fill="none"

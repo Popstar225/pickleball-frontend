@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 
 // Import images
 import playerImage from '@/assets/images/blogs/Image8-1.png';
@@ -26,6 +27,7 @@ import partnerImage from '@/assets/images/_DSC8895.png';
 import stateImage from '@/assets/images/blogs/Image9-1.png';
 
 const SelectUserTypePage = () => {
+  const { t } = useTranslation();
   const [selectedType, setSelectedType] = useState<string>('');
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
@@ -151,8 +153,8 @@ const SelectUserTypePage = () => {
               <Shield className="w-7 h-7 text-slate-900" />
             </div>
             <div>
-              <h3 className="text-white font-bold text-lg">Pickleball Federation</h3>
-              <p className="text-slate-400 text-sm">Official Registration</p>
+              <h3 className="text-white font-bold text-lg">{t('auth.selectType.federation_name')}</h3>
+              <p className="text-slate-400 text-sm">{t('auth.selectType.official_reg')}</p>
             </div>
           </div>
 
@@ -164,26 +166,25 @@ const SelectUserTypePage = () => {
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 backdrop-blur-xl">
                   <Sparkles className="w-4 h-4 text-primary" />
                   <span className="text-primary text-sm font-semibold">
-                    {selectedUserType?.title}
+                    {selectedUserType && t(`userTypes.${selectedUserType.type}.title`)}
                   </span>
                 </div>
 
                 {/* Description */}
                 <div>
                   <h2 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-4">
-                    {selectedUserType?.description}
+                    {selectedUserType && t(`userTypes.${selectedUserType.type}.description`)}
                   </h2>
                   <p className="text-lg text-slate-400">
-                    This account type is designed specifically for your needs in the pickleball
-                    community.
+                    {t('auth.selectType.designed_for')}
                   </p>
                 </div>
 
                 {/* Features List */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">What's Included</h3>
+                  <h3 className="text-lg font-semibold text-white">{t('auth.selectType.whats_included')}</h3>
                   <ul className="space-y-3">
-                    {selectedUserType?.features.map((feature, idx) => (
+                    {selectedUserType && [t(`userTypes.${selectedUserType.type}.f1`), t(`userTypes.${selectedUserType.type}.f2`), t(`userTypes.${selectedUserType.type}.f3`), t(`userTypes.${selectedUserType.type}.f4`)].map((feature, idx) => (
                       <li key={idx} className="flex items-start gap-3 text-slate-300">
                         <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                         <span className="text-base leading-relaxed">{feature}</span>
@@ -197,44 +198,43 @@ const SelectUserTypePage = () => {
                 {/* Default State */}
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-xl">
                   <Sparkles className="w-4 h-4 text-primary" />
-                  <span className="text-primary text-sm font-semibold">GET STARTED</span>
+                  <span className="text-primary text-sm font-semibold">{t('auth.selectType.get_started')}</span>
                 </div>
 
                 <div>
                   <h2 className="text-5xl xl:text-6xl font-bold leading-tight mb-4">
                     <span className="bg-gradient-to-r from-white via-slate-100 to-slate-300 bg-clip-text text-transparent">
-                      Join the Pickleball Community
+                      {t('auth.selectType.join_community')}
                     </span>
                   </h2>
                   <p className="text-xl text-slate-400 leading-relaxed">
-                    Select your role from the list to see detailed features and benefits tailored
-                    for you.
+                    {t('auth.selectType.select_details')}
                   </p>
                 </div>
 
                 {/* Benefits */}
                 <div className="space-y-4 pt-4">
-                  <h3 className="text-lg font-semibold text-white">Why Choose Us</h3>
+                  <h3 className="text-lg font-semibold text-white">{t('auth.selectType.why_us')}</h3>
                   <div className="space-y-3">
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-slate-300 text-sm font-medium">Comprehensive Platform</p>
-                        <p className="text-slate-500 text-xs">Everything you need in one place</p>
+                        <p className="text-slate-300 text-sm font-medium">{t('auth.selectType.platform')}</p>
+                        <p className="text-slate-500 text-xs">{t('auth.selectType.platform_desc')}</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-slate-300 text-sm font-medium">Active Community</p>
-                        <p className="text-slate-500 text-xs">50K+ members nationwide</p>
+                        <p className="text-slate-300 text-sm font-medium">{t('auth.selectType.community')}</p>
+                        <p className="text-slate-500 text-xs">{t('auth.selectType.community_desc')}</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-slate-300 text-sm font-medium">Secure & Trusted</p>
-                        <p className="text-slate-500 text-xs">Bank-level encryption</p>
+                        <p className="text-slate-300 text-sm font-medium">{t('auth.selectType.secure')}</p>
+                        <p className="text-slate-500 text-xs">{t('auth.selectType.secure_desc')}</p>
                       </div>
                     </div>
                   </div>
@@ -247,15 +247,15 @@ const SelectUserTypePage = () => {
           <div className="grid grid-cols-3 gap-6 pt-8 border-t border-white/10">
             <div className="text-center">
               <div className="text-3xl font-bold text-primary mb-1">50K+</div>
-              <div className="text-sm text-slate-500">Miembros</div>
+              <div className="text-sm text-slate-500">{t('auth.selectType.members')}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-lime-500 mb-1">1000+</div>
-              <div className="text-sm text-slate-500">Eventos</div>
+              <div className="text-sm text-slate-500">{t('auth.selectType.events')}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-primary mb-1">150+</div>
-              <div className="text-sm text-slate-500">Clubes</div>
+              <div className="text-sm text-slate-500">{t('auth.selectType.clubs')}</div>
             </div>
           </div>
         </div>
@@ -279,8 +279,8 @@ const SelectUserTypePage = () => {
                 <Shield className="w-7 h-7 text-slate-900" />
               </div>
               <div>
-                <h3 className="text-white font-bold text-lg">Pickleball Federation</h3>
-                <p className="text-slate-400 text-sm">Official Registration</p>
+                <h3 className="text-white font-bold text-lg">{t('auth.selectType.federation_name')}</h3>
+                <p className="text-slate-400 text-sm">{t('auth.selectType.official_reg')}</p>
               </div>
             </div>
 
@@ -289,13 +289,13 @@ const SelectUserTypePage = () => {
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20">
                 <Sparkles className="w-3.5 h-3.5 text-primary" />
                 <span className="text-primary text-xs font-semibold tracking-wide">
-                  STEP 1 OF 3
+                  {t('auth.selectType.step')}
                 </span>
               </div>
 
               {/* Title */}
-              <h1 className="text-3xl font-bold text-white">Select Your Role</h1>
-              <p className="text-slate-400">Choose the option that best describes you</p>
+              <h1 className="text-3xl font-bold text-white">{t('auth.selectType.title')}</h1>
+              <p className="text-slate-400">{t('auth.selectType.subtitle')}</p>
             </div>
           </div>
 
@@ -347,7 +347,7 @@ const SelectUserTypePage = () => {
                                 isSelected ? 'text-primary' : 'text-white'
                               }`}
                             >
-                              {userType.title}
+                              {t(`userTypes.${userType.type}.title`)}
                             </h3>
 
                             {/* Selection Indicator */}
@@ -371,11 +371,11 @@ const SelectUserTypePage = () => {
                               }`}
                             >
                               <CheckCircle2 className="w-3 h-3" />
-                              <span>{userType.features.length} features</span>
+                              <span>{t('auth.selectType.features_count', { count: userType.features.length })}</span>
                             </div>
                             {isSelected && (
                               <div className="flex items-center gap-1 text-xs text-primary">
-                                <span>View details</span>
+                                <span>{t('auth.selectType.view_details')}</span>
                                 <ChevronRight className="w-3 h-3" />
                               </div>
                             )}
@@ -399,11 +399,11 @@ const SelectUserTypePage = () => {
               <span className="relative z-10 flex items-center justify-center gap-2">
                 {selectedType ? (
                   <>
-                    Continue as {selectedUserType?.title}
+                    {t('auth.selectType.continue_as', { role: selectedUserType && t(`userTypes.${selectedUserType.type}.title`) })}
                     <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300" />
                   </>
                 ) : (
-                  'Select a role to continue'
+                  t('auth.selectType.select_role')
                 )}
               </span>
 
@@ -414,7 +414,7 @@ const SelectUserTypePage = () => {
             {/* Security Note */}
             <div className="flex items-center justify-center gap-2 text-slate-500 text-xs">
               <Shield className="w-3.5 h-3.5" />
-              <span>Secure registration • Change anytime in settings</span>
+              <span>{t('auth.selectType.secure_reg')}</span>
             </div>
           </div>
         </div>

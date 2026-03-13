@@ -12,6 +12,7 @@ import {
   Award,
   Filter,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -39,6 +40,7 @@ interface SchedulerEvent {
 }
 
 const EventsSection = () => {
+  const { t } = useTranslation();
   const [currentView, setCurrentView] = useState<'month' | 'week' | 'day' | 'list'>('week');
   const [currentDate, setCurrentDate] = useState<Date>(new Date(2026, 1, 6));
   const [selectedEventType, setSelectedEventType] = useState<string>('all');
@@ -177,41 +179,17 @@ const EventsSection = () => {
 
   // Format date for display
   const formatDate = (date: Date): string => {
-    const months = [
-      'Enero',
-      'Febrero',
-      'Marzo',
-      'Abril',
-      'Mayo',
-      'Junio',
-      'Julio',
-      'Agosto',
-      'Septiembre',
-      'Octubre',
-      'Noviembre',
-      'Diciembre',
-    ];
-    return `${months[date.getMonth()]} ${date.getFullYear()}`;
+    const locale = t('events.month') === 'Month' ? 'en-US' : 'es-MX';
+    return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
   };
 
   const formatWeekRange = (startDate: Date): string => {
+    const locale = t('events.month') === 'Month' ? 'en-US' : 'es-MX';
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6);
-    const months = [
-      'Ene',
-      'Feb',
-      'Mar',
-      'Abr',
-      'Puede',
-      'Jun',
-      'Jul',
-      'Ago',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dic',
-    ];
-    return `${months[startDate.getMonth()]} ${startDate.getDate()} - ${months[endDate.getMonth()]} ${endDate.getDate()}, ${endDate.getFullYear()}`;
+    const startStr = startDate.toLocaleDateString(locale, { month: 'short', day: 'numeric' });
+    const endStr = endDate.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' });
+    return `${startStr} - ${endStr}`;
   };
 
   const renderMonthView = (): JSX.Element => {
@@ -220,7 +198,7 @@ const EventsSection = () => {
     return (
       <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm h-full flex flex-col">
         <div className="grid grid-cols-7 bg-muted/50 flex-shrink-0">
-          {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, i) => (
+          {[t('events.days.mon'), t('events.days.tue'), t('events.days.wed'), t('events.days.thu'), t('events.days.fri'), t('events.days.sat'), t('events.days.sun')].map((day, i) => (
             <div
               key={i}
               className="px-2 py-3 text-center text-xs font-semibold text-muted-foreground uppercase tracking-wide border-r border-border last:border-r-0"
@@ -288,7 +266,7 @@ const EventsSection = () => {
                   ))}
                   {dayEvents.length > 3 && (
                     <div className="text-xs text-muted-foreground px-2 font-medium">
-                      +{dayEvents.length - 3} más
+                      {t('events.more_in_month', { count: dayEvents.length - 3 })}
                     </div>
                   )}
                 </div>
@@ -465,7 +443,7 @@ const EventsSection = () => {
                                   </span>
                                   <span className="flex items-center gap-1">
                                     <Users className="w-3 h-3" />
-                                    {event.attendees} registrados
+                                    {event.attendees} {t('events.registered')}
                                   </span>
                                 </div>
                                 {event.prize && (
@@ -478,7 +456,7 @@ const EventsSection = () => {
                                 size="sm"
                                 style={{ backgroundColor: event.color, color: 'white' }}
                               >
-                                Registrarse
+                                {t('events.register_now')}
                               </Button>
                             </div>
                           </div>
@@ -492,7 +470,7 @@ const EventsSection = () => {
                   ))}
                   {hourEvents.length === 0 && (
                     <div className="text-sm text-muted-foreground italic">
-                      Sin eventos programados
+                      {t('events.no_events')}
                     </div>
                   )}
                 </div>
@@ -560,7 +538,7 @@ const EventsSection = () => {
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Users className="w-4 h-4" />
-                      {event.attendees} registrados
+                      {event.attendees} {t('events.registered')}
                     </span>
                   </div>
 
@@ -592,18 +570,18 @@ const EventsSection = () => {
             <div className="flex items-center gap-2 mb-2 sm:mb-3">
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               <Badge className="bg-primary/10 text-primary border-primary/20 text-xs sm:text-sm">
-                PRÓXIMAMENTE
+                {t('events.coming_soon')}
               </Badge>
             </div>
             <h2 className="font-display text-2xl sm:text-4xl md:text-5xl text-foreground mb-2 sm:mb-3">
-              PRÓXIMOS EVENTOS
+              {t('events.title')}
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base">
-              No te pierdas la acción: inscríbete en los próximos torneos y eventos.
+              {t('events.subtitle')}
             </p>
             <Button variant="outline" className="hidden md:flex gap-2 group mt-4">
               <Calendar className="w-4 h-4" />
-              Ver calendario completo
+              {t('events.full_calendar')}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
@@ -624,7 +602,7 @@ const EventsSection = () => {
                     <div className="flex flex-wrap items-center gap-2 mb-2 sm:mb-3 md:mb-4">
                       <Badge className="bg-primary text-primary-foreground text-xs sm:text-sm px-2 sm:px-3 md:px-4 py-1">
                         <Trophy className="w-3 h-3 mr-1" />
-                        EVENTO DESTACADO
+                        {t('events.featured')}
                       </Badge>
                       <Badge
                         variant="outline"
@@ -665,13 +643,13 @@ const EventsSection = () => {
 
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4">
                       <Button className="bg-primary text-primary-foreground hover:bg-lime-dark text-xs sm:text-sm md:text-base px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3">
-                        Regístrate ahora
+                        {t('events.register_now')}
                       </Button>
                       <Button
                         variant="outline"
                         className="border-white/30 text-white bg-white/10 hover:text-white hover:bg-white/20 text-xs sm:text-sm md:text-base px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3"
                       >
-                        Mas información
+                        {t('events.more_info')}
                       </Button>
                     </div>
                   </div>
@@ -703,7 +681,7 @@ const EventsSection = () => {
                             day: 'numeric',
                             year: 'numeric',
                           })}
-                        {currentView === 'list' && 'Todos los Eventos'}
+                        {currentView === 'list' && t('events.all_events')}
                       </h3>
                     </div>
                     <Button
@@ -720,7 +698,7 @@ const EventsSection = () => {
                       onClick={handleToday}
                       className="text-xs sm:text-sm"
                     >
-                      Hoy
+                      {t('events.today')}
                     </Button>
                   </div>
 
@@ -731,7 +709,7 @@ const EventsSection = () => {
                       onClick={() => setCurrentView('month')}
                       className="text-xs sm:text-sm shrink-0"
                     >
-                      Mes
+                      {t('events.month')}
                     </Button>
                     <Button
                       variant={currentView === 'week' ? 'default' : 'outline'}
@@ -739,7 +717,7 @@ const EventsSection = () => {
                       onClick={() => setCurrentView('week')}
                       className="text-xs sm:text-sm shrink-0"
                     >
-                      Semana
+                      {t('events.week')}
                     </Button>
                     <Button
                       variant={currentView === 'day' ? 'default' : 'outline'}
@@ -747,7 +725,7 @@ const EventsSection = () => {
                       onClick={() => setCurrentView('day')}
                       className="text-xs sm:text-sm shrink-0"
                     >
-                      Día
+                      {t('events.day')}
                     </Button>
                     <Button
                       variant={currentView === 'list' ? 'default' : 'outline'}
@@ -755,7 +733,7 @@ const EventsSection = () => {
                       onClick={() => setCurrentView('list')}
                       className="text-xs sm:text-sm shrink-0"
                     >
-                      Lista
+                      {t('events.list')}
                     </Button>
                   </div>
                 </div>
@@ -771,7 +749,7 @@ const EventsSection = () => {
 
             <div className="lg:col-span-3 flex flex-col max-h-[500px] sm:max-h-[600px] md:max-h-[700px] lg:max-h-[820px]">
               <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6 lg:mb-7">
-                Próximos eventos
+                {t('events.upcoming')}
               </h3>
               <div className="space-y-3 sm:space-y-4 overflow-y-auto flex-1 pr-2">
                 {upcomingEvents.map((event) => (
@@ -821,20 +799,20 @@ const EventsSection = () => {
                             </span>
                             <span className="flex items-center gap-1">
                               <Users className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-                              {event.attendees} registrada
+                              {event.attendees} {t('events.registered')}
                             </span>
                           </div>
                         </div>
 
                         <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-border flex items-center justify-between">
                           <span className="text-xs sm:text-sm text-muted-foreground">
-                            Inscripciones abiertas
+                            {t('events.registrations_open')}
                           </span>
                           <Button
                             size="sm"
                             className="bg-primary text-white hover:bg-lime-dark text-xs sm:text-sm"
                           >
-                            Registro
+                            {t('events.registration')}
                           </Button>
                         </div>
                       </div>
@@ -846,7 +824,7 @@ const EventsSection = () => {
                   variant="outline"
                   className="w-full py-4 sm:py-5 md:py-6 text-xs sm:text-sm md:text-base group"
                 >
-                  Ver todos los eventos
+                  {t('events.view_all')}
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </div>

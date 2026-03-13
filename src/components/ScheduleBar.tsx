@@ -2,8 +2,10 @@ import { ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useRef } from 'react';
 import { tournamentResults, countryFlags } from '@/data/mockData';
+import { useTranslation } from 'react-i18next';
 
 const ScheduleBar = () => {
+  const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -48,7 +50,7 @@ const ScheduleBar = () => {
                     </span>
                   </div>
                   <span className="text-[7px] xs:text-[8px] px-1 py-0.5 rounded-full bg-gradient-to-r from-primary/30 to-primary/10 text-primary font-bold whitespace-nowrap flex-shrink-0">
-                    {tournament.status === 'terminada' ? 'FINAL' : 'VIVA'}
+                    {tournament.status === 'terminada' ? t('scheduleBar.final') : t('scheduleBar.live')}
                   </span>
                 </div>
 

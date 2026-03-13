@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import unifiedPickleballLogo from '@/assets/images/international-federation.png';
 import { Globe, CheckCircle, TrendingUp, Users, Sparkles, ArrowRight } from 'lucide-react';
 
 const InternationalFederation = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
       <main className="flex-1">
@@ -44,7 +46,7 @@ const InternationalFederation = () => {
                     rounded-full border border-primary/20 backdrop-blur-sm"
                   >
                     <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
-                    <span>Afiliación Global</span>
+                    <span>{t('pages.international.label')}</span>
                   </span>
                 </div>
 
@@ -55,7 +57,7 @@ const InternationalFederation = () => {
                       className="block bg-gradient-to-r from-white via-white to-slate-300 
                       bg-clip-text text-transparent leading-tight"
                     >
-                      ¿Qué es la Federación Internacional de Pickleball?
+                      {t('pages.international.title')}
                     </span>
                   </h1>
                 </div>
@@ -69,23 +71,13 @@ const InternationalFederation = () => {
                     className="relative pl-4 sm:pl-5 md:pl-6 border-l-2 sm:border-l-3 md:border-l-4 
                     border-primary/50"
                   >
-                    La Federación Internacional de Pickleball (IPF) es el organismo rector
-                    internacional responsable de promover, desarrollar y regular el pickleball en
-                    todo el mundo. Su misión es impulsar el crecimiento organizado del deporte,
-                    establecer estándares internacionales y fomentar la colaboración entre
-                    federaciones nacionales de diferentes países.
+                    {t('pages.international.desc1')}
                   </p>
                   <p
                     className="relative pl-4 sm:pl-5 md:pl-6 border-l-2 sm:border-l-3 md:border-l-4 
                     border-lime-500/50"
                   >
-                    Recientemente, la IPF se fusionó con la Federación Mundial de Pickleball (WPF),
-                    dando lugar a una nueva etapa para el pickleball global bajo una estructura
-                    unificada conocida como{' '}
-                    <strong className="text-primary font-semibold">Unified Pickleball</strong>. Esta
-                    unión fortalece el gobierno del deporte, consolida reglas y criterios comunes, y
-                    permite una mejor organización de competiciones, programas de desarrollo y
-                    representación internacional.
+                    {t('pages.international.desc2')}
                   </p>
                 </div>
 
@@ -95,19 +87,19 @@ const InternationalFederation = () => {
                     <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1 sm:mb-2">
                       150+
                     </div>
-                    <div className="text-xs sm:text-sm text-white/60">Países</div>
+                    <div className="text-xs sm:text-sm text-white/60">{t('pages.international.stat_countries')}</div>
                   </div>
                   <div className="text-center p-3 sm:p-4 rounded-xl bg-slate-800/30 backdrop-blur-sm">
                     <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1 sm:mb-2">
                       500K+
                     </div>
-                    <div className="text-xs sm:text-sm text-white/60">Miembros</div>
+                    <div className="text-xs sm:text-sm text-white/60">{t('pages.international.stat_members')}</div>
                   </div>
                   <div className="text-center p-3 sm:p-4 rounded-xl bg-slate-800/30 backdrop-blur-sm">
                     <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-1 sm:mb-2">
                       1000+
                     </div>
-                    <div className="text-xs sm:text-sm text-white/60">Eventos</div>
+                    <div className="text-xs sm:text-sm text-white/60">{t('pages.international.stat_events')}</div>
                   </div>
                 </div>
               </div>
@@ -211,14 +203,14 @@ const InternationalFederation = () => {
                   bg-primary/10 px-4 py-1.5 sm:px-5 sm:py-2 md:px-6 md:py-2.5 
                   rounded-full border border-primary/20"
                 >
-                  Nuestra Conexión
+                  {t('pages.international.affiliation_title')}
                 </span>
               </div>
               <h2
-                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold 
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold
                 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-3 sm:mb-4"
               >
-                Nuestra Afiliación
+                {t('pages.international.affiliation_title')}
               </h2>
               <div className="flex items-center justify-center gap-2 sm:gap-3">
                 <div
@@ -272,13 +264,7 @@ const InternationalFederation = () => {
                     {/* Description */}
                     <div className="space-y-4">
                       <p className="text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed">
-                        Nuestra Federación está afiliada con{' '}
-                        <strong className="text-primary font-semibold">Unified Pickleball</strong>,
-                        conectándonos oficialmente con la comunidad internacional de pickleball.
-                        Esta afiliación garantiza que nuestras actividades, regulaciones y
-                        competiciones se alineen con estándares internacionales y abre la puerta a
-                        mayores oportunidades de crecimiento, intercambio deportivo y participación
-                        en eventos globales.
+                        {t('pages.international.affiliation_desc')}
                       </p>
                     </div>
 
@@ -287,23 +273,23 @@ const InternationalFederation = () => {
                       {[
                         {
                           icon: CheckCircle,
-                          title: 'Estándares Internacionales',
-                          desc: 'Reglas y regulaciones alineadas con prácticas globales',
+                          title: t('pages.international.benefit1_title'),
+                          desc: t('pages.international.benefit1_desc'),
                         },
                         {
                           icon: Globe,
-                          title: 'Eventos Globales',
-                          desc: 'Participación en competiciones internacionales',
+                          title: t('pages.international.benefit2_title'),
+                          desc: t('pages.international.benefit2_desc'),
                         },
                         {
                           icon: Users,
-                          title: 'Intercambio Deportivo',
-                          desc: 'Colaboración con federaciones en todo el mundo',
+                          title: t('pages.international.benefit3_title'),
+                          desc: t('pages.international.benefit3_desc'),
                         },
                         {
                           icon: TrendingUp,
-                          title: 'Oportunidades de Crecimiento',
-                          desc: 'Acceso a programas de desarrollo y recursos',
+                          title: t('pages.international.benefit4_title'),
+                          desc: t('pages.international.benefit4_desc'),
                         },
                       ].map((benefit, index) => (
                         <div
@@ -373,14 +359,14 @@ const InternationalFederation = () => {
                   bg-primary/10 px-4 py-1.5 sm:px-5 sm:py-2 md:px-6 md:py-2.5 
                   rounded-full border border-primary/20"
                 >
-                  Impacto Global
+                  {t('pages.international.why_title')}
                 </span>
               </div>
               <h2
                 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold 
                 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-3 sm:mb-4"
               >
-                Por Qué Importa
+                {t('pages.international.why_sub')}
               </h2>
             </div>
 
@@ -392,20 +378,20 @@ const InternationalFederation = () => {
               {[
                 {
                   icon: Sparkles,
-                  title: 'Estándares Unificados',
-                  desc: 'Reglas y regulaciones consistentes en todas las naciones miembros, asegurando juego justo y estándares de competencia profesional.',
+                  title: t('pages.international.pillar1_title'),
+                  desc: t('pages.international.pillar1_desc'),
                   color: 'primary',
                 },
                 {
                   icon: Globe,
-                  title: 'Red Global',
-                  desc: 'Acceso a una red internacional de federaciones, entrenadores y jugadores fomentando colaboración e intercambio de conocimientos.',
+                  title: t('pages.international.pillar2_title'),
+                  desc: t('pages.international.pillar2_desc'),
                   color: 'lime-500',
                 },
                 {
                   icon: TrendingUp,
-                  title: 'Desarrollo de Élite',
-                  desc: 'Programas de entrenamiento avanzado y recursos diseñados para elevar a los atletas a niveles competitivos de clase mundial.',
+                  title: t('pages.international.pillar3_title'),
+                  desc: t('pages.international.pillar3_desc'),
                   color: 'primary',
                 },
               ].map((item, index) => (
@@ -512,7 +498,7 @@ const InternationalFederation = () => {
                     className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold 
                     bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-3 sm:mb-4"
                   >
-                    Únete al Movimiento Global
+                    {t('pages.international.cta_title')}
                   </h3>
 
                   {/* Description */}
@@ -520,7 +506,7 @@ const InternationalFederation = () => {
                     className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 
                     max-w-2xl mx-auto px-2"
                   >
-                    Sé parte de la conexión de México con la comunidad mundial de Pickleball
+                    {t('pages.international.cta_sub')}
                   </p>
 
                   {/* Button */}
@@ -534,7 +520,7 @@ const InternationalFederation = () => {
                       hover:shadow-primary/50 transition-all duration-500 overflow-hidden relative"
                   >
                     <span className="relative z-10 whitespace-nowrap">
-                      Aprende más sobre la Afiliación
+                      {t('pages.international.cta_btn')}
                     </span>
                     <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-500" />
                     <div

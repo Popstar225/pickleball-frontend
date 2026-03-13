@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AppDispatch, RootState } from '../../store';
 import { registerUser } from '../../store/slices/authSlice';
 import { toast } from 'sonner';
@@ -28,6 +29,7 @@ import {
 } from 'lucide-react';
 
 const OptionalFieldsPage = () => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     date_of_birth: '',
     gender: '',
@@ -147,37 +149,37 @@ const OptionalFieldsPage = () => {
     const baseFields = [
       {
         name: 'phone',
-        label: 'Número de Teléfono',
+        label: t('auth.optionalFields.field_phone'),
         type: 'tel',
-        placeholder: '+52 123 456 7890',
+        placeholder: t('auth.optionalFields.field_phone_placeholder'),
         icon: Phone,
       },
       {
         name: 'state',
-        label: 'Estado',
+        label: t('auth.optionalFields.field_state'),
         type: 'autocomplete',
-        placeholder: 'Buscar estado...',
+        placeholder: t('auth.optionalFields.field_state_placeholder'),
         icon: MapPin,
       },
       {
         name: 'city',
-        label: 'Ciudad',
+        label: t('auth.optionalFields.field_city'),
         type: 'text',
-        placeholder: 'ej., Guadalajara',
+        placeholder: t('auth.optionalFields.field_city_placeholder'),
         icon: MapPin,
       },
       {
         name: 'address',
-        label: 'Dirección',
+        label: t('auth.optionalFields.field_address'),
         type: 'textarea',
-        placeholder: 'Tu dirección completa',
+        placeholder: t('auth.optionalFields.field_address_placeholder'),
         icon: MapPin,
       },
       {
         name: 'website',
-        label: 'Sitio Web',
+        label: t('auth.optionalFields.field_website'),
         type: 'url',
-        placeholder: 'https://tusitio.com',
+        placeholder: t('auth.optionalFields.field_website_placeholder'),
         icon: Globe,
       },
     ];
@@ -186,49 +188,49 @@ const OptionalFieldsPage = () => {
       return [
         {
           name: 'date_of_birth',
-          label: 'Fecha de Nacimiento',
+          label: t('auth.optionalFields.field_date_of_birth'),
           type: 'date',
           placeholder: '',
           icon: Calendar,
         },
         {
           name: 'gender',
-          label: 'Género',
+          label: t('auth.optionalFields.field_gender'),
           type: 'select',
           options: ['masculino', 'femenino', 'otro', 'prefiero_no_decir'],
           icon: User,
         },
         {
           name: 'skill_level',
-          label: 'Nivel de Habilidad',
+          label: t('auth.optionalFields.field_skill_level'),
           type: 'select',
           options: ['2.5', '3.5', '4.5', '5+'],
           icon: Award,
         },
-        { name: 'curp', label: 'CURP', type: 'text', placeholder: '18 caracteres', icon: FileText },
+        { name: 'curp', label: t('auth.optionalFields.field_curp'), type: 'text', placeholder: t('auth.optionalFields.field_curp_placeholder'), icon: FileText },
         ...baseFields,
       ];
     } else if (userType === 'club' || userType === 'partner') {
       return [
         {
           name: 'contact_person',
-          label: 'Persona de Contacto',
+          label: t('auth.optionalFields.field_contact_person'),
           type: 'text',
-          placeholder: 'Nombre completo del contacto',
+          placeholder: t('auth.optionalFields.field_contact_person_placeholder'),
           icon: User,
         },
         {
           name: 'job_title',
-          label: 'Cargo',
+          label: t('auth.optionalFields.field_job_title'),
           type: 'text',
-          placeholder: 'ej., Gerente del Club',
+          placeholder: t('auth.optionalFields.field_job_title_placeholder'),
           icon: Briefcase,
         },
         {
           name: 'rfc',
-          label: 'RFC',
+          label: t('auth.optionalFields.field_rfc'),
           type: 'text',
-          placeholder: 'Máx. 13 caracteres',
+          placeholder: t('auth.optionalFields.field_rfc_placeholder'),
           icon: FileText,
         },
         ...baseFields,
@@ -242,11 +244,11 @@ const OptionalFieldsPage = () => {
     try {
       if (userType === 'player' || userType === 'coach') {
         if (!files.profile_photo) {
-          toast.error('La foto de perfil es requerida para jugadores y entrenadores');
+          toast.error(t('auth.optionalFields.validate_full_name'));
           return;
         }
         if (!files.verification_document) {
-          toast.error('El documento de verificación es requerido para jugadores y entrenadores');
+          toast.error(t('auth.optionalFields.validate_full_name'));
           return;
         }
       }
@@ -276,37 +278,37 @@ const OptionalFieldsPage = () => {
       const validationErrors = [];
 
       if (userType === 'player' || userType === 'coach') {
-        if (!files.profile_photo) validationErrors.push('La foto de perfil es requerida');
+        if (!files.profile_photo) validationErrors.push(t('auth.optionalFields.validate_full_name'));
         if (!files.verification_document)
-          validationErrors.push('El documento de verificación es requerido');
+          validationErrors.push(t('auth.optionalFields.validate_full_name'));
         if (!requiredFields.full_name || requiredFields.full_name.trim() === '') {
-          validationErrors.push('El nombre completo es requerido');
+          validationErrors.push(t('auth.optionalFields.validate_full_name'));
         }
       }
 
       if (userType === 'club' || userType === 'partner') {
         if (!requiredFields.business_name || requiredFields.business_name.trim() === '') {
-          validationErrors.push('El nombre del negocio es requerido');
+          validationErrors.push(t('auth.optionalFields.validate_business_name'));
         }
       }
 
       if (!requiredFields.privacy_policy_accepted) {
-        validationErrors.push('Debes aceptar la política de privacidad');
+        validationErrors.push(t('auth.optionalFields.validate_privacy'));
       }
 
       if (!requiredFields.username || requiredFields.username.trim() === '') {
-        validationErrors.push('El nombre de usuario es requerido');
+        validationErrors.push(t('auth.optionalFields.validate_username'));
       }
       if (!requiredFields.email || requiredFields.email.trim() === '') {
-        validationErrors.push('El correo electrónico es requerido');
+        validationErrors.push(t('auth.optionalFields.validate_email'));
       }
       if (!requiredFields.password || requiredFields.password.trim() === '') {
-        validationErrors.push('La contraseña es requerida');
+        validationErrors.push(t('auth.optionalFields.validate_password'));
       }
 
       if (validationErrors.length > 0) {
         toast.error(
-          `Por favor, soluciona los siguientes problemas:\n${validationErrors.join('\n')}`,
+          `${t('auth.optionalFields.validate_issues')}\n${validationErrors.join('\n')}`,
         );
         return;
       }
@@ -318,7 +320,7 @@ const OptionalFieldsPage = () => {
       if (apiResponse?.data?.user && apiResponse?.data?.tokens) {
         localStorage.removeItem('registration_user_type');
         localStorage.removeItem('registration_required_fields');
-        toast.success('¡Registro exitoso! ¡Bienvenido a la comunidad de pickleball!');
+        toast.success(t('auth.optionalFields.toast_success'));
 
         const userType = apiResponse.data.user.user_type;
         switch (userType) {
@@ -341,11 +343,11 @@ const OptionalFieldsPage = () => {
             navigate('/player/dashboard');
         }
       } else {
-        toast.error('Registration failed - Invalid response from server');
+        toast.error(t('auth.optionalFields.toast_error_server'));
         console.error('Registration failed - Invalid response structure:', apiResponse);
       }
     } catch (err) {
-      toast.error(error || 'Registration failed');
+      toast.error(error || t('auth.optionalFields.toast_error_server'));
     }
   };
 
@@ -364,27 +366,27 @@ const OptionalFieldsPage = () => {
 
       if (userType === 'club' || userType === 'partner') {
         if (!requiredFields.business_name || requiredFields.business_name.trim() === '') {
-          validationErrors.push('El nombre del negocio es requerido');
+          validationErrors.push(t('auth.optionalFields.validate_business_name'));
         }
       }
 
       if (!requiredFields.privacy_policy_accepted) {
-        validationErrors.push('Debes aceptar la política de privacidad');
+        validationErrors.push(t('auth.optionalFields.validate_privacy'));
       }
 
       if (!requiredFields.username || requiredFields.username.trim() === '') {
-        validationErrors.push('El nombre de usuario es requerido');
+        validationErrors.push(t('auth.optionalFields.validate_username'));
       }
       if (!requiredFields.email || requiredFields.email.trim() === '') {
-        validationErrors.push('El correo electrónico es requerido');
+        validationErrors.push(t('auth.optionalFields.validate_email'));
       }
       if (!requiredFields.password || requiredFields.password.trim() === '') {
-        validationErrors.push('La contraseña es requerida');
+        validationErrors.push(t('auth.optionalFields.validate_password'));
       }
 
       if (validationErrors.length > 0) {
         toast.error(
-          `Por favor, soluciona los siguientes problemas:\n${validationErrors.join('\n')}`,
+          `${t('auth.optionalFields.validate_issues')}\n${validationErrors.join('\n')}`,
         );
         return;
       }
@@ -396,7 +398,7 @@ const OptionalFieldsPage = () => {
       if (apiResponse?.data?.user && apiResponse?.data?.tokens) {
         localStorage.removeItem('registration_user_type');
         localStorage.removeItem('registration_required_fields');
-        toast.success('¡Registro exitoso! Puedes completar tu perfil más tarde.');
+        toast.success(t('auth.optionalFields.toast_success_skip'));
 
         const userType = apiResponse.data.user.user_type;
         switch (userType) {
@@ -419,23 +421,16 @@ const OptionalFieldsPage = () => {
             navigate('/player/dashboard');
         }
       } else {
-        toast.error('Registration failed - Invalid response from server');
+        toast.error(t('auth.optionalFields.toast_error_server'));
         console.error('Registration failed - Invalid response structure:', apiResponse);
       }
     } catch (err) {
-      toast.error(error || 'Registration failed');
+      toast.error(error || t('auth.optionalFields.toast_error_server'));
     }
   };
 
   const getUserTypeLabel = () => {
-    const labels: Record<string, string> = {
-      player: 'Jugador',
-      coach: 'Entrenador',
-      club: 'Club',
-      partner: 'Asociado',
-      state: 'Federación Estatal',
-    };
-    return labels[userType] || userType;
+    return t(`userTypes.${userType}.title`, { defaultValue: userType });
   };
 
   const renderField = (field: any) => {
@@ -481,14 +476,14 @@ const OptionalFieldsPage = () => {
                 transition-all duration-300 backdrop-blur-sm hover:border-slate-600/50"
               >
                 <option value="" className="bg-slate-800">
-                  Selecciona {field.label.toLowerCase()}
+                  {t('auth.optionalFields.select_prefix')} {field.label.toLowerCase()}
                 </option>
                 {field.options.map((option: string) => {
                   const optionLabels: Record<string, string> = {
-                    masculino: 'Masculino',
-                    femenino: 'Femenino',
-                    otro: 'Otro',
-                    prefiero_no_decir: 'Prefiero no decir',
+                    masculino: t('auth.optionalFields.gender_male'),
+                    femenino: t('auth.optionalFields.gender_female'),
+                    otro: option.charAt(0).toUpperCase() + option.slice(1).replace('_', ' '),
+                    prefiero_no_decir: option.charAt(0).toUpperCase() + option.slice(1).replace('_', ' '),
                   };
                   const label =
                     optionLabels[option] ||
@@ -567,18 +562,18 @@ const OptionalFieldsPage = () => {
             <div className="inline-block mb-4">
               <span className="inline-flex items-center gap-2 text-primary text-sm font-bold tracking-wider uppercase bg-primary/10 px-6 py-2.5 rounded-full border border-primary/20 backdrop-blur-sm">
                 <Sparkles className="w-4 h-4" />
-                <span>Paso 2 de 2</span>
+                <span>{t('auth.optionalFields.step')}</span>
               </span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
               <span className="block bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent leading-tight">
-                Completa Tu Perfil
+                {t('auth.optionalFields.title')}
               </span>
             </h1>
 
             <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-              Agrega información opcional para mejorar tu experiencia como {getUserTypeLabel()}
+              {t('auth.optionalFields.subtitle', { role: getUserTypeLabel() })}
             </p>
           </div>
 
@@ -596,10 +591,10 @@ const OptionalFieldsPage = () => {
                       <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
                         <Shield className="w-5 h-5 text-primary" />
                       </div>
-                      Documentos Requeridos
+                      {t('auth.optionalFields.docs_title')}
                     </h2>
                     <p className="text-slate-400 mt-2 ml-13">
-                      Sube tu foto de perfil y documento de verificación
+                      {t('auth.optionalFields.docs_sub')}
                     </p>
                   </div>
                 </div>
@@ -610,11 +605,7 @@ const OptionalFieldsPage = () => {
                     <div className="flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div className="text-sm text-slate-300 leading-relaxed">
-                        <strong className="text-primary">¿Por qué son requeridos?</strong> Las fotos
-                        de perfil ayudan a otros jugadores a reconocerte, y los documentos de
-                        verificación aseguran la seguridad y autenticidad de nuestra comunidad.
-                        Estos documentos se almacenan de forma segura y solo se usan para propósitos
-                        de verificación.
+                        <strong className="text-primary">{t('auth.optionalFields.info_banner_title')}</strong> {t('auth.optionalFields.info_banner_text')}
                       </div>
                     </div>
                   </div>
@@ -625,9 +616,9 @@ const OptionalFieldsPage = () => {
                   {/* Profile Photo Upload */}
                   <div className="space-y-3">
                     <label className="block text-sm font-semibold text-slate-300">
-                      Foto de Perfil
+                      {t('auth.optionalFields.photo_label')}
                       <span className="text-primary ml-1">*</span>
-                      <span className="text-xs text-slate-500 ml-2">(Requerido)</span>
+                      <span className="text-xs text-slate-500 ml-2">({t('auth.optionalFields.photo_optional')})</span>
                     </label>
 
                     <div
@@ -647,7 +638,7 @@ const OptionalFieldsPage = () => {
                           <div className="relative w-24 h-24 mx-auto">
                             <img
                               src={URL.createObjectURL(files.profile_photo)}
-                              alt="Vista previa del perfil"
+                              alt={t('auth.optionalFields.photo_preview_alt')}
                               className="w-full h-full object-cover rounded-full border-4 border-primary/30"
                             />
                             <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
@@ -663,7 +654,7 @@ const OptionalFieldsPage = () => {
                             text-slate-300 rounded-lg transition-all duration-300 text-sm font-medium"
                           >
                             <X className="w-4 h-4" />
-                            Eliminar Foto
+                            {t('auth.optionalFields.photo_remove')}
                           </button>
                         </div>
                       ) : (
@@ -673,9 +664,9 @@ const OptionalFieldsPage = () => {
                           </div>
                           <div className="space-y-2">
                             <p className="text-slate-300 font-medium">
-                              Haz clic para subir o arrastra y suelta
+                              {t('auth.optionalFields.photo_drag')}
                             </p>
-                            <p className="text-xs text-slate-500">PNG, JPG, WebP hasta 5MB</p>
+                            <p className="text-xs text-slate-500">{t('auth.optionalFields.photo_formats')}</p>
                           </div>
                           <input
                             id="profile_photo"
@@ -693,7 +684,7 @@ const OptionalFieldsPage = () => {
                             transition-all duration-300 font-semibold"
                           >
                             <Upload className="w-5 h-5" />
-                            Seleccionar Foto
+                            {t('auth.optionalFields.photo_btn')}
                           </button>
                         </div>
                       )}
@@ -703,9 +694,9 @@ const OptionalFieldsPage = () => {
                   {/* Verification Document Upload */}
                   <div className="space-y-3">
                     <label className="block text-sm font-semibold text-slate-300">
-                      Documento de Verificación
+                      {t('auth.optionalFields.doc_label')}
                       <span className="text-primary ml-1">*</span>
-                      <span className="text-xs text-slate-500 ml-2">(INE/Pasaporte)</span>
+                      <span className="text-xs text-slate-500 ml-2">{t('auth.optionalFields.doc_hint')}</span>
                     </label>
 
                     <div
@@ -739,7 +730,7 @@ const OptionalFieldsPage = () => {
                             text-slate-300 rounded-lg transition-all duration-300 text-sm font-medium"
                           >
                             <X className="w-4 h-4" />
-                            Eliminar Documento
+                            {t('auth.optionalFields.doc_remove')}
                           </button>
                         </div>
                       ) : (
@@ -749,9 +740,9 @@ const OptionalFieldsPage = () => {
                           </div>
                           <div className="space-y-2">
                             <p className="text-slate-300 font-medium">
-                              Haz clic para subir o arrastra y suelta
+                              {t('auth.optionalFields.doc_drag')}
                             </p>
-                            <p className="text-xs text-slate-500">PDF, PNG, JPG hasta 5MB</p>
+                            <p className="text-xs text-slate-500">{t('auth.optionalFields.doc_formats')}</p>
                           </div>
                           <input
                             id="verification_document"
@@ -771,7 +762,7 @@ const OptionalFieldsPage = () => {
                             transition-all duration-300 font-semibold"
                           >
                             <Upload className="w-5 h-5" />
-                            Seleccionar Documento
+                            {t('auth.optionalFields.doc_btn')}
                           </button>
                         </div>
                       )}
@@ -796,9 +787,9 @@ const OptionalFieldsPage = () => {
                       <div className="w-10 h-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
                         <User className="w-5 h-5 text-primary" />
                       </div>
-                      Información Personal
+                      {t('auth.optionalFields.personal_info')}
                     </h2>
-                    <p className="text-slate-400 mt-2 ml-13">Ayuda a otros a conocerte mejor</p>
+                    <p className="text-slate-400 mt-2 ml-13">{t('auth.optionalFields.personal_info_sub')}</p>
                   </div>
                 </div>
 
@@ -822,10 +813,10 @@ const OptionalFieldsPage = () => {
                       <div className="w-10 h-10 rounded-xl bg-lime-500/20 border border-lime-500/30 flex items-center justify-center">
                         <Sparkles className="w-5 h-5 text-lime-500" />
                       </div>
-                      Detalles Adicionales
+                      {t('auth.optionalFields.additional_details')}
                     </h2>
                     <p className="text-slate-400 mt-2 ml-13">
-                      Información adicional para tu perfil
+                      {t('auth.optionalFields.additional_details_sub')}
                     </p>
                   </div>
                 </div>
@@ -851,7 +842,7 @@ const OptionalFieldsPage = () => {
             >
               <div className="flex items-center justify-center gap-2">
                 <ArrowLeft className="w-5 h-5 group-hover/btn:-translate-x-1 transition-transform duration-300" />
-                <span>Atrás</span>
+                <span>{t('auth.optionalFields.back')}</span>
               </div>
             </button>
 
@@ -868,7 +859,7 @@ const OptionalFieldsPage = () => {
                   w-full sm:flex-1"
                 >
                   <div className="relative z-10 flex items-center justify-center gap-2">
-                    <span>{loading ? 'Creando Cuenta...' : 'Omitir y Registrarse Ahora'}</span>
+                    <span>{loading ? t('auth.optionalFields.creating') : t('auth.requiredFields.skip')}</span>
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-1000" />
                 </button>
@@ -885,7 +876,7 @@ const OptionalFieldsPage = () => {
                 w-full sm:flex-1"
               >
                 <div className="relative z-10 flex items-center justify-center gap-2">
-                  <span>{loading ? 'Creando Cuenta...' : 'Completar Registro'}</span>
+                  <span>{loading ? t('auth.optionalFields.creating') : t('auth.optionalFields.complete')}</span>
                   <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform duration-300" />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-1000" />

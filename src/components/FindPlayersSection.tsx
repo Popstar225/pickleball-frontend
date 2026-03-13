@@ -1,8 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Users, Search, MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import findPlayersImage from '@/assets/images/find-players.jpg';
 
 const FindPlayersSection = () => {
+  const { t } = useTranslation();
   const handleFindPlayers = () => {
     console.log('Find players clicked - open search tool or navigate to find players page');
     // Navigate to find players tool or open modal
@@ -27,16 +29,15 @@ const FindPlayersSection = () => {
         <div className="max-w-2xl">
           <div className="flex items-center gap-2 mb-3 sm:mb-4">
             <Users className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-            <span className="text-white/80 font-medium text-xs sm:text-base">COMUNIDAD</span>
+            <span className="text-white/80 font-medium text-xs sm:text-base">{t('findPlayers.label')}</span>
           </div>
 
           <h2 className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-3 sm:mb-4">
-            ¿ESTÁS BUSCANDO A ALGUIEN CON QUIEN JUGAR?
+            {t('findPlayers.title')}
           </h2>
 
           <p className="text-white/90 text-sm sm:text-lg mb-6 sm:mb-8 max-w-lg leading-relaxed">
-            Descubre nuestra herramienta para encontrar jugadores cerca de ti. Conéctate con la
-            comunidad de pickleball y ¡no vuelvas a jugar solo nunca más!
+            {t('findPlayers.subtitle')} {t('findPlayers.tagline')}
           </p>
 
           <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
@@ -46,7 +47,7 @@ const FindPlayersSection = () => {
               onClick={handleFindPlayers}
             >
               <Search className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Encontrar!
+              {t('findPlayers.btn')}
             </Button>
             <Button
               size="lg"
@@ -55,7 +56,7 @@ const FindPlayersSection = () => {
               onClick={handleViewMap}
             >
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Ver mapa
+              {t('findPlayers.map_btn')}
             </Button>
           </div>
         </div>

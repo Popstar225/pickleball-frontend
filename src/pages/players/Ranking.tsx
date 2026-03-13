@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   TrendingUp,
   TrendingDown,
@@ -53,6 +54,7 @@ const generateTop100Players = () => {
 const top100Players = generateTop100Players();
 
 const Ranking = () => {
+  const { t } = useTranslation();
   const [category, setCategory] = useState('general');
   const [hoveredRow, setHoveredRow] = useState<number | null>(null);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -120,7 +122,7 @@ const Ranking = () => {
   const renderPaginationControls = () => (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
       <div className="text-sm text-slate-300 font-medium">
-        Página {currentPage} de {totalPages}
+        {t('pages.ranking.page_of', { page: currentPage, total: totalPages })}
       </div>
 
       <div className="flex items-center gap-2">
@@ -132,7 +134,7 @@ const Ranking = () => {
           className="gap-1 bg-slate-900/50 border-slate-700/50 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-200 hover:text-white"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span className="hidden sm:inline">Anterior</span>
+          <span className="hidden sm:inline">{t('pages.ranking.previous')}</span>
         </Button>
 
         <div className="flex items-center gap-1">
@@ -161,13 +163,13 @@ const Ranking = () => {
           disabled={currentPage === totalPages}
           className="gap-1 bg-slate-900/50 border-slate-700/50 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-200 hover:text-white"
         >
-          <span className="hidden sm:inline">Siguiente</span>
+          <span className="hidden sm:inline">{t('pages.ranking.next')}</span>
           <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
 
       <div className="text-sm text-slate-300 font-medium">
-        {ITEMS_PER_PAGE} jugadores por página
+        {t('pages.ranking.per_page', { count: ITEMS_PER_PAGE })}
       </div>
     </div>
   );
@@ -212,17 +214,16 @@ const Ranking = () => {
               <div className="inline-block animate-fade-in">
                 <span className="inline-flex items-center gap-2 text-primary text-xs sm:text-sm font-bold tracking-widest uppercase bg-primary/10 px-4 py-2 sm:px-6 sm:py-3 rounded-full border border-primary/20 backdrop-blur-sm">
                   <Trophy className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span>Clasificación Oficial</span>
+                  <span>{t('pages.ranking.label')}</span>
                 </span>
               </div>
 
               <div className="space-y-3 lg:space-y-4">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight">
-                  Ranking
-                  <span className="block text-primary mt-1 lg:mt-2">Nacional</span>
+                  {t('pages.ranking.title')}
                 </h1>
                 <p className="text-white/80 text-sm sm:text-base lg:text-xl max-w-2xl lg:max-w-3xl mx-auto leading-relaxed px-4">
-                  Clasificación oficial de jugadores de la Federación Mexicana de Pickleball
+                  {t('pages.ranking.subtitle')}
                 </p>
               </div>
 
@@ -238,7 +239,7 @@ const Ranking = () => {
                     {TOTAL_PLAYERS.toLocaleString()}
                   </div>
                   <div className="text-xs sm:text-sm text-white/90 font-semibold">
-                    Jugadores Totales
+                    {t('pages.ranking.stat_total')}
                   </div>
                 </div>
                 <div className="bg-gradient-to-br from-primary/20 to-lime-500/20 backdrop-blur-md border border-primary/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 text-center hover:border-primary/60 transition-all">
@@ -246,7 +247,7 @@ const Ranking = () => {
                     100
                   </div>
                   <div className="text-xs sm:text-sm text-white/90 font-semibold">
-                    Top Jugadores
+                    {t('pages.ranking.stat_top')}
                   </div>
                 </div>
                 <div className="bg-gradient-to-br from-primary/20 to-lime-500/20 backdrop-blur-md border border-primary/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 text-center hover:border-primary/60 transition-all">
@@ -260,7 +261,7 @@ const Ranking = () => {
                     LIVE
                   </div>
                   <div className="text-xs sm:text-sm text-white/90 font-semibold">
-                    En Tiempo Real
+                    {t('pages.ranking.stat_live')}
                   </div>
                 </div>
               </div>
@@ -268,7 +269,7 @@ const Ranking = () => {
               <div className="flex items-center justify-center gap-2 text-white/60 text-xs sm:text-sm px-4">
                 <RefreshCw className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span className="text-center">
-                  Actualizado automáticamente con resultados de torneos
+                  {t('pages.ranking.stat_live_desc')}
                 </span>
               </div>
             </div>
@@ -294,7 +295,7 @@ const Ranking = () => {
                 <div className="flex items-center gap-2">
                   <Users className="w-5 h-5 text-primary" />
                   <span className="text-primary text-xs sm:text-sm font-bold uppercase tracking-wider">
-                    Top 100 Ranking Nacional
+                    {t('pages.ranking.top100')}
                   </span>
                 </div>
 
@@ -303,7 +304,7 @@ const Ranking = () => {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
                       type="text"
-                      placeholder="Buscar jugador..."
+                      placeholder={t('pages.ranking.search_placeholder')}
                       value={searchQuery}
                       onChange={handleSearch}
                       className="pl-10 bg-slate-900/50 backdrop-blur-sm border-slate-700/50 text-white placeholder:text-slate-500 focus:border-primary/50 transition-all"
@@ -318,9 +319,9 @@ const Ranking = () => {
                           className="w-full justify-between bg-slate-900/50 backdrop-blur-sm border-slate-700/50 text-slate-300 hover:text-white"
                         >
                           <span className="capitalize">
-                            {category === 'general' && 'General'}
-                            {category === 'singles' && 'Singles'}
-                            {category === 'doubles' && 'Dobles'}
+                            {category === 'general' && t('pages.ranking.tab_general')}
+                            {category === 'singles' && t('pages.ranking.tab_singles')}
+                            {category === 'doubles' && t('pages.ranking.tab_doubles')}
                           </span>
                           <ChevronDown className="w-4 h-4" />
                         </Button>
@@ -330,19 +331,19 @@ const Ranking = () => {
                           onClick={() => setCategory('general')}
                           className="text-slate-300 hover:bg-slate-800 cursor-pointer"
                         >
-                          General
+                          {t('pages.ranking.tab_general')}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => setCategory('singles')}
                           className="text-slate-300 hover:bg-slate-800 cursor-pointer"
                         >
-                          Singles
+                          {t('pages.ranking.tab_singles')}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => setCategory('doubles')}
                           className="text-slate-300 hover:bg-slate-800 cursor-pointer"
                         >
-                          Dobles
+                          {t('pages.ranking.tab_doubles')}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -355,19 +356,19 @@ const Ranking = () => {
                           value="general"
                           className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-lime-500 data-[state=active]:text-slate-900 data-[state=active]:font-bold px-4 sm:px-6 py-1.5 sm:py-2.5 rounded-lg text-sm sm:text-base transition-all"
                         >
-                          General
+                          {t('pages.ranking.tab_general')}
                         </TabsTrigger>
                         <TabsTrigger
                           value="singles"
                           className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-lime-500 data-[state=active]:text-slate-900 data-[state=active]:font-bold px-4 sm:px-6 py-1.5 sm:py-2.5 rounded-lg text-sm sm:text-base transition-all"
                         >
-                          Singles
+                          {t('pages.ranking.tab_singles')}
                         </TabsTrigger>
                         <TabsTrigger
                           value="doubles"
                           className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-lime-500 data-[state=active]:text-slate-900 data-[state=active]:font-bold px-4 sm:px-6 py-1.5 sm:py-2.5 rounded-lg text-sm sm:text-base transition-all"
                         >
-                          Dobles
+                          {t('pages.ranking.tab_doubles')}
                         </TabsTrigger>
                       </TabsList>
                     </Tabs>
@@ -381,7 +382,7 @@ const Ranking = () => {
                     <div className="flex items-center gap-2">
                       <Search className="w-4 h-4 text-primary" />
                       <span className="text-white text-sm">
-                        {filteredPlayers.length} jugadores encontrados para "{debouncedSearch}"
+                        {t('pages.ranking.showing', { from: 1, to: filteredPlayers.length, total: filteredPlayers.length })} — "{debouncedSearch}"
                       </span>
                     </div>
                     <Button
@@ -393,7 +394,7 @@ const Ranking = () => {
                       }}
                       className="text-slate-400 hover:text-white text-xs"
                     >
-                      Limpiar búsqueda
+                      {t('pages.ranking.clear_search')}
                     </Button>
                   </div>
                 </div>
@@ -541,13 +542,12 @@ const Ranking = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <h2 className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent flex items-center gap-2 sm:gap-3">
                         <div className="w-1 h-6 sm:h-8 bg-gradient-to-b from-primary to-lime-500 rounded-full" />
-                        Clasificación Completa
+                        {t('pages.ranking.top100')}
                       </h2>
 
                       <div className="flex items-center gap-2 text-sm text-slate-400">
                         <span>
-                          Mostrando {startIndex + 1}-{Math.min(endIndex, filteredPlayers.length)} de{' '}
-                          {filteredPlayers.length} jugadores
+                          {t('pages.ranking.showing', { from: startIndex + 1, to: Math.min(endIndex, filteredPlayers.length), total: filteredPlayers.length })}
                         </span>
                       </div>
                     </div>
@@ -565,16 +565,16 @@ const Ranking = () => {
                         <thead>
                           <tr className="border-b border-slate-700/50 bg-slate-900/50">
                             <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
-                              Pos
+                              {t('pages.ranking.col_pos')}
                             </th>
                             <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
-                              Jugador
+                              {t('pages.ranking.col_player')}
                             </th>
                             <th className="text-right py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
-                              Puntos
+                              {t('pages.ranking.col_points')}
                             </th>
                             <th className="text-center py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
-                              Cambio
+                              {t('pages.ranking.col_change')}
                             </th>
                           </tr>
                         </thead>
@@ -668,23 +668,21 @@ const Ranking = () => {
                     <div className="flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8">
                       <div className="flex-1 space-y-3">
                         <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
-                          ¿No estás en el Top 100?
+                          {t('pages.ranking.not_top100')}
                         </h3>
                         <p className="text-slate-400 text-sm sm:text-base">
-                          Más de {TOTAL_PLAYERS.toLocaleString('es-MX')} jugadores registrados en
-                          México. Únete a nuestro boletín para recibir actualizaciones y noticias
-                          del pickleball nacional.
+                          {t('pages.ranking.registered_count', { count: TOTAL_PLAYERS.toLocaleString('es-MX') })}
                         </p>
                       </div>
 
                       <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
                         <Input
                           type="email"
-                          placeholder="Tu correo electrónico"
+                          placeholder={t('pages.ranking.email_placeholder')}
                           className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50 text-white placeholder:text-slate-500 focus:border-primary/50 transition-all sm:w-64"
                         />
                         <Button className="bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-bold px-6 py-6 sm:py-2 hover:shadow-lg hover:shadow-primary/50 transition-all whitespace-nowrap">
-                          Suscribirse
+                          {t('pages.ranking.subscribe')}
                         </Button>
                       </div>
                     </div>
@@ -695,25 +693,25 @@ const Ranking = () => {
                           <div className="text-xl sm:text-2xl font-bold text-primary">
                             {Math.floor(TOTAL_PLAYERS * 0.35).toLocaleString('es-MX')}
                           </div>
-                          <div className="text-xs sm:text-sm text-slate-400">Hombres</div>
+                          <div className="text-xs sm:text-sm text-slate-400">{t('pages.ranking.men')}</div>
                         </div>
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
                             {Math.floor(TOTAL_PLAYERS * 0.35).toLocaleString('es-MX')}
                           </div>
-                          <div className="text-xs sm:text-sm text-slate-400">Mujeres</div>
+                          <div className="text-xs sm:text-sm text-slate-400">{t('pages.ranking.women')}</div>
                         </div>
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
                             {Math.floor(TOTAL_PLAYERS * 0.2).toLocaleString('es-MX')}
                           </div>
-                          <div className="text-xs sm:text-sm text-slate-400">Juniors</div>
+                          <div className="text-xs sm:text-sm text-slate-400">{t('pages.ranking.juniors')}</div>
                         </div>
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
                             {Math.floor(TOTAL_PLAYERS * 0.1).toLocaleString('es-MX')}
                           </div>
-                          <div className="text-xs sm:text-sm text-slate-400">Profesionales</div>
+                          <div className="text-xs sm:text-sm text-slate-400">{t('pages.ranking.professionals')}</div>
                         </div>
                       </div>
                     </div>

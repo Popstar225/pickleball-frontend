@@ -1,6 +1,7 @@
 import { Trophy, IdCard, MapPin, Calendar, Flag, GraduationCap, Gift } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useTranslation } from 'react-i18next';
 import { affiliationBenefits } from '@/data/mockData';
 import benefitsImage from '@/assets/logo-fedmex.png';
 
@@ -34,6 +35,7 @@ const benefitImages: Record<string, string> = {
 };
 
 const Benefits = () => {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/5">
       <main className="flex-1">
@@ -50,18 +52,17 @@ const Benefits = () => {
               <div className="lg:w-3/5 space-y-4 sm:space-y-5 md:space-y-6">
                 <div className="animate-fade-in">
                   <span className="inline-flex items-center text-primary text-sm sm:text-base font-semibold uppercase bg-primary/10 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-primary/20">
-                    Membresía Oficial
+                    {t('pages.benefits.label')}
                   </span>
                 </div>
 
                 <div className="space-y-2 sm:space-y-3">
                   <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight">
-                    Beneficios de
-                    <span className="block text-primary mt-1 sm:mt-2">afiliarse</span>
+                    {t('pages.benefits.title')}
+                    <span className="block text-primary mt-1 sm:mt-2">{t('pages.benefits.subtitle1')}</span>
                   </h1>
                   <p className="text-white/80 text-base sm:text-lg md:text-xl max-w-2xl leading-relaxed">
-                    Únete a la Federación Mexicana de Pickleball y accede a beneficios exclusivos
-                    para tu carrera deportiva.
+                    {t('pages.benefits.subtitle2')}
                   </p>
                 </div>
 
@@ -70,14 +71,14 @@ const Benefits = () => {
                     href="/register"
                     className="inline-flex items-center justify-center gap-2 bg-primary text-white font-semibold px-6 py-3 sm:px-7 sm:py-3.5 md:px-8 md:py-4 rounded-lg hover:bg-lime-600 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg shadow-primary/25 text-sm sm:text-base"
                   >
-                    Únete ahora
+                    {t('pages.benefits.join_btn')}
                     <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
                   </a>
                   <a
                     href="#benefits"
                     className="inline-flex items-center justify-center gap-2 bg-white/10 backdrop-blur text-white font-semibold px-6 py-3 sm:px-7 sm:py-3.5 md:px-8 md:py-4 rounded-lg hover:bg-white/20 transition-all duration-300 border border-white/20 text-sm sm:text-base"
                   >
-                    Ver beneficios
+                    {t('pages.benefits.view_benefits')}
                   </a>
                 </div>
               </div>
@@ -99,7 +100,7 @@ const Benefits = () => {
 
                   <div className="absolute -bottom-4 -right-4 sm:-bottom-5 sm:-right-5 bg-primary text-white px-4 py-2 sm:px-5 sm:py-3 rounded-xl shadow-xl">
                     <div className="text-xl sm:text-2xl md:text-3xl font-bold">7+</div>
-                    <div className="text-xs sm:text-sm opacity-90">Beneficios</div>
+                    <div className="text-xs sm:text-sm opacity-90">{t('pages.benefits.exclusive_title')}</div>
                   </div>
                 </div>
               </div>
@@ -117,17 +118,16 @@ const Benefits = () => {
             <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16 md:mb-20">
               <div className="mb-4 sm:mb-5">
                 <span className="inline-flex items-center text-primary text-sm sm:text-base font-semibold uppercase bg-primary/10 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-primary/20">
-                  Beneficios Exclusivos
+                  {t('pages.benefits.exclusive_sub_title')}
                 </span>
               </div>
 
               <div className="space-y-3 sm:space-y-4">
                 <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white">
-                  Todo lo que obtienes
+                  {t('pages.benefits.exclusive_title')}
                 </h2>
                 <p className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto px-4">
-                  Accede a una amplia gama de beneficios diseñados para impulsar tu desarrollo en el
-                  pickleball
+                  {t('pages.benefits.exclusive_desc')}
                 </p>
               </div>
 
@@ -180,7 +180,7 @@ const Benefits = () => {
                     {/* Hover Indicator */}
                     <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-slate-700/50 group-hover:border-primary/50 transition-colors duration-500">
                       <div className="flex items-center gap-2 text-primary text-xs sm:text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <span>Descubrir más</span>
+                        <span>{t('pages.benefits.discover')}</span>
                         <svg
                           className="w-3 h-3 sm:w-4 sm:h-4 transform group-hover:translate-x-1 transition-transform duration-500"
                           fill="none"
@@ -221,17 +221,17 @@ const Benefits = () => {
                   {/* Header */}
                   <div className="mb-4 sm:mb-6">
                     <span className="inline-flex items-center text-primary text-sm sm:text-base font-semibold uppercase bg-primary/10 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-primary/30">
-                      Únete Hoy
+                      {t('pages.benefits.cta_title')}
                     </span>
                   </div>
 
                   {/* Main Text */}
                   <div className="mb-6 sm:mb-8 md:mb-10 space-y-3 sm:space-y-4">
                     <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white">
-                      ¿Listo para comenzar?
+                      {t('pages.benefits.cta_sub')}
                     </h3>
                     <p className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto">
-                      Afíliate hoy y comienza a disfrutar de todos estos beneficios exclusivos
+                      {t('pages.benefits.affiliate_btn')}
                     </p>
                   </div>
 
@@ -241,7 +241,7 @@ const Benefits = () => {
                       href="/register"
                       className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-bold px-6 py-3 sm:px-7 sm:py-3.5 md:px-8 md:py-4 lg:px-10 lg:py-5 rounded-lg hover:shadow-xl hover:shadow-primary/50 transition-all duration-300 text-sm sm:text-base"
                     >
-                      <span>Afiliarme ahora</span>
+                      <span>{t('pages.benefits.affiliate_btn')}</span>
                       <Trophy className="w-4 h-4 sm:w-5 sm:h-5" />
                     </a>
 
@@ -249,7 +249,7 @@ const Benefits = () => {
                       href="/contact"
                       className="inline-flex items-center justify-center gap-2 bg-slate-800/50 backdrop-blur text-white font-bold px-6 py-3 sm:px-7 sm:py-3.5 md:px-8 md:py-4 lg:px-10 lg:py-5 rounded-lg border border-slate-700 hover:border-primary hover:bg-slate-800 transition-all duration-300 text-sm sm:text-base"
                     >
-                      <span>Contactar</span>
+                      <span>{t('pages.benefits.contact_btn')}</span>
                       <svg
                         className="w-4 h-4 sm:w-5 sm:h-5"
                         fill="none"
@@ -270,17 +270,17 @@ const Benefits = () => {
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-slate-500 text-xs sm:text-sm">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                      <span>Membresía Oficial</span>
+                      <span>{t('pages.benefits.official')}</span>
                     </div>
                     <div className="hidden sm:block w-px h-4 bg-slate-700" />
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-primary rounded-full animate-pulse delay-100" />
-                      <span>Beneficios Instantáneos</span>
+                      <span>{t('pages.benefits.instant')}</span>
                     </div>
                     <div className="hidden sm:block w-px h-4 bg-slate-700" />
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-primary rounded-full animate-pulse delay-200" />
-                      <span>Soporte 24/7</span>
+                      <span>{t('pages.benefits.support')}</span>
                     </div>
                   </div>
                 </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Info,
   Users,
@@ -15,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { nrtpCategories } from '@/data/mockData';
 
 const Categories = () => {
+  const { t } = useTranslation();
   const groupedCategories = nrtpCategories.reduce(
     (acc, cat) => {
       if (!acc[cat.groupName]) {
@@ -81,18 +83,18 @@ const Categories = () => {
               <div className="inline-block animate-fade-in">
                 <span className="inline-flex items-center gap-2 text-primary text-sm font-bold tracking-widest uppercase bg-primary/10 px-6 py-3 rounded-full border border-primary/20 backdrop-blur-sm">
                   <Sparkles className="w-4 h-4" />
-                  <span>Sistema de Clasificación</span>
+                  <span>{t('pages.categories.label')}</span>
                 </span>
               </div>
 
               <div className="space-y-4">
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold">
                   <span className="block bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent">
-                    Categorías NRTP
+                    {t('pages.categories.title')}
                   </span>
                 </h1>
                 <p className="text-xl md:text-2xl text-white/80 max-w-3xl mx-auto leading-relaxed">
-                  Sistema de clasificación de jugadores por nivel de habilidad
+                  {t('pages.categories.subtitle')}
                 </p>
               </div>
 
@@ -105,19 +107,19 @@ const Categories = () => {
               <div className="grid grid-cols-4 gap-6 pt-8 max-w-3xl mx-auto">
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-bold text-green-500 mb-2">2.5-3.5</div>
-                  <div className="text-xs text-white/60">Principiantes</div>
+                  <div className="text-xs text-white/60">{t('pages.categories.beginners')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-bold text-blue-500 mb-2">4.0-4.5</div>
-                  <div className="text-xs text-white/60">Intermedio</div>
+                  <div className="text-xs text-white/60">{t('pages.categories.intermediate')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-bold text-purple-500 mb-2">5.0</div>
-                  <div className="text-xs text-white/60">Avanzado</div>
+                  <div className="text-xs text-white/60">{t('pages.categories.advanced')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-bold text-primary mb-2">5.5+</div>
-                  <div className="text-xs text-white/60">Elite</div>
+                  <div className="text-xs text-white/60">{t('pages.categories.elite')}</div>
                 </div>
               </div>
             </div>
@@ -146,25 +148,13 @@ const Categories = () => {
                         <Info className="w-8 h-8" />
                       </div>
                       <h2 className="text-3xl md:text-4xl font-bold text-white">
-                        ¿Qué es el sistema NRTP?
+                        {t('pages.categories.what_is_title')}
                       </h2>
                     </div>
 
                     <div className="space-y-6 text-slate-300 text-lg leading-relaxed">
                       <p>
-                        El{' '}
-                        <strong className="text-primary">
-                          NRTP (National Rating Tournament Program)
-                        </strong>{' '}
-                        es un sistema de clasificación de jugadores originalmente adoptado del tenis
-                        y adaptado para pickleball con el fin de organizar a los jugadores por nivel
-                        de habilidad. Este sistema permite un juego más justo, equilibrado y
-                        competitivo al emparejar jugadores con habilidades similares.
-                      </p>
-                      <p>
-                        En pickleball, el NRTP evalúa aspectos como control de pelota, consistencia,
-                        estrategia, movilidad y experiencia de juego, asignando a cada jugador una
-                        categoría numérica que representa su nivel.
+                        {t('pages.categories.what_is_text')}
                       </p>
                     </div>
 
@@ -172,23 +162,23 @@ const Categories = () => {
                       {[
                         {
                           icon: Users,
-                          title: 'Clasificar jugadores',
-                          desc: 'Por nivel de habilidad',
+                          title: t('pages.categories.purpose1'),
+                          desc: t('pages.categories.subtitle'),
                         },
                         {
                           icon: Trophy,
-                          title: 'Facilitar torneos',
-                          desc: 'Organización más eficiente',
+                          title: t('pages.categories.purpose2'),
+                          desc: t('pages.categories.purpose3'),
                         },
                         {
                           icon: Target,
-                          title: 'Competencia justa',
-                          desc: 'Partidos equilibrados y seguros',
+                          title: t('pages.categories.fair_play'),
+                          desc: t('pages.categories.fair_play_desc'),
                         },
                         {
                           icon: GraduationCap,
-                          title: 'Desarrollo progresivo',
-                          desc: 'Crecimiento estructurado del jugador',
+                          title: t('pages.categories.progressive'),
+                          desc: t('pages.categories.progressive_desc'),
                         },
                       ].map((benefit, idx) => (
                         <div
@@ -217,14 +207,14 @@ const Categories = () => {
             <div className="text-center max-w-3xl mx-auto mb-16">
               <div className="inline-block mb-4">
                 <span className="text-primary text-sm font-bold uppercase tracking-wider bg-primary/10 px-6 py-2 rounded-full border border-primary/20">
-                  Grupos de Torneos
+                  {t('pages.categories.tournament_groups')}
                 </span>
               </div>
               <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-4">
-                Categorías Principales
+                {t('pages.categories.main_categories')}
               </h2>
               <p className="text-slate-400 text-lg">
-                Para torneos, los niveles NRTP se agrupan en cuatro categorías principales
+                {t('pages.categories.main_categories_desc')}
               </p>
             </div>
 
@@ -288,7 +278,7 @@ const Categories = () => {
                       <div
                         className={`text-sm font-medium ${groupColors[groupName].text} mb-6 opacity-70`}
                       >
-                        {categories.length} {categories.length === 1 ? 'Nivel' : 'Niveles'}
+                        {categories.length} {categories.length === 1 ? t('pages.categories.level') : t('pages.categories.levels')}
                       </div>
 
                       <div className="flex flex-wrap justify-center gap-2">
@@ -322,11 +312,11 @@ const Categories = () => {
               <div className="text-center mb-16">
                 <div className="inline-block mb-4">
                   <span className="text-primary text-sm font-bold uppercase tracking-wider bg-primary/10 px-6 py-2 rounded-full border border-primary/20">
-                    Niveles Detallados
+                    {t('pages.categories.detailed_levels')}
                   </span>
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-4">
-                  Descripción de Cada Nivel
+                  {t('pages.categories.level_desc_title')}
                 </h2>
               </div>
 
@@ -365,7 +355,7 @@ const Categories = () => {
                           <div className="space-y-4">
                             <h4 className="text-sm font-bold text-primary uppercase tracking-wider flex items-center gap-2">
                               <Zap className="w-4 h-4" />
-                              Características Principales
+                              {t('pages.categories.main_features')}
                             </h4>
                             <div className="grid md:grid-cols-2 gap-3">
                               {category.characteristics.map((char, idx) => (
@@ -397,9 +387,7 @@ const Categories = () => {
                       <TrendingUp className="w-6 h-6" />
                     </div>
                     <p className="text-slate-300 text-lg max-w-3xl">
-                      Esta agrupación permite que cada jugador compita en un ambiente adecuado a su
-                      nivel, fomentando una mejor experiencia deportiva y un crecimiento más
-                      estructurado en pickleball.
+                      {t('pages.categories.tournament_groups_desc')}
                     </p>
                   </div>
                 </div>
@@ -428,16 +416,16 @@ const Categories = () => {
                   </div>
 
                   <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                    ¿Listo para Competir?
+                    {t('pages.categories.cta_title')}
                   </h3>
                   <p className="text-slate-400 text-lg max-w-2xl mx-auto">
-                    Descubre tu nivel NRTP y únete a torneos oficiales en toda México
+                    {t('pages.categories.cta_sub')}
                   </p>
                   <a
                     href="/tournaments"
                     className="group inline-flex items-center gap-3 bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-bold px-10 py-5 rounded-2xl hover:shadow-2xl hover:shadow-primary/50 transition-all duration-500 overflow-hidden relative"
                   >
-                    <span className="relative z-10">Ver Torneos</span>
+                    <span className="relative z-10">{t('pages.categories.cta_btn')}</span>
                     <svg
                       className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-500"
                       fill="none"
