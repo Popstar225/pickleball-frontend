@@ -1,10 +1,22 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MapPin, Navigation, AlertCircle, Search, Loader, Trophy, Users, CheckCircle } from 'lucide-react';
-import Header from '@/components/Header';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import {
+  MapPin,
+  AlertCircle,
+  Search,
+  Loader,
+  Trophy,
+  Users,
+  CheckCircle,
+  Navigation2,
+  Phone,
+  Mail,
+  Home,
+} from 'lucide-react';
 import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -15,55 +27,102 @@ import {
 } from '@/components/ui/select';
 import { searchNearbyPlayers, getCurrentLocation, type PlayerFinderResult } from '@/services/playerFinderService';
 
+const MEXICO_CENTER: [number, number] = [23.6345, -102.5528];
+
+function getSkillColor(skillLevel: string): string {
+  const level = parseFloat(skillLevel);
+  if (level >= 5.0) return '#EF4444';
+  if (level >= 4.0) return '#F59E0B';
+  if (level >= 3.0) return '#84CC16';
+  return '#3B82F6';
+}
+
+function createPlayerIcon(color: string, isSelected: boolean): L.DivIcon {
+  const size = isSelected ? 44 : 36;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size + 8}" viewBox="0 0 36 44">
+    <filter id="shadow"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.4"/></filter>
+    <path d="M18 0C8.06 0 0 8.06 0 18c0 12 18 26 18 26S36 30 36 18C36 8.06 27.94 0 18 0z"
+      fill="${color}" stroke="white" stroke-width="2" filter="url(#shadow)"/>
+    <circle cx="18" cy="17" r="7" fill="white" opacity="0.9"/>
+    <path d="M18 12a5 5 0 1 0 0 10A5 5 0 0 0 18 12z" fill="${color}"/>
+  </svg>`;
+  return L.divIcon({
+    html: svg,
+    className: '',
+    iconSize: [size, size + 8],
+    iconAnchor: [size / 2, size + 8],
+    popupAnchor: [0, -(size + 8)],
+  });
+}
+
+function createUserIcon(): L.DivIcon {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 28 28">
+    <circle cx="14" cy="14" r="12" fill="#3B82F6" stroke="white" stroke-width="3"/>
+    <circle cx="14" cy="14" r="5" fill="white"/>
+  </svg>`;
+  return L.divIcon({ html: svg, className: '', iconSize: [28, 28], iconAnchor: [14, 14] });
+}
+
+function MapController({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, zoom);
+  }, [center, zoom, map]);
+  return null;
+}
+
 const PlayerSearchMap = () => {
   const { t } = useTranslation();
+
   const [players, setPlayers] = useState<PlayerFinderResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [selectedRadius, setSelectedRadius] = useState('50');
-  const [selectedSkillLevel, setSelectedSkillLevel] = useState('');
-  const mapRef = useRef<HTMLDivElement>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [selectedRadius, setSelectedRadius] = useState('all');
+  const [selectedSkillLevel, setSelectedSkillLevel] = useState('all');
+  const [selectedPlayer, setSelectedPlayer] = useState<PlayerFinderResult | null>(null);
+  const [mapCenter, setMapCenter] = useState<[number, number]>(MEXICO_CENTER);
+  const [mapZoom, setMapZoom] = useState(6);
 
-  // Get user's location on component mount
+  const playerListRef = useRef<HTMLDivElement>(null);
+  const playerCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const markerRefs = useRef<Record<string, L.Marker | null>>({});
+
   useEffect(() => {
-    const getUserLocation = async () => {
-      try {
-        setError(null);
-        const coords = await getCurrentLocation();
-        setUserLocation({
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-        });
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err.message
-            : 'Unable to get your location. Please enable location services.',
-        );
-      }
-    };
-
-    getUserLocation();
+    getCurrentLocation()
+      .then((coords) => {
+        setUserLocation({ latitude: coords.latitude, longitude: coords.longitude });
+        setMapCenter([coords.latitude, coords.longitude]);
+        setMapZoom(10);
+      })
+      .catch(() => {
+        setLocationError('Location access denied. Showing all players in Mexico.');
+      });
   }, []);
 
-  // Fetch nearby players when location changes or filters change
   useEffect(() => {
-    if (!userLocation) return;
-
     const fetchPlayers = async () => {
       try {
         setLoading(true);
         setError(null);
-
-        const response = await searchNearbyPlayers({
-          latitude: userLocation.latitude,
-          longitude: userLocation.longitude,
-          radius_km: parseInt(selectedRadius),
-          skill_level: selectedSkillLevel || undefined,
-          limit: 100,
-        });
-
+        const isAllMexico = selectedRadius === 'all' || !userLocation;
+        const params = isAllMexico
+          ? {
+              latitude: MEXICO_CENTER[0],
+              longitude: MEXICO_CENTER[1],
+              radius_km: 5000,
+              skill_level: selectedSkillLevel !== 'all' ? selectedSkillLevel : undefined,
+              limit: 200,
+            }
+          : {
+              latitude: userLocation!.latitude,
+              longitude: userLocation!.longitude,
+              radius_km: parseInt(selectedRadius),
+              skill_level: selectedSkillLevel !== 'all' ? selectedSkillLevel : undefined,
+              limit: 100,
+            };
+        const response = await searchNearbyPlayers(params);
         if (response.success) {
           setPlayers(response.data);
         } else {
@@ -71,33 +130,33 @@ const PlayerSearchMap = () => {
           setPlayers([]);
         }
       } catch (err) {
-        console.error('Error fetching players:', err);
         setError(err instanceof Error ? err.message : 'Failed to load players');
         setPlayers([]);
       } finally {
         setLoading(false);
       }
     };
-
-    const timer = setTimeout(() => {
-      fetchPlayers();
-    }, 500);
-
+    const timer = setTimeout(fetchPlayers, 300);
     return () => clearTimeout(timer);
   }, [userLocation, selectedRadius, selectedSkillLevel]);
 
-  // Group players by distance ranges
-  const playersByDistance = {
-    nearby: players.filter((p) => p.distance_km <= 10),
-    moderate: players.filter((p) => p.distance_km > 10 && p.distance_km <= 25),
-    far: players.filter((p) => p.distance_km > 25),
+  const handleMarkerClick = (player: PlayerFinderResult) => {
+    setSelectedPlayer(player);
+    playerCardRefs.current[player.id]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+
+  const handleCardClick = (player: PlayerFinderResult) => {
+    setSelectedPlayer(player);
+    setMapCenter([player.latitude, player.longitude]);
+    setMapZoom(14);
+    setTimeout(() => markerRefs.current[player.id]?.openPopup(), 150);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/5">
-      <main className="flex-1">
-        {/* Header Section */}
-        <section className="relative bg-gradient-to-br from-secondary via-secondary/95 to-primary/20 py-24 lg:py-32 overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-slate-950">
+      <main className="flex-1 flex flex-col">
+        {/* Hero Header */}
+        <section className="relative bg-gradient-to-br from-secondary via-secondary/95 to-primary/20 py-14 overflow-hidden flex-shrink-0">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-3xl animate-pulse" />
             <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-lime-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
@@ -109,281 +168,311 @@ const PlayerSearchMap = () => {
               }}
             />
           </div>
-
           <div className="container mx-auto px-4 relative z-10">
             <div className="text-center max-w-4xl mx-auto">
-              <div className="inline-block mb-6 animate-fade-in">
-                <span className="inline-flex items-center gap-2 text-primary text-sm font-bold tracking-widest uppercase bg-primary/10 px-6 py-3 rounded-full border border-primary/20 backdrop-blur-sm">
-                  <MapPin className="w-4 h-4" />
-                  <span>{t('pages.playerSearchMap.label') || 'Find Players'}</span>
-                </span>
-              </div>
-
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight mb-6">
+              <span className="inline-flex items-center gap-2 text-primary text-sm font-bold tracking-widest uppercase bg-primary/10 px-6 py-3 rounded-full border border-primary/20 backdrop-blur-sm mb-4">
+                <MapPin className="w-4 h-4" />
+                {t('pages.playerSearchMap.label') || 'Player Finder'}
+              </span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-4">
                 {t('pages.playerSearchMap.title') || 'Find Nearby Players'}
               </h1>
-
-              <p className="text-white/80 text-xl max-w-2xl mx-auto leading-relaxed mb-8">
-                {t('pages.playerSearchMap.subtitle') ||
-                  'Discover fellow pickleball players in your area and connect with your community.'}
+              <p className="text-white/80 text-lg max-w-2xl mx-auto mb-6">
+                {t('pages.playerSearchMap.subtitle') || 'Discover fellow pickleball players on an interactive map.'}
               </p>
-
-              {userLocation && (
-                <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-6 py-3 backdrop-blur-sm">
-                  <CheckCircle className="w-4 h-4 text-green-400" />
-                  <span className="text-sm text-green-300">
-                    Location detected: ({userLocation.latitude.toFixed(4)}, {userLocation.longitude.toFixed(4)})
-                  </span>
+              <div className="flex flex-wrap justify-center gap-4">
+                {userLocation ? (
+                  <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-5 py-2">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span className="text-sm text-green-300">Location detected</span>
+                  </div>
+                ) : locationError ? (
+                  <div className="inline-flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 rounded-full px-5 py-2">
+                    <AlertCircle className="w-4 h-4 text-yellow-400" />
+                    <span className="text-sm text-yellow-300">{locationError}</span>
+                  </div>
+                ) : (
+                  <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-5 py-2">
+                    <Navigation2 className="w-4 h-4 text-blue-400 animate-pulse" />
+                    <span className="text-sm text-blue-300">Detecting location...</span>
+                  </div>
+                )}
+                <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-5 py-2">
+                  <Trophy className="w-4 h-4 text-primary" />
+                  <span className="text-sm text-primary font-semibold">{players.length} players found</span>
                 </div>
-              )}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Main Content */}
-        <section className="py-16 relative">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-lime-500/5 rounded-full blur-3xl animate-pulse delay-1000" />
-          </div>
-
-          <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-5xl mx-auto">
-              {/* Controls */}
-              <div className="mb-8 p-6 md:p-8 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700/50 shadow-2xl">
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="text-sm font-semibold text-foreground mb-3 block">
-                      {t('pages.playerSearchMap.radius') || 'Search Radius'}
-                    </label>
-                    <Select value={selectedRadius} onValueChange={setSelectedRadius}>
-                      <SelectTrigger className="h-12 border-slate-200 dark:border-slate-700 rounded-xl">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="5">5 km</SelectItem>
-                        <SelectItem value="10">10 km</SelectItem>
-                        <SelectItem value="25">25 km</SelectItem>
-                        <SelectItem value="50">50 km (Default)</SelectItem>
-                        <SelectItem value="100">100 km</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-semibold text-foreground mb-3 block">
-                      {t('pages.playerSearchMap.skillLevel') || 'Skill Level'}
-                    </label>
-                    <Select value={selectedSkillLevel} onValueChange={setSelectedSkillLevel}>
-                      <SelectTrigger className="h-12 border-slate-200 dark:border-slate-700 rounded-xl">
-                        <SelectValue placeholder={t('pages.playerSearchMap.allLevels') || 'All Levels'} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">All Levels</SelectItem>
-                        <SelectItem value="2.5">2.5</SelectItem>
-                        <SelectItem value="3.5">3.5</SelectItem>
-                        <SelectItem value="4.5">4.5</SelectItem>
-                        <SelectItem value="5.0+">5.0+</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-semibold text-foreground mb-3 block">
-                      {t('pages.playerSearchMap.findingPlayers') || 'Players Found'}
-                    </label>
-                    <div className="h-12 flex items-center px-4 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 font-semibold">
-                      {loading ? (
-                        <Loader className="w-4 h-4 animate-spin text-primary mr-2" />
-                      ) : (
-                        <Trophy className="w-4 h-4 text-primary mr-2" />
-                      )}
-                      {players.length}
-                    </div>
-                  </div>
+        {/* Map + List Split Layout */}
+        <div className="flex flex-col lg:flex-row flex-1" style={{ minHeight: '650px' }}>
+          {/* Left: Player List Panel */}
+          <div className="w-full lg:w-2/5 flex flex-col bg-slate-900 border-r border-slate-700/50">
+            {/* Filter Controls */}
+            <div className="p-4 border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-slate-400 mb-1.5 block uppercase tracking-wide">
+                    Search Radius
+                  </label>
+                  <Select value={selectedRadius} onValueChange={setSelectedRadius}>
+                    <SelectTrigger className="h-10 bg-slate-800 border-slate-600 text-white text-sm rounded-lg">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectItem value="all" className="text-white">All Mexico</SelectItem>
+                      <SelectItem value="25" className="text-white">25 km</SelectItem>
+                      <SelectItem value="50" className="text-white">50 km</SelectItem>
+                      <SelectItem value="100" className="text-white">100 km</SelectItem>
+                      <SelectItem value="250" className="text-white">250 km</SelectItem>
+                      <SelectItem value="500" className="text-white">500 km</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-400 mb-1.5 block uppercase tracking-wide">
+                    Skill Level
+                  </label>
+                  <Select value={selectedSkillLevel} onValueChange={setSelectedSkillLevel}>
+                    <SelectTrigger className="h-10 bg-slate-800 border-slate-600 text-white text-sm rounded-lg">
+                      <SelectValue placeholder="All Levels" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectItem value="all" className="text-white">All Levels</SelectItem>
+                      <SelectItem value="2.5" className="text-white">2.5</SelectItem>
+                      <SelectItem value="3.0" className="text-white">3.0</SelectItem>
+                      <SelectItem value="3.5" className="text-white">3.5</SelectItem>
+                      <SelectItem value="4.0" className="text-white">4.0</SelectItem>
+                      <SelectItem value="4.5" className="text-white">4.5</SelectItem>
+                      <SelectItem value="5.0" className="text-white">5.0+</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              {/* Error Display */}
-              {error && (
-                <div className="mb-8 p-4 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-3">
-                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+              {/* Legend */}
+              <div className="flex flex-wrap gap-3 mt-3">
+                {([['#3B82F6', '2.5–3.0'], ['#84CC16', '3.0–4.0'], ['#F59E0B', '4.0–5.0'], ['#EF4444', '5.0+']] as const).map(([color, label]) => (
+                  <div key={label} className="flex items-center gap-1.5">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+                    <span className="text-xs text-slate-400">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Player List */}
+            <div ref={playerListRef} className="flex-1 overflow-y-auto p-3 space-y-2">
+              {loading && (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <Loader className="w-7 h-7 text-primary animate-spin" />
+                  <p className="text-slate-400 text-sm">Searching for players...</p>
+                </div>
+              )}
+
+              {error && !loading && (
+                <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-red-400">Error</p>
-                    <p className="text-sm text-red-300 mt-1">{error}</p>
+                    <p className="text-sm font-semibold text-red-400">Error</p>
+                    <p className="text-xs text-red-300 mt-1">{error}</p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => window.location.reload()}
-                    className="ml-auto text-red-400 hover:text-red-300"
-                  >
-                    Retry
-                  </Button>
                 </div>
               )}
 
-              {/* Loading State */}
-              {loading && !players.length && (
-                <div className="flex flex-col items-center justify-center py-24 gap-4">
-                  <Loader className="w-8 h-8 text-primary animate-spin" />
-                  <p className="text-slate-400">{t('common.loading') || 'Loading players...'}</p>
-                </div>
-              )}
-
-              {/* No Results */}
-              {!loading && players.length === 0 && !error && (
-                <div className="text-center py-24">
-                  <div className="relative inline-block mb-6">
-                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl" />
-                    <div className="relative bg-slate-100 dark:bg-slate-800 rounded-3xl p-8">
-                      <Search className="w-16 h-16 text-primary mx-auto" />
-                    </div>
+              {!loading && !error && players.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
+                  <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center">
+                    <Search className="w-7 h-7 text-slate-500" />
                   </div>
-                  <h3 className="text-2xl font-bold text-foreground mb-3">
-                    {t('pages.playerSearchMap.noPlayersNearby') || 'No players nearby'}
-                  </h3>
-                  <p className="text-muted-foreground text-lg">
-                    {t('pages.playerSearchMap.tryIncreasingRadius') ||
-                      'Try increasing the search radius to find more players.'}
-                  </p>
+                  <p className="text-slate-400 font-semibold">No players found</p>
+                  <p className="text-slate-500 text-sm">Try increasing the search radius</p>
                 </div>
               )}
 
-              {/* Players by Distance */}
-              {!loading && players.length > 0 && (
-                <div className="space-y-8">
-                  {/* Nearby Players (0-10 km) */}
-                  {playersByDistance.nearby.length > 0 && (
-                    <div>
-                      <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
-                        <div className="w-1 h-8 bg-gradient-to-b from-green-500 to-emerald-500 rounded-full" />
-                        Very Close ({playersByDistance.nearby.length})
-                      </h2>
-                      <div className="grid gap-4">
-                        {playersByDistance.nearby.map((player) => (
-                          <PlayerCard key={player.id} player={player} />
-                        ))}
+              {!loading && players.map((player) => (
+                <div
+                  key={player.id}
+                  ref={(el) => { playerCardRefs.current[player.id] = el; }}
+                  onClick={() => handleCardClick(player)}
+                  className={`group cursor-pointer rounded-xl border transition-all duration-200 overflow-hidden ${
+                    selectedPlayer?.id === player.id
+                      ? 'border-primary bg-primary/10 shadow-lg shadow-primary/20'
+                      : 'border-slate-700/50 bg-slate-800/50 hover:border-primary/50 hover:bg-slate-800'
+                  }`}
+                >
+                  <div className="p-3 flex items-center gap-3">
+                    <div className="relative flex-shrink-0">
+                      <img
+                        src={player.profile_photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${player.id}`}
+                        alt={player.full_name}
+                        onError={(e) => { e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${player.id}`; }}
+                        className="w-12 h-12 rounded-xl object-cover border-2 border-slate-600 group-hover:border-primary/50 transition-colors"
+                      />
+                      <div
+                        className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-slate-800"
+                        style={{ backgroundColor: getSkillColor(player.skill_level) }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-bold text-sm truncate transition-colors ${
+                        selectedPlayer?.id === player.id ? 'text-primary' : 'text-white group-hover:text-primary'
+                      }`}>
+                        {player.full_name}
+                      </p>
+                      {player.email && (
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <Mail className="w-3 h-3 text-slate-500 flex-shrink-0" />
+                          <p className="text-xs text-slate-400 truncate">{player.email}</p>
+                        </div>
+                      )}
+                      {player.phone && (
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <Phone className="w-3 h-3 text-slate-500 flex-shrink-0" />
+                          <p className="text-xs text-slate-400 truncate">{player.phone}</p>
+                        </div>
+                      )}
+                      {player.address && (
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <Home className="w-3 h-3 text-slate-500 flex-shrink-0" />
+                          <p className="text-xs text-slate-400 truncate">{player.address}</p>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <MapPin className="w-3 h-3 text-slate-500 flex-shrink-0" />
+                        <p className="text-xs text-slate-400 truncate">
+                          {player.city && player.state ? `${player.city}, ${player.state}` : player.state || 'Unknown'}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1.5">
+                        <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{
+                          backgroundColor: `${getSkillColor(player.skill_level)}20`,
+                          color: getSkillColor(player.skill_level),
+                          border: `1px solid ${getSkillColor(player.skill_level)}40`,
+                        }}>
+                          {player.skill_level || 'N/A'}
+                        </span>
+                        <Badge variant="outline" className="text-xs border-slate-600 text-slate-400 py-0 h-5">
+                          {player.distance_km} km
+                        </Badge>
                       </div>
                     </div>
-                  )}
-
-                  {/* Moderate Distance Players (10-25 km) */}
-                  {playersByDistance.moderate.length > 0 && (
-                    <div>
-                      <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
-                        <div className="w-1 h-8 bg-gradient-to-b from-yellow-500 to-orange-500 rounded-full" />
-                        Moderate Distance ({playersByDistance.moderate.length})
-                      </h2>
-                      <div className="grid gap-4">
-                        {playersByDistance.moderate.map((player) => (
-                          <PlayerCard key={player.id} player={player} />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Far Players (25+ km) */}
-                  {playersByDistance.far.length > 0 && (
-                    <div>
-                      <h2 className="text-2xl font-bold text-foreground mb-4 flex items-center gap-2">
-                        <div className="w-1 h-8 bg-gradient-to-b from-red-500 to-pink-500 rounded-full" />
-                        Further Away ({playersByDistance.far.length})
-                      </h2>
-                      <div className="grid gap-4">
-                        {playersByDistance.far.map((player) => (
-                          <PlayerCard key={player.id} player={player} />
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                      player.membership_status === 'active' ? 'bg-green-400' : 'bg-slate-500'
+                    }`} />
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
           </div>
-        </section>
+
+          {/* Right: Leaflet Map */}
+          <div className="w-full lg:w-3/5 relative" style={{ minHeight: '400px' }}>
+            <MapContainer
+              center={MEXICO_CENTER}
+              zoom={6}
+              style={{ width: '100%', height: '100%', minHeight: '400px' }}
+              zoomControl={true}
+            >
+              <TileLayer
+                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                subdomains="abcd"
+                maxZoom={20}
+              />
+              <MapController center={mapCenter} zoom={mapZoom} />
+
+              {userLocation && (
+                <Marker
+                  position={[userLocation.latitude, userLocation.longitude]}
+                  icon={createUserIcon()}
+                />
+              )}
+
+              {players.map((player) => {
+                const color = getSkillColor(player.skill_level);
+                const isSelected = selectedPlayer?.id === player.id;
+                return (
+                  <Marker
+                    key={player.id}
+                    ref={(el: L.Marker | null) => { markerRefs.current[player.id] = el; }}
+                    position={[player.latitude, player.longitude]}
+                    icon={createPlayerIcon(color, isSelected)}
+                    zIndexOffset={isSelected ? 1000 : 0}
+                    eventHandlers={{ click: () => handleMarkerClick(player) }}
+                  >
+                    <Popup>
+                      <div style={{ fontFamily: 'system-ui, -apple-system, sans-serif', padding: '4px', minWidth: '180px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                          <img
+                            src={player.profile_photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${player.id}`}
+                            alt={player.full_name}
+                            onError={(e) => { e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${player.id}`; }}
+                            style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', border: `2px solid ${color}` }}
+                          />
+                          <div>
+                            <p style={{ fontWeight: 700, fontSize: '14px', color: '#0f172a', margin: 0 }}>{player.full_name}</p>
+                            <p style={{ fontSize: '11px', color: '#64748b', margin: '2px 0 0' }}>
+                              {player.city && player.state ? `${player.city}, ${player.state}` : player.state || 'Unknown'}
+                            </p>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                          <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: `${color}20`, color, border: `1px solid ${color}40` }}>
+                            Level {player.skill_level}
+                          </span>
+                          <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: '#f1f5f9', color: '#475569' }}>
+                            {player.distance_km} km away
+                          </span>
+                        </div>
+                        {player.email && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '3px' }}>
+                            <span style={{ fontSize: '11px', color: '#64748b' }}>✉</span>
+                            <span style={{ fontSize: '11px', color: '#334155' }}>{player.email}</span>
+                          </div>
+                        )}
+                        {player.phone && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '3px' }}>
+                            <span style={{ fontSize: '11px', color: '#64748b' }}>📞</span>
+                            <span style={{ fontSize: '11px', color: '#334155' }}>{player.phone}</span>
+                          </div>
+                        )}
+                        {player.address && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '11px', color: '#64748b' }}>📍</span>
+                            <span style={{ fontSize: '11px', color: '#334155' }}>{player.address}</span>
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                          <button style={{ flex: 1, padding: '5px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', color: '#0f172a' }}>
+                            Profile
+                          </button>
+                          <button style={{ flex: 1, padding: '5px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', border: 'none', backgroundColor: '#84CC16', cursor: 'pointer', color: '#0f172a' }}>
+                            Connect
+                          </button>
+                        </div>
+                      </div>
+                    </Popup>
+                  </Marker>
+                );
+              })}
+            </MapContainer>
+
+            {/* Stats overlay */}
+            <div className="absolute top-4 right-4 z-[1000] bg-slate-900/90 backdrop-blur-sm border border-slate-700/50 rounded-xl p-3 flex items-center gap-2 pointer-events-none">
+              <Users className="w-4 h-4 text-primary" />
+              <span className="text-white text-sm font-bold">{players.length}</span>
+              <span className="text-slate-400 text-xs">nearby</span>
+            </div>
+          </div>
+        </div>
       </main>
 
       <Footer />
     </div>
   );
 };
-
-// Player Card Component
-function PlayerCard({ player }: { player: PlayerFinderResult }) {
-  return (
-    <div className="group relative">
-      <div className="absolute -inset-1 bg-gradient-to-r from-primary via-lime-400 to-primary rounded-3xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-700" />
-
-      <div className="relative bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-700/50 group-hover:border-primary/50 transition-all duration-500 overflow-hidden shadow-lg hover:shadow-2xl hover:shadow-primary/10">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-lime-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
-        <div className="relative p-6 md:p-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            {/* Avatar */}
-            <div className="relative group/avatar">
-              <div className="absolute -inset-2 bg-gradient-to-r from-primary to-lime-500 rounded-full opacity-0 group-hover:opacity-50 blur-lg transition-opacity duration-500" />
-              <div className="relative">
-                <img
-                  src={player.profile_photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${player.id}`}
-                  alt={player.full_name}
-                  onError={(e) => {
-                    e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${player.id}`;
-                  }}
-                  className="w-20 h-20 rounded-2xl object-cover border-4 border-white dark:border-slate-800 shadow-lg group-hover:scale-110 transition-transform duration-500"
-                />
-              </div>
-            </div>
-
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="flex-1">
-                  <h3 className="font-bold text-2xl text-foreground group-hover:text-primary transition-colors duration-300">
-                    {player.full_name}
-                  </h3>
-                  <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
-                      {player.city && player.state
-                        ? `${player.city}, ${player.state}`
-                        : player.state || 'Unknown'}
-                    </span>
-                  </div>
-                </div>
-                <Badge variant="outline" className="flex-shrink-0 border-2 border-primary/20 bg-primary/10 text-primary font-bold px-4 py-2">
-                  {player.distance_km} km
-                </Badge>
-              </div>
-
-              {/* Stats */}
-              <div className="flex flex-wrap gap-3 mt-4">
-                <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl px-4 py-2">
-                  <div className="text-xs text-muted-foreground">Skill Level</div>
-                  <div className="font-bold text-foreground">{player.skill_level || 'N/A'}</div>
-                </div>
-                <div className="bg-slate-100 dark:bg-slate-800/50 rounded-xl px-4 py-2">
-                  <div className="text-xs text-muted-foreground">Status</div>
-                  <div className="font-bold text-foreground capitalize">{player.membership_status}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex sm:flex-col gap-3 w-full sm:w-auto">
-              <Button variant="outline" className="flex-1 sm:flex-none h-12 px-6 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-primary hover:bg-primary/5 font-semibold transition-all duration-300">
-                View Profile
-              </Button>
-              <Button className="flex-1 sm:flex-none h-12 gap-2 px-6 rounded-xl bg-gradient-to-r from-primary to-lime-500 hover:shadow-lg hover:shadow-primary/50 font-semibold transition-all duration-300">
-                <Users className="w-4 h-4" />
-                Connect
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default PlayerSearchMap;

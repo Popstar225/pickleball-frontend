@@ -4,13 +4,10 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  Filter,
   RefreshCw,
   Trophy,
   Medal,
   Crown,
-  Menu,
-  X,
   ChevronDown,
   Search,
   ChevronLeft,
@@ -18,6 +15,9 @@ import {
   Users,
   AlertCircle,
   Loader,
+  SlidersHorizontal,
+  Target,
+  Swords,
 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -33,7 +33,24 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { fetchRankings, type RankingData } from '@/services/rankingService';
+
+const MEXICO_STATES = [
+  'Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas',
+  'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima', 'Durango',
+  'Guanajuato', 'Guerrero', 'Hidalgo', 'Jalisco', 'Estado de México',
+  'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca',
+  'Puebla', 'Querétaro', 'Quintana Roo', 'San Luis Potosí', 'Sinaloa',
+  'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz',
+  'Yucatán', 'Zacatecas',
+];
 
 const ITEMS_PER_PAGE = 20;
 
@@ -50,6 +67,8 @@ const Ranking = () => {
   const [error, setError] = useState<string | null>(null);
   const [totalPlayers, setTotalPlayers] = useState(0);
   const [sortBy, setSortBy] = useState('ranking');
+  const [selectedSkillLevel, setSelectedSkillLevel] = useState('all');
+  const [selectedState, setSelectedState] = useState('all');
 
   // Debounce search input
   useEffect(() => {
@@ -69,6 +88,8 @@ const Ranking = () => {
 
       const response = await fetchRankings({
         category: category !== 'general' ? category : undefined,
+        skill_level: selectedSkillLevel !== 'all' ? selectedSkillLevel : undefined,
+        state: selectedState !== 'all' ? selectedState : undefined,
         page: currentPage,
         limit: ITEMS_PER_PAGE,
       });
@@ -87,7 +108,7 @@ const Ranking = () => {
     } finally {
       setLoading(false);
     }
-  }, [category, currentPage]);
+  }, [category, currentPage, selectedSkillLevel, selectedState]);
 
   // Fetch rankings when category or page changes
   useEffect(() => {
@@ -203,6 +224,18 @@ const Ranking = () => {
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
+
+  const handleSkillLevelChange = (value: string) => {
+    setSelectedSkillLevel(value);
+    setCurrentPage(1);
+  };
+
+  const handleStateChange = (value: string) => {
+    setSelectedState(value);
+    setCurrentPage(1);
+  };
+
+  const activeFiltersCount = [selectedSkillLevel, selectedState].filter(v => v !== 'all').length;
 
   // Generate page numbers for pagination
   const getPageNumbers = () => {
@@ -326,7 +359,7 @@ const Ranking = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
-                  <div className="relative w-full sm:w-64">
+                  <div className="relative w-full sm:w-56">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <Input
                       type="text"
@@ -336,6 +369,39 @@ const Ranking = () => {
                       className="pl-10 bg-slate-900/50 backdrop-blur-sm border-slate-700/50 text-white placeholder:text-slate-500 focus:border-primary/50 transition-all"
                     />
                   </div>
+
+                  {/* Skill Level filter */}
+                  <Select value={selectedSkillLevel} onValueChange={handleSkillLevelChange}>
+                    <SelectTrigger className="w-full sm:w-36 bg-slate-900/50 backdrop-blur-sm border-slate-700/50 text-slate-300 hover:text-white transition-all">
+                      <Target className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+                      <SelectValue placeholder="Level" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-900 border-slate-700">
+                      <SelectItem value="all" className="text-slate-300 hover:bg-slate-800">All Levels</SelectItem>
+                      <SelectItem value="2.5" className="text-slate-300 hover:bg-slate-800">2.5</SelectItem>
+                      <SelectItem value="3.0" className="text-slate-300 hover:bg-slate-800">3.0</SelectItem>
+                      <SelectItem value="3.5" className="text-slate-300 hover:bg-slate-800">3.5</SelectItem>
+                      <SelectItem value="4.0" className="text-slate-300 hover:bg-slate-800">4.0</SelectItem>
+                      <SelectItem value="4.5" className="text-slate-300 hover:bg-slate-800">4.5</SelectItem>
+                      <SelectItem value="5.0" className="text-slate-300 hover:bg-slate-800">5.0+</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* State filter */}
+                  <Select value={selectedState} onValueChange={handleStateChange}>
+                    <SelectTrigger className="w-full sm:w-44 bg-slate-900/50 backdrop-blur-sm border-slate-700/50 text-slate-300 hover:text-white transition-all">
+                      <Swords className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+                      <SelectValue placeholder="State" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-900 border-slate-700 max-h-64">
+                      <SelectItem value="all" className="text-slate-300 hover:bg-slate-800">All States</SelectItem>
+                      {MEXICO_STATES.map((state) => (
+                        <SelectItem key={state} value={state} className="text-slate-300 hover:bg-slate-800">
+                          {state}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
                   <div className="lg:hidden w-full">
                     <DropdownMenu>
@@ -402,27 +468,50 @@ const Ranking = () => {
                 </div>
               </div>
 
-              {debouncedSearch && (
-                <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Search className="w-4 h-4 text-primary" />
-                      <span className="text-white text-sm">
-                        {t('pages.ranking.showing', { from: 1, to: filteredPlayers.length, total: filteredPlayers.length })} — "{debouncedSearch}"
-                      </span>
+              {/* Active filter chips */}
+              {(debouncedSearch || activeFiltersCount > 0) && (
+                <div className="flex flex-wrap items-center gap-2">
+                  {debouncedSearch && (
+                    <div className="flex items-center gap-2 bg-slate-800/50 border border-slate-700/50 rounded-full px-3 py-1.5">
+                      <Search className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-white text-xs font-medium">"{debouncedSearch}"</span>
+                      <button
+                        onClick={() => { setSearchQuery(''); setDebouncedSearch(''); }}
+                        className="text-slate-400 hover:text-white text-xs ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-slate-700"
+                      >✕</button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setSearchQuery('');
-                        setDebouncedSearch('');
-                      }}
-                      className="text-slate-400 hover:text-white text-xs"
-                    >
-                      {t('pages.ranking.clear_search')}
-                    </Button>
-                  </div>
+                  )}
+                  {selectedSkillLevel !== 'all' && (
+                    <div className="flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-3 py-1.5">
+                      <Target className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-primary text-xs font-medium">Level {selectedSkillLevel}</span>
+                      <button
+                        onClick={() => handleSkillLevelChange('all')}
+                        className="text-primary/70 hover:text-primary text-xs ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-primary/20"
+                      >✕</button>
+                    </div>
+                  )}
+                  {selectedState !== 'all' && (
+                    <div className="flex items-center gap-2 bg-lime-500/10 border border-lime-500/30 rounded-full px-3 py-1.5">
+                      <Swords className="w-3.5 h-3.5 text-lime-400" />
+                      <span className="text-lime-400 text-xs font-medium">{selectedState}</span>
+                      <button
+                        onClick={() => handleStateChange('all')}
+                        className="text-lime-400/70 hover:text-lime-400 text-xs ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-lime-500/20"
+                      >✕</button>
+                    </div>
+                  )}
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setDebouncedSearch('');
+                      setSelectedSkillLevel('all');
+                      setSelectedState('all');
+                    }}
+                    className="text-slate-500 hover:text-slate-300 text-xs underline underline-offset-2"
+                  >
+                    Clear all
+                  </button>
                 </div>
               )}
 
@@ -569,6 +658,32 @@ const Ranking = () => {
                               {ranking.points.toLocaleString()}
                             </span>
                           </div>
+
+                          {/* Extra stats */}
+                          <div className="flex justify-center gap-3 mt-3">
+                            {ranking.win_percentage != null && (
+                              <div className="text-center">
+                                <p className={`text-sm font-bold ${
+                                  ranking.win_percentage >= 60 ? 'text-green-400' : ranking.win_percentage >= 40 ? 'text-amber-400' : 'text-red-400'
+                                }`}>
+                                  {ranking.win_percentage.toFixed(0)}%
+                                </p>
+                                <p className="text-xs text-slate-500">Win Rate</p>
+                              </div>
+                            )}
+                            {ranking.tournaments_played != null && (
+                              <div className="text-center">
+                                <p className="text-sm font-bold text-slate-300">{ranking.tournaments_played}</p>
+                                <p className="text-xs text-slate-500">Tournaments</p>
+                              </div>
+                            )}
+                            {ranking.user.skill_level && (
+                              <div className="text-center">
+                                <p className="text-sm font-bold text-primary">{ranking.user.skill_level}</p>
+                                <p className="text-xs text-slate-500">Level</p>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -633,6 +748,12 @@ const Ranking = () => {
                               <th className="text-right py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
                                 {t('pages.ranking.col_points')}
                               </th>
+                              <th className="hidden sm:table-cell text-center py-3 sm:py-4 px-3 sm:px-4 font-bold text-xs uppercase tracking-wider text-slate-400">
+                                Win %
+                              </th>
+                              <th className="hidden md:table-cell text-center py-3 sm:py-4 px-3 sm:px-4 font-bold text-xs uppercase tracking-wider text-slate-400">
+                                Tournaments
+                              </th>
                               <th className="text-center py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
                                 {t('pages.ranking.col_level')}
                               </th>
@@ -694,6 +815,34 @@ const Ranking = () => {
                                       {ranking.points.toLocaleString()}
                                     </span>
                                   </div>
+                                </td>
+                                <td className="hidden sm:table-cell py-3 sm:py-4 px-3 sm:px-4 text-center">
+                                  <div className={`inline-flex flex-col items-center gap-0.5`}>
+                                    <span className={`font-bold text-sm ${
+                                      ranking.win_percentage >= 60
+                                        ? 'text-green-400'
+                                        : ranking.win_percentage >= 40
+                                        ? 'text-amber-400'
+                                        : 'text-red-400'
+                                    }`}>
+                                      {ranking.win_percentage != null ? `${ranking.win_percentage.toFixed(0)}%` : 'N/A'}
+                                    </span>
+                                    {ranking.win_percentage != null && (
+                                      <div className="w-10 h-1 bg-slate-700 rounded-full overflow-hidden">
+                                        <div
+                                          className={`h-full rounded-full ${
+                                            ranking.win_percentage >= 60 ? 'bg-green-400' : ranking.win_percentage >= 40 ? 'bg-amber-400' : 'bg-red-400'
+                                          }`}
+                                          style={{ width: `${Math.min(100, ranking.win_percentage)}%` }}
+                                        />
+                                      </div>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="hidden md:table-cell py-3 sm:py-4 px-3 sm:px-4 text-center">
+                                  <span className="text-slate-300 font-semibold text-sm">
+                                    {ranking.tournaments_played ?? '—'}
+                                  </span>
                                 </td>
                                 <td className="py-3 sm:py-4 px-3 sm:px-6 text-center">
                                   <div className="inline-flex px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg font-bold text-xs sm:text-sm border border-primary/30 bg-primary/10 text-primary">

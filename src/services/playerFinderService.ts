@@ -8,7 +8,7 @@
  * @version 1.0.0
  */
 
-import { post } from '@/lib/api';
+import { get } from '@/lib/api';
 
 export interface PlayerFinderResult {
   id: string;
@@ -19,6 +19,9 @@ export interface PlayerFinderResult {
   longitude: number;
   city?: string;
   state?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
   membership_status: string;
   distance_km: number; // Distance from search origin
 }
@@ -40,15 +43,15 @@ export async function searchNearbyPlayers(params: {
   state?: string;
   limit?: number;
 }): Promise<PlayerFinderResponse> {
-  const url = '/api/v1/player-finder/search';
-
-  return post<PlayerFinderResponse, typeof params>(url, {
-    latitude: params.latitude,
-    longitude: params.longitude,
-    radius_km: params.radius_km || 50,
-    skill_level: params.skill_level,
-    state: params.state,
-    limit: params.limit,
+  return get<PlayerFinderResponse>('/player-finder/search', {
+    params: {
+      latitude: params.latitude,
+      longitude: params.longitude,
+      radius: params.radius_km || 50,
+      skill_level: params.skill_level,
+      state: params.state,
+      limit: params.limit,
+    },
   });
 }
 
