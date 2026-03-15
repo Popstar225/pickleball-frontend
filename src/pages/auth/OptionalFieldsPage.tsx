@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { AppDispatch, RootState } from '../../store';
 import { registerUser } from '../../store/slices/authSlice';
 import { toast } from 'sonner';
+import { MembershipSelector } from '@/components/payment/MembershipSelector';
 import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
 import { Mexico } from '@/constants/constants';
 import {
@@ -57,39 +58,33 @@ const OptionalFieldsPage = () => {
   const [userType, setUserType] = useState<string>('');
   const [requiredFields, setRequiredFields] = useState<any>({});
   const [dragActive, setDragActive] = useState({ profile: false, document: false });
+  const [showMembershipModal, setShowMembershipModal] = useState(false);
+  const [pendingPayment, setPendingPayment] = useState(false);
+  const [registeredUserType, setRegisteredUserType] = useState<string>('');
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { loading, error, isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
-  // Redirect to dashboard if already authenticated
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      const userType = user.user_type;
-      switch (userType) {
-        case 'player':
-          navigate('/player/dashboard');
-          break;
-        case 'coach':
-          navigate('/coach/dashboard');
-          break;
-        case 'club':
-          navigate('/clubs/dashboard');
-          break;
-        case 'partner':
-          navigate('/partner/dashboard');
-          break;
-        case 'state':
-          navigate('/state/dashboard');
-          break;
-        case 'admin':
-          navigate('/admin/dashboard');
-          break;
-        default:
-          navigate('/player/dashboard');
-      }
+  const USER_TYPES_REQUIRING_PAYMENT = ['player', 'coach', 'club', 'state'];
+
+  const navigateToDashboard = (type: string) => {
+    switch (type) {
+      case 'player': navigate('/players/dashboard'); break;
+      case 'coach': navigate('/coaches/dashboard'); break;
+      case 'club': navigate('/clubs/dashboard'); break;
+      case 'partner': navigate('/partner/dashboard'); break;
+      case 'state': navigate('/state/dashboard'); break;
+      default: navigate('/players/dashboard');
     }
-  }, [isAuthenticated, user, navigate]);
+  };
+
+  // Redirect to dashboard if already authenticated and no pending payment
+  useEffect(() => {
+    if (isAuthenticated && user && !pendingPayment) {
+      navigateToDashboard(user.user_type);
+    }
+  }, [isAuthenticated, user, navigate, pendingPayment]);
 
   useEffect(() => {
     const storedUserType = localStorage.getItem('registration_user_type');
@@ -313,6 +308,11 @@ const OptionalFieldsPage = () => {
         return;
       }
 
+      // Set pending payment flag before dispatch so the isAuthenticated effect doesn't navigate
+      if (USER_TYPES_REQUIRING_PAYMENT.includes(userType)) {
+        setPendingPayment(true);
+      }
+
       const result = await dispatch(registerUser(formDataToSend));
       const registrationResult = result as any;
       const apiResponse = registrationResult?.payload;
@@ -320,29 +320,21 @@ const OptionalFieldsPage = () => {
       if (apiResponse?.data?.user && apiResponse?.data?.tokens) {
         localStorage.removeItem('registration_user_type');
         localStorage.removeItem('registration_required_fields');
-        toast.success(t('auth.optionalFields.toast_success'));
 
-        const userType = apiResponse.data.user.user_type;
-        switch (userType) {
-          case 'player':
-            navigate('/players/dashboard');
-            break;
-          case 'coach':
-            navigate('/coaches/dashboard');
-            break;
-          case 'club':
-            navigate('/clubs/dashboard');
-            break;
-          case 'partner':
-            navigate('/partner/dashboard');
-            break;
-          case 'state':
-            navigate('/state/dashboard');
-            break;
-          default:
-            navigate('/player/dashboard');
+        const type = apiResponse.data.user.user_type;
+        setRegisteredUserType(type);
+
+        if (USER_TYPES_REQUIRING_PAYMENT.includes(type)) {
+          toast.success('¡Registro exitoso! Por favor completa tu membresía.');
+          setShowMembershipModal(true);
+        } else {
+          // Partner — free, navigate immediately
+          setPendingPayment(false);
+          toast.success(t('auth.optionalFields.toast_success'));
+          navigateToDashboard(type);
         }
       } else {
+        setPendingPayment(false);
         toast.error(t('auth.optionalFields.toast_error_server'));
         console.error('Registration failed - Invalid response structure:', apiResponse);
       }
@@ -391,6 +383,10 @@ const OptionalFieldsPage = () => {
         return;
       }
 
+      if (USER_TYPES_REQUIRING_PAYMENT.includes(userType)) {
+        setPendingPayment(true);
+      }
+
       const result = await dispatch(registerUser(registrationData));
       const registrationResult = result as any;
       const apiResponse = registrationResult?.payload;
@@ -398,29 +394,20 @@ const OptionalFieldsPage = () => {
       if (apiResponse?.data?.user && apiResponse?.data?.tokens) {
         localStorage.removeItem('registration_user_type');
         localStorage.removeItem('registration_required_fields');
-        toast.success(t('auth.optionalFields.toast_success_skip'));
 
-        const userType = apiResponse.data.user.user_type;
-        switch (userType) {
-          case 'player':
-            navigate('/player/dashboard');
-            break;
-          case 'coach':
-            navigate('/coach/dashboard');
-            break;
-          case 'club':
-            navigate('/clubs/dashboard');
-            break;
-          case 'partner':
-            navigate('/partner/dashboard');
-            break;
-          case 'state':
-            navigate('/state/dashboard');
-            break;
-          default:
-            navigate('/player/dashboard');
+        const type = apiResponse.data.user.user_type;
+        setRegisteredUserType(type);
+
+        if (USER_TYPES_REQUIRING_PAYMENT.includes(type)) {
+          toast.success('¡Registro exitoso! Por favor completa tu membresía.');
+          setShowMembershipModal(true);
+        } else {
+          setPendingPayment(false);
+          toast.success(t('auth.optionalFields.toast_success_skip'));
+          navigateToDashboard(type);
         }
       } else {
+        setPendingPayment(false);
         toast.error(t('auth.optionalFields.toast_error_server'));
         console.error('Registration failed - Invalid response structure:', apiResponse);
       }
@@ -885,6 +872,26 @@ const OptionalFieldsPage = () => {
           </div>
         </div>
       </main>
+
+      {/* Post-registration membership payment modal */}
+      {showMembershipModal && (
+        <MembershipSelector
+          isOpen={showMembershipModal}
+          onClose={() => {
+            // Allow user to skip payment and pay later from dashboard
+            setShowMembershipModal(false);
+            setPendingPayment(false);
+            navigateToDashboard(registeredUserType);
+          }}
+          userType={registeredUserType}
+          onSuccess={() => {
+            setShowMembershipModal(false);
+            setPendingPayment(false);
+            toast.success('¡Membresía activada! Bienvenido a la Federación Mexicana de Pickleball.');
+            navigateToDashboard(registeredUserType);
+          }}
+        />
+      )}
     </div>
   );
 };

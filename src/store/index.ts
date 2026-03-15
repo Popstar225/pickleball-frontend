@@ -8,6 +8,7 @@ import tournamentReducer from './slices/tournamentSlice';
 import courtsReducer from './slices/courtsSlice';
 import venuesReducer from './slices/venuesSlice';
 import paymentsReducer from './slices/paymentsSlice';
+import paymentReducer from './slices/paymentSlice';
 import rankingsReducer from './slices/rankingsSlice';
 import adminRankingsReducer from './slices/rankingsSlice';
 import notificationsReducer from './slices/notificationsSlice';
@@ -42,6 +43,7 @@ export const store = configureStore({
     courts: courtsReducer,
     venues: venuesReducer,
     payments: paymentsReducer,
+    payment: paymentReducer,
     rankings: rankingsReducer,
     adminRankings: adminRankingsReducer,
     notifications: notificationsReducer,

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   TrendingUp,
@@ -16,13 +16,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Users,
+  AlertCircle,
+  Loader,
 } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { playerRankings, countryFlags } from '@/data/mockData';
+import { countryFlags } from '@/data/mockData';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import {
   DropdownMenu,
@@ -31,27 +33,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { fetchRankings, type RankingData } from '@/services/rankingService';
 
 const ITEMS_PER_PAGE = 20;
-const TOTAL_PLAYERS = 2000000; // Simulated 2 million players
-
-// Generate mock data for top 100 players
-const generateTop100Players = () => {
-  const players = [...playerRankings];
-  for (let i = 11; i <= 100; i++) {
-    players.push({
-      rank: i,
-      name: `Jugador ${i}`,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=player${i}`,
-      countryCode: 'MX',
-      points: String(Math.floor(Math.random() * (10000 - 1000) + 1000)),
-      change: String(Math.floor(Math.random() * 21) - 10),
-    });
-  }
-  return players;
-};
-
-const top100Players = generateTop100Players();
 
 const Ranking = () => {
   const { t } = useTranslation();
@@ -61,6 +45,11 @@ const Ranking = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [rankings, setRankings] = useState<RankingData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [totalPlayers, setTotalPlayers] = useState(0);
+  const [sortBy, setSortBy] = useState('ranking');
 
   // Debounce search input
   useEffect(() => {
@@ -72,22 +61,59 @@ const Ranking = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  // Fetch rankings from API
+  const fetchRankingsData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetchRankings({
+        category: category !== 'general' ? category : undefined,
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+      });
+
+      if (response.success && response.data) {
+        setRankings(response.data.rankings);
+        setTotalPlayers(response.data.pagination.total);
+      } else {
+        setError(response.message || 'Failed to fetch rankings');
+        setRankings([]);
+      }
+    } catch (err) {
+      console.error('Error fetching rankings:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load rankings');
+      setRankings([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [category, currentPage]);
+
+  // Fetch rankings when category or page changes
+  useEffect(() => {
+    fetchRankingsData();
+  }, [fetchRankingsData]);
+
   // Filter players based on search
   const filteredPlayers = useMemo(() => {
-    if (!debouncedSearch) return top100Players;
+    if (!debouncedSearch) return rankings;
 
     const query = debouncedSearch.toLowerCase();
-    return top100Players.filter(
+    return rankings.filter(
       (player) =>
-        player.name.toLowerCase().includes(query) || player.rank.toString().includes(query),
+        player.user.full_name.toLowerCase().includes(query) ||
+        player.position.toString().includes(query),
     );
-  }, [debouncedSearch]);
+  }, [debouncedSearch, rankings]);
 
-  // Pagination calculations
+  // Pagination calculations  
   const totalPages = Math.ceil(filteredPlayers.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedPlayers = filteredPlayers.slice(startIndex, endIndex);
+
+  // Get top 3 for display
+  const topThree = rankings.slice(0, 3);
 
   const getRankChangeIcon = (change: string) => {
     const num = parseInt(change);
@@ -236,7 +262,7 @@ const Ranking = () => {
               <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 pt-8 lg:pt-12 px-2 sm:px-4">
                 <div className="bg-gradient-to-br from-primary/20 to-lime-500/20 backdrop-blur-md border border-primary/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 text-center hover:border-primary/60 transition-all">
                   <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-2 sm:mb-3">
-                    {TOTAL_PLAYERS.toLocaleString()}
+                    {totalPlayers.toLocaleString()}
                   </div>
                   <div className="text-xs sm:text-sm text-white/90 font-semibold">
                     {t('pages.ranking.stat_total')}
@@ -244,7 +270,7 @@ const Ranking = () => {
                 </div>
                 <div className="bg-gradient-to-br from-primary/20 to-lime-500/20 backdrop-blur-md border border-primary/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 text-center hover:border-primary/60 transition-all">
                   <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-2 sm:mb-3">
-                    100
+                    {Math.min(100, totalPlayers)}
                   </div>
                   <div className="text-xs sm:text-sm text-white/90 font-semibold">
                     {t('pages.ranking.stat_top')}
@@ -400,10 +426,28 @@ const Ranking = () => {
                 </div>
               )}
 
+              {error && (
+                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 flex items-center gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-red-400">{t('common.error')}</p>
+                    <p className="text-sm text-red-300">{error}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={fetchRankingsData}
+                    className="ml-auto text-red-400 hover:text-red-300"
+                  >
+                    {t('common.retry')}
+                  </Button>
+                </div>
+              )}
+
               <div className="flex flex-col md:grid md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
-                {playerRankings.slice(0, 3).map((player, index) => (
+                {topThree.map((ranking, index) => (
                   <div
-                    key={player.rank}
+                    key={ranking.id}
                     className="group relative overflow-hidden rounded-2xl lg:rounded-3xl transition-all duration-700 hover:-translate-y-2 lg:hover:-translate-y-3"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
@@ -427,7 +471,7 @@ const Ranking = () => {
                                   : 'bg-gradient-to-br from-amber-600 to-amber-700 text-white'
                             }`}
                           >
-                            {player.rank}
+                            {ranking.position}
                           </div>
                         </div>
 
@@ -441,7 +485,9 @@ const Ranking = () => {
                                   : 'bg-amber-600/20 border-amber-600/30 text-amber-600'
                             }`}
                           >
-                            {getTopIcon(index)}
+                            {index === 0 && <Crown className="w-5 h-5 sm:w-6 sm:h-6" />}
+                            {index === 1 && <Medal className="w-5 h-5 sm:w-6 sm:h-6" />}
+                            {index === 2 && <Medal className="w-5 h-5 sm:w-6 sm:h-6" />}
                           </div>
                         </div>
 
@@ -457,8 +503,11 @@ const Ranking = () => {
                               }`}
                             />
                             <img
-                              src={player.avatar}
-                              alt={player.name}
+                              src={ranking.user.profile_photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${ranking.user.id}`}
+                              alt={ranking.user.full_name}
+                              onError={(e) => {
+                                e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${ranking.user.id}`;
+                              }}
                               className={`relative w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-full object-cover border-4 ${
                                 index === 0
                                   ? 'border-amber-400'
@@ -466,11 +515,6 @@ const Ranking = () => {
                                     ? 'border-slate-300'
                                     : 'border-amber-600'
                               }`}
-                            />
-                            <img
-                              src={countryFlags[player.countryCode]}
-                              alt={player.countryCode}
-                              className="absolute -bottom-1 -right-1 w-5 h-4 sm:w-6 sm:h-5 lg:w-7 lg:h-6 rounded border-2 border-slate-900"
                             />
                           </div>
                         </div>
@@ -481,12 +525,19 @@ const Ranking = () => {
                               index === 0 ? 'text-amber-400' : 'text-white group-hover:text-primary'
                             }`}
                           >
-                            {player.name.split(' ')[0]}
-                            <span className="hidden sm:inline"> {player.name.split(' ')[1]}</span>
+                            {ranking.user.full_name.split(' ')[0]}
+                            <span className="hidden sm:inline"> {ranking.user.full_name.split(' ')[1]}</span>
                           </h3>
-                          <p className="text-slate-400 text-xs sm:text-sm mb-3 sm:mb-4 group-hover:text-slate-300 transition-colors duration-500">
-                            {player.countryCode}
+                          <p className="text-slate-400 text-xs sm:text-sm mb-1">
+                            {ranking.user.city && ranking.user.state
+                              ? `${ranking.user.city}, ${ranking.user.state}`
+                              : ranking.user.state || ''}
                           </p>
+                          {ranking.user.bio && (
+                            <p className="text-slate-500 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 group-hover:text-slate-400 transition-colors duration-500">
+                              {ranking.user.bio}
+                            </p>
+                          )}
 
                           <div
                             className={`inline-flex items-center gap-1 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-lg sm:rounded-xl border ${
@@ -515,18 +566,9 @@ const Ranking = () => {
                                     : 'text-amber-600'
                               }`}
                             >
-                              {player.points}
+                              {ranking.points.toLocaleString()}
                             </span>
                           </div>
-
-                          {player.change !== '0' && (
-                            <div
-                              className={`inline-flex items-center gap-1 px-2 sm:px-4 py-1 sm:py-2 rounded-lg font-bold text-xs sm:text-sm mt-3 sm:mt-4 border ${getRankChangeClass(player.change)}`}
-                            >
-                              {getRankChangeIcon(player.change)}
-                              <span>{player.change}</span>
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -545,114 +587,128 @@ const Ranking = () => {
                         {t('pages.ranking.top100')}
                       </h2>
 
-                      <div className="flex items-center gap-2 text-sm text-slate-400">
-                        <span>
-                          {t('pages.ranking.showing', { from: startIndex + 1, to: Math.min(endIndex, filteredPlayers.length), total: filteredPlayers.length })}
-                        </span>
-                      </div>
+                      {!loading && (
+                        <div className="flex items-center gap-2 text-sm text-slate-400">
+                          <span>
+                            {t('pages.ranking.showing', { 
+                              from: startIndex + 1, 
+                              to: Math.min(endIndex, filteredPlayers.length), 
+                              total: filteredPlayers.length 
+                            })}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {totalPages > 1 && (
+                  {loading && (
+                    <div className="relative z-10 p-12 flex flex-col items-center justify-center gap-4">
+                      <Loader className="w-8 h-8 text-primary animate-spin" />
+                      <p className="text-slate-400">{t('common.loading')}</p>
+                    </div>
+                  )}
+
+                  {!loading && totalPages > 1 && (
                     <div className="relative z-10 p-4 sm:p-6 border-b border-slate-700/50">
                       {renderPaginationControls()}
                     </div>
                   )}
 
-                  <div className="relative z-10 overflow-x-auto -mx-2 sm:mx-0">
-                    <div className="min-w-[600px] sm:min-w-0">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="border-b border-slate-700/50 bg-slate-900/50">
-                            <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
-                              {t('pages.ranking.col_pos')}
-                            </th>
-                            <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
-                              {t('pages.ranking.col_player')}
-                            </th>
-                            <th className="text-right py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
-                              {t('pages.ranking.col_points')}
-                            </th>
-                            <th className="text-center py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
-                              {t('pages.ranking.col_change')}
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {paginatedPlayers.map((player) => (
-                            <tr
-                              key={player.rank}
-                              className="border-b border-slate-700/30 last:border-0 hover:bg-slate-800/50 transition-all duration-300 group/row"
-                              onMouseEnter={() => setHoveredRow(player.rank)}
-                              onMouseLeave={() => setHoveredRow(null)}
-                            >
-                              <td className="py-3 sm:py-4 px-3 sm:px-6">
-                                <div
-                                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl backdrop-blur-sm border flex items-center justify-center font-bold text-sm sm:text-base transition-all
-                                  ${
-                                    player.rank <= 3
-                                      ? player.rank === 1
-                                        ? 'bg-gradient-to-br from-amber-300/20 via-orange-400/20 to-amber-500/20 border-amber-400/30 text-amber-400'
-                                        : player.rank === 2
-                                          ? 'bg-gradient-to-br from-slate-300/20 to-slate-400/20 border-slate-300/30 text-slate-300'
-                                          : 'bg-gradient-to-br from-amber-600/20 to-amber-700/20 border-amber-600/30 text-amber-600'
-                                      : 'bg-slate-800/80 border-slate-700/50 text-slate-300 group-hover/row:border-primary/50 group-hover/row:bg-slate-700 group-hover/row:text-primary'
-                                  }`}
-                                >
-                                  {player.rank}
-                                </div>
-                              </td>
-                              <td className="py-3 sm:py-4 px-3 sm:px-6">
-                                <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
-                                  <div className="relative flex-shrink-0">
-                                    <div className="absolute inset-0 bg-primary/20 rounded-full blur-md opacity-0 group-hover/row:opacity-100 transition-opacity" />
-                                    <img
-                                      src={player.avatar}
-                                      alt={player.name}
-                                      className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-slate-700 group-hover/row:border-primary/50 transition-colors"
-                                    />
-                                    <img
-                                      src={countryFlags[player.countryCode]}
-                                      alt={player.countryCode}
-                                      className="absolute -bottom-1 -right-1 w-4 h-3 sm:w-5 sm:h-4 rounded-sm border-2 border-slate-900"
-                                    />
-                                  </div>
-                                  <div className="min-w-0">
-                                    <p className="font-bold text-white text-sm sm:text-base group-hover/row:text-primary transition-colors truncate">
-                                      {player.name}
-                                    </p>
-                                    <p className="text-xs sm:text-sm text-slate-500 font-medium truncate">
-                                      {player.countryCode}
-                                    </p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="py-3 sm:py-4 px-3 sm:px-6 text-right">
-                                <div className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-lg bg-slate-800/50 border border-slate-700 group-hover/row:border-primary/30 group-hover/row:bg-slate-700/50 transition-all">
-                                  <Trophy className="w-3 h-3 sm:w-4 sm:h-4 text-slate-500 group-hover/row:text-primary transition-colors" />
-                                  <span className="font-bold text-base sm:text-lg text-white">
-                                    {player.points.toLocaleString()}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="py-3 sm:py-4 px-3 sm:px-6">
-                                <div className="flex items-center justify-center">
-                                  <div
-                                    className={`inline-flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg font-bold text-xs sm:text-sm border ${getRankChangeClass(player.change)}`}
-                                  >
-                                    {getRankChangeIcon(player.change)}
-                                    <span>{player.change !== '0' ? player.change : '-'}</span>
-                                  </div>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                  {!loading && filteredPlayers.length === 0 ? (
+                    <div className="relative z-10 p-12 text-center">
+                      <p className="text-slate-400">{t('pages.ranking.no_results')}</p>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="relative z-10 overflow-x-auto -mx-2 sm:mx-0">
+                      <div className="min-w-[600px] sm:min-w-0">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b border-slate-700/50 bg-slate-900/50">
+                              <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
+                                {t('pages.ranking.col_pos')}
+                              </th>
+                              <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
+                                {t('pages.ranking.col_player')}
+                              </th>
+                              <th className="text-right py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
+                                {t('pages.ranking.col_points')}
+                              </th>
+                              <th className="text-center py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
+                                {t('pages.ranking.col_level')}
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {paginatedPlayers.map((ranking) => (
+                              <tr
+                                key={ranking.id}
+                                className="border-b border-slate-700/30 last:border-0 hover:bg-slate-800/50 transition-all duration-300 group/row"
+                                onMouseEnter={() => setHoveredRow(ranking.position)}
+                                onMouseLeave={() => setHoveredRow(null)}
+                              >
+                                <td className="py-3 sm:py-4 px-3 sm:px-6">
+                                  <div
+                                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl backdrop-blur-sm border flex items-center justify-center font-bold text-sm sm:text-base transition-all
+                                    ${
+                                      ranking.position <= 3
+                                        ? ranking.position === 1
+                                          ? 'bg-gradient-to-br from-amber-300/20 via-orange-400/20 to-amber-500/20 border-amber-400/30 text-amber-400'
+                                          : ranking.position === 2
+                                            ? 'bg-gradient-to-br from-slate-300/20 to-slate-400/20 border-slate-300/30 text-slate-300'
+                                            : 'bg-gradient-to-br from-amber-600/20 to-amber-700/20 border-amber-600/30 text-amber-600'
+                                        : 'bg-slate-800/80 border-slate-700/50 text-slate-300 group-hover/row:border-primary/50 group-hover/row:bg-slate-700 group-hover/row:text-primary'
+                                    }`}
+                                  >
+                                    {ranking.position}
+                                  </div>
+                                </td>
+                                <td className="py-3 sm:py-4 px-3 sm:px-6">
+                                  <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+                                    <div className="relative flex-shrink-0">
+                                      <div className="absolute inset-0 bg-primary/20 rounded-full blur-md opacity-0 group-hover/row:opacity-100 transition-opacity" />
+                                      <img
+                                        src={ranking.user.profile_photo || `https://api.dicebear.com/7.x/avataaars/svg?seed=${ranking.user.id}`}
+                                        alt={ranking.user.full_name}
+                                        onError={(e) => {
+                                          e.currentTarget.src = `https://api.dicebear.com/7.x/avataaars/svg?seed=${ranking.user.id}`;
+                                        }}
+                                        className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-slate-700 group-hover/row:border-primary/50 transition-colors"
+                                      />
+                                    </div>
+                                    <div className="min-w-0">
+                                      <p className="font-bold text-white text-sm sm:text-base group-hover/row:text-primary transition-colors truncate">
+                                        {ranking.user.full_name}
+                                      </p>
+                                      <p className="text-xs sm:text-sm text-slate-500 font-medium truncate">
+                                        {ranking.user.city && ranking.user.state
+                                          ? `${ranking.user.city}, ${ranking.user.state}`
+                                          : ranking.user.state || 'N/A'}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="py-3 sm:py-4 px-3 sm:px-6 text-right">
+                                  <div className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-lg bg-slate-800/50 border border-slate-700 group-hover/row:border-primary/30 group-hover/row:bg-slate-700/50 transition-all">
+                                    <Trophy className="w-3 h-3 sm:w-4 sm:h-4 text-slate-500 group-hover/row:text-primary transition-colors" />
+                                    <span className="font-bold text-base sm:text-lg text-white">
+                                      {ranking.points.toLocaleString()}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td className="py-3 sm:py-4 px-3 sm:px-6 text-center">
+                                  <div className="inline-flex px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg font-bold text-xs sm:text-sm border border-primary/30 bg-primary/10 text-primary">
+                                    {ranking.user.skill_level || 'N/A'}
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
 
-                  {totalPages > 1 && (
+                  {!loading && totalPages > 1 && (
                     <div className="relative z-10 p-4 sm:p-6 border-t border-slate-700/50">
                       {renderPaginationControls()}
                     </div>
@@ -671,7 +727,7 @@ const Ranking = () => {
                           {t('pages.ranking.not_top100')}
                         </h3>
                         <p className="text-slate-400 text-sm sm:text-base">
-                          {t('pages.ranking.registered_count', { count: TOTAL_PLAYERS.toLocaleString('es-MX') })}
+                          {t('pages.ranking.registered_count', { count: totalPlayers })}
                         </p>
                       </div>
 
@@ -691,25 +747,25 @@ const Ranking = () => {
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
-                            {Math.floor(TOTAL_PLAYERS * 0.35).toLocaleString('es-MX')}
+                            {Math.floor(totalPlayers * 0.35).toLocaleString('es-MX')}
                           </div>
                           <div className="text-xs sm:text-sm text-slate-400">{t('pages.ranking.men')}</div>
                         </div>
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
-                            {Math.floor(TOTAL_PLAYERS * 0.35).toLocaleString('es-MX')}
+                            {Math.floor(totalPlayers * 0.35).toLocaleString('es-MX')}
                           </div>
                           <div className="text-xs sm:text-sm text-slate-400">{t('pages.ranking.women')}</div>
                         </div>
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
-                            {Math.floor(TOTAL_PLAYERS * 0.2).toLocaleString('es-MX')}
+                            {Math.floor(totalPlayers * 0.2).toLocaleString('es-MX')}
                           </div>
                           <div className="text-xs sm:text-sm text-slate-400">{t('pages.ranking.juniors')}</div>
                         </div>
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
-                            {Math.floor(TOTAL_PLAYERS * 0.1).toLocaleString('es-MX')}
+                            {Math.floor(totalPlayers * 0.1).toLocaleString('es-MX')}
                           </div>
                           <div className="text-xs sm:text-sm text-slate-400">{t('pages.ranking.professionals')}</div>
                         </div>

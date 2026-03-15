@@ -1,4 +1,3 @@
-import Header from '@/components/Header';
 import ScheduleBar from '@/components/ScheduleBar';
 import HeroSection from '@/components/HeroSection';
 import PartnersSection from '@/components/PartnersSection';
@@ -10,7 +9,6 @@ import TournamentSection from '@/components/TournamentSection';
 import TournamentBracketSection from '@/components/TournamentBracketSection';
 import FindCourtsSection from '@/components/FindCourtsSection';
 import SponsorsSection from '@/components/SponsorsSection';
-import Footer from '@/components/Footer';
 
 const Index = () => {
   return (

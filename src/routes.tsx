@@ -16,6 +16,8 @@ import Showcase from './pages/players/Showcase';
 import ShowcaseDetail from './pages/players/ShowcaseDetail';
 import Categories from './pages/players/Categories';
 import PlayerSearch from './pages/players/PlayerSearch';
+import PlayerSearchMap from './pages/players/PlayerSearchMap';
+import CourtsVenuesMap from './pages/players/CourtsVenuesMap';
 import Referees from './pages/training/Referees';
 import Courts from './pages/admin/Courts';
 import Tournaments from './pages/admin/Tournaments';
@@ -136,10 +138,12 @@ import MatchRefereeScreen from './pages/referee/MatchRefereeScreen';
 import ClubScoreCorrectionsPage from './pages/clubs/dashboard/ClubScoreCorrectionsPage';
 import StateScoreCorrectionsPage from './pages/state/dashboard/StateScoreCorrectionsPage';
 import ClubMessagesPage from './pages/clubs/dashboard/ClubMessagesPage';
+import ClubPaymentsPage from './pages/clubs/dashboard/ClubPaymentsPage';
 
 // State extra pages
 import StateMessagesPage from './pages/state/dashboard/StateMessagesPage';
 import StateStatistics from './pages/state/dashboard/StateStatistics';
+import StatePaymentsPage from './pages/state/dashboard/StatePaymentsPage';
 
 // Wrapper components for routes with parameters
 const TournamentEventManagementWrapper: React.FC = () => {
@@ -291,6 +295,18 @@ export const routes = [
     key: 'players_search',
     path: '/players/search',
     element: <PlayerSearch />,
+    public: true,
+  },
+  {
+    key: 'players_search_map',
+    path: '/players/search-map',
+    element: <PlayerSearchMap />,
+    public: true,
+  },
+  {
+    key: 'courts_venues_map',
+    path: '/courts-venues',
+    element: <CourtsVenuesMap />,
     public: true,
   },
   {
@@ -673,6 +689,12 @@ export const routes = [
         element: <StateStatistics />,
         public: false,
       },
+      {
+        key: 'state-dashboard-payments',
+        path: '/state/dashboard/payments',
+        element: <StatePaymentsPage />,
+        public: false,
+      },
     ],
   },
   {
@@ -959,6 +981,12 @@ export const routes = [
         key: 'club-match-schedule',
         path: '/clubs/dashboard/tournaments/:tournamentId/events/:eventId/schedule',
         element: <MatchSchedulePage />,
+        public: false,
+      },
+      {
+        key: 'club-dashboard-payments',
+        path: '/clubs/dashboard/payments',
+        element: <ClubPaymentsPage />,
         public: false,
       },
     ],

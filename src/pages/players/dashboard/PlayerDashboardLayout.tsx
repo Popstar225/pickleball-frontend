@@ -1,6 +1,7 @@
 import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
 import { RootState } from '@/store';
+import { getFullImageUrl } from '@/common/tools';
 import {
   LayoutDashboard,
   User,
@@ -86,7 +87,7 @@ export default function PlayerDashboardLayout() {
         name: user.full_name || user.username || 'Usuario',
         email: user.email || '',
         role: 'Jugador',
-        avatar: user.profile_photo || null,
+        avatar: getFullImageUrl(user.profile_photo) || null,
       }
     : playerUser;
 

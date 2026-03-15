@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
 import { RootState } from '@/store';
-import { LayoutDashboard, User, Trophy, Zap, Users, Building2, Grid3X3, MessageSquare, BarChart2, CheckSquare, CalendarDays } from 'lucide-react';
+import { LayoutDashboard, User, Trophy, Zap, Users, Building2, Grid3X3, MessageSquare, BarChart2, CheckSquare, CalendarDays, Receipt } from 'lucide-react';
 
 const navItems: NavItem[] = [
   {
@@ -69,6 +69,12 @@ const navItems: NavItem[] = [
     url: '/state/dashboard/stats',
     icon: BarChart2,
     description: 'Estadísticas del estado',
+  },
+  {
+    title: 'Pagos',
+    url: '/state/dashboard/payments',
+    icon: Receipt,
+    description: 'Membresía y pagos',
   },
 ];
 

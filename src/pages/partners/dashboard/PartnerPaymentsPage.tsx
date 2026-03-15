@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,15 +11,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
   DollarSign,
   CreditCard,
   Calendar,
@@ -30,11 +22,14 @@ import {
   TrendingUp,
   Wallet,
   Plus,
+  Crown,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { PremiumPlanModal } from '@/components/payment/PremiumPlanModal';
 
 export default function PartnerPaymentsPage() {
   const { toast } = useToast();
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   // Mock payments data - in real app this would come from Redux/API
   const payments = [
@@ -52,14 +47,14 @@ export default function PartnerPaymentsPage() {
     },
     {
       id: 2,
-      description: 'Renovación Partnership Gold - 2024',
-      amount: 25000,
+      description: 'Plan Premium - Socio 2024',
+      amount: 8000,
       currency: 'MXN',
       status: 'completed',
       date: '2024-01-01T09:00:00',
       method: 'Stripe',
       transactionId: 'txn_0987654321',
-      type: 'membership',
+      type: 'premium_plan',
       invoiceUrl: '#',
     },
     {
@@ -74,29 +69,18 @@ export default function PartnerPaymentsPage() {
       type: 'sponsorship',
       invoiceUrl: null,
     },
-    {
-      id: 4,
-      description: 'Patrocinio - Equipamiento para Clubes',
-      amount: 25000,
-      currency: 'MXN',
-      status: 'processing',
-      date: '2024-01-20T14:30:00',
-      method: 'Stripe',
-      transactionId: 'txn_processing_123',
-      type: 'sponsorship',
-      invoiceUrl: null,
-    },
   ];
 
+  const isPremiumActive = true; // Replace with actual state from API
+
   const paymentStats = {
-    totalPaid: 75000,
-    pendingPayments: 100000,
-    thisYear: 150000,
-    nextRenewal: '2024-06-15',
+    totalPaid: 58000,
+    pendingPayments: 75000,
+    thisYear: 133000,
+    nextRenewal: '2025-01-01',
   };
 
   const handleProcessPayment = (paymentId: number) => {
-    // In real app, this would redirect to Stripe checkout
     toast({
       title: 'Procesando pago',
       description: 'Redirigiendo a Stripe para completar el pago...',
@@ -104,7 +88,6 @@ export default function PartnerPaymentsPage() {
   };
 
   const handleDownloadInvoice = (paymentId: number) => {
-    // In real app, this would download the invoice
     toast({
       title: 'Descargando factura',
       description: 'La factura se está descargando...',
@@ -148,12 +131,10 @@ export default function PartnerPaymentsPage() {
 
   const getTypeLabel = (type: string) => {
     switch (type) {
-      case 'sponsorship':
-        return 'Patrocinio';
-      case 'membership':
-        return 'Membresía';
-      default:
-        return type;
+      case 'sponsorship': return 'Patrocinio';
+      case 'premium_plan': return 'Plan Premium';
+      case 'membership': return 'Membresía';
+      default: return type;
     }
   };
 
@@ -163,13 +144,57 @@ export default function PartnerPaymentsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white">Pagos y Facturación</h1>
-          <p className="text-slate-400 mt-1">Gestiona tus pagos, patrocinios y renovaciones</p>
+          <p className="text-slate-400 mt-1">Gestiona tus pagos, patrocinios y Plan Premium</p>
         </div>
-        <Button className="bg-primary hover:bg-primary/90">
-          <CreditCard className="h-4 w-4 mr-2" />
-          Nuevo Pago
-        </Button>
       </div>
+
+      {/* Partner Free Registration Notice */}
+      <Card className="bg-gradient-to-r from-blue-900/30 to-blue-800/30 border-blue-700">
+        <CardContent className="pt-4 pb-4">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
+            <p className="text-white text-sm">
+              <strong>Registro gratuito:</strong> Tu registro como socio/partner es completamente gratuito.
+              No hay cuota de membresía anual para socios.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Premium Plan Card */}
+      <Card className={`border-2 ${isPremiumActive ? 'border-yellow-500 bg-yellow-900/20' : 'bg-slate-900 border-slate-800'}`}>
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Crown className="h-5 w-5 text-yellow-500" />
+            Plan Premium
+          </CardTitle>
+          <CardDescription className="text-slate-400">
+            Desbloquea gestión de canchas y creación de torneos
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <Badge className={isPremiumActive ? 'bg-yellow-600' : 'bg-slate-700'}>
+                {isPremiumActive ? 'Plan Activo' : 'No activo'}
+              </Badge>
+              <p className="text-2xl font-bold text-white mt-2">$8,000 MXN/año</p>
+              <div className="flex gap-4 mt-2">
+                <span className="text-sm text-slate-400">✓ Gestión de Canchas</span>
+                <span className="text-sm text-slate-400">✓ Creación de Torneos</span>
+              </div>
+            </div>
+            <Button
+              onClick={() => setShowPremiumModal(true)}
+              disabled={isPremiumActive}
+              className={isPremiumActive ? 'bg-yellow-700' : 'bg-yellow-600 hover:bg-yellow-700'}
+            >
+              <Crown className="h-4 w-4 mr-2" />
+              {isPremiumActive ? 'Plan Activo' : 'Activar Plan Premium'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Payment Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -221,54 +246,10 @@ export default function PartnerPaymentsPage() {
             <div className="text-2xl font-bold text-white">
               {new Date(paymentStats.nextRenewal).toLocaleDateString('es-MX')}
             </div>
-            <p className="text-xs text-slate-400">Partnership Gold</p>
+            <p className="text-xs text-slate-400">Plan Premium</p>
           </CardContent>
         </Card>
       </div>
-
-      {/* Upcoming Payments Alert */}
-      <Card className="bg-gradient-to-r from-yellow-900/20 to-yellow-800/20 border-yellow-700">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-full bg-yellow-600/20">
-              <AlertCircle className="h-8 w-8 text-yellow-500" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-semibold text-white">Pagos Próximos</h3>
-              <p className="text-slate-400 mb-3">Tienes pagos pendientes que requieren atención</p>
-              <div className="space-y-2">
-                {payments
-                  .filter((p) => p.status === 'pending')
-                  .map((payment) => (
-                    <div
-                      key={payment.id}
-                      className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg"
-                    >
-                      <div>
-                        <p className="text-white font-medium">{payment.description}</p>
-                        <p className="text-sm text-slate-400">
-                          Vence: {new Date(payment.date).toLocaleDateString('es-MX')}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="text-white font-bold">
-                          ${payment.amount.toLocaleString()} {payment.currency}
-                        </span>
-                        <Button
-                          size="sm"
-                          onClick={() => handleProcessPayment(payment.id)}
-                          className="bg-primary hover:bg-primary/90"
-                        >
-                          Pagar Ahora
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Payment History */}
       <Card className="bg-slate-900 border-slate-800">
@@ -290,7 +271,6 @@ export default function PartnerPaymentsPage() {
                 <TableHead className="text-slate-400">Monto</TableHead>
                 <TableHead className="text-slate-400">Estado</TableHead>
                 <TableHead className="text-slate-400">Fecha</TableHead>
-                <TableHead className="text-slate-400">Método</TableHead>
                 <TableHead className="text-slate-400">Acciones</TableHead>
               </TableRow>
             </TableHeader>
@@ -313,7 +293,6 @@ export default function PartnerPaymentsPage() {
                   <TableCell className="text-white">
                     {new Date(payment.date).toLocaleDateString('es-MX')}
                   </TableCell>
-                  <TableCell className="text-white">{payment.method}</TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       {payment.status === 'pending' && (
@@ -345,41 +324,19 @@ export default function PartnerPaymentsPage() {
         </CardContent>
       </Card>
 
-      {/* Payment Methods */}
-      <Card className="bg-slate-900 border-slate-800">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Wallet className="h-5 w-5" />
-            Métodos de Pago
-          </CardTitle>
-          <CardDescription className="text-slate-400">
-            Gestiona tus métodos de pago guardados
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-slate-800/50 rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-600/20 rounded">
-                  <CreditCard className="h-5 w-5 text-blue-500" />
-                </div>
-                <div>
-                  <p className="text-white font-medium">•••• •••• •••• 4242</p>
-                  <p className="text-sm text-slate-400">Visa • Expira 12/26</p>
-                </div>
-              </div>
-              <Badge className="bg-green-600 hover:bg-green-700">Predeterminado</Badge>
-            </div>
-            <Button
-              variant="outline"
-              className="w-full border-slate-700 text-white hover:bg-slate-800"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Agregar Método de Pago
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Premium Plan Modal */}
+      <PremiumPlanModal
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        userType="partner"
+        onSuccess={() => {
+          toast({
+            title: 'Plan Premium activado',
+            description: 'Tu Plan Premium ha sido activado exitosamente.',
+          });
+          setShowPremiumModal(false);
+        }}
+      />
     </div>
   );
 }

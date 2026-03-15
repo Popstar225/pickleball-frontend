@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { AppDispatch, RootState } from '../../store';
 import { registerUser } from '../../store/slices/authSlice';
 import { toast } from 'sonner';
+import { MembershipSelector } from '@/components/payment/MembershipSelector';
 import {
   User,
   Mail,
@@ -37,38 +38,33 @@ const RequiredFieldsPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userType, setUserType] = useState<string>('');
 
+  const [showMembershipModal, setShowMembershipModal] = useState(false);
+  const [pendingPayment, setPendingPayment] = useState(false);
+  const [registeredUserType, setRegisteredUserType] = useState<string>('');
+
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { loading, error, isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
-  // Redirect to dashboard if already authenticated
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      const userType = user.user_type;
-      switch (userType) {
-        case 'player':
-          navigate('/player/dashboard');
-          break;
-        case 'coach':
-          navigate('/coach/dashboard');
-          break;
-        case 'club':
-          navigate('/clubs/dashboard');
-          break;
-        case 'partner':
-          navigate('/partner/dashboard');
-          break;
-        case 'state':
-          navigate('/state/dashboard');
-          break;
-        case 'admin':
-          navigate('/admin/dashboard');
-          break;
-        default:
-          navigate('/player/dashboard');
-      }
+  const USER_TYPES_REQUIRING_PAYMENT = ['player', 'coach', 'club', 'state'];
+
+  const navigateToDashboard = (type: string) => {
+    switch (type) {
+      case 'player': navigate('/players/dashboard'); break;
+      case 'coach': navigate('/coaches/dashboard'); break;
+      case 'club': navigate('/clubs/dashboard'); break;
+      case 'partner': navigate('/partner/dashboard'); break;
+      case 'state': navigate('/state/dashboard'); break;
+      default: navigate('/players/dashboard');
     }
-  }, [isAuthenticated, user, navigate]);
+  };
+
+  // Redirect to dashboard if already authenticated and no pending payment
+  useEffect(() => {
+    if (isAuthenticated && user && !pendingPayment) {
+      navigateToDashboard(user.user_type);
+    }
+  }, [isAuthenticated, user, navigate, pendingPayment]);
 
   useEffect(() => {
     const storedUserType = localStorage.getItem('registration_user_type');
@@ -210,21 +206,18 @@ const RequiredFieldsPage = () => {
 
       if (apiResponse?.data?.user && apiResponse?.data?.tokens) {
         localStorage.removeItem('registration_user_type');
-        toast.success(t('auth.requiredFields.toast_success'));
 
-        const userType = apiResponse.data.user.user_type;
-        switch (userType) {
-          case 'club':
-            navigate('/clubs/dashboard');
-            break;
-          case 'partner':
-            navigate('/partner/dashboard');
-            break;
-          case 'state':
-            navigate('/state/dashboard');
-            break;
-          default:
-            navigate('/clubs/dashboard');
+        const type = apiResponse.data.user.user_type;
+        setRegisteredUserType(type);
+
+        if (USER_TYPES_REQUIRING_PAYMENT.includes(type)) {
+          setPendingPayment(true);
+          toast.success('¡Registro exitoso! Por favor completa tu membresía.');
+          setShowMembershipModal(true);
+        } else {
+          // Partner — free
+          toast.success(t('auth.requiredFields.toast_success'));
+          navigateToDashboard(type);
         }
       } else {
         toast.error(t('auth.requiredFields.toast_error_server'));
@@ -578,6 +571,25 @@ const RequiredFieldsPage = () => {
           </div>
         </div>
       </main>
+
+      {/* Post-registration membership payment modal */}
+      {showMembershipModal && (
+        <MembershipSelector
+          isOpen={showMembershipModal}
+          onClose={() => {
+            setShowMembershipModal(false);
+            setPendingPayment(false);
+            navigateToDashboard(registeredUserType);
+          }}
+          userType={registeredUserType}
+          onSuccess={() => {
+            setShowMembershipModal(false);
+            setPendingPayment(false);
+            toast.success('¡Membresía activada! Bienvenido a la Federación Mexicana de Pickleball.');
+            navigateToDashboard(registeredUserType);
+          }}
+        />
+      )}
     </div>
   );
 };
