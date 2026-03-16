@@ -14,8 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { AlertCircle, Plus, Trash2, Edit2, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { AlertCircle, Plus, Trash2, Edit2, Eye, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import CourtDetailModal from '@/components/courts/CourtDetailModal';
 
 const ACCENT = '#ace600';
 
@@ -26,6 +27,8 @@ export default function ClubsCourtManagement() {
 
   const [selectedCourt, setSelectedCourt] = useState<Court | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [detailCourt, setDetailCourt] = useState<Court | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('');
   const [filterSurface, setFilterSurface] = useState<string>('');
@@ -49,6 +52,11 @@ export default function ClubsCourtManagement() {
       }) as any,
     );
   }, [dispatch, searchTerm, filterType, filterSurface, currentPage]);
+
+  const handleViewCourt = (court: Court) => {
+    setDetailCourt(court);
+    setIsDetailOpen(true);
+  };
 
   const handleEditCourt = (court: Court) => {
     setSelectedCourt(court);
@@ -283,15 +291,24 @@ export default function ClubsCourtManagement() {
                         <p className="text-xs text-[#4a5a72] line-clamp-2">{court.description}</p>
                       )}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1.5">
+                      <button
+                        onClick={() => handleViewCourt(court)}
+                        title="Ver detalle"
+                        className="p-2 hover:bg-[#ace600]/10 rounded-lg transition-colors text-[#ace600]/50 hover:text-[#ace600]"
+                      >
+                        <Eye size={16} />
+                      </button>
                       <button
                         onClick={() => handleEditCourt(court)}
+                        title="Editar"
                         className="p-2 hover:bg-white/5 rounded-lg transition-colors text-[#7a8ba8] hover:text-white"
                       >
                         <Edit2 size={16} />
                       </button>
                       <button
                         onClick={() => handleDelete(court.id)}
+                        title="Eliminar"
                         className="p-2 hover:bg-red-500/10 rounded-lg transition-colors text-red-400 hover:text-red-300"
                       >
                         <Trash2 size={16} />
@@ -405,6 +422,14 @@ export default function ClubsCourtManagement() {
         mode={selectedCourt ? 'edit' : 'view'}
         onClose={handleCloseModal}
         onSaveSuccess={handleSaveSuccess}
+      />
+
+      {/* Court Detail Modal */}
+      <CourtDetailModal
+        court={detailCourt}
+        open={isDetailOpen}
+        onClose={() => { setIsDetailOpen(false); setDetailCourt(null); }}
+        onEdit={(court) => { setIsDetailOpen(false); handleEditCourt(court); }}
       />
     </div>
   );

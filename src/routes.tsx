@@ -81,6 +81,8 @@ import PartnerDashboardHome from './pages/partners/dashboard/PartnerDashboardHom
 import PartnerAccountPage from './pages/partners/dashboard/PartnerAccountPage';
 import PartnerMessagesPage from './pages/partners/dashboard/PartnerMessagesPage';
 import PartnerPaymentsPage from './pages/partners/dashboard/PartnerPaymentsPage';
+import PartnerCourtsManagement from './pages/partners/dashboard/PartnerCourtsManagement';
+import PartnerVenuesManagement from './pages/partners/dashboard/PartnerVenuesManagement';
 
 // Coach Dashboard pages
 import CoachDashboardLayout from './pages/coaches/dashboard/CoachDashboardLayout';
@@ -306,7 +308,7 @@ export const routes = [
   {
     key: 'players_search',
     path: '/players/search',
-    element: <PlayerSearch />,
+    element: <PlayerSearchMap />,
     public: true,
   },
   {
@@ -872,6 +874,18 @@ export const routes = [
         element: <PartnerPaymentsPage />,
         public: false,
       },
+      {
+        key: 'partner-dashboard-venues',
+        path: '/partners/dashboard/venues',
+        element: <PartnerVenuesManagement />,
+        public: false,
+      },
+      {
+        key: 'partner-dashboard-courts',
+        path: '/partners/dashboard/courts',
+        element: <PartnerCourtsManagement />,
+        public: false,
+      },
     ],
   },
   {
@@ -956,6 +970,18 @@ export const routes = [
         key: 'partner-dashboard-payments',
         path: '/partners/dashboard/payments',
         element: <PartnerPaymentsPage />,
+        public: false,
+      },
+      {
+        key: 'partner-dashboard-venues',
+        path: '/partners/dashboard/venues',
+        element: <PartnerVenuesManagement />,
+        public: false,
+      },
+      {
+        key: 'partner-dashboard-courts',
+        path: '/partners/dashboard/courts',
+        element: <PartnerCourtsManagement />,
         public: false,
       },
     ],

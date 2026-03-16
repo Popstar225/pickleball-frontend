@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/table';
 import {
   Receipt, CreditCard, DollarSign, Calendar, FileText, Star,
-  MapPin, Loader2, AlertCircle, CheckCircle, Clock, Lock, Zap, RefreshCcw,
+  MapPin, Loader2, AlertCircle, CheckCircle, Clock, Lock, Zap, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { MembershipSelector } from '@/components/payment/MembershipSelector';
@@ -103,6 +103,9 @@ export default function PlayerPaymentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showMembershipModal, setShowMembershipModal] = useState(false);
+
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const [searchFeaturePaid, setSearchFeaturePaid] = useState(false);
   const [showSearchPayment, setShowSearchPayment] = useState(false);
@@ -420,70 +423,115 @@ export default function PlayerPaymentsPage() {
               </div>
               <p className="text-white/30 text-[13px]">No hay pagos registrados</p>
             </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-white/[0.05] hover:bg-transparent">
-                  <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30 px-5">Fecha</TableHead>
-                  <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30">Descripción</TableHead>
-                  <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30">Tipo</TableHead>
-                  <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30">Monto</TableHead>
-                  <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30">Estado</TableHead>
-                  <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30 pr-5">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {payments.map(payment => (
-                  <TableRow
-                    key={payment.id}
-                    className="border-b border-white/[0.04] last:border-none hover:bg-white/[0.02] transition-colors"
-                  >
-                    <TableCell className="text-[13px] text-white/60 px-5 py-3.5">
-                      {new Date(payment.created_at).toLocaleDateString('es-MX')}
-                    </TableCell>
-                    <TableCell className="py-3.5">
-                      <p className="text-[13px] font-medium text-white/85">
-                        {payment.description || TYPE_LABELS[payment.payment_type] || payment.payment_type}
-                      </p>
-                      {payment.invoice_number && (
-                        <p className="text-[11px] text-white/25 mt-0.5 font-['JetBrains_Mono',monospace]">
-                          {payment.invoice_number}
-                        </p>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-[12px] text-white/40 py-3.5">
-                      {TYPE_LABELS[payment.payment_type] || payment.payment_type}
-                    </TableCell>
-                    <TableCell className="py-3.5">
-                      <span className="font-['Syne',sans-serif] font-extrabold text-[15px] text-[#C8FF00]">
-                        ${Number(payment.amount).toLocaleString()}
-                      </span>
-                      <span className="text-[11px] text-white/25 ml-1">
-                        {payment.currency?.toUpperCase() || 'MXN'}
-                      </span>
-                    </TableCell>
-                    <TableCell className="py-3.5">
-                      <StatusBadge status={payment.status} />
-                    </TableCell>
-                    <TableCell className="py-3.5 pr-5">
-                      {payment.receipt_url && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          asChild
-                          className="bg-transparent border-white/[0.1] text-white/50 hover:text-white hover:bg-white/[0.06] rounded-xl text-[12px] gap-1.5"
+          ) : (() => {
+            const totalPages = Math.ceil(payments.length / PAGE_SIZE);
+            const paged = payments.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+            return (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-b border-white/[0.05] hover:bg-transparent">
+                      <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30 px-5">Fecha</TableHead>
+                      <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30">Descripción</TableHead>
+                      <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30">Tipo</TableHead>
+                      <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30">Monto</TableHead>
+                      <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30">Estado</TableHead>
+                      <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30 pr-5">Acciones</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paged.map(payment => (
+                      <TableRow
+                        key={payment.id}
+                        className="border-b border-white/[0.04] last:border-none hover:bg-white/[0.02] transition-colors"
+                      >
+                        <TableCell className="text-[13px] text-white/60 px-5 py-3.5">
+                          {new Date(payment.created_at).toLocaleDateString('es-MX')}
+                        </TableCell>
+                        <TableCell className="py-3.5">
+                          <p className="text-[13px] font-medium text-white/85">
+                            {payment.description || TYPE_LABELS[payment.payment_type] || payment.payment_type}
+                          </p>
+                          {payment.invoice_number && (
+                            <p className="text-[11px] text-white/25 mt-0.5 font-['JetBrains_Mono',monospace]">
+                              {payment.invoice_number}
+                            </p>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-[12px] text-white/40 py-3.5">
+                          {TYPE_LABELS[payment.payment_type] || payment.payment_type}
+                        </TableCell>
+                        <TableCell className="py-3.5">
+                          <span className="font-['Syne',sans-serif] font-extrabold text-[15px] text-[#C8FF00]">
+                            ${Number(payment.amount).toLocaleString()}
+                          </span>
+                          <span className="text-[11px] text-white/25 ml-1">
+                            {payment.currency?.toUpperCase() || 'MXN'}
+                          </span>
+                        </TableCell>
+                        <TableCell className="py-3.5">
+                          <StatusBadge status={payment.status} />
+                        </TableCell>
+                        <TableCell className="py-3.5 pr-5">
+                          {payment.receipt_url && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              asChild
+                              className="bg-transparent border-white/[0.1] text-white/50 hover:text-white hover:bg-white/[0.06] rounded-xl text-[12px] gap-1.5"
+                            >
+                              <a href={payment.receipt_url} target="_blank" rel="noopener noreferrer">
+                                <FileText className="w-3 h-3" /> Recibo
+                              </a>
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+                {/* ── Pagination ── */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between px-5 py-3.5 border-t border-white/[0.05]">
+                    <p className="text-[12px] text-white/30">
+                      {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, payments.length)} de {payments.length} pagos
+                    </p>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/[0.08] text-white/40 hover:text-white hover:bg-white/[0.06] disabled:opacity-25 disabled:cursor-not-allowed transition-all"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                        <button
+                          key={p}
+                          onClick={() => setPage(p)}
+                          className={cn(
+                            'w-8 h-8 flex items-center justify-center rounded-lg text-[12px] font-bold font-["Syne",sans-serif] transition-all',
+                            p === page
+                              ? 'bg-[#C8FF00]/[0.12] border border-[#C8FF00]/[0.25] text-[#C8FF00]'
+                              : 'border border-white/[0.08] text-white/35 hover:text-white hover:bg-white/[0.06]',
+                          )}
                         >
-                          <a href={payment.receipt_url} target="_blank" rel="noopener noreferrer">
-                            <FileText className="w-3 h-3" /> Recibo
-                          </a>
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+                          {p}
+                        </button>
+                      ))}
+                      <button
+                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/[0.08] text-white/40 hover:text-white hover:bg-white/[0.06] disabled:opacity-25 disabled:cursor-not-allowed transition-all"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </CardContent>
       </Card>
 

@@ -20,8 +20,13 @@ import {
   Check,
   Loader,
   AlertCircle,
+  Shield,
+  Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { stripePromise } from '@/components/payment/StripeProvider';
+import PaymentService from '@/services/paymentService';
 
 interface ReservationFlowProps {
   clubId: string;
@@ -53,6 +58,8 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
   const [selectedTime, setSelectedTime] = useState<{ start: string; end: string } | null>(null);
   const [reservationData, setReservationData] = useState<Partial<CourtReservation>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentIntent, setPaymentIntent] = useState<{ paymentId: string; clientSecret: string } | null>(null);
+  const [confirmedReservation, setConfirmedReservation] = useState<any>(null);
 
   // Fetch venues when component mounts
   useEffect(() => {
@@ -111,45 +118,75 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
     }
   }, [selectedCourt, selectedDate, selectedTime, selectedVenue, clubId]);
 
-  const handleSubmitReservation = useCallback(async () => {
+  const handleInitPayment = useCallback(async () => {
     if (!selectedCourt || !selectedDate || !selectedTime) {
-      toast.error('Please select all required fields');
+      toast.error('Por favor selecciona todos los campos requeridos');
       return;
     }
-
     setIsSubmitting(true);
     try {
-      // Build payload using reservationData as base but ensure required fields
+      const rate =
+        typeof selectedCourt.hourly_rate === 'string'
+          ? parseFloat(selectedCourt.hourly_rate)
+          : selectedCourt.hourly_rate || 0;
+      const startIso = new Date(`${selectedDate}T${selectedTime.start}`).toISOString();
+      const endIso   = new Date(`${selectedDate}T${selectedTime.end}`).toISOString();
+      const durationMs = new Date(endIso).getTime() - new Date(startIso).getTime();
+      const durationHrs = Math.max(1, Math.round(durationMs / 3_600_000));
+      const totalAmount = rate * durationHrs;
+
+      const res = await PaymentService.createCourtRentalPayment({
+        amount: Math.round(totalAmount * 100),
+        court_id: selectedCourt.id,
+        club_id: clubId,
+        start_time: startIso,
+        end_time: endIso,
+        duration_hours: durationHrs,
+        description: `Cancha ${selectedCourt.name} — ${selectedDate} ${selectedTime.start}–${selectedTime.end}`,
+      });
+      setPaymentIntent({ paymentId: res.data.payment_id, clientSecret: res.data.client_secret });
+      setCurrentStep('payment');
+    } catch (err: any) {
+      toast.error(err?.message || 'No se pudo iniciar el pago');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [selectedCourt, selectedDate, selectedTime, clubId]);
+
+  const handlePaymentSuccess = useCallback(async () => {
+    if (!selectedCourt || !selectedDate || !selectedTime) return;
+    setIsSubmitting(true);
+    try {
+      const rate =
+        typeof selectedCourt.hourly_rate === 'string'
+          ? parseFloat(selectedCourt.hourly_rate)
+          : selectedCourt.hourly_rate || 0;
+      const startIso = new Date(`${selectedDate}T${selectedTime.start}`).toISOString();
+      const endIso   = new Date(`${selectedDate}T${selectedTime.end}`).toISOString();
+      const durationMs = new Date(endIso).getTime() - new Date(startIso).getTime();
+      const durationHrs = Math.max(1, Math.round(durationMs / 3_600_000));
+
       const payload: Partial<CourtReservation> = {
         court_id: selectedCourt.id,
         club_id: clubId,
         reservation_date: selectedDate,
-        start_time: new Date(`${selectedDate}T${selectedTime.start}`).toISOString(),
-        end_time: new Date(`${selectedDate}T${selectedTime.end}`).toISOString(),
+        start_time: startIso,
+        end_time: endIso,
         purpose: reservationData.purpose || 'Court Rental',
-        hourly_rate:
-          typeof selectedCourt.hourly_rate === 'string'
-            ? parseFloat(selectedCourt.hourly_rate)
-            : selectedCourt.hourly_rate || 0,
-        total_amount:
-          (typeof selectedCourt.hourly_rate === 'string'
-            ? parseFloat(selectedCourt.hourly_rate)
-            : selectedCourt.hourly_rate || 0) * 1, // duration multiplier placeholder
-        final_amount:
-          (typeof selectedCourt.hourly_rate === 'string'
-            ? parseFloat(selectedCourt.hourly_rate)
-            : selectedCourt.hourly_rate || 0) * 1,
-        payment_status: 'pending',
-        status: 'pending',
+        hourly_rate: rate,
+        total_amount: rate * durationHrs,
+        final_amount: rate * durationHrs,
+        payment_status: 'completed',
+        status: 'confirmed',
         ...reservationData,
       };
 
-      await dispatch(createReservation(payload)).unwrap();
-
-      toast.success('Reservation created! Proceeding to confirmation...');
+      const result = await dispatch(createReservation(payload)).unwrap();
+      setConfirmedReservation(result);
+      toast.success('¡Reserva confirmada!');
       setCurrentStep('confirmation');
     } catch (err: any) {
-      toast.error(err?.message || err || 'Failed to create reservation');
+      toast.error(err?.message || 'Error al crear la reserva');
     } finally {
       setIsSubmitting(false);
     }
@@ -168,8 +205,9 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
       if (currentStep === 'date-time') {
         handleGoToReview();
       } else if (currentStep === 'review') {
-        // On review, submit reservation to API
-        await handleSubmitReservation();
+        await handleInitPayment();
+      } else if (currentStep === 'confirmation') {
+        onClose();
       } else {
         setCurrentStep(STEPS[stepIndex + 1].key);
       }
@@ -289,60 +327,87 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
             />
           )}
 
-          {currentStep === 'payment' && (
-            <PaymentStep
-              amount={
-                typeof selectedCourt?.hourly_rate === 'string'
-                  ? parseFloat(selectedCourt.hourly_rate)
-                  : selectedCourt?.hourly_rate || 0
-              }
-              currency="MXN"
-            />
+          {currentStep === 'payment' && paymentIntent && (
+            <Elements
+              stripe={stripePromise}
+              options={{
+                clientSecret: paymentIntent.clientSecret,
+                appearance: {
+                  theme: 'night',
+                  variables: {
+                    colorPrimary: '#ace600',
+                    colorBackground: '#0d1117',
+                    colorText: '#ffffff',
+                    colorTextSecondary: '#9ca3af',
+                    colorDanger: '#f87171',
+                    borderRadius: '10px',
+                  },
+                  rules: {
+                    '.Input': { border: '1px solid rgba(255,255,255,0.12)', backgroundColor: '#0d1117' },
+                    '.Label': { color: '#9ca3af', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' },
+                  },
+                },
+              }}
+            >
+              <FlowPaymentForm
+                paymentId={paymentIntent.paymentId}
+                amount={
+                  typeof selectedCourt?.hourly_rate === 'string'
+                    ? parseFloat(selectedCourt.hourly_rate)
+                    : selectedCourt?.hourly_rate || 0
+                }
+                currency="MXN"
+                onSuccess={handlePaymentSuccess}
+                onBack={() => setCurrentStep('review')}
+              />
+            </Elements>
           )}
 
-          {currentStep === 'confirmation' && <ConfirmationStep />}
+          {currentStep === 'confirmation' && <ConfirmationStep reservation={confirmedReservation} />}
         </div>
 
-        {/* Footer Navigation */}
-        <div className="border-t border-white/[0.07] p-6 flex gap-3 justify-between sticky bottom-0 bg-[#0d1117]">
-          <button
-            onClick={goToPreviousStep}
-            disabled={currentStep === 'venue' || isSubmitting}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold border border-white/[0.1] bg-white/[0.04] text-white/60 hover:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Back
-          </button>
+        {/* Footer Navigation — hidden on payment step (form has its own buttons) */}
+        {currentStep !== 'payment' && (
+          <div className="border-t border-white/[0.07] p-6 flex gap-3 justify-between sticky bottom-0 bg-[#0d1117]">
+            <button
+              onClick={goToPreviousStep}
+              disabled={currentStep === 'venue' || currentStep === 'confirmation' || isSubmitting}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold border border-white/[0.1] bg-white/[0.04] text-white/60 hover:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Atrás
+            </button>
 
-          <button
-            onClick={goToNextStep}
-            disabled={
-              (currentStep === 'venue' && !selectedVenue) ||
-              (currentStep === 'court' && !selectedCourt) ||
-              (currentStep === 'date-time' && (!selectedDate || !selectedTime)) ||
-              isSubmitting ||
-              loading
-            }
-            className="inline-flex items-center gap-2 px-6 py-2 rounded-xl font-semibold bg-[#ace600] text-black hover:bg-[#c0f000] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-          >
-            {currentStep === 'review' ? (
-              <>
-                {isSubmitting ? <Loader className="w-4 h-4 animate-spin" /> : null}
-                Submit Reservation
-              </>
-            ) : currentStep === 'confirmation' ? (
-              <>
-                <Check className="w-4 h-4" />
-                Done
-              </>
-            ) : (
-              <>
-                Continue
-                <ChevronRight className="w-4 h-4" />
-              </>
-            )}
-          </button>
-        </div>
+            <button
+              onClick={goToNextStep}
+              disabled={
+                (currentStep === 'venue' && !selectedVenue) ||
+                (currentStep === 'court' && !selectedCourt) ||
+                (currentStep === 'date-time' && (!selectedDate || !selectedTime)) ||
+                isSubmitting ||
+                loading
+              }
+              className="inline-flex items-center gap-2 px-6 py-2 rounded-xl font-semibold bg-[#ace600] text-black hover:bg-[#c0f000] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            >
+              {currentStep === 'review' ? (
+                <>
+                  {isSubmitting ? <Loader className="w-4 h-4 animate-spin" /> : null}
+                  Ir a pagar
+                </>
+              ) : currentStep === 'confirmation' ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Listo
+                </>
+              ) : (
+                <>
+                  Continuar
+                  <ChevronRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -582,105 +647,123 @@ function ReviewStep({
   );
 }
 
-function PaymentStep({ amount, currency }: { amount: number; currency: string }) {
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal'>('card');
+// ─── Stripe inner payment form for ReservationFlow ───────────────────────────
+
+function FlowPaymentForm({
+  paymentId,
+  amount,
+  currency,
+  onSuccess,
+  onBack,
+}: {
+  paymentId: string;
+  amount: number;
+  currency: string;
+  onSuccess: () => void;
+  onBack: () => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isPaying, setIsPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+
+  async function handlePay(e: React.FormEvent) {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+    setIsPaying(true);
+    setPayError(null);
+    try {
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        redirect: 'if_required',
+      });
+      if (error) {
+        setPayError(error.message || 'El pago falló');
+        return;
+      }
+      if (paymentIntent?.status === 'succeeded') {
+        await PaymentService.confirmPayment(paymentId, { payment_intent_id: paymentIntent.id });
+        onSuccess();
+      }
+    } catch (err: any) {
+      setPayError(err?.message || 'Error al confirmar el pago');
+    } finally {
+      setIsPaying(false);
+    }
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-6">
-        <p className="text-sm text-white/60 mb-2">Reservation Total</p>
-        <div className="text-5xl font-bold text-[#ace600] mb-1">
-          ${amount.toFixed(2)} <span className="text-lg text-white/40">{currency}</span>
+    <form onSubmit={handlePay} className="space-y-5">
+      <div className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-5">
+        <p className="text-sm text-white/60 mb-1">Total a pagar</p>
+        <div className="text-4xl font-bold text-[#ace600]">
+          ${amount.toFixed(2)} <span className="text-base text-white/40">{currency}</span>
         </div>
-        <p className="text-xs text-white/30">1 hour reservation</p>
       </div>
 
-      <div className="space-y-3">
-        <p className="text-sm font-semibold text-white/60">Payment Method</p>
-        {(['card', 'paypal'] as const).map((method) => (
-          <button
-            key={method}
-            onClick={() => setPaymentMethod(method)}
-            className={cn(
-              'w-full p-4 rounded-xl border-2 transition-all text-left flex items-center gap-3',
-              paymentMethod === method
-                ? 'bg-[#ace600]/10 border-[#ace600]/40'
-                : 'bg-white/[0.04] border-white/[0.07] hover:border-white/[0.12]',
-            )}
-          >
-            <div
-              className={cn(
-                'w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all',
-                paymentMethod === method ? 'border-[#ace600] bg-[#ace600]' : 'border-white/[0.2]',
-              )}
-            >
-              {paymentMethod === method && <div className="w-2 h-2 bg-black rounded-full" />}
-            </div>
-            <span className="font-semibold text-white capitalize">
-              {method === 'card' ? 'Credit/Debit Card' : 'PayPal'}
-            </span>
-          </button>
-        ))}
-      </div>
+      <PaymentElement />
 
-      {paymentMethod === 'card' && (
-        <div className="space-y-3 bg-white/[0.04] border border-white/[0.07] rounded-xl p-4">
-          <label className="block">
-            <span className="text-xs font-semibold text-white/60 mb-2 block">Card Number</span>
-            <input
-              type="text"
-              placeholder="4532 •••• •••• 2019"
-              disabled
-              className="w-full h-10 px-3 rounded-lg bg-white/[0.04] border border-white/[0.07] text-white placeholder:text-white/20 text-sm"
-            />
-          </label>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="block">
-              <span className="text-xs font-semibold text-white/60 mb-2 block">Expiry Date</span>
-              <input
-                type="text"
-                placeholder="MM/YY"
-                disabled
-                className="w-full h-10 px-3 rounded-lg bg-white/[0.04] border border-white/[0.07] text-white placeholder:text-white/20 text-sm"
-              />
-            </label>
-            <label className="block">
-              <span className="text-xs font-semibold text-white/60 mb-2 block">CVV</span>
-              <input
-                type="text"
-                placeholder="•••"
-                disabled
-                className="w-full h-10 px-3 rounded-lg bg-white/[0.04] border border-white/[0.07] text-white placeholder:text-white/20 text-sm"
-              />
-            </label>
-          </div>
+      {payError && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
+          <p className="text-sm text-red-400">{payError}</p>
         </div>
       )}
 
-      <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-3">
-        <p className="text-xs text-blue-300">
-          ℹ️ This is a UI mockup. No actual payment processing will occur in this demo version.
-        </p>
+      <div className="flex items-center gap-1.5 text-[11px] text-white/25">
+        <Shield className="w-3 h-3" /> Pago seguro con cifrado SSL
       </div>
-    </div>
+
+      <div className="flex gap-3 pt-2 border-t border-white/[0.07]">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={isPaying}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold border border-white/[0.1] bg-white/[0.04] text-white/60 hover:bg-white/[0.08] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Atrás
+        </button>
+        <button
+          type="submit"
+          disabled={!stripe || !elements || isPaying}
+          className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-2 rounded-xl font-semibold bg-[#ace600] text-black hover:bg-[#c0f000] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        >
+          {isPaying
+            ? <><Loader2 className="w-4 h-4 animate-spin" />Procesando…</>
+            : `Pagar $${amount.toFixed(2)} ${currency}`}
+        </button>
+      </div>
+    </form>
   );
 }
 
-function ConfirmationStep() {
+function ConfirmationStep({ reservation }: { reservation?: any }) {
   return (
     <div className="text-center py-8 space-y-4">
-      <div className="w-16 h-16 mx-auto rounded-full bg-green-500/20 border border-green-500/40 flex items-center justify-center">
-        <Check className="w-8 h-8 text-green-400" />
+      <div className="w-16 h-16 mx-auto rounded-full bg-[#ace600]/20 border border-[#ace600]/40 flex items-center justify-center">
+        <Check className="w-8 h-8 text-[#ace600]" />
       </div>
       <div>
-        <h3 className="text-xl font-bold text-white mb-1">Reservation Confirmed!</h3>
-        <p className="text-sm text-white/40">Your court has been reserved successfully</p>
+        <h3 className="text-xl font-bold text-white mb-1">¡Reserva confirmada!</h3>
+        <p className="text-sm text-white/40">Tu cancha ha sido reservada exitosamente</p>
       </div>
-      <div className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-4 mt-4">
-        <p className="text-xs text-white/60 mb-2">Reservation ID</p>
-        <p className="font-bold text-white tracking-widest">RES-2024010012345</p>
-      </div>
-      <p className="text-xs text-white/30">A confirmation email has been sent to your inbox</p>
+      {reservation?.id && (
+        <div className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-4 mt-4 text-left space-y-2">
+          <div className="flex justify-between text-xs">
+            <span className="text-white/40">ID de reserva</span>
+            <span className="font-mono font-bold text-white/80">
+              #{String(reservation.id).slice(0, 8).toUpperCase()}
+            </span>
+          </div>
+          {reservation.total_amount != null && (
+            <div className="flex justify-between text-xs">
+              <span className="text-white/40">Total pagado</span>
+              <span className="font-bold text-[#ace600]">${Number(reservation.total_amount).toFixed(2)}</span>
+            </div>
+          )}
+        </div>
+      )}
+      <p className="text-xs text-white/30">Recibirás una confirmación por correo electrónico</p>
     </div>
   );
 }

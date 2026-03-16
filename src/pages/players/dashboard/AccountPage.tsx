@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { compressImage } from '@/lib/imageCompress';
+import { AvatarCropDialog } from '@/components/ui/AvatarCropDialog';
 import { useDispatch, useSelector } from 'react-redux';
 import { useToast } from '@/hooks/use-toast';
 import { AppDispatch, RootState } from '@/store';
@@ -97,6 +98,8 @@ export default function PlayerAccountPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showDelete, setShowDelete] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropFileName, setCropFileName] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
@@ -173,16 +176,25 @@ export default function PlayerAccountPage() {
     setIsEditing(false);
   };
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) { toast({ title: 'Archivo inválido', variant: 'destructive' }); return; }
-    const compressed = await compressImage(file);
+    setCropSrc(URL.createObjectURL(file));
+    setCropFileName(file.name);
+    e.target.value = '';
+  };
+
+  const handleCropComplete = async (croppedFile: File) => {
+    setCropSrc(null);
+    const compressed = await compressImage(croppedFile);
     setSelectedFile(compressed);
     const reader = new FileReader();
     reader.onload = ev => setPreviewUrl(ev.target?.result as string);
     reader.readAsDataURL(compressed);
   };
+
+  const handleCropCancel = () => setCropSrc(null);
 
   const handleDeleteAccount = async () => {
     try {
@@ -570,6 +582,16 @@ export default function PlayerAccountPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Crop dialog ───────────────────────────────────────────────────── */}
+      {cropSrc && (
+        <AvatarCropDialog
+          imageSrc={cropSrc}
+          originalFileName={cropFileName}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+        />
       )}
 
       {/* ── Delete confirm dialog ──────────────────────────────────────────── */}

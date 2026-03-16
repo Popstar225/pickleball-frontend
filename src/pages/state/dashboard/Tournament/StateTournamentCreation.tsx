@@ -22,11 +22,17 @@ import {
   Mail,
   ScrollText,
 } from 'lucide-react';
+import { Elements } from '@stripe/react-stripe-js';
 
 import { AppDispatch, RootState } from '@/store';
 import { createTournament } from '@/store/slices/tournamentsSlice';
 import type { CreateTournamentRequest, TournamentOrganizerPermissions } from '@/types/api';
 import { Mexico } from '@/constants/constants';
+import { stripePromise } from '@/components/payment/StripeProvider';
+import { TournamentCreationPaymentStep } from '@/components/payment/TournamentCreationPaymentStep';
+import PaymentService from '@/services/paymentService';
+
+const STATE_CREATION_FEE_CENTS = 100000; // 1,000 MXN
 
 interface StateTournamentCreationProps {
   onTournamentCreated?: (tournamentId: string) => void;
@@ -125,6 +131,13 @@ const StateTournamentCreation: React.FC<StateTournamentCreationProps> = ({
   );
   const [permLoading, setPermLoading] = useState(false);
   const [form, setForm] = useState<CreateTournamentRequest>(EMPTY_FORM);
+  const [step, setStep] = useState<'form' | 'payment'>('form');
+  const [paymentInfo, setPaymentInfo] = useState<{
+    payment_id: string;
+    client_secret: string;
+    amount: number;
+  } | null>(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   useEffect(() => {
     loadPermissions();
@@ -167,36 +180,73 @@ const StateTournamentCreation: React.FC<StateTournamentCreationProps> = ({
   const set = (field: keyof CreateTournamentRequest, value: any) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
-  async function handleSubmit() {
+  function validateForm(): boolean {
     if (!form.name || !form.venue_name || !form.state) {
       alert('Please fill in all required fields.');
-      return;
+      return false;
     }
     if (new Date(form.start_date) >= new Date(form.end_date)) {
       alert('End date must be after start date.');
-      return;
+      return false;
     }
     if (new Date(form.registration_deadline) >= new Date(form.start_date)) {
       alert('Registration deadline must be before start date.');
-      return;
+      return false;
     }
     if (
       form.max_participants &&
       form.max_participants > (permissions?.max_participants_limit ?? 128)
     ) {
       alert(`Max participants limit is ${permissions?.max_participants_limit}.`);
-      return;
+      return false;
     }
+    return true;
+  }
+
+  async function doCreateTournament() {
     try {
       const result = await dispatch(createTournament(form)).unwrap();
       setOpen(false);
       setForm(EMPTY_FORM);
+      setStep('form');
+      setPaymentInfo(null);
       if (onTournamentCreated && result && typeof result === 'object' && 'id' in result) {
         onTournamentCreated((result as any).id);
       } else {
         navigate('/state/dashboard/tournaments');
       }
     } catch {}
+  }
+
+  async function handleSubmit() {
+    if (!validateForm()) return;
+
+    if (user?.user_type === 'admin') {
+      await doCreateTournament();
+      return;
+    }
+
+    // State must pay first
+    setPaymentLoading(true);
+    try {
+      const res = await PaymentService.createPaymentIntent({
+        amount: STATE_CREATION_FEE_CENTS,
+        payment_type: 'tournament_creation',
+        currency: 'mxn',
+        description: `Tournament creation fee: ${form.name}`,
+        metadata: { organizer_type: 'state', tournament_name: form.name },
+      });
+      setPaymentInfo({
+        payment_id: res.data.payment_id,
+        client_secret: res.data.client_secret,
+        amount: res.data.amount / 100,
+      });
+      setStep('payment');
+    } catch (err: any) {
+      alert(err.message || 'Failed to initiate payment. Please try again.');
+    } finally {
+      setPaymentLoading(false);
+    }
   }
 
   const canCreate = permissions?.can_create_tournaments ?? false;
@@ -290,6 +340,7 @@ const StateTournamentCreation: React.FC<StateTournamentCreationProps> = ({
         open={open}
         onOpenChange={(v) => {
           setOpen(v);
+          if (!v) { setStep('form'); setPaymentInfo(null); }
         }}
       >
         <DialogTrigger asChild>
@@ -307,6 +358,33 @@ const StateTournamentCreation: React.FC<StateTournamentCreationProps> = ({
           className="p-0 gap-0 bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-[680px] w-full shadow-[0_32px_80px_rgba(0,0,0,0.6)] overflow-hidden"
           style={{ maxHeight: '88vh', display: 'flex', flexDirection: 'column' }}
         >
+          {step === 'payment' && paymentInfo ? (
+            <Elements
+              stripe={stripePromise}
+              options={{
+                clientSecret: paymentInfo.client_secret,
+                appearance: {
+                  theme: 'night',
+                  variables: {
+                    colorPrimary: '#ace600',
+                    colorBackground: '#161c25',
+                    colorText: '#ffffff',
+                    borderRadius: '8px',
+                  },
+                },
+              }}
+            >
+              <TournamentCreationPaymentStep
+                paymentId={paymentInfo.payment_id}
+                amount={paymentInfo.amount}
+                tournamentName={form.name}
+                organizerType="state"
+                onSuccess={doCreateTournament}
+                onBack={() => setStep('form')}
+              />
+            </Elements>
+          ) : (
+          <>
           {/* Dialog header */}
           <div className="px-7 pt-6 pb-5 border-b border-white/[0.06] flex-shrink-0">
             <div className="flex items-center gap-3">
@@ -563,6 +641,15 @@ const StateTournamentCreation: React.FC<StateTournamentCreationProps> = ({
                 />
               </Field>
             </section>
+
+            {error && (
+              <div className="flex gap-2.5 bg-red-500/[0.06] border border-red-500/15 rounded-xl px-4 py-3">
+                <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-[12px] text-red-400">{error}</p>
+              </div>
+            )}
+
+            <div className="h-1" />
           </div>
 
           {/* Dialog footer */}
@@ -575,15 +662,25 @@ const StateTournamentCreation: React.FC<StateTournamentCreationProps> = ({
             </button>
             <button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || paymentLoading}
               className="flex-1 h-10 rounded-lg bg-[#ace600] hover:bg-[#c0f000] disabled:opacity-60 disabled:cursor-not-allowed text-black font-bold text-sm transition-all duration-150 flex items-center justify-center gap-2"
             >
-              {loading && (
+              {loading || paymentLoading ? (
                 <span className="inline-block w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+              ) : (
+                <CheckCircle2 className="w-4 h-4" />
               )}
-              Create Tournament
+              {paymentLoading
+                ? 'Preparing payment…'
+                : loading
+                ? 'Creating…'
+                : user?.user_type === 'admin'
+                ? 'Create Tournament'
+                : 'Continue to Payment'}
             </button>
           </div>
+          </>
+          )}
         </DialogContent>
       </Dialog>
     </div>

@@ -23,10 +23,16 @@ import {
   ScrollText,
 } from 'lucide-react';
 
+import { Elements } from '@stripe/react-stripe-js';
 import { AppDispatch, RootState } from '@/store';
 import { createTournament } from '@/store/slices/tournamentsSlice';
 import type { CreateTournamentRequest, TournamentOrganizerPermissions } from '@/types/api';
 import { Mexico } from '@/constants/constants';
+import { stripePromise } from '@/components/payment/StripeProvider';
+import { TournamentCreationPaymentStep } from '@/components/payment/TournamentCreationPaymentStep';
+import PaymentService from '@/services/paymentService';
+
+const CLUB_CREATION_FEE_CENTS = 50000; // 500 MXN
 
 interface TournamentCreationProps {
   onTournamentCreated?: (tournamentId: string) => void;
@@ -123,6 +129,13 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
   );
   const [permLoading, setPermLoading] = useState(false);
   const [form, setForm] = useState<CreateTournamentRequest>(EMPTY_FORM);
+  const [step, setStep] = useState<'form' | 'payment'>('form');
+  const [paymentInfo, setPaymentInfo] = useState<{
+    payment_id: string;
+    client_secret: string;
+    amount: number;
+  } | null>(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   useEffect(() => {
     loadPermissions();
@@ -165,36 +178,73 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
   const set = (field: keyof CreateTournamentRequest, value: any) =>
     setForm((prev) => ({ ...prev, [field]: value }));
 
-  async function handleSubmit() {
+  function validateForm(): boolean {
     if (!form.name || !form.venue_name || !form.state) {
       alert('Please fill in all required fields.');
-      return;
+      return false;
     }
     if (new Date(form.start_date) >= new Date(form.end_date)) {
       alert('End date must be after start date.');
-      return;
+      return false;
     }
     if (new Date(form.registration_deadline) >= new Date(form.start_date)) {
       alert('Registration deadline must be before start date.');
-      return;
+      return false;
     }
     if (
       form.max_participants &&
       form.max_participants > (permissions?.max_participants_limit ?? 64)
     ) {
       alert(`Max participants limit is ${permissions?.max_participants_limit}.`);
-      return;
+      return false;
     }
+    return true;
+  }
+
+  async function doCreateTournament() {
     try {
       const result = await dispatch(createTournament(form)).unwrap();
       setOpen(false);
       setForm(EMPTY_FORM);
+      setStep('form');
+      setPaymentInfo(null);
       if (onTournamentCreated && result && typeof result === 'object' && 'id' in result) {
         onTournamentCreated((result as any).id);
       } else {
         navigate('/clubs/dashboard/tournaments');
       }
     } catch {}
+  }
+
+  async function handleSubmit() {
+    if (!validateForm()) return;
+
+    if (user?.user_type === 'admin') {
+      await doCreateTournament();
+      return;
+    }
+
+    // Club must pay first
+    setPaymentLoading(true);
+    try {
+      const res = await PaymentService.createPaymentIntent({
+        amount: CLUB_CREATION_FEE_CENTS,
+        payment_type: 'tournament_creation',
+        currency: 'mxn',
+        description: `Tournament creation fee: ${form.name}`,
+        metadata: { organizer_type: 'club', tournament_name: form.name },
+      });
+      setPaymentInfo({
+        payment_id: res.data.payment_id,
+        client_secret: res.data.client_secret,
+        amount: res.data.amount / 100,
+      });
+      setStep('payment');
+    } catch (err: any) {
+      alert(err.message || 'Failed to initiate payment. Please try again.');
+    } finally {
+      setPaymentLoading(false);
+    }
   }
 
   const canCreate = permissions?.can_create_tournaments ?? false;
@@ -290,6 +340,7 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
         open={open}
         onOpenChange={(v) => {
           setOpen(v);
+          if (!v) { setStep('form'); setPaymentInfo(null); }
         }}
       >
         <DialogTrigger asChild>
@@ -307,6 +358,33 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
           className="p-0 gap-0 bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-[680px] w-full shadow-[0_32px_80px_rgba(0,0,0,0.6)] overflow-hidden"
           style={{ maxHeight: '88vh', display: 'flex', flexDirection: 'column' }}
         >
+          {step === 'payment' && paymentInfo ? (
+            <Elements
+              stripe={stripePromise}
+              options={{
+                clientSecret: paymentInfo.client_secret,
+                appearance: {
+                  theme: 'night',
+                  variables: {
+                    colorPrimary: '#ace600',
+                    colorBackground: '#161c25',
+                    colorText: '#ffffff',
+                    borderRadius: '8px',
+                  },
+                },
+              }}
+            >
+              <TournamentCreationPaymentStep
+                paymentId={paymentInfo.payment_id}
+                amount={paymentInfo.amount}
+                tournamentName={form.name}
+                organizerType="club"
+                onSuccess={doCreateTournament}
+                onBack={() => setStep('form')}
+              />
+            </Elements>
+          ) : (
+          <>
           {/* Dialog header */}
           <div className="px-7 pt-6 pb-5 border-b border-white/[0.06] flex-shrink-0">
             <div className="flex items-center gap-3">
@@ -589,22 +667,24 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
             </button>
             <button
               onClick={handleSubmit}
-              disabled={loading}
+              disabled={loading || paymentLoading}
               className="flex items-center gap-2 bg-[#ace600] hover:bg-[#c0f000] active:scale-[0.98] text-black text-sm font-bold px-6 py-2.5 rounded-xl transition-all duration-150 disabled:opacity-50 shadow-[0_0_18px_rgba(172,230,0,0.2)] hover:shadow-[0_0_28px_rgba(172,230,0,0.35)]"
             >
-              {loading ? (
+              {loading || paymentLoading ? (
                 <>
                   <div className="w-3.5 h-3.5 border-2 border-black/25 border-t-black rounded-full animate-spin" />
-                  Creating…
+                  {paymentLoading ? 'Preparing payment…' : 'Creating…'}
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
-                  Create Tournament
+                  {user?.user_type === 'admin' ? 'Create Tournament' : 'Continue to Payment'}
                 </>
               )}
             </button>
           </div>
+          </>
+          )}
         </DialogContent>
       </Dialog>
     </div>

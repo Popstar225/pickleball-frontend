@@ -185,14 +185,14 @@ const clubsSlice = createSlice({
 
         // Map clubs with fallback values for missing properties
         state.myClubs = clubsData.map((club: any) => ({
-          id: club.id || '',
+          id: club.id || club.club_id || club.club?.id || '',
           name: club.name || club.club?.name || 'Unknown Club',
           location: club.location || club.club?.city || 'N/A',
-          members: club.members || club.member_count || 0,
-          joinedDate: club.joinedDate || club.joined_date || new Date().toISOString(),
+          members: club.members || club.member_count || club.club?.member_count || 0,
+          joinedDate: club.joinedDate || club.joined_date || club.joined_at || new Date().toISOString(),
           status: club.status || 'active',
           logo: club.logo || club.club?.logo,
-          rating: club.rating || club.club?.average_rating || 0,
+          rating: parseFloat(club.rating ?? club.club?.average_rating ?? 0) || 0,
         }));
       })
       .addCase(fetchMyClubs.rejected, (state, action) => {
@@ -207,16 +207,17 @@ const clubsSlice = createSlice({
       .addCase(joinClub.fulfilled, (state, action) => {
         state.loading = false;
         const payload = action.payload as any;
-        if (payload) {
+        const clubData = payload?.data || payload;
+        if (clubData) {
           state.myClubs.push({
-            id: payload.id || payload.club_id,
-            name: payload.name,
-            location: `${payload.city}, ${payload.state}`,
-            members: payload.member_count || 0,
+            id: clubData.id || clubData.club_id || clubData.club?.id || '',
+            name: clubData.name || clubData.club?.name || '',
+            location: clubData.location || [clubData.city, clubData.state].filter(Boolean).join(', ') || 'N/A',
+            members: clubData.member_count || clubData.members || 0,
             joinedDate: new Date().toISOString(),
             status: 'active',
-            logo: payload.logo,
-            rating: payload.rating || 0,
+            logo: clubData.logo || clubData.club?.logo,
+            rating: parseFloat(clubData.rating ?? clubData.average_rating ?? 0) || 0,
           });
         }
       })

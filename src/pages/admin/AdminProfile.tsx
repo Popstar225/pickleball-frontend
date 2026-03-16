@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { AvatarCropDialog } from '@/components/ui/AvatarCropDialog';
 import { useSelector, useDispatch } from 'react-redux';
 import { AppDispatch, RootState } from '../../store';
 
@@ -10,62 +11,58 @@ const AdminProfile = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [isEditing, setIsEditing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropFileName, setCropFileName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Profile photo management functions
-  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
       toast.error('Please select a valid image file (JPEG, PNG, or GIF)');
       return;
     }
 
-    // Validate file size (10MB limit)
     if (file.size > 10 * 1024 * 1024) {
       toast.error('File size must be less than 10MB');
       return;
     }
 
+    setCropSrc(URL.createObjectURL(file));
+    setCropFileName(file.name);
+    event.target.value = '';
+  };
+
+  const handleCropComplete = async (croppedFile: File) => {
+    setCropSrc(null);
     setIsUploading(true);
-    
     try {
       const formData = new FormData();
-      formData.append('profile_photo', file);
+      formData.append('profile_photo', croppedFile);
 
       const response = await fetch(`${imageBaseURL}/api/v1/auth/profile/photo`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: formData
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
-      }
+      if (!response.ok) throw new Error(`Upload failed: ${response.statusText}`);
 
       const result = await response.json();
-      
       if (result.success) {
         toast.success('Profile photo uploaded successfully!');
-        // Refresh the page or update user data to show new photo
         window.location.reload();
       } else {
         throw new Error(result.message || 'Upload failed');
       }
     } catch (error) {
-      console.error('Photo upload error:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to upload photo');
     } finally {
       setIsUploading(false);
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -738,6 +735,14 @@ const AdminProfile = () => {
           </div>
         </div>
       </div>
+      {cropSrc && (
+        <AvatarCropDialog
+          imageSrc={cropSrc}
+          originalFileName={cropFileName}
+          onCropComplete={handleCropComplete}
+          onCancel={() => setCropSrc(null)}
+        />
+      )}
     </div>
   );
 };

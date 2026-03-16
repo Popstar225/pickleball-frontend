@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { generateGroups, fetchEventGroups } from '@/store/slices/tournamentsSlice';
 import GroupProgressSummary from '@/components/tournament/GroupProgressSummary';
+import { useTournamentGroupsSocket } from '@/hooks/useTournamentGroupsSocket';
 import {
   Trophy, Users, BarChart3, RefreshCw, Check, Clock, AlertCircle,
 } from 'lucide-react';
@@ -34,11 +35,20 @@ const GroupManagement: React.FC<GroupManagementProps> = ({
   );
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const { emitGroupsGenerated } = useTournamentGroupsSocket({ tournamentId, eventId, eventName });
+
   const handleGenerateGroups = async () => {
     setIsGenerating(true);
     try {
       await dispatch(generateGroups({ tournamentId, eventId })).unwrap();
-      await dispatch(fetchEventGroups({ tournamentId, eventId })).unwrap();
+      const result = await dispatch(fetchEventGroups({ tournamentId, eventId })).unwrap();
+      const groups = (result as any)?.data ?? (result as any) ?? [];
+      emitGroupsGenerated({
+        tournament_id: tournamentId,
+        event_id: eventId,
+        event_name: eventName,
+        group_count: Array.isArray(groups) ? groups.length : 0,
+      });
     } catch (error) {
       console.error('Error generating groups:', error);
     } finally {
@@ -50,7 +60,14 @@ const GroupManagement: React.FC<GroupManagementProps> = ({
     setIsGenerating(true);
     try {
       await dispatch(generateGroups({ tournamentId, eventId, params: { force: true } })).unwrap();
-      await dispatch(fetchEventGroups({ tournamentId, eventId })).unwrap();
+      const result = await dispatch(fetchEventGroups({ tournamentId, eventId })).unwrap();
+      const groups = (result as any)?.data ?? (result as any) ?? [];
+      emitGroupsGenerated({
+        tournament_id: tournamentId,
+        event_id: eventId,
+        event_name: eventName,
+        group_count: Array.isArray(groups) ? groups.length : 0,
+      });
     } catch (error) {
       console.error('Error regenerating groups:', error);
     } finally {

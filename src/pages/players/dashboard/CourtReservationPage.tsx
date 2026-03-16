@@ -26,6 +26,9 @@ import {
   TrendingUp,
   Shield,
 } from 'lucide-react';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { stripePromise } from '@/components/payment/StripeProvider';
+import PaymentService from '@/services/paymentService';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -36,8 +39,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 import type { AppDispatch, RootState } from '@/store';
 import {
@@ -156,11 +157,9 @@ export default function CourtReservationPage() {
   const [step, setStep] = useState<BookingStep | null>(null);
   const [createdReservation, setCreatedReservation] = useState<any>(null);
 
-  // ── Payment form ──
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvv, setCardCvv] = useState('');
+  // ── Payment intent (Stripe) ──
+  const [paymentIntent, setPaymentIntent] = useState<{ paymentId: string; clientSecret: string } | null>(null);
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   const selectedCourt = courts.find((c) => c.id === selectedCourtId) ?? null;
   const dateStr = format(selectedDate, 'yyyy-MM-dd');
@@ -307,16 +306,37 @@ export default function CourtReservationPage() {
     setStep('review');
   }
 
-  async function handleConfirmPayment() {
-    if (!cardNumber || !cardName || !cardExpiry || !cardCvv) {
-      toast.error('Please fill in all payment fields');
-      return;
+  async function initPayment() {
+    if (!selectedCourt || rangeStart === null) return;
+    setPaymentLoading(true);
+    try {
+      const hrs = duration || 1;
+      const startIso = `${dateStr}T${String(rangeStart).padStart(2, '0')}:00:00.000Z`;
+      const endIso   = `${dateStr}T${String((rangeEnd ?? rangeStart) + 1).padStart(2, '0')}:00:00.000Z`;
+      const res = await PaymentService.createCourtRentalPayment({
+        amount: Math.round(totalPrice * 100),
+        court_id: selectedCourt.id,
+        club_id: selectedCourt.club?.id,
+        start_time: startIso,
+        end_time: endIso,
+        duration_hours: hrs,
+        description: `Cancha ${selectedCourt.name} — ${format(selectedDate, 'EEE dd/MM')} ${fmtHour(rangeStart)}–${fmtHour((rangeEnd ?? rangeStart) + 1)}`,
+      });
+      setPaymentIntent({ paymentId: res.data.payment_id, clientSecret: res.data.client_secret });
+      setStep('payment');
+    } catch (err: any) {
+      toast.error(err?.message ?? 'No se pudo iniciar el pago');
+    } finally {
+      setPaymentLoading(false);
     }
+  }
+
+  async function handlePaymentSuccess() {
     setStep('processing');
     try {
       const hrs = duration || 1;
       const startIso = `${dateStr}T${String(rangeStart).padStart(2, '0')}:00:00.000Z`;
-      const endIso   = `${dateStr}T${String(rangeEnd! + 1).padStart(2, '0')}:00:00.000Z`;
+      const endIso   = `${dateStr}T${String((rangeEnd ?? rangeStart!) + 1).padStart(2, '0')}:00:00.000Z`;
       const result = await dispatch(
         createCourtReservation({
           courtId: selectedCourtId,
@@ -329,7 +349,7 @@ export default function CourtReservationPage() {
       dispatch(getCourtAvailability({ courtId: selectedCourtId, params: { date: dateStr } }));
       clearSelection();
     } catch (err: any) {
-      toast.error(err?.message ?? 'Booking failed. Please try again.');
+      toast.error(err?.message ?? 'Reserva fallida. Intenta de nuevo.');
       setStep('payment');
     }
   }
@@ -337,10 +357,8 @@ export default function CourtReservationPage() {
   function closeModal() {
     setStep(null);
     setCreatedReservation(null);
-    setCardNumber('');
-    setCardName('');
-    setCardExpiry('');
-    setCardCvv('');
+    setPaymentIntent(null);
+    setPaymentLoading(false);
   }
 
   const upcoming = (Array.isArray(reservations) ? reservations : [])
@@ -708,7 +726,7 @@ export default function CourtReservationPage() {
                   <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
-                  onClick={() => { setSelectedDate(startOfToday()); setSelectedHour(null); }}
+                  onClick={() => { setSelectedDate(startOfToday()); clearSelection(); }}
                   className="text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all"
                 >
                   Today
@@ -1071,8 +1089,8 @@ export default function CourtReservationPage() {
                   <Button variant="outline" onClick={closeModal} className="flex-1 border-white/15 text-gray-300 hover:bg-white/5 hover:text-white">
                     Cancel
                   </Button>
-                  <Button onClick={() => setStep('payment')} className="flex-1 bg-[#ace600] text-black hover:bg-[#c4f500] font-bold">
-                    Pay Now →
+                  <Button onClick={initPayment} disabled={paymentLoading} className="flex-1 bg-[#ace600] text-black hover:bg-[#c4f500] font-bold">
+                    {paymentLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Pagar →'}
                   </Button>
                 </div>
               </div>
@@ -1080,79 +1098,45 @@ export default function CourtReservationPage() {
           )}
 
           {/* Step 2: Payment */}
-          {step === 'payment' && (
+          {step === 'payment' && paymentIntent && (
             <>
               <DialogHeader>
                 <DialogTitle className="text-white flex items-center gap-2">
                   <CreditCard className="w-5 h-5 text-[#ace600]" />
-                  Payment Details
+                  Pago seguro
                 </DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 mt-2">
-                <div className="flex items-center justify-between bg-[#ace600]/8 border border-[#ace600]/20 rounded-xl p-3.5">
-                  <div>
-                    <span className="text-sm text-gray-400">Amount due</span>
-                    <p className="text-[11px] text-gray-600">{duration}h × ${price.toFixed(2)}/hr</p>
-                  </div>
-                  <span className="font-bold text-[#ace600] text-2xl">${totalPrice.toFixed(2)}</span>
-                </div>
-                <div className="space-y-3">
-                  <div>
-                    <Label className="text-xs text-gray-500">Card Number</Label>
-                    <Input
-                      placeholder="1234 5678 9012 3456"
-                      value={cardNumber.replace(/\D/g,'').slice(0,16).replace(/(.{4})/g,'$1 ').trim()}
-                      onChange={(e) => setCardNumber(e.target.value.replace(/\D/g,'').slice(0,16))}
-                      className="mt-1 bg-[#0d1117] border-white/15 text-white placeholder:text-gray-700"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-gray-500">Cardholder Name</Label>
-                    <Input
-                      placeholder="Full name on card"
-                      value={cardName}
-                      onChange={(e) => setCardName(e.target.value)}
-                      className="mt-1 bg-[#0d1117] border-white/15 text-white placeholder:text-gray-700"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label className="text-xs text-gray-500">Expiry</Label>
-                      <Input
-                        placeholder="MM/YY"
-                        value={cardExpiry}
-                        onChange={(e) => {
-                          let v = e.target.value.replace(/\D/g,'').slice(0,4);
-                          if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
-                          setCardExpiry(v);
-                        }}
-                        className="mt-1 bg-[#0d1117] border-white/15 text-white placeholder:text-gray-700"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs text-gray-500">CVV</Label>
-                      <Input
-                        placeholder="•••"
-                        type="password"
-                        value={cardCvv}
-                        onChange={(e) => setCardCvv(e.target.value.replace(/\D/g,'').slice(0,4))}
-                        className="mt-1 bg-[#0d1117] border-white/15 text-white placeholder:text-gray-700"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5 text-[11px] text-gray-600">
-                  <Shield className="w-3 h-3" /> Secured with SSL encryption
-                </div>
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => setStep('review')} className="flex-1 border-white/15 text-gray-300 hover:bg-white/5">
-                    ← Back
-                  </Button>
-                  <Button onClick={handleConfirmPayment} className="flex-1 bg-[#ace600] text-black hover:bg-[#c4f500] font-bold">
-                    Pay ${totalPrice.toFixed(2)}
-                  </Button>
-                </div>
-              </div>
+              <Elements
+                stripe={stripePromise}
+                options={{
+                  clientSecret: paymentIntent.clientSecret,
+                  appearance: {
+                    theme: 'night',
+                    variables: {
+                      colorPrimary: '#ace600',
+                      colorBackground: '#161b22',
+                      colorText: '#ffffff',
+                      colorTextSecondary: '#9ca3af',
+                      colorDanger: '#f87171',
+                      borderRadius: '10px',
+                      fontFamily: 'system-ui, sans-serif',
+                    },
+                    rules: {
+                      '.Input': { border: '1px solid rgba(255,255,255,0.12)', backgroundColor: '#0d1117' },
+                      '.Label': { color: '#9ca3af', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' },
+                    },
+                  },
+                }}
+              >
+                <CourtPaymentForm
+                  paymentId={paymentIntent.paymentId}
+                  amount={totalPrice}
+                  duration={duration || 1}
+                  price={price}
+                  onSuccess={handlePaymentSuccess}
+                  onBack={() => setStep('review')}
+                />
+              </Elements>
             </>
           )}
 
@@ -1221,4 +1205,97 @@ export default function CourtReservationPage() {
 // local alias to avoid conflict with lucide Calendar import
 function CalendarIcon(props: React.SVGProps<SVGSVGElement> & { className?: string }) {
   return <Calendar {...(props as any)} />;
+}
+
+// ─── Stripe inner payment form ────────────────────────────────────────────────
+
+function CourtPaymentForm({
+  paymentId,
+  amount,
+  duration,
+  price,
+  onSuccess,
+  onBack,
+}: {
+  paymentId: string;
+  amount: number;
+  duration: number;
+  price: number;
+  onSuccess: () => void;
+  onBack: () => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isPaying, setIsPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+
+  async function handlePay(e: React.FormEvent) {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+    setIsPaying(true);
+    setPayError(null);
+    try {
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        redirect: 'if_required',
+      });
+      if (error) {
+        setPayError(error.message || 'El pago falló');
+        return;
+      }
+      if (paymentIntent?.status === 'succeeded') {
+        await PaymentService.confirmPayment(paymentId, { payment_intent_id: paymentIntent.id });
+        onSuccess();
+      }
+    } catch (err: any) {
+      setPayError(err?.message || 'Error al confirmar el pago');
+    } finally {
+      setIsPaying(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handlePay} className="space-y-4 mt-2">
+      <div className="flex items-center justify-between bg-[#ace600]/8 border border-[#ace600]/20 rounded-xl p-3.5">
+        <div>
+          <span className="text-sm text-gray-400">Total a pagar</span>
+          <p className="text-[11px] text-gray-500">{duration}h × ${price.toFixed(2)}/hr</p>
+        </div>
+        <span className="font-bold text-[#ace600] text-2xl">${amount.toFixed(2)}</span>
+      </div>
+
+      <PaymentElement />
+
+      {payError && (
+        <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+          <p className="text-sm text-red-400">{payError}</p>
+        </div>
+      )}
+
+      <div className="flex items-center gap-1.5 text-[11px] text-gray-600">
+        <Shield className="w-3 h-3" /> Pago seguro con cifrado SSL
+      </div>
+
+      <div className="flex gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onBack}
+          disabled={isPaying}
+          className="flex-1 border-white/15 text-gray-300 hover:bg-white/5 hover:text-white"
+        >
+          ← Volver
+        </Button>
+        <Button
+          type="submit"
+          disabled={!stripe || !elements || isPaying}
+          className="flex-1 bg-[#ace600] text-black hover:bg-[#c4f500] font-bold"
+        >
+          {isPaying
+            ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Procesando…</>
+            : `Pagar $${amount.toFixed(2)}`}
+        </Button>
+      </div>
+    </form>
+  );
 }

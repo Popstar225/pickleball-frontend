@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { AvatarCropDialog } from '@/components/ui/AvatarCropDialog';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchStateProfile,
@@ -213,6 +214,8 @@ export default function StateAccountPage() {
   const [saving, setSaving] = useState(false);
   const [deletionConfirmed, setDeletionConfirmed] = useState(false);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropFileName, setCropFileName] = useState('');
   const photoInputRef = useRef<HTMLInputElement>(null);
 
   const isDirty = JSON.stringify(form) !== JSON.stringify(saved);
@@ -243,13 +246,20 @@ export default function StateAccountPage() {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    setCropSrc(URL.createObjectURL(file));
+    setCropFileName(file.name);
+    e.target.value = '';
+  };
+
+  const handleCropComplete = (croppedFile: File) => {
+    setCropSrc(null);
     const reader = new FileReader();
     reader.onloadend = () => {
       const base64 = reader.result as string;
       setPhotoPreview(base64);
       setForm((f) => ({ ...f, profile_photo: base64 }));
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(croppedFile);
   };
 
   const handleSave = async () => {
@@ -580,6 +590,15 @@ export default function StateAccountPage() {
           </AlertDialog>
         </div>
       </div>
+
+      {cropSrc && (
+        <AvatarCropDialog
+          imageSrc={cropSrc}
+          originalFileName={cropFileName}
+          onCropComplete={handleCropComplete}
+          onCancel={() => setCropSrc(null)}
+        />
+      )}
     </div>
   );
 }

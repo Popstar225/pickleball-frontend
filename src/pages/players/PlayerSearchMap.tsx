@@ -15,9 +15,24 @@ import {
   Phone,
   Mail,
   Home,
+  Lock,
+  LogIn,
+  Zap,
+  Loader2,
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import Footer from '@/components/Footer';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
@@ -25,9 +40,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Elements } from '@stripe/react-stripe-js';
+import { stripePromise } from '@/components/payment/StripeProvider';
+import { PaymentForm } from '@/components/payment/PaymentForm';
 import { searchNearbyPlayers, getCurrentLocation, type PlayerFinderResult } from '@/services/playerFinderService';
+import PaymentService from '@/services/paymentService';
+import { RootState } from '@/store';
+import { updateUser } from '@/store/slices/authSlice';
 
 const MEXICO_CENTER: [number, number] = [23.6345, -102.5528];
+const FEATURE_PRICE = 200; // MXN one-time
 
 function getSkillColor(skillLevel: string): string {
   const level = parseFloat(skillLevel);
@@ -71,8 +93,173 @@ function MapController({ center, zoom }: { center: [number, number]; zoom: numbe
   return null;
 }
 
+// ─── Payment Gate Modal ───────────────────────────────────────────────────────
+
+interface PaymentGateModalProps {
+  open: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
+
+function PaymentGateModal({ open, onClose, onSuccess }: PaymentGateModalProps) {
+  const [step, setStep] = useState<'info' | 'payment'>('info');
+  const [paymentData, setPaymentData] = useState<{ paymentId: string; clientSecret: string } | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handlePay = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await PaymentService.createPlayerFeaturePayment('nearby_search');
+      if (!res.success || !res.data) throw new Error('No se pudo crear la solicitud de pago');
+      setPaymentData({ paymentId: res.data.payment_id, clientSecret: res.data.client_secret });
+      setStep('payment');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al procesar');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePaymentSuccess = async (paymentIntentId: string) => {
+    if (!paymentData) return;
+    try {
+      await PaymentService.confirmPlayerFeaturePayment(paymentData.paymentId, paymentIntentId);
+      onSuccess();
+      handleClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al confirmar el pago');
+    }
+  };
+
+  const handleClose = () => {
+    setStep('info');
+    setPaymentData(null);
+    setError(null);
+    setLoading(false);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-lg bg-slate-900 border-slate-700 text-white">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-white">
+            <Zap className="w-5 h-5 text-primary" />
+            Desbloquear Buscador de Jugadores
+          </DialogTitle>
+          <DialogDescription className="text-slate-400">
+            Accede al mapa interactivo y encuentra jugadores cercanos a ti
+          </DialogDescription>
+        </DialogHeader>
+
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {step === 'payment' && paymentData ? (
+          <div className="space-y-4">
+            <div className="p-4 bg-primary/10 border border-primary/30 rounded-xl">
+              <p className="font-semibold text-white">Buscador de Jugadores — ${FEATURE_PRICE} MXN</p>
+              <p className="text-sm text-slate-400">Pago único, acceso permanente</p>
+            </div>
+            <Elements stripe={stripePromise} options={{ clientSecret: paymentData.clientSecret }}>
+              <PaymentForm
+                paymentId={paymentData.paymentId}
+                clientSecret={paymentData.clientSecret}
+                amount={FEATURE_PRICE * 100}
+                currency="mxn"
+                description={`Buscador de Jugadores — $${FEATURE_PRICE} MXN`}
+                onSuccess={handlePaymentSuccess}
+                onError={(err) => { setError(err); setStep('info'); }}
+              />
+            </Elements>
+            <Button onClick={() => setStep('info')} variant="outline" className="w-full border-slate-600 text-slate-300">
+              Volver
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Price card */}
+            <div className="text-center p-6 bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 rounded-xl">
+              <div className="flex items-baseline justify-center gap-1 mb-1">
+                <span className="text-4xl font-bold text-white">${FEATURE_PRICE}</span>
+                <span className="text-slate-400">MXN</span>
+              </div>
+              <p className="text-sm text-primary font-semibold">Pago único — acceso permanente</p>
+            </div>
+
+            {/* Features */}
+            <div className="space-y-3">
+              {[
+                { icon: MapPin, text: 'Mapa interactivo con jugadores en tiempo real' },
+                { icon: Users,  text: 'Filtra por nivel de habilidad y distancia' },
+                { icon: Trophy, text: 'Contáctales directamente para jugar' },
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} className="flex items-center gap-3 p-3 bg-slate-800/60 rounded-lg border border-slate-700/50">
+                  <div className="p-1.5 bg-primary/10 rounded-lg shrink-0">
+                    <Icon className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="text-sm text-slate-300">{text}</span>
+                </div>
+              ))}
+            </div>
+
+            <Button className="w-full bg-primary text-black hover:bg-primary/90 font-bold" size="lg" onClick={handlePay} disabled={loading}>
+              {loading ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Procesando...</>
+              ) : (
+                <><Zap className="w-4 h-4 mr-2" /> Desbloquear por ${FEATURE_PRICE} MXN</>
+              )}
+            </Button>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ─── Lock Gate (full-page overlay) ───────────────────────────────────────────
+
+function LoginGate() {
+  const navigate = useNavigate();
+  return (
+    <div className="min-h-screen flex flex-col bg-slate-950 items-center justify-center p-6">
+      <div className="max-w-md w-full text-center space-y-6">
+        <div className="w-20 h-20 mx-auto rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center">
+          <Lock className="w-9 h-9 text-slate-400" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-2">Acceso restringido</h2>
+          <p className="text-slate-400">Inicia sesión para usar el Buscador de Jugadores.</p>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button className="bg-primary text-black hover:bg-primary/90 font-bold" onClick={() => navigate('/login')}>
+            <LogIn className="w-4 h-4 mr-2" /> Iniciar sesión
+          </Button>
+          <Button variant="outline" className="border-slate-600 text-slate-300" onClick={() => navigate('/register')}>
+            Crear cuenta
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
 const PlayerSearchMap = () => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+
+  // Feature access: 'checking' | 'locked' | 'granted'
+  const [accessState, setAccessState] = useState<'checking' | 'locked' | 'granted'>('checking');
+  const [showPayModal, setShowPayModal] = useState(false);
 
   const [players, setPlayers] = useState<PlayerFinderResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -89,7 +276,36 @@ const PlayerSearchMap = () => {
   const playerCardRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const markerRefs = useRef<Record<string, L.Marker | null>>({});
 
+  // ── Access check ──────────────────────────────────────────────────────────
   useEffect(() => {
+    if (!isAuthenticated) {
+      setAccessState('checking'); // will render LoginGate below
+      return;
+    }
+    // Users with active or premium membership have access; others must pay
+    const status = user?.membership_status;
+    if (status && ['active', 'basic', 'pro', 'premium'].includes(status)) {
+      setAccessState('granted');
+    } else {
+      // Still attempt an API call — maybe they've paid for the feature without annual membership
+      setAccessState('checking');
+      searchNearbyPlayers({ latitude: MEXICO_CENTER[0], longitude: MEXICO_CENTER[1], radius_km: 1, limit: 1 })
+        .then(() => setAccessState('granted'))
+        .catch((err) => {
+          const status = (err as any)?.response?.status ?? (err as any)?.status;
+          if (status === 401 || status === 403) {
+            setAccessState('locked');
+          } else {
+            // Unknown error — grant access and let the main fetch handle it
+            setAccessState('granted');
+          }
+        });
+    }
+  }, [isAuthenticated, user?.membership_status]);
+
+  // ── Location ──────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (accessState !== 'granted') return;
     getCurrentLocation()
       .then((coords) => {
         setUserLocation({ latitude: coords.latitude, longitude: coords.longitude });
@@ -99,29 +315,19 @@ const PlayerSearchMap = () => {
       .catch(() => {
         setLocationError('Location access denied. Showing all players in Mexico.');
       });
-  }, []);
+  }, [accessState]);
 
+  // ── Player fetch ──────────────────────────────────────────────────────────
   useEffect(() => {
+    if (accessState !== 'granted') return;
     const fetchPlayers = async () => {
       try {
         setLoading(true);
         setError(null);
         const isAllMexico = selectedRadius === 'all' || !userLocation;
         const params = isAllMexico
-          ? {
-              latitude: MEXICO_CENTER[0],
-              longitude: MEXICO_CENTER[1],
-              radius_km: 5000,
-              skill_level: selectedSkillLevel !== 'all' ? selectedSkillLevel : undefined,
-              limit: 200,
-            }
-          : {
-              latitude: userLocation!.latitude,
-              longitude: userLocation!.longitude,
-              radius_km: parseInt(selectedRadius),
-              skill_level: selectedSkillLevel !== 'all' ? selectedSkillLevel : undefined,
-              limit: 100,
-            };
+          ? { latitude: MEXICO_CENTER[0], longitude: MEXICO_CENTER[1], radius_km: 5000, skill_level: selectedSkillLevel !== 'all' ? selectedSkillLevel : undefined, limit: 200 }
+          : { latitude: userLocation!.latitude, longitude: userLocation!.longitude, radius_km: parseInt(selectedRadius), skill_level: selectedSkillLevel !== 'all' ? selectedSkillLevel : undefined, limit: 100 };
         const response = await searchNearbyPlayers(params);
         if (response.success) {
           setPlayers(response.data);
@@ -129,16 +335,21 @@ const PlayerSearchMap = () => {
           setError(response.message || 'Failed to fetch nearby players');
           setPlayers([]);
         }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load players');
-        setPlayers([]);
+      } catch (err: any) {
+        const httpStatus = err?.response?.status ?? err?.status;
+        if (httpStatus === 401 || httpStatus === 403) {
+          setAccessState('locked');
+        } else {
+          setError(err instanceof Error ? err.message : 'Failed to load players');
+          setPlayers([]);
+        }
       } finally {
         setLoading(false);
       }
     };
     const timer = setTimeout(fetchPlayers, 300);
     return () => clearTimeout(timer);
-  }, [userLocation, selectedRadius, selectedSkillLevel]);
+  }, [accessState, userLocation, selectedRadius, selectedSkillLevel]);
 
   const handleMarkerClick = (player: PlayerFinderResult) => {
     setSelectedPlayer(player);
@@ -152,6 +363,82 @@ const PlayerSearchMap = () => {
     setTimeout(() => markerRefs.current[player.id]?.openPopup(), 150);
   };
 
+  const handlePaymentSuccess = () => {
+    // Optimistically mark the user as having access
+    dispatch(updateUser({ membership_status: 'basic' as any }));
+    setAccessState('granted');
+  };
+
+  // ── Gate screens ──────────────────────────────────────────────────────────
+  if (!isAuthenticated) return <LoginGate />;
+
+  if (accessState === 'checking') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-950">
+        <div className="flex flex-col items-center gap-3">
+          <Loader className="w-8 h-8 text-primary animate-spin" />
+          <p className="text-slate-400 text-sm">Verificando acceso...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (accessState === 'locked') {
+    return (
+      <>
+        <div className="min-h-screen flex flex-col bg-slate-950 items-center justify-center p-6">
+          <div className="max-w-md w-full text-center space-y-6">
+            {/* Icon */}
+            <div className="relative mx-auto w-24 h-24">
+              <div className="w-24 h-24 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
+                <MapPin className="w-10 h-10 text-primary" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center">
+                <Lock className="w-4 h-4 text-slate-400" />
+              </div>
+            </div>
+
+            {/* Text */}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">Buscador de Jugadores</h2>
+              <p className="text-slate-400 leading-relaxed">
+                Esta función requiere un pago único de{' '}
+                <span className="text-primary font-bold">${FEATURE_PRICE} MXN</span>{' '}
+                para desbloquear el acceso permanente.
+              </p>
+            </div>
+
+            {/* Feature preview chips */}
+            <div className="flex flex-wrap gap-2 justify-center">
+              {['Mapa interactivo', 'Filtro por nivel', 'Buscar por distancia', 'Contacto directo'].map((f) => (
+                <span key={f} className="text-xs px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-400">
+                  {f}
+                </span>
+              ))}
+            </div>
+
+            <Button
+              className="w-full bg-primary text-black hover:bg-primary/90 font-bold text-base py-6"
+              onClick={() => setShowPayModal(true)}
+            >
+              <Zap className="w-5 h-5 mr-2" />
+              Desbloquear por ${FEATURE_PRICE} MXN
+            </Button>
+
+            <p className="text-xs text-slate-500">Pago único · Acceso permanente · Procesado con Stripe</p>
+          </div>
+        </div>
+
+        <PaymentGateModal
+          open={showPayModal}
+          onClose={() => setShowPayModal(false)}
+          onSuccess={handlePaymentSuccess}
+        />
+      </>
+    );
+  }
+
+  // ── Full feature ──────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex flex-col bg-slate-950">
       <main className="flex-1 flex flex-col">
@@ -469,8 +756,6 @@ const PlayerSearchMap = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

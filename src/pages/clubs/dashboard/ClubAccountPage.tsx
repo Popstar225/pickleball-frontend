@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { AvatarCropDialog } from '@/components/ui/AvatarCropDialog';
 import { useDispatch, useSelector } from 'react-redux';
 import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
 import {
@@ -254,6 +255,8 @@ export default function ClubAccountPage() {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropFileName, setCropFileName] = useState('');
 
   useEffect(() => { dispatch(fetchClubProfile()); }, [dispatch]);
 
@@ -290,8 +293,15 @@ export default function ClubAccountPage() {
 
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; if (!file) return;
+    setCropSrc(URL.createObjectURL(file));
+    setCropFileName(file.name);
+    e.target.value = '';
+  }
+
+  async function handleLogoCropComplete(croppedFile: File) {
+    setCropSrc(null);
     setUploadingLogo(true);
-    try { const b64 = await readFileAsBase64(file); setFormData(p => p ? { ...p, logoUrl: b64 } : p); } catch {}
+    try { const b64 = await readFileAsBase64(croppedFile); setFormData(p => p ? { ...p, logoUrl: b64 } : p); } catch {}
     finally { setUploadingLogo(false); }
   }
   async function handleBannerUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -865,6 +875,15 @@ export default function ClubAccountPage() {
 
         <SaveBar visible={isEditing} onSave={handleSave} onCancel={handleCancel} loading={profileLoading} />
       </div>
+
+      {cropSrc && (
+        <AvatarCropDialog
+          imageSrc={cropSrc}
+          originalFileName={cropFileName}
+          onCropComplete={handleLogoCropComplete}
+          onCancel={() => setCropSrc(null)}
+        />
+      )}
     </div>
   );
 }

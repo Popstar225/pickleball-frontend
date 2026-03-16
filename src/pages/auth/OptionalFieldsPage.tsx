@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { compressImage } from '@/lib/imageCompress';
+import { AvatarCropDialog } from '@/components/ui/AvatarCropDialog';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -42,8 +43,6 @@ const OptionalFieldsPage = () => {
     state: '',
     city: '',
     address: '',
-    latitude: '',
-    longitude: '',
     timezone: '',
     curp: '',
     rfc: '',
@@ -59,6 +58,8 @@ const OptionalFieldsPage = () => {
   const [userType, setUserType] = useState<string>('');
   const [requiredFields, setRequiredFields] = useState<any>({});
   const [dragActive, setDragActive] = useState({ profile: false, document: false });
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropFileName, setCropFileName] = useState('');
   const [showMembershipModal, setShowMembershipModal] = useState(false);
   const [pendingPayment, setPendingPayment] = useState(false);
   const [registeredUserType, setRegisteredUserType] = useState<string>('');
@@ -114,14 +115,22 @@ const OptionalFieldsPage = () => {
     });
   };
 
-  const handleFileChange = async (name: string, file: File | null) => {
+  const handleFileChange = (name: string, file: File | null) => {
     if (file && name === 'profile_photo') {
-      const compressed = await compressImage(file);
-      setFiles((prev) => ({ ...prev, [name]: compressed }));
+      setCropSrc(URL.createObjectURL(file));
+      setCropFileName(file.name);
     } else {
       setFiles((prev) => ({ ...prev, [name]: file }));
     }
   };
+
+  const handlePhotoCropComplete = async (croppedFile: File) => {
+    setCropSrc(null);
+    const compressed = await compressImage(croppedFile);
+    setFiles((prev) => ({ ...prev, profile_photo: compressed }));
+  };
+
+  const handleCropCancel = () => setCropSrc(null);
 
   const handleDrag = (e: React.DragEvent, type: 'profile' | 'document') => {
     e.preventDefault();
@@ -179,6 +188,7 @@ const OptionalFieldsPage = () => {
         type: 'url',
         placeholder: t('auth.optionalFields.field_website_placeholder'),
         icon: Globe,
+        optional: true,
       },
     ];
 
@@ -240,15 +250,58 @@ const OptionalFieldsPage = () => {
 
   const handleRegister = async () => {
     try {
+      // Validate files for player/coach
       if (userType === 'player' || userType === 'coach') {
         if (!files.profile_photo) {
-          toast.error(t('auth.optionalFields.validate_full_name'));
+          toast.error(t('auth.optionalFields.validate_photo'));
           return;
         }
         if (!files.verification_document) {
-          toast.error(t('auth.optionalFields.validate_full_name'));
+          toast.error(t('auth.optionalFields.validate_doc'));
           return;
         }
+      }
+
+      // Validate all required optional fields (everything except website)
+      const requiredOptionalFields = getOptionalFields().filter((f: any) => !f.optional);
+      for (const field of requiredOptionalFields) {
+        const value = formData[field.name as keyof typeof formData];
+        if (!value || (typeof value === 'string' && value.trim() === '')) {
+          toast.error(`El campo "${field.label}" es obligatorio`);
+          return;
+        }
+      }
+
+      const validationErrors: string[] = [];
+
+      if (userType === 'player' || userType === 'coach') {
+        if (!requiredFields.full_name || requiredFields.full_name.trim() === '') {
+          validationErrors.push(t('auth.optionalFields.validate_full_name'));
+        }
+      }
+
+      if (userType === 'club' || userType === 'partner') {
+        if (!requiredFields.business_name || requiredFields.business_name.trim() === '') {
+          validationErrors.push(t('auth.optionalFields.validate_business_name'));
+        }
+      }
+
+      if (!requiredFields.privacy_policy_accepted) {
+        validationErrors.push(t('auth.optionalFields.validate_privacy'));
+      }
+
+      if (!requiredFields.email || requiredFields.email.trim() === '') {
+        validationErrors.push(t('auth.optionalFields.validate_email'));
+      }
+      if (!requiredFields.password || requiredFields.password.trim() === '') {
+        validationErrors.push(t('auth.optionalFields.validate_password'));
+      }
+
+      if (validationErrors.length > 0) {
+        toast.error(
+          `${t('auth.optionalFields.validate_issues')}\n${validationErrors.join('\n')}`,
+        );
+        return;
       }
 
       const formDataToSend = new FormData();
@@ -271,44 +324,6 @@ const OptionalFieldsPage = () => {
       }
       if (files.verification_document) {
         formDataToSend.append('verification_document', files.verification_document);
-      }
-
-      const validationErrors = [];
-
-      if (userType === 'player' || userType === 'coach') {
-        if (!files.profile_photo) validationErrors.push(t('auth.optionalFields.validate_full_name'));
-        if (!files.verification_document)
-          validationErrors.push(t('auth.optionalFields.validate_full_name'));
-        if (!requiredFields.full_name || requiredFields.full_name.trim() === '') {
-          validationErrors.push(t('auth.optionalFields.validate_full_name'));
-        }
-      }
-
-      if (userType === 'club' || userType === 'partner') {
-        if (!requiredFields.business_name || requiredFields.business_name.trim() === '') {
-          validationErrors.push(t('auth.optionalFields.validate_business_name'));
-        }
-      }
-
-      if (!requiredFields.privacy_policy_accepted) {
-        validationErrors.push(t('auth.optionalFields.validate_privacy'));
-      }
-
-      if (!requiredFields.username || requiredFields.username.trim() === '') {
-        validationErrors.push(t('auth.optionalFields.validate_username'));
-      }
-      if (!requiredFields.email || requiredFields.email.trim() === '') {
-        validationErrors.push(t('auth.optionalFields.validate_email'));
-      }
-      if (!requiredFields.password || requiredFields.password.trim() === '') {
-        validationErrors.push(t('auth.optionalFields.validate_password'));
-      }
-
-      if (validationErrors.length > 0) {
-        toast.error(
-          `${t('auth.optionalFields.validate_issues')}\n${validationErrors.join('\n')}`,
-        );
-        return;
       }
 
       // Set pending payment flag before dispatch so the isAuthenticated effect doesn't navigate
@@ -369,9 +384,6 @@ const OptionalFieldsPage = () => {
         validationErrors.push(t('auth.optionalFields.validate_privacy'));
       }
 
-      if (!requiredFields.username || requiredFields.username.trim() === '') {
-        validationErrors.push(t('auth.optionalFields.validate_username'));
-      }
       if (!requiredFields.email || requiredFields.email.trim() === '') {
         validationErrors.push(t('auth.optionalFields.validate_email'));
       }
@@ -430,6 +442,8 @@ const OptionalFieldsPage = () => {
       <div key={field.name} className="group/field">
         <label htmlFor={field.name} className="block text-sm font-semibold text-slate-300 mb-2.5">
           {field.label}
+          {!field.optional && <span className="text-red-400 ml-1">*</span>}
+          {field.optional && <span className="text-xs text-slate-500 ml-2">(opcional)</span>}
         </label>
 
         <div className="relative">
@@ -837,24 +851,6 @@ const OptionalFieldsPage = () => {
             </button>
 
             <div className="flex flex-col sm:flex-row gap-4 flex-1 w-full sm:w-auto">
-              {/* Skip Button - Only for clubs and partners */}
-              {userType !== 'player' && userType !== 'coach' && (
-                <button
-                  onClick={handleSkip}
-                  disabled={loading}
-                  className="group/btn relative overflow-hidden px-6 py-4 rounded-xl border border-slate-700/50 
-                  bg-slate-800/30 backdrop-blur-sm text-slate-300 font-semibold
-                  hover:border-primary/50 hover:bg-slate-800/50 transition-all duration-300
-                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-700/50
-                  w-full sm:flex-1"
-                >
-                  <div className="relative z-10 flex items-center justify-center gap-2">
-                    <span>{loading ? t('auth.optionalFields.creating') : t('auth.requiredFields.skip')}</span>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-1000" />
-                </button>
-              )}
-
               {/* Complete Registration Button */}
               <button
                 onClick={handleRegister}
@@ -893,6 +889,15 @@ const OptionalFieldsPage = () => {
             toast.success('¡Membresía activada! Bienvenido a la Federación Mexicana de Pickleball.');
             navigateToDashboard(registeredUserType);
           }}
+        />
+      )}
+
+      {cropSrc && (
+        <AvatarCropDialog
+          imageSrc={cropSrc}
+          originalFileName={cropFileName}
+          onCropComplete={handlePhotoCropComplete}
+          onCancel={handleCropCancel}
         />
       )}
     </div>

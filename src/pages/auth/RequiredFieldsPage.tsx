@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AppDispatch, RootState } from '../../store';
-import { registerUser } from '../../store/slices/authSlice';
+import { RootState } from '../../store';
 import { toast } from 'sonner';
-import { MembershipSelector } from '@/components/payment/MembershipSelector';
 import {
   User,
   Mail,
@@ -18,35 +16,24 @@ import {
   CheckCircle2,
   Shield,
   Sparkles,
-  MapPin,
 } from 'lucide-react';
 
 const RequiredFieldsPage = () => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
-    username: '',
     email: '',
     password: '',
     confirmPassword: '',
     full_name: '',
     business_name: '',
-    latitude: '',
-    longitude: '',
     privacy_policy_accepted: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userType, setUserType] = useState<string>('');
 
-  const [showMembershipModal, setShowMembershipModal] = useState(false);
-  const [pendingPayment, setPendingPayment] = useState(false);
-  const [registeredUserType, setRegisteredUserType] = useState<string>('');
-
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { loading, error, isAuthenticated, user } = useSelector((state: RootState) => state.auth);
-
-  const USER_TYPES_REQUIRING_PAYMENT = ['player', 'coach', 'club', 'state'];
+  const { loading, isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
   const navigateToDashboard = (type: string) => {
     switch (type) {
@@ -59,12 +46,11 @@ const RequiredFieldsPage = () => {
     }
   };
 
-  // Redirect to dashboard if already authenticated and no pending payment
   useEffect(() => {
-    if (isAuthenticated && user && !pendingPayment) {
+    if (isAuthenticated && user) {
       navigateToDashboard(user.user_type);
     }
-  }, [isAuthenticated, user, navigate, pendingPayment]);
+  }, [isAuthenticated, user, navigate]);
 
   useEffect(() => {
     const storedUserType = localStorage.getItem('registration_user_type');
@@ -87,11 +73,13 @@ const RequiredFieldsPage = () => {
     });
   };
 
+  const generateUsername = (email: string): string => {
+    const base = email.split('@')[0].replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
+    const suffix = Math.floor(1000 + Math.random() * 9000);
+    return `${base}${suffix}`;
+  };
+
   const validateForm = () => {
-    if (!formData.username || formData.username.length < 3) {
-      toast.error(t('auth.requiredFields.validate_username'));
-      return false;
-    }
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       toast.error(t('auth.requiredFields.validate_email'));
       return false;
@@ -102,14 +90,6 @@ const RequiredFieldsPage = () => {
     }
     if (formData.password !== formData.confirmPassword) {
       toast.error(t('auth.requiredFields.validate_password_match'));
-      return false;
-    }
-    if (!formData.latitude || isNaN(parseFloat(formData.latitude))) {
-      toast.error(t('auth.requiredFields.validate_email'));
-      return false;
-    }
-    if (!formData.longitude || isNaN(parseFloat(formData.longitude))) {
-      toast.error(t('auth.requiredFields.validate_email'));
       return false;
     }
     if (userType === 'club' || userType === 'partner') {
@@ -144,13 +124,11 @@ const RequiredFieldsPage = () => {
     localStorage.setItem(
       'registration_required_fields',
       JSON.stringify({
-        username: formData.username,
+        username: generateUsername(formData.email),
         email: formData.email,
         password: formData.password,
         full_name: formData.full_name,
         business_name: formData.business_name,
-        latitude: formData.latitude,
-        longitude: formData.longitude,
         privacy_policy_accepted: formData.privacy_policy_accepted,
       }),
     );
@@ -162,81 +140,8 @@ const RequiredFieldsPage = () => {
     navigate('/register/select-type');
   };
 
-  const handleSkipToRegister = async () => {
-    console.log('handleSkipToRegister called');
-    console.log('Current form data:', formData);
-    console.log('Privacy policy accepted:', formData.privacy_policy_accepted);
-
-    if (!validateForm()) return;
-
-    if (userType === 'player' || userType === 'coach') {
-      toast.error(t('auth.requiredFields.validate_player_coach'));
-      return;
-    }
-
-    try {
-      const registrationData = {
-        user_type: userType as any,
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        full_name: formData.full_name,
-        business_name: formData.business_name,
-        latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
-        longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
-        privacy_policy_accepted: Boolean(formData.privacy_policy_accepted),
-      };
-
-      console.log('Sending registration data:', registrationData);
-      console.log(
-        'Privacy policy accepted:',
-        formData.privacy_policy_accepted,
-        typeof formData.privacy_policy_accepted,
-      );
-      console.log('Form data state:', formData);
-      console.log('User type:', userType);
-
-      const result = await dispatch(registerUser(registrationData));
-
-      const registrationResult = result as any;
-      console.log('Registration result:', registrationResult);
-
-      const apiResponse = registrationResult?.payload;
-      console.log('API response from payload:', apiResponse);
-
-      if (apiResponse?.data?.user && apiResponse?.data?.tokens) {
-        localStorage.removeItem('registration_user_type');
-
-        const type = apiResponse.data.user.user_type;
-        setRegisteredUserType(type);
-
-        if (USER_TYPES_REQUIRING_PAYMENT.includes(type)) {
-          setPendingPayment(true);
-          toast.success('¡Registro exitoso! Por favor completa tu membresía.');
-          setShowMembershipModal(true);
-        } else {
-          // Partner — free
-          toast.success(t('auth.requiredFields.toast_success'));
-          navigateToDashboard(type);
-        }
-      } else {
-        toast.error(t('auth.requiredFields.toast_error_server'));
-        console.error('Registration failed - Invalid response structure:', apiResponse);
-      }
-    } catch (err) {
-      toast.error(error || t('auth.requiredFields.toast_error_server'));
-    }
-  };
-
   const getRequiredFields = () => {
     const baseFields = [
-      {
-        name: 'username',
-        label: t('auth.requiredFields.field_username'),
-        type: 'text',
-        placeholder: t('auth.requiredFields.field_username_placeholder'),
-        icon: User,
-      },
       {
         name: 'email',
         label: t('auth.requiredFields.field_email'),
@@ -260,23 +165,6 @@ const RequiredFieldsPage = () => {
       },
     ];
 
-    const locationFields = [
-      {
-        name: 'latitude',
-        label: t('auth.requiredFields.field_latitude'),
-        type: 'text',
-        placeholder: t('auth.requiredFields.field_latitude_placeholder'),
-        icon: MapPin,
-      },
-      {
-        name: 'longitude',
-        label: t('auth.requiredFields.field_longitude'),
-        type: 'text',
-        placeholder: t('auth.requiredFields.field_longitude_placeholder'),
-        icon: MapPin,
-      },
-    ];
-
     if (userType === 'club' || userType === 'partner') {
       return [
         ...baseFields,
@@ -287,7 +175,6 @@ const RequiredFieldsPage = () => {
           placeholder: t('auth.requiredFields.field_business_name_placeholder'),
           icon: Building2,
         },
-        ...locationFields,
       ];
     } else {
       return [
@@ -299,7 +186,6 @@ const RequiredFieldsPage = () => {
           placeholder: t('auth.requiredFields.field_full_name_placeholder'),
           icon: User,
         },
-        ...locationFields,
       ];
     }
   };
@@ -533,24 +419,6 @@ const RequiredFieldsPage = () => {
             </button>
 
             <div className="flex flex-col sm:flex-row gap-4 flex-1 w-full sm:w-auto">
-              {/* Skip Button - Only for clubs and partners */}
-              {userType !== 'player' && userType !== 'coach' && (
-                <button
-                  onClick={handleSkipToRegister}
-                  disabled={loading}
-                  className="group/btn relative overflow-hidden px-6 py-4 rounded-xl border border-slate-700/50 
-                  bg-slate-800/30 backdrop-blur-sm text-slate-300 font-semibold
-                  hover:border-primary/50 hover:bg-slate-800/50 transition-all duration-300
-                  disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-700/50
-                  w-full sm:flex-1"
-                >
-                  <div className="relative z-10 flex items-center justify-center gap-2">
-                    <span>{loading ? t('auth.requiredFields.creating') : t('auth.requiredFields.skip')}</span>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -skew-x-12 translate-x-[-200%] group-hover/btn:translate-x-[200%] transition-transform duration-1000" />
-                </button>
-              )}
-
               {/* Continue Button */}
               <button
                 onClick={handleContinue}
@@ -572,24 +440,6 @@ const RequiredFieldsPage = () => {
         </div>
       </main>
 
-      {/* Post-registration membership payment modal */}
-      {showMembershipModal && (
-        <MembershipSelector
-          isOpen={showMembershipModal}
-          onClose={() => {
-            setShowMembershipModal(false);
-            setPendingPayment(false);
-            navigateToDashboard(registeredUserType);
-          }}
-          userType={registeredUserType}
-          onSuccess={() => {
-            setShowMembershipModal(false);
-            setPendingPayment(false);
-            toast.success('¡Membresía activada! Bienvenido a la Federación Mexicana de Pickleball.');
-            navigateToDashboard(registeredUserType);
-          }}
-        />
-      )}
     </div>
   );
 };

@@ -396,6 +396,23 @@ class PaymentService {
   }
 
   /**
+   * Confirm payment for player feature (nearby search)
+   */
+  static async confirmPlayerFeaturePayment(
+    paymentId: string,
+    paymentIntentId: string,
+  ): Promise<{ success: boolean; data: { feature_type: string } }> {
+    try {
+      const response = await apiClient.post(`/payments/features/player/${paymentId}/confirm`, {
+        payment_intent_id: paymentIntentId,
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
    * Create payment intent for digital credential (player/coach)
    */
   static async createDigitalCredentialPayment(planType: 'basic' | 'membership' | 'premium'): Promise<{
@@ -421,6 +438,41 @@ class PaymentService {
       const response = await apiClient.post(`/payments/digital-credential/${paymentId}/confirm`, {
         payment_intent_id: paymentIntentId,
       });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Create payment intent for court rental
+   */
+  static async createCourtRentalPayment(data: {
+    amount: number;         // in cents
+    court_id: string;
+    club_id?: string;
+    start_time: string;     // ISO string
+    end_time: string;       // ISO string
+    duration_hours: number;
+    description?: string;
+  }): Promise<PaymentIntentResponse> {
+    try {
+      const response = await apiClient.post<PaymentIntentResponse>(
+        '/stripe/payment-intent',
+        {
+          amount: data.amount,
+          payment_type: 'court_rental',
+          currency: 'mxn',
+          club_id: data.club_id,
+          description: data.description || 'Renta de cancha',
+          metadata: {
+            court_id: data.court_id,
+            start_time: data.start_time,
+            end_time: data.end_time,
+            duration_hours: data.duration_hours,
+          },
+        },
+      );
       return response.data;
     } catch (error) {
       throw this.handleError(error);

@@ -19,6 +19,7 @@ import {
   MessageSquare,
   Megaphone,
   Star,
+  ShoppingBag,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -290,6 +291,15 @@ export default function DashboardLayoutBase({
           </div>
 
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hidden sm:flex items-center gap-1.5 text-slate-300 hover:text-white hover:bg-slate-800 text-xs px-3 h-8"
+              onClick={() => navigate('/store')}
+            >
+              <ShoppingBag className="h-3.5 w-3.5" />
+              <span className="hidden lg:inline">Tienda</span>
+            </Button>
             {needsMembership && (
               <Button
                 size="sm"

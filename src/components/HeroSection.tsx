@@ -4,22 +4,18 @@ import { TrendingUp, Trophy, Volume2, VolumeX } from 'lucide-react';
 import { playerRankings, countryFlags } from '@/data/mockData';
 import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import heroVideo from '@/assets/videos/Home.mp4';
 const HeroSection = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [selectedRankingCategory, setSelectedRankingCategory] = useState('doubles');
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const handleJoin = () => {
-    console.log('Join clicked - open registration/join modal');
-    // Navigate to registration or open modal
-  };
+  const handleJoin = () => navigate('/register');
 
-  const handleLearnMore = () => {
-    console.log('Learn More clicked - scroll or navigate to more info');
-    // Scroll to next section or navigate
-  };
+  const handleLearnMore = () => navigate('/about/benefts');
 
   const handleToggleMute = () => {
     setIsMuted(!isMuted);
