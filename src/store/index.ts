@@ -31,6 +31,7 @@ import adminDashboardReducer from './slices/adminDashboardSlice';
 import statesReducer from './slices/statesSlice';
 import tournamentValidationReducer from './slices/tournamentValidationSlice';
 import tournamentSetupReducer from './slices/tournamentSetupSlice';
+import equipmentReducer from './slices/equipmentSlice';
 
 export const store = configureStore({
   reducer: {
@@ -66,6 +67,7 @@ export const store = configureStore({
     states: statesReducer,
     tournamentValidation: tournamentValidationReducer,
     tournamentSetup: tournamentSetupReducer,
+    equipment: equipmentReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

@@ -105,6 +105,11 @@ export const navigationMenu = [
     hasDropdown: true,
     items: [{ label: 'Comunicados de Prensa', href: '/communication/press' }],
   },
+  {
+    label: 'Tienda',
+    hasDropdown: false,
+    href: '/store',
+  },
 ];
 
 // Country flags mapping (using flag CDN for better quality)

@@ -1,477 +1,40 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import {
-  fetchMyDigitalCredential,
-} from '@/store/slices/digitalCredentialsSlice';
+import { fetchMyDigitalCredential } from '@/store/slices/digitalCredentialsSlice';
 import { DigitalCredentialPaymentModal } from '@/components/payment/DigitalCredentialPaymentModal';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import {
-  Download,
-  QrCode,
-  Shield,
-  TrendingUp,
-  CreditCard,
-  CheckCircle2,
-  Trophy,
-  Star,
-  Calendar,
-  User,
-  Zap,
-  RefreshCcw,
-  Sparkles,
-  AlertCircle,
-  Loader,
+  Download, QrCode, Shield, TrendingUp, CreditCard, CheckCircle2,
+  Trophy, Star, Calendar, User, Zap, RefreshCcw, Sparkles, AlertCircle, Loader2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { getFullImageUrl } from '@/common/tools';
 
-import Federation from '@/assets/images/international-federation.png';
 import MXFlag from '@/assets/images/flag/MX.png';
-
-// Logo
 import FederationLogo from '@/assets/images/Logos/Logo pickleball compressed.png';
 import IpfLogo from '@/assets/images/Logos/IPF.png';
 import conadeLogo from '@/assets/images/Logos/conade-logo.png';
 
-import { getFullImageUrl } from '@/common/tools';
-
-/* ─── Global Styles ─────────────────────────────────────────── */
-const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
-
-  .cp * { box-sizing: border-box; margin: 0; padding: 0; }
-  .cp { font-family: 'Outfit', sans-serif; }
-
-  /* ── Ambient blobs ── */
-  .cp-blob {
-    position: fixed; pointer-events: none; border-radius: 50%; z-index: 0;
-  }
-  .cp-blob-1 {
-    top: -15%; left: -10%; width: 650px; height: 650px;
-    background: radial-gradient(circle, rgba(0,230,118,0.07) 0%, transparent 65%);
-    animation: blobDrift 14s ease-in-out infinite alternate;
-  }
-  .cp-blob-2 {
-    bottom: -15%; right: -8%; width: 550px; height: 550px;
-    background: radial-gradient(circle, rgba(0,180,83,0.05) 0%, transparent 65%);
-    animation: blobDrift 18s ease-in-out infinite alternate-reverse;
-  }
-  @keyframes blobDrift {
-    from { transform: translate(0,0) scale(1); }
-    to   { transform: translate(28px,20px) scale(1.06); }
-  }
-
-  /* ── Page header ── */
-  .cp-page-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(38px, 5.5vw, 60px);
-    letter-spacing: 3px; line-height: 1; color: #fff;
-  }
-  .cp-page-title span { color: #00e676; }
-  .cp-subtitle {
-    font-size: 11px; font-weight: 600; letter-spacing: 3px;
-    color: rgba(0,230,118,0.6); text-transform: uppercase; margin-top: 7px;
-  }
-  .cp-tag {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: rgba(0,230,118,0.08); border: 1px solid rgba(0,230,118,0.18);
-    border-radius: 99px; padding: 4px 12px; margin-bottom: 10px;
-    font-size: 9px; font-weight: 700; letter-spacing: 2.5px;
-    color: #00e676; text-transform: uppercase;
-  }
-
-  /* ── Holographic credential card ── */
-  .holo-card {
-    width: 100%; max-width: 340px;
-    border-radius: 22px; overflow: hidden;
-    background: linear-gradient(160deg, #071a0e 0%, #0c2417 55%, #071308 100%);
-    border: 1px solid rgba(0,230,118,0.2);
-    box-shadow:
-      0 0 0 1px rgba(0,230,118,0.04),
-      0 28px 70px rgba(0,0,0,0.75),
-      0 0 70px rgba(0,230,118,0.07);
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: default;
-    animation: cardIn 0.9s cubic-bezier(0.16,1,0.3,1) both;
-  }
-  @keyframes cardIn {
-    from { opacity:0; transform: translateY(36px) rotateX(8deg); }
-    to   { opacity:1; transform: translateY(0) rotateX(0); }
-  }
-  .holo-card:hover {
-    box-shadow:
-      0 0 0 1px rgba(0,230,118,0.22),
-      0 36px 90px rgba(0,0,0,0.85),
-      0 0 90px rgba(0,230,118,0.12);
-  }
-
-  /* Shimmer sweep */
-  .holo-shimmer {
-    position: absolute; inset: 0; z-index: 20; pointer-events: none;
-    border-radius: 22px;
-    background: linear-gradient(
-      115deg,
-      transparent 22%,
-      rgba(0,255,140,0.04) 36%,
-      rgba(100,255,190,0.09) 50%,
-      rgba(0,255,140,0.04) 64%,
-      transparent 78%
-    );
-    background-size: 260% 260%;
-    animation: shimmerSweep 5s linear infinite;
-  }
-  @keyframes shimmerSweep {
-    0%   { background-position: 160% 160%; }
-    100% { background-position: -60% -60%; }
-  }
-
-  /* ── Top stripe ── */
-  .card-topbar {
-    height: 5px;
-    background: linear-gradient(90deg, #00b248, #00e676, #69f0ae, #00e676, #00b248);
-    background-size: 300% 100%;
-    animation: barFlow 3.5s linear infinite;
-  }
-  @keyframes barFlow {
-    0%   { background-position: 0% 0%; }
-    100% { background-position: 300% 0%; }
-  }
-
-  /* ── Federation header ── */
-  .card-fed-header {
-    padding: 0;
-    background: linear-gradient(135deg, #1a5c2a 0%, #236b33 45%, #1a5c2a 100%);
-    position: relative; overflow: hidden;
-  }
-  .card-fed-header::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: repeating-linear-gradient(
-      -45deg,
-      transparent, transparent 8px,
-      rgba(0,0,0,0.05) 8px, rgba(0,0,0,0.05) 9px
-    );
-  }
-  .card-fed-inner {
-    position: relative; z-index: 1;
-    padding: 14px 16px 10px;
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
-  }
-  .card-fed-emblems {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-  }
-  .card-fed-emblem {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: rgba(0,0,0,0.25);
-    border: 1.5px solid rgba(255,255,255,0.3);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  }
-  .card-fed-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px; letter-spacing: 3px;
-    color: #fff; text-align: center; line-height: 1.1;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-  }
-  .card-fed-city {
-    background: #fff;
-    color: #1a5c2a;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 13px; letter-spacing: 5px;
-    padding: 4px 20px; border-radius: 2px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  }
-
-  /* ── Photo zone ── */
-  .card-photo-zone {
-    position: relative; height: 210px; overflow: hidden;
-  }
-  .card-photo-bg-img {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%; object-fit: cover;
-    filter: brightness(0.45) saturate(0.8);
-  }
-  .card-photo-bg-fallback {
-    position: absolute; inset: 0;
-    background: linear-gradient(180deg, #0d3020 0%, #041008 100%);
-  }
-  .card-grid-overlay {
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(0,230,118,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,230,118,0.04) 1px, transparent 1px);
-    background-size: 26px 26px;
-  }
-  .card-jugador-label {
-    position: absolute; top: 12px; left: 0; right: 0;
-    text-align: center;
-    font-family: 'Outfit', sans-serif;
-    font-size: 9px; font-weight: 700; letter-spacing: 5px;
-    color: rgba(255,255,255,0.7); text-transform: uppercase;
-    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
-  }
-  .card-player-photo-ring {
-    position: absolute; left: 50%; top: 50%;
-    transform: translate(-50%, -50%);
-    width: 110px; height: 110px; border-radius: 12px;
-    border: 2.5px solid rgba(255,255,255,0.85);
-    overflow: hidden; background: #1a3a22;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.6), 0 0 0 5px rgba(255,255,255,0.07);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 48px;
-  }
-  .card-player-photo-ring img { width:100%; height:100%; object-fit:cover; }
-  .card-name-overlay {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    background: linear-gradient(0deg, rgba(6,30,14,0.96) 0%, rgba(6,30,14,0.7) 60%, transparent 100%);
-    padding: 32px 14px 10px;
-    text-align: center;
-  }
-  .card-player-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px; letter-spacing: 2px; color: #fff;
-    text-shadow: 0 1px 6px rgba(0,0,0,0.8);
-  }
-
-  /* ── Status band ── */
-  .card-status-band {
-    padding: 7px 12px;
-    text-align: center;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px; letter-spacing: 6px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  .card-status-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    animation: statusPulse 2s ease infinite;
-  }
-  @keyframes statusPulse {
-    0%,100% { opacity:1; transform:scale(1); box-shadow:0 0 0 0 currentColor; }
-    50%      { opacity:0.6; transform:scale(0.75); }
-  }
-
-  /* ── ID band ── */
-  .card-id-band {
-    background: #0d1f13;
-    padding: 7px 14px;
-    text-align: center;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px; letter-spacing: 4px;
-    color: rgba(200,230,210,0.8);
-    border-top: 1px solid rgba(0,230,118,0.08);
-    border-bottom: 1px solid rgba(0,230,118,0.08);
-  }
-
-  /* ── Logos row ── */
-  .card-logos-row {
-    background: rgba(255,255,255,0.97);
-    display: flex; align-items: center; justify-content: space-around;
-    padding: 12px 20px;
-    border-top: 1px solid rgba(0,0,0,0.06);
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-  }
-  .logo-ipf {
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-  }
-  .logo-ipf-ring {
-    width: 46px; height: 46px; border-radius: 50%;
-    background: linear-gradient(135deg, #1a3a6e, #2d5a9e);
-    border: 2px solid #1a3a6e;
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 9px; font-weight: 900; letter-spacing: 0.5px;
-    text-align: center; line-height: 1.1;
-  }
-  .logo-feomex {
-    display: flex; flex-direction: column; align-items: center; gap: 1px;
-  }
-  .logo-feomex-icon { font-size: 28px; }
-  .logo-feomex-text { font-size: 9px; font-weight: 900; color: #1a5c2a; letter-spacing: 0.5px; }
-  .logo-conade {
-    display: flex; flex-direction: column; align-items: center; gap: 2px;
-  }
-  .logo-conade-icon { font-size: 28px; }
-  .logo-conade-text { font-size: 9px; font-weight: 900; color: #c62828; letter-spacing: 1px; }
-
-  /* ── Age band ── */
-  .card-age-band {
-    background: linear-gradient(90deg, #1a5c2a, #236b33, #1a5c2a);
-    padding: 8px 14px;
-    text-align: center;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 16px; letter-spacing: 6px; color: #fff;
-  }
-
-  /* ── QR section ── */
-  .card-qr-section {
-    background: #fff;
-    display: flex; flex-direction: column; align-items: center;
-    padding: 16px 20px 12px; gap: 12px;
-  }
-  .card-qr-wrapper {
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-  }
-  .card-qr-frame {
-    padding: 8px; background: #fff;
-    border: 2px solid #e0e0e0; border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-  }
-  .card-qr-frame img { display: block; width: 250px; height: 250px; }
-
-  /* ── NTPR band ── */
-  .card-ntpr-band {
-    padding: 9px 14px;
-    text-align: center;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px; letter-spacing: 5px; color: #fff;
-  }
-
-  /* ── Flag footer ── */
-  .card-flag-footer {
-    background: #fff;
-    display: flex; align-items: center; justify-content: center;
-    padding: 10px 14px;
-    gap: 8px;
-    border-top: 1px solid rgba(0,0,0,0.06);
-  }
-
-  /* ── Bottom bar ── */
-  .card-bottombar {
-    height: 4px;
-    background: linear-gradient(90deg, #00b248, #69f0ae, #00b248);
-    background-size: 300%; animation: barFlow 3.5s linear infinite;
-  }
-
-  /* ── Info panels ── */
-  .cp-panel {
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(0,230,118,0.12);
-    border-radius: 16px; overflow: hidden;
-    animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) both;
-  }
-  .cp-panel-d1 { animation-delay: 0.08s; }
-  .cp-panel-d2 { animation-delay: 0.16s; }
-  .cp-panel-d3 { animation-delay: 0.24s; }
-  .cp-panel-d4 { animation-delay: 0.32s; }
-  @keyframes fadeUp {
-    from { opacity:0; transform:translateY(20px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
-  .cp-panel-header {
-    padding: 16px 20px 12px;
-    border-bottom: 1px solid rgba(0,230,118,0.08);
-    display: flex; align-items: center; gap: 10px;
-  }
-  .cp-panel-icon {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.18);
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-  .cp-panel-title {
-    font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
-    text-transform: uppercase; color: rgba(255,255,255,0.8);
-  }
-  .cp-panel-body { padding: 14px 20px; }
-
-  /* Info rows */
-  .i-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-    font-size: 13px;
-  }
-  .i-row:last-child { border-bottom: none; }
-  .i-key { color: rgba(255,255,255,0.4); }
-  .i-val { color: rgba(255,255,255,0.85); font-weight: 500; }
-  .i-mono { font-family:'JetBrains Mono',monospace; font-size:11px; color:#00e676; }
-
-  /* Benefit rows */
-  .b-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-    font-size: 13px; color: rgba(255,255,255,0.78);
-  }
-  .b-item:last-child { border-bottom: none; }
-  .b-icon {
-    width: 26px; height: 26px; border-radius: 7px;
-    background: rgba(0,230,118,0.1); border: 1px solid rgba(0,230,118,0.18);
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-
-  /* Payment rows */
-  .p-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  .p-row:last-child { border-bottom: none; }
-  .p-icon {
-    width: 38px; height: 38px; border-radius: 10px;
-    background: rgba(0,230,118,0.07); border: 1px solid rgba(0,230,118,0.14);
-    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-  }
-  .p-desc { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.85); }
-  .p-meta { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
-  .p-amount { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:1px; color:#00e676; }
-  .p-badge {
-    display: inline-block; font-size: 8px; font-weight: 700; letter-spacing: 1.5px;
-    color: #00e676; background: rgba(0,230,118,0.1);
-    border: 1px solid rgba(0,230,118,0.2);
-    border-radius: 4px; padding: 2px 7px; text-transform: uppercase; margin-top: 3px;
-  }
-
-  /* NTPR bar */
-  .ntpr-bar-wrap { height:5px; border-radius:3px; background:rgba(255,255,255,0.06); overflow:hidden; margin-top:6px; }
-  .ntpr-bar {
-    height:100%; border-radius:3px;
-    background: linear-gradient(90deg, #00b248, #00e676, #69f0ae);
-    animation: ntprGrow 1.3s cubic-bezier(0.16,1,0.3,1) both;
-    animation-delay: 0.4s;
-    transform-origin: left; transform: scaleX(0);
-  }
-  @keyframes ntprGrow { to { transform: scaleX(1); } }
-
-  /* Vigencia bar */
-  .vig-bar-wrap { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.06); overflow: hidden; }
-  .vig-bar {
-    height:100%; width: 95%; border-radius:2px;
-    background: linear-gradient(90deg, #00b248, #00e676);
-    animation: ntprGrow 1.3s cubic-bezier(0.16,1,0.3,1) both;
-    animation-delay: 0.5s;
-    transform-origin: left; transform: scaleX(0);
-  }
-
-  /* Responsive */
-  @media (max-width: 860px) {
-    .cp-main-grid { grid-template-columns: 1fr !important; }
-    .cp-two-col   { grid-template-columns: 1fr !important; }
-    .holo-card    { max-width: 100%; }
-  }
-
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-`;
-
-/* ─── Holographic Card ──────────────────────────────────────── */
-function HoloCard({ credential }) {
-  const ref = useRef(null);
+/* ─── HoloCard ──────────────────────────────────────────────── */
+function HoloCard({ credential }: { credential: any }) {
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const onMove = (e) => {
+    const onMove = (e: MouseEvent) => {
       const r = el.getBoundingClientRect();
       const dx = ((e.clientX - r.left) / r.width - 0.5) * 14;
       const dy = ((e.clientY - r.top) / r.height - 0.5) * -9;
-      el.style.transform = `rotateY(${dx}deg) rotateX(${dy}deg)`;
+      el.style.transform = `perspective(800px) rotateY(${dx}deg) rotateX(${dy}deg)`;
     };
     const onLeave = () => {
-      el.style.transform = 'rotateY(0) rotateX(0)';
+      el.style.transform = 'perspective(800px) rotateY(0) rotateX(0)';
     };
     el.addEventListener('mousemove', onMove);
     el.addEventListener('mouseleave', onLeave);
@@ -482,126 +45,186 @@ function HoloCard({ credential }) {
   }, []);
 
   const isActive = credential.affiliation_status === 'active';
-  const statusColor = isActive ? '#00e676' : '#f44336';
-  const statusBg = isActive
-    ? 'linear-gradient(90deg,#1a5c2a,#236b33,#1a5c2a)'
-    : 'linear-gradient(90deg,#5c1a1a,#6b2323,#5c1a1a)';
-  const statusText = isActive ? 'ACTIVO' : 'INACTIVO';
 
   return (
-    <div className="holo-card" ref={ref}>
-      <div className="holo-shimmer" />
-      <div className="card-topbar" />
+    <div
+      ref={ref}
+      className={cn(
+        'relative w-full rounded-[20px] overflow-hidden cursor-default',
+        'bg-[#0A0D1A]',
+        'border border-[#C8FF00]/[0.14]',
+        'shadow-[0_0_0_1px_rgba(200,255,0,0.03),0_24px_60px_rgba(0,0,0,0.7),0_0_60px_rgba(200,255,0,0.05)]',
+        'hover:shadow-[0_0_0_1px_rgba(200,255,0,0.2),0_32px_80px_rgba(0,0,0,0.8),0_0_80px_rgba(200,255,0,0.1)]',
+        'transition-shadow duration-200',
+      )}
+    >
+      {/* Shimmer */}
+      <div className="absolute inset-0 z-20 pointer-events-none rounded-[20px] bg-gradient-to-br from-transparent via-[#C8FF64]/[0.05] to-transparent" />
 
-      {/* 1. Federation header — green banner with eagles + title */}
-      <div className="card-fed-header">
-        <div className="card-fed-inner">
-          <div className="card-fed-emblems">
-            <div className="card-fed-emblem">🦅</div>
-            <div className="card-fed-title">
-              FEDERACIÓN
-              <br />
-              MEXICANA DE
-              <br />
-              PICKLEBALL
+      {/* Top bar */}
+      <div className="h-1 bg-gradient-to-r from-[#7CAF00] via-[#C8FF00] to-[#7CAF00]" />
+
+      {/* Federation header */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#0D1F08] via-[#152B0B] to-[#0D1F08]">
+        <div className="absolute inset-0 [background-image:repeating-linear-gradient(-45deg,transparent,transparent_8px,rgba(200,255,0,0.02)_8px,rgba(200,255,0,0.02)_9px)]" />
+        <div className="relative z-10 flex flex-col items-center gap-2 px-4 py-3.5">
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-black/30 border border-[#C8FF00]/30 flex items-center justify-center text-xl shadow-lg">
+              🦅
             </div>
-            <div className="card-fed-emblem">🦅</div>
+            <div className="text-center font-['Syne',sans-serif] font-extrabold text-[13px] tracking-[2px] text-white leading-snug">
+              FEDERACIÓN<br />MEXICANA DE<br />PICKLEBALL
+            </div>
+            <div className="w-10 h-10 rounded-full bg-black/30 border border-[#C8FF00]/30 flex items-center justify-center text-xl shadow-lg">
+              🦅
+            </div>
           </div>
-          <div className="card-fed-city">CIUDAD DE MÉXICO</div>
+          <div className="bg-[#C8FF00] text-black font-['Syne',sans-serif] font-extrabold text-[10px] tracking-[5px] px-5 py-1 rounded-sm">
+            CIUDAD DE MÉXICO
+          </div>
         </div>
       </div>
 
-      {/* 2. Photo zone — court background + player portrait + name */}
-      <div className="card-photo-zone">
-        <img
-          className="card-photo-bg-img"
-          src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=500&q=70"
-          alt=""
-          onError={(e) => {
-            // e.target.style.display = 'none';
-          }}
-        />
-        <div className="card-photo-bg-fallback" />
-        <div className="card-grid-overlay" />
-        <div className="card-jugador-label">JUGADOR</div>
-        <div className="card-player-photo-ring">
-          {credential?.user?.profile_photo ? (
-            <img src={getFullImageUrl(credential?.user?.profile_photo)} alt="player" />
+      {/* Photo zone */}
+      <div className="relative h-[200px] overflow-hidden bg-gradient-to-b from-[#0A1A06] to-[#050D03]">
+        <div className="absolute inset-0 [background-image:linear-gradient(rgba(200,255,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(200,255,0,0.03)_1px,transparent_1px)] [background-size:24px_24px]" />
+        <p className="absolute top-2.5 inset-x-0 text-center font-['Syne',sans-serif] text-[8px] font-bold tracking-[5px] text-white/50 uppercase">
+          JUGADOR OFICIAL
+        </p>
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[54%] w-24 h-24 rounded-[10px] border-2 border-white/80 bg-[#12152A] overflow-hidden flex items-center justify-center text-4xl shadow-[0_4px_24px_rgba(0,0,0,0.6),0_0_0_4px_rgba(255,255,255,0.05)]">
+          {credential?.user?.profile_photo
+            ? <img src={getFullImageUrl(credential.user.profile_photo)} alt="player" className="w-full h-full object-cover" />
+            : '👤'}
+        </div>
+        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[rgba(5,9,3,0.97)] via-[rgba(5,9,3,0.7)] to-transparent pb-2 pt-8 px-3 text-center">
+          <p className="font-['Syne',sans-serif] font-extrabold text-[14px] tracking-[1.5px] text-white">
+            {credential.player_name}
+          </p>
+        </div>
+      </div>
+
+      {/* Status band */}
+      <div className={cn(
+        'flex items-center justify-center gap-2 py-1.5',
+        isActive
+          ? 'bg-gradient-to-r from-[#0D1F08] via-[#1E3C0E] to-[#0D1F08]'
+          : 'bg-gradient-to-r from-[#1F0808] via-[#3C0E0E] to-[#1F0808]',
+      )}>
+        <span className={cn(
+          'w-1.5 h-1.5 rounded-full',
+          isActive ? 'bg-[#C8FF00] shadow-[0_0_6px_#C8FF00]' : 'bg-[#ff6b6b] shadow-[0_0_6px_#ff6b6b]',
+        )} />
+        <span className={cn(
+          'font-["Syne",sans-serif] font-extrabold text-[11px] tracking-[5px]',
+          isActive ? 'text-[#C8FF00]' : 'text-[#ff6b6b]',
+        )}>
+          {isActive ? 'ACTIVO' : 'INACTIVO'}
+        </span>
+      </div>
+
+      {/* ID */}
+      <div className="bg-[#080D18] py-1.5 text-center font-['JetBrains_Mono',monospace] text-[12px] tracking-[3px] text-[rgba(200,240,200,0.7)] border-y border-[#C8FF00]/[0.06]">
+        {credential.credential_number || credential.id}
+      </div>
+
+      {/* Logos */}
+      <div className="bg-[#F2F2F2] flex items-center justify-around px-5 py-2.5 border-y border-black/[0.07]">
+        <img src={IpfLogo} alt="IPF" className="w-[46px] h-[46px] object-contain" />
+        <img src={FederationLogo} alt="Federation" className="w-[72px] h-[44px] object-contain" />
+        <img src={conadeLogo} alt="CONADE" className="w-[46px] h-[46px] object-contain" />
+      </div>
+
+      {/* State */}
+      <div className="py-2 text-center font-['Syne',sans-serif] font-extrabold text-[13px] tracking-[5px] text-white bg-gradient-to-r from-[#152B0B] via-[#1F3E10] to-[#152B0B]">
+        {credential.state_affiliation || 'N/A'}
+      </div>
+
+      {/* QR */}
+      <div className="bg-white flex items-center justify-center py-4 px-5">
+        <div className="p-2 bg-white border-2 border-[#E0E0E0] rounded-md shadow-md">
+          {credential.qr_code_url ? (
+            <img src={getFullImageUrl(credential.qr_code_url)} alt="QR" className="w-[120px] h-[120px] block" />
           ) : (
-            '👤'
+            <img
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${credential.verification_code}&margin=4`}
+              alt="QR"
+              className="w-[120px] h-[120px] block"
+            />
           )}
         </div>
-        <div className="card-name-overlay">
-          <div className="card-player-name">{credential.player_name}</div>
-        </div>
       </div>
 
-      {/* 3. Status band */}
-      <div className="card-status-band" style={{ background: statusBg, color: '#fff' }}>
-        <div className="card-status-dot" style={{ background: statusColor, color: statusColor }} />
-        {statusText}
-      </div>
-
-      {/* 4. Player ID */}
-      <div className="card-id-band">{credential.credential_number || credential.id}</div>
-
-      {/* 5. Logos row — IPF · Federation image · CONADE */}
-      <div className="card-logos-row">
-        <div className="logo-ipf">
-          <img src={IpfLogo} alt="IPF" style={{ width: 50, height: 50, objectFit: 'contain' }} />
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-          <img
-            src={FederationLogo || Federation}
-            alt="Federation"
-            style={{
-              width: 80,
-              height: 50,
-            }}
-          />
-        </div>
-        <div className="logo-conade">
-          <img
-            src={conadeLogo}
-            alt="CONADE"
-            style={{ width: 50, height: 50, objectFit: 'contain' }}
-          />
-        </div>
-      </div>
-
-      {/* 6. Age band */}
-      <div className="card-age-band">{credential.state_affiliation || 'N/A'}</div>
-
-      {/* 7. QR section */}
-      <div className="card-qr-section">
-        <div className="card-qr-wrapper">
-          <div className="card-qr-frame">
-            {credential.qr_code_url ? (
-              <img src={getFullImageUrl(credential.qr_code_url)} alt="QR Code" />
-            ) : (
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${credential.verification_code}&margin=4&color=000000&bgcolor=ffffff`}
-                alt="QR Code"
-              />
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* 8. NTPR band */}
-      <div
-        className="card-ntpr-band"
-        style={{ background: 'linear-gradient(90deg,#1b5e20,#2e7d32,#1b5e20)' }}
-      >
+      {/* NTPR */}
+      <div className="py-2 text-center font-['Syne',sans-serif] font-extrabold text-[16px] tracking-[5px] text-white bg-gradient-to-r from-[#152B0B] via-[#1F3E10] to-[#152B0B]">
         NTPR: {credential.nrtp_level || '3.5'}
       </div>
 
-      {/* 9. Flag footer */}
-      <div className="card-flag-footer">
-        <img src={MXFlag} alt="México" style={{ height: 32, width: 'auto' }} />
+      {/* Flag */}
+      <div className="bg-white flex items-center justify-center py-2 border-t border-black/[0.06]">
+        <img src={MXFlag} alt="México" className="h-8 w-auto" />
       </div>
 
-      <div className="card-bottombar" />
+      {/* Bottom bar */}
+      <div className="h-[3px] bg-gradient-to-r from-[#7CAF00] via-[#C8FF00] to-[#7CAF00]" />
+    </div>
+  );
+}
+
+/* ─── Panel card ─────────────────────────────────────────────── */
+function Panel({
+  icon: Icon,
+  title,
+  action,
+  children,
+  className,
+}: {
+  icon: LucideIcon;
+  title: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <Card className={cn('bg-white/[0.025] border border-[#C8FF00]/[0.1] rounded-2xl overflow-hidden', className)}>
+      <CardHeader className="px-5 py-3.5 border-b border-[#C8FF00]/[0.07] flex flex-row items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="w-[30px] h-[30px] rounded-[8px] bg-[#C8FF00]/[0.08] border border-[#C8FF00]/[0.15] flex items-center justify-center flex-shrink-0">
+            <Icon className="w-3.5 h-3.5 text-[#C8FF00]" />
+          </div>
+          <span className="font-['Syne',sans-serif] text-[11px] font-bold tracking-[1.5px] uppercase text-white/80">
+            {title}
+          </span>
+        </div>
+        {action}
+      </CardHeader>
+      <CardContent className="px-5 py-3.5">{children}</CardContent>
+    </Card>
+  );
+}
+
+/* ─── InfoRow ────────────────────────────────────────────────── */
+function InfoRow({ label, value, mono = false }: { label: string; value: React.ReactNode; mono?: boolean }) {
+  return (
+    <div className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-none text-[13px]">
+      <span className="text-white/35">{label}</span>
+      <span className={cn(
+        'font-medium text-white/85',
+        mono && 'font-["JetBrains_Mono",monospace] text-[11px] text-[#C8FF00]',
+      )}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+/* ─── BenefitRow ─────────────────────────────────────────────── */
+function BenefitRow({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
+  return (
+    <div className="flex items-center gap-2.5 py-1.5 border-b border-white/[0.04] last:border-none text-[12px] text-white/70">
+      <div className="w-6 h-6 rounded-md bg-[#C8FF00]/[0.08] border border-[#C8FF00]/[0.15] flex items-center justify-center flex-shrink-0">
+        <Icon className="w-3 h-3 text-[#C8FF00]" />
+      </div>
+      {text}
     </div>
   );
 }
@@ -620,26 +243,15 @@ export default function PlayerCredentialsPage() {
     amount: number;
   } | null>(null);
 
-  // Fetch credential on mount
-  useEffect(() => {
-    if (document.getElementById('cp-styles')) return;
-    const s = document.createElement('style');
-    s.id = 'cp-styles';
-    s.textContent = STYLES;
-    document.head.appendChild(s);
-  }, []);
+  useEffect(() => { dispatch(fetchMyDigitalCredential()); }, [dispatch]);
 
-  useEffect(() => {
-    dispatch(fetchMyDigitalCredential());
-  }, [dispatch]);
-
-  // Payment plan options
   const paymentPlans = [
     {
       id: 'basic',
       name: 'Plan Básico',
       price: 25,
       duration: '1 Mes',
+      popular: false,
       features: ['Credencial Digital', 'Verificación de QR', 'Estadísticas Básicas'],
     },
     {
@@ -661,6 +273,7 @@ export default function PlayerCredentialsPage() {
       name: 'Premium Plus',
       price: 500,
       duration: '1 Año',
+      popular: false,
       features: [
         'Todo lo incluido en Membresía',
         'Estadísticas Avanzadas',
@@ -670,9 +283,17 @@ export default function PlayerCredentialsPage() {
     },
   ];
 
-  // Open payment modal for the selected plan
+  const benefits: [LucideIcon, string][] = [
+    [Trophy,     'Participación en torneos oficiales'],
+    [TrendingUp, 'Acceso a rankings nacionales'],
+    [CreditCard, 'Descuentos en afiliación a clubes'],
+    [Shield,     'Certificación digital verificable'],
+    [Star,       'Acceso a eventos exclusivos'],
+    [Zap,        'Soporte prioritario 24/7'],
+  ];
+
   const handleCreateCredential = (planId: string) => {
-    const plan = paymentPlans.find((p) => p.id === planId);
+    const plan = paymentPlans.find(p => p.id === planId);
     if (!plan) return;
     setPaymentModal({
       open: true,
@@ -689,417 +310,245 @@ export default function PlayerCredentialsPage() {
 
   const handleRenew = () => {
     setIsRenewing(true);
-    setTimeout(() => {
-      setIsRenewing(false);
-      alert('¡Credencial renovada exitosamente!');
-    }, 2000);
+    setTimeout(() => { setIsRenewing(false); }, 2000);
   };
 
-  // Mock payment history - in real app would come from API
-  const paymentHistory = [
-    {
-      id: 'PAY-001',
-      date: new Date(myCredential?.issued_date || '2024-01-15').toISOString(),
-      amount: 250,
-      method: 'Stripe',
-      description: 'Membresía Anual',
-    },
-  ];
+  const paymentHistory = [{
+    id: 'PAY-001',
+    date: new Date(myCredential?.issued_date || '2024-01-15').toISOString(),
+    amount: 250,
+    method: 'Stripe',
+    description: 'Membresía Anual',
+  }];
 
-  const benefits: [LucideIcon, string][] = [
-    [Trophy, 'Participación en torneos oficiales'],
-    [TrendingUp, 'Acceso a rankings nacionales'],
-    [CreditCard, 'Descuentos en afiliación a clubes'],
-    [Shield, 'Certificación digital verificable'],
-    [Star, 'Acceso a eventos exclusivos'],
-    [Zap, 'Soporte prioritario'],
-  ];
+  const ntprPct = myCredential
+    ? (parseFloat(myCredential.nrtp_level || '3.5') / 8) * 100
+    : 0;
 
-  const ntprPct = myCredential ? (parseFloat(myCredential.nrtp_level || '3.5') / 8) * 100 : 0;
+  /* Loading */
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#06080E] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-7 h-7 text-[#C8FF00] animate-spin" />
+          <span className="text-white/30 text-sm font-['DM_Sans',sans-serif]">Cargando credencial…</span>
+        </div>
+      </div>
+    );
+  }
 
+  /* ── HAS CREDENTIAL ─────────────────────────────────────────── */
   if (myCredential) {
     return (
-      <div
-        className="cp"
-        style={{
-          minHeight: '100vh',
-          background: '#050f0a',
-          padding: '32px 24px 64px',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        <div className="cp-blob cp-blob-1" />
-        <div className="cp-blob cp-blob-2" />
+      <div className="min-h-screen bg-[#06080E] text-[#F0F0FF] font-['DM_Sans',sans-serif] relative overflow-hidden">
+        {/* Ambient */}
+        <div className="fixed pointer-events-none rounded-full -top-1/4 -left-1/4 w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(200,255,0,0.04)_0%,transparent_65%)]" />
+        <div className="fixed pointer-events-none rounded-full -bottom-1/4 -right-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(100,180,0,0.03)_0%,transparent_65%)]" />
 
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto' }}>
-          {/* ── Page Header ─────────────────────── */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: 16,
-              marginBottom: 48,
-            }}
-          >
+        <div className="relative z-10 max-w-[1200px] mx-auto px-6 py-8 pb-16">
+
+          {/* Header */}
+          <div className="flex items-start justify-between flex-wrap gap-4 mb-10">
             <div>
-              <div className="cp-tag">
-                <Sparkles size={10} /> Membresía Verificada
+              <div className="inline-flex items-center gap-1.5 bg-[#C8FF00]/[0.07] border border-[#C8FF00]/[0.15] rounded-full px-3 py-1 mb-2.5 font-['Syne',sans-serif] text-[10px] font-bold tracking-[2px] text-[#C8FF00] uppercase">
+                <Sparkles className="w-2.5 h-2.5" /> Membresía Verificada
               </div>
-              <h1 className="cp-page-title">
-                CREDENCIAL <span>DIGITAL</span>
+              <h1 className="font-['Syne',sans-serif] font-extrabold leading-none tracking-tight text-[clamp(28px,4vw,44px)]">
+                CREDENCIAL <span className="text-[#C8FF00]">DIGITAL</span>
               </h1>
-              <p className="cp-subtitle">Federación Mexicana de Pickleball · CDMX</p>
+              <p className="text-[#8CAF00] text-[11px] tracking-[2.5px] uppercase font-bold mt-2">
+                Federación Mexicana de Pickleball · CDMX
+              </p>
             </div>
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="flex items-center gap-2 flex-wrap">
               <Button
                 variant="outline"
-                onClick={() => alert('Descargando credencial...')}
-                style={{
-                  background: 'transparent',
-                  border: '1px solid rgba(0,230,118,0.22)',
-                  color: '#e8f5e9',
-                  fontFamily: "'Outfit',sans-serif",
-                  borderRadius: 10,
-                  padding: '8px 14px',
-                  gap: 7,
-                  fontSize: 13,
-                }}
+                onClick={() => alert('Descargando...')}
+                className="bg-transparent border-[#C8FF00]/[0.22] text-white/80 hover:text-white hover:bg-[#C8FF00]/[0.07] hover:border-[#C8FF00]/40 rounded-xl gap-2 text-[13px]"
               >
-                <Download size={14} /> Descargar
+                <Download className="w-3.5 h-3.5" /> Descargar
               </Button>
               <Button
                 onClick={() => alert('QR Verificado ✓')}
-                style={{
-                  background: '#00e676',
-                  color: '#000',
-                  fontWeight: 700,
-                  fontFamily: "'Outfit',sans-serif",
-                  borderRadius: 10,
-                  gap: 7,
-                  fontSize: 13,
-                  padding: '8px 14px',
-                  boxShadow: '0 4px 18px rgba(0,230,118,0.3)',
-                }}
+                className="bg-[#C8FF00] text-black font-['Syne',sans-serif] font-extrabold rounded-xl gap-2 text-[13px] hover:bg-[#d6ff26] shadow-[0_4px_20px_rgba(200,255,0,0.25)]"
               >
-                <QrCode size={14} /> Verificar QR
+                <QrCode className="w-3.5 h-3.5" /> Verificar QR
               </Button>
             </div>
           </div>
 
-          {/* ── Main Grid ───────────────────────── */}
-          <div
-            className="cp-main-grid"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '340px 1fr',
-              gap: 32,
-              alignItems: 'start',
-            }}
-          >
-            {/* LEFT: Credential card + vigencia */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-7 items-start">
+
+            {/* Left */}
+            <div className="flex flex-col gap-4">
               <HoloCard credential={myCredential} />
 
-              {/* Vigencia card */}
-              <div className="cp-panel cp-panel-d1">
-                <div className="cp-panel-header">
-                  <div className="cp-panel-icon">
-                    <Calendar size={14} color="#00e676" />
-                  </div>
-                  <span className="cp-panel-title">Vigencia de Membresía</span>
-                </div>
-                <div className="cp-panel-body">
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontSize: 12,
-                      color: 'rgba(255,255,255,0.45)',
-                      marginBottom: 8,
-                    }}
-                  >
-                    <span>
-                      Emitida:{' '}
-                      <span style={{ color: 'rgba(255,255,255,0.75)' }}>
-                        {new Date(myCredential?.created_at)?.toLocaleDateString('es-MX')}
-                      </span>
+              <Panel icon={Calendar} title="Vigencia de Membresía">
+                <div className="flex justify-between text-[12px] text-white/40 mb-2">
+                  <span>
+                    Emitida:{' '}
+                    <span className="text-white/75">
+                      {new Date(myCredential?.created_at).toLocaleDateString('es-MX')}
                     </span>
-                    <span>
-                      Expira:{' '}
-                      <span style={{ color: 'rgba(255,255,255,0.75)' }}>
-                        {myCredential?.expiry_date
-                          ? new Date(myCredential?.expiry_date)?.toLocaleDateString('es-MX')
-                          : 'N/A'}
-                      </span>
+                  </span>
+                  <span>
+                    Expira:{' '}
+                    <span className="text-white/75">
+                      {myCredential?.expiry_date
+                        ? new Date(myCredential.expiry_date).toLocaleDateString('es-MX')
+                        : 'N/A'}
                     </span>
-                  </div>
-                  <div className="vig-bar-wrap">
-                    <div className="vig-bar" />
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontSize: 10,
-                      color: 'rgba(76,175,120,0.45)',
-                      marginTop: 5,
-                    }}
-                  >
-                    <span>Ene 2024</span>
-                    <span style={{ color: '#00e676' }}>95% transcurrido</span>
-                    <span>Dic 2024</span>
-                  </div>
+                  </span>
                 </div>
-              </div>
+                <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[#7CAF00] to-[#C8FF00]"
+                    style={{ width: '75%' }}
+                  />
+                </div>
+                <div className="flex justify-between text-[10px] text-[#C8FF00]/40 mt-1.5">
+                  <span>Ene 2024</span>
+                  <span className="text-[#C8FF00]">75% transcurrido</span>
+                  <span>Dic 2024</span>
+                </div>
+              </Panel>
             </div>
 
-            {/* RIGHT: Info panels */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* Right */}
+            <div className="flex flex-col gap-4">
+
               {/* NTPR */}
-              <div className="cp-panel cp-panel-d1">
-                <div className="cp-panel-header">
-                  <div className="cp-panel-icon">
-                    <TrendingUp size={14} color="#00e676" />
+              <Panel icon={TrendingUp} title="Nivel NTPR">
+                <div className="flex items-end gap-5 mb-4">
+                  <span className="font-['Syne',sans-serif] font-extrabold text-[64px] leading-none tracking-tight text-[#C8FF00] drop-shadow-[0_0_30px_rgba(200,255,0,0.35)]">
+                    {myCredential?.nrtp_level || '3.5'}
+                  </span>
+                  <div className="pb-2 flex flex-col gap-2">
+                    <span className="text-[11px] text-[#C8FF00]/50 tracking-[2px] uppercase">de 8.0 máximo</span>
+                    <Badge className="bg-[#C8FF00]/[0.1] border border-[#C8FF00]/[0.22] text-[#C8FF00] text-[11px] font-bold font-['Syne',sans-serif] w-fit">
+                      NTPR {myCredential?.nrtp_level || '3.5'}
+                    </Badge>
                   </div>
-                  <span className="cp-panel-title">Nivel NTPR</span>
                 </div>
-                <div className="cp-panel-body">
+                <div className="h-[5px] bg-white/[0.06] rounded-full overflow-hidden">
                   <div
-                    style={{ display: 'flex', alignItems: 'flex-end', gap: 18, marginBottom: 16 }}
-                  >
-                    <div
-                      style={{
-                        fontFamily: "'Bebas Neue',sans-serif",
-                        fontSize: 72,
-                        lineHeight: 1,
-                        color: '#00e676',
-                        letterSpacing: 2,
-                        textShadow: '0 0 30px rgba(0,230,118,0.35)',
-                      }}
-                    >
-                      {myCredential?.nrtp_level || '3.5'}
-                    </div>
-                    <div style={{ paddingBottom: 8 }}>
-                      <div
-                        style={{
-                          fontSize: 11,
-                          color: 'rgba(76,175,120,0.6)',
-                          letterSpacing: 2,
-                          textTransform: 'uppercase',
-                          marginBottom: 6,
-                        }}
-                      >
-                        de 8.0 máximo
-                      </div>
-                      <Badge
-                        style={{
-                          background: 'rgba(0,230,118,0.1)',
-                          border: '1px solid rgba(0,230,118,0.22)',
-                          color: '#00e676',
-                          fontSize: 11,
-                          fontWeight: 700,
-                          letterSpacing: 1,
-                          fontFamily: "'Outfit',sans-serif",
-                        }}
-                      >
-                        NTPR {myCredential?.nrtp_level || '3.5'}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="ntpr-bar-wrap">
-                    <div className="ntpr-bar" style={{ width: `${ntprPct}%` }} />
-                  </div>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      fontSize: 9,
-                      color: 'rgba(76,175,120,0.4)',
-                      marginTop: 5,
-                      letterSpacing: 1,
-                    }}
-                  >
-                    {['1.0', '2.5', '4.0', '5.5', '7.0', '8.0'].map((v) => (
-                      <span key={v}>{v}</span>
-                    ))}
-                  </div>
-                  <Separator style={{ background: 'rgba(0,230,118,0.08)', margin: '14px 0' }} />
-                  <div className="i-row">
-                    <span className="i-key">Club</span>
-                    <span className="i-val">{myCredential?.club_name || 'Independiente'}</span>
-                  </div>
-                  <div className="i-row">
-                    <span className="i-key">Estado</span>
-                    <span className="i-val">{myCredential?.state_affiliation || 'N/A'}</span>
-                  </div>
-                  <div className="i-row">
-                    <span className="i-key">Afiliación</span>
-                    <span
-                      className="i-val"
-                      style={{
-                        textTransform: 'capitalize',
-                        color:
-                          myCredential?.affiliation_status === 'active' ? '#00e676' : '#ff6b6b',
-                      }}
-                    >
+                    className="h-full rounded-full bg-gradient-to-r from-[#7CAF00] via-[#C8FF00] to-[#E8FF80]"
+                    style={{ width: `${ntprPct}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[9px] text-[#C8FF00]/30 tracking-[1px] mt-1.5">
+                  {['1.0', '2.5', '4.0', '5.5', '7.0', '8.0'].map(v => <span key={v}>{v}</span>)}
+                </div>
+                <Separator className="bg-[#C8FF00]/[0.08] my-3" />
+                <InfoRow label="Club" value={myCredential?.club_name || 'Independiente'} />
+                <InfoRow label="Estado" value={myCredential?.state_affiliation || 'N/A'} />
+                <InfoRow
+                  label="Afiliación"
+                  value={
+                    <span className={cn(
+                      'capitalize font-semibold',
+                      myCredential?.affiliation_status === 'active'
+                        ? 'text-[#C8FF00]'
+                        : 'text-[#ff6b6b]',
+                    )}>
                       {myCredential?.affiliation_status}
                     </span>
-                  </div>
-                </div>
-              </div>
+                  }
+                />
+              </Panel>
 
-              {/* 2-col: Player details + Benefits */}
-              <div
-                className="cp-two-col"
-                style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}
-              >
-                <div className="cp-panel cp-panel-d2">
-                  <div className="cp-panel-header">
-                    <div className="cp-panel-icon">
-                      <User size={13} color="#00e676" />
-                    </div>
-                    <span className="cp-panel-title">Datos del Jugador</span>
-                  </div>
-                  <div className="cp-panel-body">
-                    <div className="i-row">
-                      <span className="i-key">Número</span>
-                      <span className="i-mono">{myCredential?.credential_number}</span>
-                    </div>
-                    <div className="i-row">
-                      <span className="i-key">Código</span>
-                      <span className="i-mono">{myCredential?.verification_code}</span>
-                    </div>
-                    <div className="i-row">
-                      <span className="i-key">Estado</span>
-                      <span
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 5,
-                          fontSize: 13,
-                          color:
-                            myCredential?.affiliation_status === 'active' ? '#00e676' : '#ff6b6b',
-                          fontWeight: 600,
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: 6,
-                            height: 6,
-                            borderRadius: '50%',
-                            background:
-                              myCredential?.affiliation_status === 'active' ? '#00e676' : '#ff6b6b',
-                            boxShadow:
-                              myCredential?.affiliation_status === 'active'
-                                ? '0 0 6px #00e676'
-                                : '0 0 6px #ff6b6b',
-                            display: 'inline-block',
-                            animation: 'statusPulse 2s ease infinite',
-                          }}
-                        />
+              {/* 2-col */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Panel icon={User} title="Datos del Jugador">
+                  <InfoRow label="Número" value={myCredential?.credential_number} mono />
+                  <InfoRow label="Código" value={myCredential?.verification_code} mono />
+                  <InfoRow
+                    label="Estado"
+                    value={
+                      <span className={cn(
+                        'flex items-center gap-1.5 font-semibold text-[13px]',
+                        myCredential?.affiliation_status === 'active'
+                          ? 'text-[#C8FF00]'
+                          : 'text-[#ff6b6b]',
+                      )}>
+                        <span className={cn(
+                          'w-1.5 h-1.5 rounded-full inline-block',
+                          myCredential?.affiliation_status === 'active'
+                            ? 'bg-[#C8FF00] shadow-[0_0_6px_#C8FF00]'
+                            : 'bg-[#ff6b6b] shadow-[0_0_6px_#ff6b6b]',
+                        )} />
                         {myCredential?.affiliation_status === 'active' ? 'Activo' : 'Inactivo'}
                       </span>
-                    </div>
-                    <div className="i-row">
-                      <span className="i-key">Emitida</span>
-                      <span className="i-val">
-                        {myCredential?.issued_date
-                          ? new Date(myCredential?.issued_date).toLocaleDateString('es-MX')
-                          : 'Sin datos'}
-                      </span>
-                    </div>
-                    <div className="i-row">
-                      <span className="i-key">Expira</span>
-                      <span className="i-val">
-                        {myCredential?.expiry_date
-                          ? new Date(myCredential?.expiry_date).toLocaleDateString('es-MX')
-                          : 'Sin expiración'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                    }
+                  />
+                  <InfoRow
+                    label="Emitida"
+                    value={myCredential?.issued_date
+                      ? new Date(myCredential.issued_date).toLocaleDateString('es-MX')
+                      : 'Sin datos'}
+                  />
+                  <InfoRow
+                    label="Expira"
+                    value={myCredential?.expiry_date
+                      ? new Date(myCredential.expiry_date).toLocaleDateString('es-MX')
+                      : 'Sin expiración'}
+                  />
+                </Panel>
 
-                <div className="cp-panel cp-panel-d3">
-                  <div className="cp-panel-header">
-                    <div className="cp-panel-icon">
-                      <CheckCircle2 size={13} color="#00e676" />
-                    </div>
-                    <span className="cp-panel-title">Beneficios</span>
-                  </div>
-                  <div className="cp-panel-body">
-                    {benefits.map(([Icon, text], i) => (
-                      <div className="b-item" key={i}>
-                        <div className="b-icon">
-                          <Icon size={12} color="#00e676" />
-                        </div>
-                        <span style={{ fontSize: 12, lineHeight: 1.35 }}>{text}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <Panel icon={CheckCircle2} title="Beneficios">
+                  {benefits.map(([Icon, text], i) => (
+                    <BenefitRow key={i} icon={Icon} text={text} />
+                  ))}
+                </Panel>
               </div>
 
-              {/* Payment History */}
-              <div className="cp-panel cp-panel-d4">
-                <div className="cp-panel-header" style={{ justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div className="cp-panel-icon">
-                      <CreditCard size={14} color="#00e676" />
-                    </div>
-                    <span className="cp-panel-title">Historial de Pagos</span>
-                  </div>
+              {/* Payment history */}
+              <Panel
+                icon={CreditCard}
+                title="Historial de Pagos"
+                action={
                   <Button
                     onClick={handleRenew}
                     disabled={isRenewing}
-                    style={{
-                      background: isRenewing ? 'rgba(0,230,118,0.12)' : '#00e676',
-                      color: isRenewing ? '#00e676' : '#000',
-                      fontWeight: 700,
-                      fontFamily: "'Outfit',sans-serif",
-                      borderRadius: 9,
-                      fontSize: 12,
-                      gap: 6,
-                      height: 34,
-                      padding: '0 14px',
-                      border: isRenewing ? '1px solid rgba(0,230,118,0.3)' : 'none',
-                      boxShadow: isRenewing ? 'none' : '0 3px 14px rgba(0,230,118,0.28)',
-                      transition: 'all 0.2s',
-                    }}
+                    size="sm"
+                    className={cn(
+                      'rounded-[9px] text-[12px] font-extrabold font-["Syne",sans-serif] gap-1.5 h-8 px-3.5',
+                      isRenewing
+                        ? 'bg-[#C8FF00]/[0.1] text-[#C8FF00] border border-[#C8FF00]/[0.25] shadow-none hover:bg-[#C8FF00]/[0.1]'
+                        : 'bg-[#C8FF00] text-black shadow-[0_3px_14px_rgba(200,255,0,0.28)] hover:bg-[#d6ff26]',
+                    )}
                   >
-                    <RefreshCcw
-                      size={13}
-                      style={{ animation: isRenewing ? 'spin 1s linear infinite' : 'none' }}
-                    />
+                    <RefreshCcw className={cn('w-3 h-3', isRenewing && 'animate-spin')} />
                     {isRenewing ? 'Procesando...' : 'Renovar $500 MXN'}
                   </Button>
-                </div>
-                <div className="cp-panel-body">
-                  {paymentHistory.map((p) => (
-                    <div className="p-row" key={p.id}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div className="p-icon">
-                          <CheckCircle2 size={17} color="#00e676" />
-                        </div>
-                        <div>
-                          <div className="p-desc">{p.description}</div>
-                          <div className="p-meta">
-                            {new Date(p.date).toLocaleDateString('es-MX')} · {p.method} · {p.id}
-                          </div>
-                        </div>
+                }
+              >
+                {paymentHistory.map(p => (
+                  <div key={p.id} className="flex items-center justify-between py-3 border-b border-white/[0.04] last:border-none">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-[10px] bg-[#C8FF00]/[0.07] border border-[#C8FF00]/[0.12] flex items-center justify-center flex-shrink-0">
+                        <CheckCircle2 className="w-[17px] h-[17px] text-[#C8FF00]" />
                       </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div className="p-amount">
-                          ${p.amount} <span style={{ fontSize: 13, letterSpacing: 0 }}>MXN</span>
-                        </div>
-                        <div className="p-badge">Completado</div>
+                      <div>
+                        <p className="text-[13px] font-medium text-white/85">{p.description}</p>
+                        <p className="text-[11px] text-white/30 mt-0.5">
+                          {new Date(p.date).toLocaleDateString('es-MX')} · {p.method} · {p.id}
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className="font-['Syne',sans-serif] font-extrabold text-[20px] leading-none text-[#C8FF00]">
+                        ${p.amount}{' '}
+                        <span className="text-[13px] font-normal text-white/30">MXN</span>
+                      </p>
+                      <Badge className="mt-1 bg-[#C8FF00]/[0.08] border border-[#C8FF00]/[0.18] text-[#C8FF00] text-[8px] font-bold tracking-[1.5px] uppercase font-['Syne',sans-serif]">
+                        Completado
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </Panel>
             </div>
           </div>
         </div>
@@ -1107,219 +556,100 @@ export default function PlayerCredentialsPage() {
     );
   }
 
-  // No credential exists - show payment plans to create one
+  /* ── NO CREDENTIAL ──────────────────────────────────────────── */
   return (
-    <div
-      className="cp"
-      style={{
-        minHeight: '100vh',
-        background: '#050f0a',
-        padding: '32px 24px 64px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      <div className="cp-blob cp-blob-1" />
-      <div className="cp-blob cp-blob-2" />
+    <div className="min-h-screen bg-[#06080E] text-[#F0F0FF] font-['DM_Sans',sans-serif] relative overflow-hidden">
+      <div className="fixed pointer-events-none rounded-full -top-1/4 -left-1/4 w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(200,255,0,0.04)_0%,transparent_65%)]" />
+      <div className="fixed pointer-events-none rounded-full -bottom-1/4 -right-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(100,180,0,0.03)_0%,transparent_65%)]" />
 
-      <div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto' }}>
-        {/* Page Header */}
-        <div style={{ marginBottom: 48, textAlign: 'center' }}>
-          <div className="cp-tag" style={{ justifyContent: 'center', marginBottom: 16 }}>
-            <AlertCircle size={12} /> Sin Credencial Activa
+      <div className="relative z-10 max-w-[1200px] mx-auto px-6 py-8 pb-16">
+
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-1.5 bg-[#ff6b6b]/[0.07] border border-[#ff6b6b]/[0.2] rounded-full px-3 py-1 mb-3 font-['Syne',sans-serif] text-[10px] font-bold tracking-[2px] text-[#ff6b6b] uppercase">
+            <AlertCircle className="w-2.5 h-2.5" /> Sin Credencial Activa
           </div>
-          <h1 className="cp-page-title">
-            CREAR CREDENCIAL <span>DIGITAL</span>
+          <h1 className="font-['Syne',sans-serif] font-extrabold leading-none tracking-tight text-[clamp(28px,4vw,44px)]">
+            CREAR CREDENCIAL <span className="text-[#C8FF00]">DIGITAL</span>
           </h1>
-          <p className="cp-subtitle">Elige un plan y obtén tu credencial de jugador oficial</p>
+          <p className="text-[#8CAF00] text-[11px] tracking-[2.5px] uppercase font-bold mt-3">
+            Elige un plan y obtén tu credencial oficial
+          </p>
         </div>
 
-        {/* Error message */}
+        {/* Error */}
         {error && (
-          <div
-            style={{
-              background: 'rgba(244, 67, 54, 0.1)',
-              border: '1px solid rgba(244, 67, 54, 0.3)',
-              borderRadius: 12,
-              padding: '16px',
-              marginBottom: 32,
-              color: '#ff6b6b',
-              fontSize: 14,
-            }}
-          >
+          <div className="bg-[#ff6b6b]/[0.1] border border-[#ff6b6b]/[0.3] rounded-xl px-4 py-3.5 mb-8 text-[#ff6b6b] text-[14px]">
             {error}
           </div>
         )}
 
-        {/* Payment Plans */}
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 24,
-            marginBottom: 48,
-          }}
-        >
-          {paymentPlans.map((plan) => (
-            <div
+        {/* Plans */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
+          {paymentPlans.map(plan => (
+            <Card
               key={plan.id}
-              style={{
-                background: plan.popular
-                  ? 'linear-gradient(135deg, rgba(0,230,118,0.15) 0%, rgba(0,180,83,0.08) 100%)'
-                  : 'rgba(255,255,255,0.02)',
-                border: plan.popular
-                  ? '2px solid rgba(0,230,118,0.4)'
-                  : '1px solid rgba(0,230,118,0.12)',
-                borderRadius: 16,
-                padding: '28px 24px',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
+              className={cn(
+                'relative overflow-hidden rounded-2xl',
+                plan.popular
+                  ? 'bg-[#C8FF00]/[0.06] border-2 border-[#C8FF00]/[0.35]'
+                  : 'bg-white/[0.02] border border-[#C8FF00]/[0.1]',
+              )}
             >
               {plan.popular && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 12,
-                    right: -40,
-                    background: '#00e676',
-                    color: '#000',
-                    padding: '4px 48px',
-                    transform: 'rotate(45deg)',
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: 1,
-                  }}
-                >
+                <div className="absolute top-3 right-[-38px] bg-[#C8FF00] text-black px-12 py-1 rotate-45 font-['Syne',sans-serif] text-[9px] font-extrabold tracking-[1px]">
                   POPULAR
                 </div>
               )}
+              <CardContent className="p-6">
+                <h3 className="font-['Syne',sans-serif] font-extrabold text-[17px] text-white mb-1.5">
+                  {plan.name}
+                </h3>
+                <div className="flex items-baseline gap-2 mb-0.5">
+                  <span className="font-['Syne',sans-serif] font-extrabold text-[38px] leading-none text-[#C8FF00] tracking-tight">
+                    ${plan.price}
+                  </span>
+                  <span className="text-[12px] text-white/35">MXN</span>
+                </div>
+                <p className="text-[12px] text-white/35 mb-4">/ {plan.duration}</p>
 
-              <h3
-                style={{
-                  fontSize: 20,
-                  fontWeight: 700,
-                  color: '#fff',
-                  marginBottom: 8,
-                }}
-              >
-                {plan.name}
-              </h3>
+                <Separator className="bg-[#C8FF00]/[0.08] mb-4" />
 
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'baseline',
-                  gap: 8,
-                  marginBottom: 12,
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: 40,
-                    fontWeight: 700,
-                    color: '#00e676',
-                    fontFamily: "'Bebas Neue', sans-serif",
-                  }}
+                <ul className="flex flex-col gap-2.5 mb-6">
+                  {plan.features.map((feat, i) => (
+                    <li key={i} className="flex items-center gap-2 text-[12px] text-white/70">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#C8FF00] flex-shrink-0" />
+                      {feat}
+                    </li>
+                  ))}
+                </ul>
+
+                <Button
+                  onClick={() => handleCreateCredential(plan.id)}
+                  className={cn(
+                    'w-full rounded-xl font-extrabold font-["Syne",sans-serif] text-[13px]',
+                    plan.popular
+                      ? 'bg-[#C8FF00] text-black hover:bg-[#d6ff26] shadow-[0_4px_18px_rgba(200,255,0,0.28)]'
+                      : 'bg-[#C8FF00]/[0.08] text-[#C8FF00] border border-[#C8FF00]/[0.2] hover:bg-[#C8FF00]/[0.15]',
+                  )}
                 >
-                  ${plan.price}
-                </span>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>
-                  MXN / {plan.duration}
-                </span>
-              </div>
-
-              <Separator style={{ background: 'rgba(0,230,118,0.08)', margin: '16px 0' }} />
-
-              <ul style={{ marginBottom: 24 }}>
-                {plan.features.map((feature, idx) => (
-                  <li
-                    key={idx}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 10,
-                      fontSize: 13,
-                      color: 'rgba(255,255,255,0.7)',
-                      marginBottom: 10,
-                    }}
-                  >
-                    <CheckCircle2 size={14} color="#00e676" />
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-
-              <Button
-                onClick={() => handleCreateCredential(plan.id)}
-                disabled={false}
-                style={{
-                  width: '100%',
-                  background: plan.popular ? '#00e676' : 'rgba(0,230,118,0.1)',
-                  color: plan.popular ? '#000' : '#00e676',
-                  fontWeight: 700,
-                  borderRadius: 10,
-                  padding: '12px 16px',
-                  fontSize: 13,
-                  border: plan.popular ? 'none' : '1px solid rgba(0,230,118,0.2)',
-                  boxShadow: plan.popular ? '0 4px 16px rgba(0,230,118,0.3)' : 'none',
-                }}
-              >
-                Seleccionar Plan
-              </Button>
-            </div>
+                  Seleccionar Plan
+                </Button>
+              </CardContent>
+            </Card>
           ))}
         </div>
 
-        {/* Benefits Section */}
-        <div className="cp-panel" style={{ marginTop: 32 }}>
-          <div className="cp-panel-header">
-            <div className="cp-panel-icon">
-              <Sparkles size={14} color="#00e676" />
-            </div>
-            <span className="cp-panel-title">¿Qué incluye tu credencial?</span>
+        {/* Benefits */}
+        <Panel icon={Sparkles} title="¿Qué incluye tu credencial?">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
+            {benefits.map(([Icon, text], i) => (
+              <BenefitRow key={i} icon={Icon} text={text} />
+            ))}
           </div>
-          <div className="cp-panel-body">
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                gap: 16,
-              }}
-            >
-              {benefits.map(([Icon, text], i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 12,
-                    padding: '12px 0',
-                    borderBottom: '1px solid rgba(255,255,255,0.04)',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: 8,
-                      background: 'rgba(0,230,118,0.1)',
-                      border: '1px solid rgba(0,230,118,0.18)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                    }}
-                  >
-                    <Icon size={14} color="#00e676" />
-                  </div>
-                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>{text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        </Panel>
       </div>
+
       {paymentModal && (
         <DigitalCredentialPaymentModal
           isOpen={paymentModal.open}

@@ -131,6 +131,17 @@ import CoachTeamRegistrationPage from './pages/coaches/dashboard/CoachTeamRegist
 import { MapPin } from 'lucide-react';
 import StatesManagement from './pages/admin/dashboard/StatesManagement';
 
+// Equipment Store pages
+import StorePage from './pages/store/StorePage';
+import ProductDetailPage from './pages/store/ProductDetailPage';
+import CartPage from './pages/store/CartPage';
+import CheckoutPage from './pages/store/CheckoutPage';
+import OrderConfirmationPage from './pages/store/OrderConfirmationPage';
+import OrdersPage from './pages/store/OrdersPage';
+import OrderDetailPage from './pages/store/OrderDetailPage';
+import StoreManagement from './pages/admin/dashboard/store/StoreManagement';
+import StoreOrdersManagement from './pages/admin/dashboard/store/StoreOrdersManagement';
+
 // Referee pages
 import RefereeDashboardPage from './pages/referee/RefereeDashboardPage';
 import MatchRefereeScreen from './pages/referee/MatchRefereeScreen';
@@ -431,7 +442,50 @@ export const routes = [
     element: <InsufficientEntries />,
     public: true,
   },
-  // Referee standalone routes (no layout shell)
+  // ─── Equipment Store routes ───────────────────────────────────────────────
+  {
+    key: 'store',
+    path: '/store',
+    element: <StorePage />,
+    public: true,
+  },
+  {
+    key: 'store-product',
+    path: '/store/products/:productId',
+    element: <ProductDetailPage />,
+    public: true,
+  },
+  {
+    key: 'store-cart',
+    path: '/store/cart',
+    element: <CartPage />,
+    public: true,
+  },
+  {
+    key: 'store-checkout',
+    path: '/store/checkout',
+    element: <CheckoutPage />,
+    public: false,
+  },
+  {
+    key: 'store-order-confirmation',
+    path: '/store/order-confirmation/:orderNumber',
+    element: <OrderConfirmationPage />,
+    public: false,
+  },
+  {
+    key: 'store-orders',
+    path: '/store/orders',
+    element: <OrdersPage />,
+    public: false,
+  },
+  {
+    key: 'store-order-detail',
+    path: '/store/orders/:orderId',
+    element: <OrderDetailPage />,
+    public: false,
+  },
+  // ─── Referee standalone routes (no layout shell) ──────────────────────────
   {
     key: 'referee-dashboard',
     path: '/referee/dashboard',
@@ -573,6 +627,18 @@ export const routes = [
         key: 'admin-member-management',
         path: '/admin/dashboard/members',
         element: <MemberManagement />,
+        public: false,
+      },
+      {
+        key: 'admin-store-products',
+        path: '/admin/dashboard/store/products',
+        element: <StoreManagement />,
+        public: false,
+      },
+      {
+        key: 'admin-store-orders',
+        path: '/admin/dashboard/store/orders',
+        element: <StoreOrdersManagement />,
         public: false,
       },
     ],

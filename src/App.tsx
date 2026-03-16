@@ -24,6 +24,7 @@ const queryClient = new QueryClient();
 const AppContent = () => {
   const location = useLocation();
   const isDashboard = location.pathname.includes('/dashboard');
+  const isStore = location.pathname.startsWith('/store');
 
   const dispatch = useDispatch<AppDispatch>();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -69,9 +70,9 @@ const AppContent = () => {
   return (
     <>
       <ScrollToTop />
-      {!isDashboard && <Header />}
+      {!isDashboard && !isStore && <Header />}
       <Routes>{renderRoutes(routes)}</Routes>
-      {!isDashboard && <Footer />}
+      {!isDashboard && !isStore && <Footer />}
     </>
   );
 };

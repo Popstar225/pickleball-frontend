@@ -19,15 +19,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Check, AlertCircle, Crown, Star } from 'lucide-react';
+import { Loader2, Check, AlertCircle, Crown, Star, ChevronLeft, Lock, Zap } from 'lucide-react';
 import { Elements } from '@stripe/react-stripe-js';
 import PaymentService from '@/services/paymentService';
 import { PaymentForm } from './PaymentForm';
 import { stripePromise } from './StripeProvider';
+import { cn } from '@/lib/utils';
 
+/* ─── Types ──────────────────────────────────────────────────── */
 interface MembershipPlan {
   id: string;
   name: string;
@@ -48,6 +48,7 @@ interface MembershipSelectorProps {
   onSuccess?: (planType: string) => void;
 }
 
+/* ─── Plans data ─────────────────────────────────────────────── */
 const USER_TYPE_PLANS: Record<string, MembershipPlan[]> = {
   player: [
     {
@@ -112,8 +113,8 @@ const USER_TYPE_PLANS: Record<string, MembershipPlan[]> = {
       period: 'año',
       description: 'Plan premium con funcionalidades avanzadas para clubes',
       features: [
-        'Todo lo de la Membresía Anual +',
-        'Gestión de Canchas (Court Management)',
+        'Todo lo de la Membresía Anual',
+        'Gestión de Canchas',
         'Creación de Torneos',
         'Panel de análisis avanzado',
         'Soporte prioritario',
@@ -133,7 +134,7 @@ const USER_TYPE_PLANS: Record<string, MembershipPlan[]> = {
       description: 'Plan premium para socios y patrocinadores',
       features: [
         'Registro gratuito como socio',
-        'Gestión de Canchas (Court Management)',
+        'Gestión de Canchas',
         'Creación de Torneos',
         'Visibilidad en la plataforma',
         'Herramientas de patrocinio',
@@ -165,6 +166,7 @@ const USER_TYPE_PLANS: Record<string, MembershipPlan[]> = {
   ],
 };
 
+/* ─── Component ─────────────────────────────────────────────── */
 export const MembershipSelector = ({
   isOpen,
   onClose,
@@ -174,10 +176,7 @@ export const MembershipSelector = ({
 }: MembershipSelectorProps) => {
   const [selectedPlan, setSelectedPlan] = useState<MembershipPlan | null>(null);
   const [showPayment, setShowPayment] = useState(false);
-  const [paymentData, setPaymentData] = useState<{
-    paymentId: string;
-    clientSecret: string;
-  } | null>(null);
+  const [paymentData, setPaymentData] = useState<{ paymentId: string; clientSecret: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -187,23 +186,12 @@ export const MembershipSelector = ({
     setSelectedPlan(plan);
     setError(null);
     setLoading(true);
-
     try {
-      let response;
-      if (plan.type === 'annual_membership') {
-        response = await PaymentService.createAnnualMembershipPayment();
-      } else {
-        response = await PaymentService.createPremiumPlanPayment();
-      }
-
-      if (!response.success || !response.data) {
-        throw new Error('No se pudo crear la solicitud de pago');
-      }
-
-      setPaymentData({
-        paymentId: response.data.payment_id,
-        clientSecret: response.data.client_secret,
-      });
+      const response = plan.type === 'annual_membership'
+        ? await PaymentService.createAnnualMembershipPayment()
+        : await PaymentService.createPremiumPlanPayment();
+      if (!response.success || !response.data) throw new Error('No se pudo crear la solicitud de pago');
+      setPaymentData({ paymentId: response.data.payment_id, clientSecret: response.data.client_secret });
       setShowPayment(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al procesar el plan');
@@ -214,7 +202,6 @@ export const MembershipSelector = ({
 
   const handlePaymentSuccess = async (paymentIntentId: string) => {
     if (!selectedPlan || !paymentData) return;
-
     try {
       if (selectedPlan.type === 'annual_membership') {
         await PaymentService.confirmAnnualMembership(paymentData.paymentId, paymentIntentId);
@@ -237,146 +224,235 @@ export const MembershipSelector = ({
     onClose();
   };
 
-  const isPlanActive = (plan: MembershipPlan) => {
-    if (plan.type === 'annual_membership' && currentMembershipStatus === 'active') return true;
-    if (plan.type === 'premium_plan' && currentMembershipStatus === 'premium') return true;
-    return false;
-  };
+  const isPlanActive = (plan: MembershipPlan) =>
+    (plan.type === 'annual_membership' && currentMembershipStatus === 'active') ||
+    (plan.type === 'premium_plan' && currentMembershipStatus === 'premium');
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl">
-        <DialogHeader>
-          <DialogTitle>Planes de Membresía</DialogTitle>
-          <DialogDescription>
-            Selecciona el plan adecuado para acceder a todas las funcionalidades
-          </DialogDescription>
-        </DialogHeader>
-
-        {error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
+      <DialogContent
+        className={cn(
+          'font-["DM_Sans",sans-serif] bg-[#06080E] border border-[#C8FF00]/[0.12]',
+          'rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.8),0_0_80px_rgba(200,255,0,0.05)]',
+          'max-w-3xl p-0 overflow-hidden',
+          '[&>button]:text-white/30 [&>button]:hover:text-white [&>button]:border-none',
         )}
-
-        {showPayment && selectedPlan && paymentData ? (
-          <div className="space-y-4">
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <h3 className="font-semibold text-lg">{selectedPlan.name}</h3>
-              <p className="text-gray-600">
-                ${selectedPlan.price.toLocaleString()} {selectedPlan.currency}/{selectedPlan.period}
-              </p>
+      >
+        {/* Header */}
+        <div className="px-6 pt-6 pb-5 border-b border-[#C8FF00]/[0.07]">
+          <DialogHeader>
+            <div className="flex items-center gap-2.5 mb-1">
+              <div className="w-7 h-7 rounded-[8px] bg-[#C8FF00]/[0.08] border border-[#C8FF00]/[0.15] flex items-center justify-center flex-shrink-0">
+                <Zap className="w-3.5 h-3.5 text-[#C8FF00]" />
+              </div>
+              <DialogTitle className="font-['Syne',sans-serif] font-extrabold text-[18px] text-white tracking-tight">
+                Planes de Membresía
+              </DialogTitle>
             </div>
-            <Elements
-              stripe={stripePromise}
-              options={{ clientSecret: paymentData.clientSecret }}
-            >
-              <PaymentForm
-                paymentId={paymentData.paymentId}
-                clientSecret={paymentData.clientSecret}
-                amount={selectedPlan.price * 100}
-                currency="mxn"
-                description={`${selectedPlan.name} - ${selectedPlan.price.toLocaleString()} MXN/${selectedPlan.period}`}
-                onSuccess={handlePaymentSuccess}
-                onError={(err) => {
-                  setError(err);
-                  setShowPayment(false);
-                }}
-              />
-            </Elements>
-            <Button onClick={() => setShowPayment(false)} variant="outline" className="w-full">
-              Volver a los planes
-            </Button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-            {plans.map((plan) => {
-              const isActive = isPlanActive(plan);
-              const isSelected = selectedPlan?.id === plan.id;
+            <DialogDescription className="text-white/35 text-[13px] ml-9">
+              Selecciona el plan adecuado para acceder a todas las funcionalidades
+            </DialogDescription>
+          </DialogHeader>
+        </div>
 
-              return (
-                <Card
-                  key={plan.id}
-                  className={`p-6 relative transition-all ${
-                    plan.popular ? 'border-primary shadow-lg' : ''
-                  } ${isActive ? 'bg-green-50 border-green-400' : ''} ${
-                    isSelected ? 'ring-2 ring-primary' : ''
-                  }`}
-                >
-                  {plan.popular && !isActive && (
-                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary">
-                      <Star className="w-3 h-3 mr-1" />
-                      Recomendado
-                    </Badge>
-                  )}
+        <div className="px-6 py-5 space-y-5">
+          {/* Error */}
+          {error && (
+            <div className="flex items-center gap-3 p-3.5 bg-[#FF5A1F]/[0.08] border border-[#FF5A1F]/[0.25] rounded-xl">
+              <AlertCircle className="w-4 h-4 text-[#FF5A1F] flex-shrink-0" />
+              <p className="text-[13px] text-[#FF5A1F]">{error}</p>
+            </div>
+          )}
 
-                  {plan.type === 'premium_plan' && (
-                    <Badge className="absolute top-4 right-4 bg-yellow-500">
-                      <Crown className="w-3 h-3 mr-1" />
-                      Premium
-                    </Badge>
-                  )}
+          {/* ── Payment step ── */}
+          {showPayment && selectedPlan && paymentData ? (
+            <div className="space-y-4">
+              {/* Selected plan summary strip */}
+              <div className="flex items-center justify-between p-4 bg-[#C8FF00]/[0.05] border border-[#C8FF00]/[0.15] rounded-xl">
+                <div>
+                  <p className="font-['Syne',sans-serif] font-extrabold text-[14px] text-white">
+                    {selectedPlan.name}
+                  </p>
+                  <p className="text-[12px] text-white/40 mt-0.5">{selectedPlan.description}</p>
+                </div>
+                <div className="text-right flex-shrink-0 ml-4">
+                  <p className="font-['Syne',sans-serif] font-extrabold text-[22px] leading-none text-[#C8FF00]">
+                    ${selectedPlan.price.toLocaleString()}
+                  </p>
+                  <p className="text-[11px] text-white/30 mt-0.5">
+                    {selectedPlan.currency} / {selectedPlan.period}
+                  </p>
+                </div>
+              </div>
 
-                  {isActive && (
-                    <Badge className="absolute top-4 right-4 bg-green-600">
-                      Plan Activo
-                    </Badge>
-                  )}
+              <Elements stripe={stripePromise} options={{ clientSecret: paymentData.clientSecret }}>
+                <PaymentForm
+                  paymentId={paymentData.paymentId}
+                  clientSecret={paymentData.clientSecret}
+                  amount={selectedPlan.price * 100}
+                  currency="mxn"
+                  description={`${selectedPlan.name} - ${selectedPlan.price.toLocaleString()} MXN/${selectedPlan.period}`}
+                  onSuccess={handlePaymentSuccess}
+                  onError={(err) => { setError(err); setShowPayment(false); }}
+                />
+              </Elements>
 
-                  <div className="mb-4">
-                    <h3 className="text-xl font-bold">{plan.name}</h3>
-                    <p className="text-gray-600 text-sm mt-1">{plan.description}</p>
-                  </div>
+              <Button
+                onClick={() => setShowPayment(false)}
+                variant="ghost"
+                className="w-full text-white/40 hover:text-white hover:bg-white/[0.05] rounded-xl gap-2 text-[13px]"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" /> Volver a los planes
+              </Button>
+            </div>
+          ) : (
+            /* ── Plan selection ── */
+            <>
+              <div className={cn(
+                'grid gap-4',
+                plans.length === 1 ? 'grid-cols-1 max-w-md mx-auto' : 'grid-cols-1 md:grid-cols-2',
+              )}>
+                {plans.map(plan => {
+                  const isActive = isPlanActive(plan);
+                  const isProcessing = loading && selectedPlan?.id === plan.id;
+                  const isPremium = plan.type === 'premium_plan';
 
-                  <div className="mb-6">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-bold">${plan.price.toLocaleString()}</span>
-                      <span className="text-gray-500">{plan.currency}</span>
-                    </div>
-                    <p className="text-gray-500 text-sm">por {plan.period}</p>
-                  </div>
+                  return (
+                    <div
+                      key={plan.id}
+                      className={cn(
+                        'relative rounded-2xl p-5 border transition-all duration-200',
+                        plan.popular && !isActive
+                          ? 'bg-[#C8FF00]/[0.05] border-[#C8FF00]/[0.3]'
+                          : 'bg-white/[0.025] border-white/[0.08]',
+                        isActive && 'bg-[#C8FF00]/[0.05] border-[#C8FF00]/[0.25] opacity-80',
+                      )}
+                    >
+                      {/* Popular ribbon */}
+                      {plan.popular && !isActive && (
+                        <div className="absolute top-3 right-[-34px] bg-[#C8FF00] text-black px-10 py-0.5 rotate-45 font-['Syne',sans-serif] text-[9px] font-extrabold tracking-[1px] overflow-hidden">
+                          POPULAR
+                        </div>
+                      )}
 
-                  <div className="space-y-2 mb-6">
-                    {plan.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-start gap-2">
-                        <Check className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
-                        <span className="text-sm">{feature}</span>
+                      {/* Active badge */}
+                      {isActive && (
+                        <div className="absolute top-4 right-4 inline-flex items-center gap-1 bg-[#C8FF00]/[0.12] border border-[#C8FF00]/[0.25] rounded-full px-2.5 py-0.5 text-[10px] font-bold font-['Syne',sans-serif] text-[#C8FF00] tracking-wide">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#C8FF00]" /> ACTIVO
+                        </div>
+                      )}
+
+                      {/* Plan type pill */}
+                      <div className="flex items-center gap-2 mb-4">
+                        <div className={cn(
+                          'w-8 h-8 rounded-[9px] flex items-center justify-center flex-shrink-0',
+                          isPremium
+                            ? 'bg-amber-400/[0.12] border border-amber-400/[0.2]'
+                            : 'bg-[#C8FF00]/[0.08] border border-[#C8FF00]/[0.15]',
+                        )}>
+                          {isPremium
+                            ? <Crown className="w-4 h-4 text-amber-400" />
+                            : <Star className="w-4 h-4 text-[#C8FF00]" />}
+                        </div>
+                        <span className={cn(
+                          'text-[10px] font-bold font-["Syne",sans-serif] tracking-[1.5px] uppercase',
+                          isPremium ? 'text-amber-400' : 'text-[#C8FF00]',
+                        )}>
+                          {isPremium ? 'Premium' : 'Membresía'}
+                        </span>
                       </div>
-                    ))}
-                  </div>
 
-                  <Button
-                    className="w-full"
-                    variant={plan.popular ? 'default' : 'outline'}
-                    onClick={() => handleSelectPlan(plan)}
-                    disabled={isActive || loading}
-                  >
-                    {loading && selectedPlan?.id === plan.id ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Procesando...
-                      </>
-                    ) : isActive ? (
-                      'Plan Activo'
-                    ) : (
-                      `Contratar - $${plan.price.toLocaleString()} MXN`
-                    )}
-                  </Button>
-                </Card>
-              );
-            })}
-          </div>
-        )}
+                      {/* Name + description */}
+                      <h3 className="font-['Syne',sans-serif] font-extrabold text-[16px] text-white mb-0.5">
+                        {plan.name}
+                      </h3>
+                      <p className="text-[12px] text-white/35 mb-4 leading-relaxed">
+                        {plan.description}
+                      </p>
 
-        {userType === 'partner' && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-700">
-              <strong>Registro gratuito:</strong> Tu registro como socio es completamente gratuito.
-              El Plan Premium te permite acceder a funcionalidades avanzadas de gestión de canchas y creación de torneos.
-            </p>
-          </div>
-        )}
+                      {/* Price */}
+                      <div className="flex items-baseline gap-1.5 mb-5">
+                        <span className={cn(
+                          'font-["Syne",sans-serif] font-extrabold text-[34px] leading-none tracking-tight',
+                          isPremium ? 'text-amber-400' : 'text-[#C8FF00]',
+                        )}>
+                          ${plan.price.toLocaleString()}
+                        </span>
+                        <span className="text-[12px] text-white/30">{plan.currency}</span>
+                        <span className="text-[12px] text-white/25">/ {plan.period}</span>
+                      </div>
+
+                      {/* Divider */}
+                      <div className="h-px bg-white/[0.06] mb-4" />
+
+                      {/* Features */}
+                      <ul className="space-y-2.5 mb-5">
+                        {plan.features.map((feat, i) => (
+                          <li key={i} className="flex items-start gap-2.5 text-[12px] text-white/60">
+                            <div className={cn(
+                              'w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 mt-px',
+                              isPremium
+                                ? 'bg-amber-400/[0.12] border border-amber-400/[0.2]'
+                                : 'bg-[#C8FF00]/[0.1] border border-[#C8FF00]/[0.2]',
+                            )}>
+                              <Check className={cn(
+                                'w-2.5 h-2.5',
+                                isPremium ? 'text-amber-400' : 'text-[#C8FF00]',
+                              )} />
+                            </div>
+                            {feat}
+                          </li>
+                        ))}
+                      </ul>
+
+                      {/* CTA */}
+                      <Button
+                        onClick={() => handleSelectPlan(plan)}
+                        disabled={isActive || loading}
+                        className={cn(
+                          'w-full rounded-xl font-["Syne",sans-serif] font-extrabold text-[13px] gap-2',
+                          isActive
+                            ? 'bg-white/[0.06] text-white/30 cursor-not-allowed border border-white/[0.1]'
+                            : isPremium
+                              ? 'bg-amber-400 text-black hover:bg-amber-300 shadow-[0_4px_18px_rgba(251,191,36,0.25)]'
+                              : 'bg-[#C8FF00] text-black hover:bg-[#d6ff26] shadow-[0_4px_18px_rgba(200,255,0,0.28)]',
+                        )}
+                      >
+                        {isProcessing ? (
+                          <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Procesando...</>
+                        ) : isActive ? (
+                          <><Check className="w-3.5 h-3.5" /> Plan Activo</>
+                        ) : (
+                          `Contratar · $${plan.price.toLocaleString()} MXN`
+                        )}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Partner info note */}
+              {userType === 'partner' && (
+                <div className="flex items-start gap-3 p-4 bg-blue-500/[0.07] border border-blue-500/[0.2] rounded-xl">
+                  <Lock className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-[12px] text-blue-300 leading-relaxed">
+                    <span className="font-bold text-blue-200">Registro gratuito: </span>
+                    Tu registro como socio es completamente gratuito. El Plan Premium te permite acceder a
+                    funcionalidades avanzadas de gestión de canchas y creación de torneos.
+                  </p>
+                </div>
+              )}
+
+              {/* Security note */}
+              <div className="flex items-center justify-center gap-2 text-[11px] text-white/20">
+                <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                Pagos procesados de forma segura con Stripe
+              </div>
+            </>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
