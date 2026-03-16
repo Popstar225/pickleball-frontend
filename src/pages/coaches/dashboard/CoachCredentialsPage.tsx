@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import { fetchMyCoachCredential, createCoachCredential } from '@/store/slices/coachDashboardSlice';
+import { fetchMyCoachCredential } from '@/store/slices/coachDashboardSlice';
+import { DigitalCredentialPaymentModal } from '@/components/payment/DigitalCredentialPaymentModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -471,7 +472,12 @@ export default function CoachCredentialsPage() {
     (state: RootState) => state.coachDashboard,
   );
   const [isRenewing, setIsRenewing] = useState(false);
-  const [creationStep, setCreationStep] = useState<'select' | 'processing' | null>(null);
+  const [paymentModal, setPaymentModal] = useState<{
+    open: boolean;
+    planType: 'basic' | 'membership' | 'premium';
+    planName: string;
+    amount: number;
+  } | null>(null);
 
   useEffect(() => {
     if (document.getElementById('cp-keyframes')) return;
@@ -521,15 +527,27 @@ export default function CoachCredentialsPage() {
     },
   ];
 
-  const handleCreateCredential = async (planId: string) => {
-    setCreationStep('processing');
-    try {
-      await dispatch(createCoachCredential()).unwrap();
-      setCreationStep(null);
-    } catch (err) {
-      console.error('Failed to create credential:', err);
-      setCreationStep(null);
-    }
+  // Coach plan IDs → backend plan_type mapping
+  const COACH_PLAN_TYPE_MAP: Record<string, 'basic' | 'membership' | 'premium'> = {
+    basic: 'basic',
+    professional: 'membership',
+    elite: 'premium',
+  };
+
+  const handleCreateCredential = (planId: string) => {
+    const plan = paymentPlans.find((p) => p.id === planId);
+    if (!plan) return;
+    setPaymentModal({
+      open: true,
+      planType: COACH_PLAN_TYPE_MAP[planId] || 'membership',
+      planName: plan.name,
+      amount: plan.price,
+    });
+  };
+
+  const handlePaymentSuccess = () => {
+    setPaymentModal(null);
+    dispatch(fetchMyCoachCredential());
   };
 
   const handleRenew = () => {
@@ -1034,7 +1052,7 @@ export default function CoachCredentialsPage() {
             </ul>
             <Button
               onClick={() => handleCreateCredential(plan.id)}
-              disabled={creationStep === 'processing'}
+              disabled={false}
               className="w-full font-bold rounded-[10px] text-[13px] py-3 h-auto"
               style={{
                 background: plan.popular ? '#00e676' : 'rgba(0,230,118,0.1)',
@@ -1043,7 +1061,7 @@ export default function CoachCredentialsPage() {
                 boxShadow: plan.popular ? '0 4px 16px rgba(0,230,118,0.3)' : 'none',
               }}
             >
-              {creationStep === 'processing' ? 'Procesando...' : 'Seleccionar Plan'}
+              Seleccionar Plan
             </Button>
           </div>
         ))}
@@ -1081,6 +1099,17 @@ export default function CoachCredentialsPage() {
           </div>
         </div>
       </Panel>
+      {paymentModal && (
+        <DigitalCredentialPaymentModal
+          isOpen={paymentModal.open}
+          onClose={() => setPaymentModal(null)}
+          planType={paymentModal.planType}
+          planName={paymentModal.planName}
+          amount={paymentModal.amount}
+          userType="coach"
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </Shell>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { compressImage } from '@/lib/imageCompress';
 import { useDispatch, useSelector } from 'react-redux';
 import { useToast } from '@/hooks/use-toast';
 import { AppDispatch, RootState } from '@/store';
@@ -172,15 +173,15 @@ export default function PlayerAccountPage() {
     setIsEditing(false);
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) { toast({ title: 'Archivo inválido', variant: 'destructive' }); return; }
-    if (file.size > 5 * 1024 * 1024) { toast({ title: 'Archivo muy grande (máx 5 MB)', variant: 'destructive' }); return; }
-    setSelectedFile(file);
+    const compressed = await compressImage(file);
+    setSelectedFile(compressed);
     const reader = new FileReader();
     reader.onload = ev => setPreviewUrl(ev.target?.result as string);
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(compressed);
   };
 
   const handleDeleteAccount = async () => {

@@ -396,6 +396,38 @@ class PaymentService {
   }
 
   /**
+   * Create payment intent for digital credential (player/coach)
+   */
+  static async createDigitalCredentialPayment(planType: 'basic' | 'membership' | 'premium'): Promise<{
+    success: boolean;
+    data: { payment_id: string; client_secret: string; amount: number; currency: string; plan_type: string };
+  }> {
+    try {
+      const response = await apiClient.post('/payments/digital-credential', { plan_type: planType });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Confirm digital credential payment and issue the credential
+   */
+  static async confirmDigitalCredentialPayment(
+    paymentId: string,
+    paymentIntentId: string,
+  ): Promise<{ success: boolean; data: { payment: Payment; credential: any } }> {
+    try {
+      const response = await apiClient.post(`/payments/digital-credential/${paymentId}/confirm`, {
+        payment_intent_id: paymentIntentId,
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
    * Create payment for coach license
    */
   static async createCoachLicensePayment(

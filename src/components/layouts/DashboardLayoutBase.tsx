@@ -18,6 +18,7 @@ import {
   Settings,
   MessageSquare,
   Megaphone,
+  Star,
 } from 'lucide-react';
 
 export type NavItem = {
@@ -60,6 +61,8 @@ export default function DashboardLayoutBase({
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
+  const authUser = useSelector((s: RootState) => s.auth.user);
+  const needsMembership = authUser?.membership_status === 'free';
   const unreadMessages = useSelector((s: RootState) => s.messages.unreadTotal);
   const announcementsUnread = useSelector((s: RootState) => s.messages.announcementsUnread);
   const conversations = useSelector((s: RootState) => s.messages.conversations);
@@ -287,6 +290,16 @@ export default function DashboardLayoutBase({
           </div>
 
           <div className="flex items-center gap-2">
+            {needsMembership && (
+              <Button
+                size="sm"
+                className="hidden sm:flex items-center gap-1.5 bg-primary hover:bg-primary/90 text-black font-semibold text-xs px-3 h-8"
+                onClick={() => navigate(`${basePath}/payments`)}
+              >
+                <Star className="h-3.5 w-3.5" />
+                Obtener Membresía
+              </Button>
+            )}
             <div className="relative hidden md:block">
               {!searchOpen ? (
                 <Button

@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
 import { RootState } from '@/store';
 import { LayoutDashboard, User, Trophy, Zap, Users, Building2, Grid3X3, MessageSquare, BarChart2, CheckSquare, CalendarDays, Receipt } from 'lucide-react';
+import { getFullImageUrl } from '@/common/tools';
 
 const navItems: NavItem[] = [
   {
@@ -93,7 +94,7 @@ export default function StateDashboardLayout() {
         name: user.full_name || user.username || 'Delegación Estatal',
         email: user.email || '',
         role: 'Delegación Estatal',
-        avatar: user.profile_photo || null,
+        avatar: getFullImageUrl(user.profile_photo) || null,
       }
     : stateUser;
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { compressImage } from '@/lib/imageCompress';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -113,11 +114,13 @@ const OptionalFieldsPage = () => {
     });
   };
 
-  const handleFileChange = (name: string, file: File | null) => {
-    setFiles((prev) => ({
-      ...prev,
-      [name]: file,
-    }));
+  const handleFileChange = async (name: string, file: File | null) => {
+    if (file && name === 'profile_photo') {
+      const compressed = await compressImage(file);
+      setFiles((prev) => ({ ...prev, [name]: compressed }));
+    } else {
+      setFiles((prev) => ({ ...prev, [name]: file }));
+    }
   };
 
   const handleDrag = (e: React.DragEvent, type: 'profile' | 'document') => {

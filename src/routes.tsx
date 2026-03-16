@@ -23,6 +23,7 @@ import Courts from './pages/admin/Courts';
 import Tournaments from './pages/admin/Tournaments';
 import PressReleases from './pages/communication/PressReleases';
 import Partners from './pages/partners/Partners';
+import PricingPage from './pages/pricing/PricingPage';
 
 // Auth pages
 import LoginPage from './pages/auth/LoginPage';
@@ -337,6 +338,12 @@ export const routes = [
     key: 'partners',
     path: '/partners',
     element: <Partners />,
+    public: true,
+  },
+  {
+    key: 'pricing',
+    path: '/pricing',
+    element: <PricingPage />,
     public: true,
   },
   {

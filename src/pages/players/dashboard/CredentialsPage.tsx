@@ -3,8 +3,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import {
   fetchMyDigitalCredential,
-  createDigitalCredential,
 } from '@/store/slices/digitalCredentialsSlice';
+import { DigitalCredentialPaymentModal } from '@/components/payment/DigitalCredentialPaymentModal';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -613,7 +613,12 @@ export default function PlayerCredentialsPage() {
     (state: RootState) => state.digitalCredentials,
   );
   const [isRenewing, setIsRenewing] = useState(false);
-  const [creationStep, setCreationStep] = useState<'select' | 'processing' | null>(null);
+  const [paymentModal, setPaymentModal] = useState<{
+    open: boolean;
+    planType: 'basic' | 'membership' | 'premium';
+    planName: string;
+    amount: number;
+  } | null>(null);
 
   // Fetch credential on mount
   useEffect(() => {
@@ -665,18 +670,21 @@ export default function PlayerCredentialsPage() {
     },
   ];
 
-  // Handle create credential
-  const handleCreateCredential = async (planId: string) => {
-    setCreationStep('processing');
-    try {
-      // In a real app, this would initiate payment
-      // For now, we'll just create the credential
-      await dispatch(createDigitalCredential()).unwrap();
-      setCreationStep(null);
-    } catch (err) {
-      console.error('Failed to create credential:', err);
-      setCreationStep(null);
-    }
+  // Open payment modal for the selected plan
+  const handleCreateCredential = (planId: string) => {
+    const plan = paymentPlans.find((p) => p.id === planId);
+    if (!plan) return;
+    setPaymentModal({
+      open: true,
+      planType: planId as 'basic' | 'membership' | 'premium',
+      planName: plan.name,
+      amount: plan.price,
+    });
+  };
+
+  const handlePaymentSuccess = () => {
+    setPaymentModal(null);
+    dispatch(fetchMyDigitalCredential());
   };
 
   const handleRenew = () => {
@@ -1244,7 +1252,7 @@ export default function PlayerCredentialsPage() {
 
               <Button
                 onClick={() => handleCreateCredential(plan.id)}
-                disabled={creationStep === 'processing'}
+                disabled={false}
                 style={{
                   width: '100%',
                   background: plan.popular ? '#00e676' : 'rgba(0,230,118,0.1)',
@@ -1257,7 +1265,7 @@ export default function PlayerCredentialsPage() {
                   boxShadow: plan.popular ? '0 4px 16px rgba(0,230,118,0.3)' : 'none',
                 }}
               >
-                {creationStep === 'processing' ? 'Procesando...' : 'Seleccionar Plan'}
+                Seleccionar Plan
               </Button>
             </div>
           ))}
@@ -1312,6 +1320,17 @@ export default function PlayerCredentialsPage() {
           </div>
         </div>
       </div>
+      {paymentModal && (
+        <DigitalCredentialPaymentModal
+          isOpen={paymentModal.open}
+          onClose={() => setPaymentModal(null)}
+          planType={paymentModal.planType}
+          planName={paymentModal.planName}
+          amount={paymentModal.amount}
+          userType="player"
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 }

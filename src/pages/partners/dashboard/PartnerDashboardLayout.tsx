@@ -2,6 +2,7 @@ import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
 import { RootState } from '@/store';
 import { LayoutDashboard, User, MessageSquare, Receipt } from 'lucide-react';
+import { getFullImageUrl } from '@/common/tools';
 
 const navItems: NavItem[] = [
   {
@@ -45,7 +46,7 @@ export default function PartnerDashboardLayout() {
         name: user.business_name || user.full_name || user.username || 'Partner',
         email: user.email || '',
         role: 'Socio',
-        avatar: user.profile_photo || null,
+        avatar: getFullImageUrl(user.profile_photo) || null,
       }
     : partnerUser;
 

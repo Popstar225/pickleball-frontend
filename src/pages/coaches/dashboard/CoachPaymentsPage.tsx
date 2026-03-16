@@ -1,252 +1,205 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
-import { FileText } from 'lucide-react';
 import {
-  DollarSign,
-  CreditCard,
-  Calendar,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  Download,
-  Receipt,
-  TrendingUp,
-  Wallet,
-  Users,
-  Award,
-  Plus,
-  Star,
+  DollarSign, CreditCard, Calendar, CheckCircle, Clock, AlertCircle,
+  Receipt, Award, Star, Loader2, FileText,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { MembershipSelector } from '@/components/payment/MembershipSelector';
+import PaymentService, { type Payment } from '@/services/paymentService';
+import { Elements } from '@stripe/react-stripe-js';
+import { stripePromise } from '@/components/payment/StripeProvider';
+import { PaymentForm } from '@/components/payment/PaymentForm';
+
+function getUserIdFromToken(): string | null {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
+  try { return JSON.parse(atob(token.split('.')[1])).userId || null; } catch { return null; }
+}
+
+const LICENSE_TIERS = [
+  { type: 'basic',        label: 'Licencia Básica',        amount: 800 },
+  { type: 'professional', label: 'Licencia Profesional',   amount: 1500 },
+  { type: 'advanced',     label: 'Licencia Avanzada',      amount: 2500 },
+];
 
 export default function CoachPaymentsPage() {
   const { toast } = useToast();
+
+  const [membership, setMembership] = useState<any>(null);
+  const [payments, setPayments] = useState<Payment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showMembershipModal, setShowMembershipModal] = useState(false);
-  const [showLicenseModal, setShowLicenseModal] = useState(false);
 
-  // Mock payments data - in real app this would come from Redux/API
-  const payments = [
-    {
-      id: 1,
-      description: 'Membresía Anual - Entrenador 2024',
-      amount: 800,
-      currency: 'MXN',
-      status: 'completed',
-      date: '2024-01-01T09:00:00',
-      method: 'Stripe',
-      transactionId: 'txn_annual_2024',
-      type: 'annual_membership',
-      invoiceUrl: '#',
-    },
-    {
-      id: 2,
-      description: 'Licencia Profesional Entrenador - 2024',
-      amount: 1500,
-      currency: 'MXN',
-      status: 'completed',
-      date: '2024-01-15T10:30:00',
-      method: 'Stripe',
-      transactionId: 'txn_1234567890',
-      type: 'coach_license',
-      invoiceUrl: '#',
-    },
-    {
-      id: 3,
-      description: 'Licencia Nivel Avanzado',
-      amount: 2500,
-      currency: 'MXN',
-      status: 'pending',
-      date: '2024-02-01T00:00:00',
-      method: 'Stripe',
-      transactionId: null,
-      type: 'coach_license',
-      invoiceUrl: null,
-    },
-  ];
+  const [licensePaymentData, setLicensePaymentData] = useState<{ paymentId: string; clientSecret: string; label: string; amount: number } | null>(null);
+  const [licenseLoading, setLicenseLoading] = useState<string | null>(null);
 
-  const membershipStatus = {
-    status: 'active',
-    expiresAt: '2025-01-01',
-    annualFee: 800,
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const userId = getUserIdFromToken();
+      const [membershipRes, paymentsRes] = await Promise.all([
+        PaymentService.getMembershipStatus(),
+        userId ? PaymentService.getUserPaymentHistory(userId, 1, 50) : Promise.resolve({ success: false, data: [], pagination: {} }),
+      ]);
+      if (membershipRes.success) setMembership(membershipRes.data);
+      if (paymentsRes.success) {
+        const list = (paymentsRes.data as any)?.payments ?? (paymentsRes.data as any) ?? [];
+        setPayments(Array.isArray(list) ? list : []);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error cargando datos');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const paymentStats = {
-    totalPaid: payments.filter(p => p.status === 'completed').reduce((s, p) => s + p.amount, 0),
+  useEffect(() => { loadData(); }, []);
+
+  const handleBuyLicense = async (tier: typeof LICENSE_TIERS[0]) => {
+    setLicenseLoading(tier.type);
+    try {
+      const res = await PaymentService.createCoachLicensePayment(tier.type, tier.amount);
+      if (res.success && res.data) {
+        setLicensePaymentData({ paymentId: res.data.payment_id, clientSecret: res.data.client_secret, label: tier.label, amount: tier.amount });
+      }
+    } catch (err) {
+      toast({ title: 'Error', description: err instanceof Error ? err.message : 'Error al procesar', variant: 'destructive' });
+    } finally {
+      setLicenseLoading(null);
+    }
+  };
+
+  const handleLicensePaymentSuccess = async (paymentIntentId: string) => {
+    if (!licensePaymentData) return;
+    try {
+      await PaymentService.confirmPayment(licensePaymentData.paymentId, { payment_intent_id: paymentIntentId });
+      toast({ title: '¡Licencia adquirida!', description: `${licensePaymentData.label} activada exitosamente.` });
+      setLicensePaymentData(null);
+      loadData();
+    } catch {
+      toast({ title: 'Error', description: 'Error confirmando el pago', variant: 'destructive' });
+    }
+  };
+
+  const isActive = membership && ['active', 'premium'].includes(membership.membership_status) && !membership.is_expired;
+  const stats = {
+    totalPaid: payments.filter(p => p.status === 'completed').reduce((s, p) => s + Number(p.amount), 0),
     pendingPayments: payments.filter(p => p.status === 'pending').length,
-    nextRenewal: '2025-01-01',
-  };
-
-  const handleProcessPayment = (paymentId: number) => {
-    toast({
-      title: 'Procesando pago',
-      description: 'Redirigiendo a Stripe para completar el pago...',
-    });
-  };
-
-  const handleDownloadInvoice = (paymentId: number) => {
-    toast({
-      title: 'Descargando factura',
-      description: 'La factura se está descargando...',
-    });
+    nextRenewal: membership?.membership_expires_at,
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'completed':
-        return (
-          <Badge className="bg-green-600 hover:bg-green-700">
-            <CheckCircle className="h-3 w-3 mr-1" />
-            Completado
-          </Badge>
-        );
-      case 'pending':
-        return (
-          <Badge className="bg-yellow-600 hover:bg-yellow-700">
-            <Clock className="h-3 w-3 mr-1" />
-            Pendiente
-          </Badge>
-        );
-      case 'failed':
-        return (
-          <Badge variant="destructive">
-            <AlertCircle className="h-3 w-3 mr-1" />
-            Fallido
-          </Badge>
-        );
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
+      case 'completed': return <Badge className="bg-green-600"><CheckCircle className="h-3 w-3 mr-1" />Completado</Badge>;
+      case 'pending': return <Badge className="bg-yellow-600"><Clock className="h-3 w-3 mr-1" />Pendiente</Badge>;
+      case 'failed': return <Badge variant="destructive"><AlertCircle className="h-3 w-3 mr-1" />Fallido</Badge>;
+      default: return <Badge variant="secondary">{status}</Badge>;
     }
   };
 
-  const getTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      annual_membership: 'Membresía Anual',
-      coach_license: 'Licencia',
-      certification: 'Certificación',
-      coaching: 'Entrenamiento',
-    };
-    return labels[type] || type;
-  };
+  const getTypeLabel = (type: string) => ({
+    annual_membership: 'Membresía Anual', coach_license: 'Licencia', certification: 'Certificación',
+  }[type] || type);
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'annual_membership':
-        return <Star className="h-4 w-4 text-primary" />;
-      case 'coach_license':
-        return <Award className="h-4 w-4 text-yellow-500" />;
-      case 'certification':
-        return <FileText className="h-4 w-4 text-blue-500" />;
-      default:
-        return <DollarSign className="h-4 w-4 text-slate-400" />;
-    }
-  };
+  if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white">Pagos y Facturación</h1>
-          <p className="text-slate-400 mt-1">
-            Gestiona tu membresía anual y licencias de entrenador
-          </p>
-        </div>
+      <div>
+        <h1 className="text-3xl font-bold text-white">Pagos y Facturación</h1>
+        <p className="text-slate-400 mt-1">Gestiona tu membresía anual y licencias de entrenador</p>
       </div>
 
-      {/* Membership & License Cards */}
+      {error && (
+        <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+          <AlertCircle className="h-5 w-5 text-red-400" />
+          <p className="text-sm text-red-300">{error}</p>
+          <Button size="sm" variant="outline" onClick={loadData} className="ml-auto border-red-500/30 text-red-300">Reintentar</Button>
+        </div>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2">
         {/* Annual Membership */}
-        <Card className={`border-2 ${membershipStatus.status === 'active' ? 'border-green-600 bg-green-900/20' : 'bg-slate-900 border-slate-800'}`}>
+        <Card className={`border-2 ${isActive ? 'border-green-600 bg-green-900/20' : 'bg-slate-900 border-red-600/50'}`}>
           <CardHeader className="pb-3">
             <CardTitle className="text-white flex items-center gap-2">
               <Star className="h-5 w-5 text-primary" />
               Membresía Anual
             </CardTitle>
-            <CardDescription className="text-slate-400">
-              Cuota anual obligatoria para entrenadores
-            </CardDescription>
+            <CardDescription className="text-slate-400">Cuota anual obligatoria para entrenadores</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div>
-                <Badge className={membershipStatus.status === 'active' ? 'bg-green-600' : 'bg-red-600'}>
-                  {membershipStatus.status === 'active' ? 'Activa' : 'Inactiva'}
-                </Badge>
-                <p className="text-2xl font-bold text-white mt-2">${membershipStatus.annualFee.toLocaleString()} MXN/año</p>
-                {membershipStatus.status === 'active' && (
-                  <p className="text-sm text-slate-400 mt-1">
-                    Vence: {new Date(membershipStatus.expiresAt).toLocaleDateString('es-MX')}
-                  </p>
-                )}
-              </div>
-              <Button
-                className="w-full"
-                variant={membershipStatus.status === 'active' ? 'outline' : 'default'}
-                onClick={() => setShowMembershipModal(true)}
-              >
-                <CreditCard className="h-4 w-4 mr-2" />
-                {membershipStatus.status === 'active' ? 'Renovar Membresía' : 'Activar Membresía'}
-              </Button>
-            </div>
+          <CardContent className="space-y-3">
+            <Badge className={isActive ? 'bg-green-600' : 'bg-red-600'}>
+              {isActive ? 'Activa' : membership?.is_expired ? 'Vencida' : 'Inactiva'}
+            </Badge>
+            <p className="text-2xl font-bold text-white">${(membership?.annual_fee || 800).toLocaleString()} MXN/año</p>
+            {isActive && membership?.membership_expires_at && (
+              <p className="text-sm text-slate-400">Vence: {new Date(membership.membership_expires_at).toLocaleDateString('es-MX')}</p>
+            )}
+            <Button className="w-full" variant={isActive ? 'outline' : 'default'} onClick={() => setShowMembershipModal(true)}>
+              <CreditCard className="h-4 w-4 mr-2" />
+              {isActive ? 'Renovar Membresía' : 'Activar Membresía'}
+            </Button>
           </CardContent>
         </Card>
 
-        {/* Coach License */}
+        {/* Coach Licenses */}
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="pb-3">
             <CardTitle className="text-white flex items-center gap-2">
               <Award className="h-5 w-5 text-yellow-500" />
               Licencias de Entrenador
             </CardTitle>
-            <CardDescription className="text-slate-400">
-              Adquiere licencias profesionales a través de la plataforma
-            </CardDescription>
+            <CardDescription className="text-slate-400">Adquiere certificaciones a través de la plataforma</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center p-2 bg-slate-800/50 rounded">
-                  <span className="text-slate-300 text-sm">Licencia Básica</span>
-                  <span className="text-white font-medium">$800 MXN</span>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-slate-800/50 rounded">
-                  <span className="text-slate-300 text-sm">Licencia Profesional</span>
-                  <span className="text-white font-medium">$1,500 MXN</span>
-                </div>
-                <div className="flex justify-between items-center p-2 bg-slate-800/50 rounded">
-                  <span className="text-slate-300 text-sm">Licencia Avanzada</span>
-                  <span className="text-white font-medium">$2,500 MXN</span>
-                </div>
+            {licensePaymentData ? (
+              <div className="space-y-3">
+                <p className="text-white font-medium">{licensePaymentData.label} — ${licensePaymentData.amount.toLocaleString()} MXN</p>
+                <Elements stripe={stripePromise} options={{ clientSecret: licensePaymentData.clientSecret }}>
+                  <PaymentForm
+                    paymentId={licensePaymentData.paymentId}
+                    clientSecret={licensePaymentData.clientSecret}
+                    amount={licensePaymentData.amount * 100}
+                    currency="mxn"
+                    description={licensePaymentData.label}
+                    onSuccess={handleLicensePaymentSuccess}
+                    onError={(err) => { toast({ title: 'Error', description: err, variant: 'destructive' }); setLicensePaymentData(null); }}
+                  />
+                </Elements>
+                <Button variant="outline" className="w-full" onClick={() => setLicensePaymentData(null)}>Cancelar</Button>
               </div>
-              <Button
-                className="w-full"
-                onClick={() => {
-                  toast({
-                    title: 'Compra de Licencia',
-                    description: 'Próximamente: selección y pago de licencias en la plataforma.',
-                  });
-                }}
-              >
-                <Award className="h-4 w-4 mr-2" />
-                Comprar Licencia
-              </Button>
-            </div>
+            ) : (
+              <div className="space-y-2">
+                {LICENSE_TIERS.map(tier => (
+                  <div key={tier.type} className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
+                    <div>
+                      <p className="text-white font-medium text-sm">{tier.label}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-white font-bold text-sm">${tier.amount.toLocaleString()} MXN</span>
+                      <Button size="sm" variant="outline" onClick={() => handleBuyLicense(tier)} disabled={!isActive || licenseLoading === tier.type} className="border-slate-600 text-white">
+                        {licenseLoading === tier.type ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Comprar'}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {!isActive && <p className="text-xs text-slate-500 mt-2">Se requiere membresía anual activa</p>}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Payment Stats */}
+      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -254,24 +207,20 @@ export default function CoachPaymentsPage() {
             <DollarSign className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">
-              ${paymentStats.totalPaid.toLocaleString()}
-            </div>
+            <div className="text-2xl font-bold text-white">${stats.totalPaid.toLocaleString()}</div>
             <p className="text-xs text-slate-400">MXN este año</p>
           </CardContent>
         </Card>
-
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-400">Pagos Pendientes</CardTitle>
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-white">{paymentStats.pendingPayments}</div>
+            <div className="text-2xl font-bold text-white">{stats.pendingPayments}</div>
             <p className="text-xs text-slate-400">Por procesar</p>
           </CardContent>
         </Card>
-
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-400">Próxima Renovación</CardTitle>
@@ -279,141 +228,66 @@ export default function CoachPaymentsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
-              {new Date(paymentStats.nextRenewal).toLocaleDateString('es-MX')}
+              {stats.nextRenewal ? new Date(stats.nextRenewal).toLocaleDateString('es-MX') : '—'}
             </div>
             <p className="text-xs text-slate-400">Membresía anual</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Upcoming Payments Alert */}
-      {payments.some(p => p.status === 'pending') && (
-        <Card className="bg-gradient-to-r from-yellow-900/20 to-yellow-800/20 border-yellow-700">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-full bg-yellow-600/20">
-                <AlertCircle className="h-8 w-8 text-yellow-500" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-semibold text-white">Pagos Pendientes</h3>
-                <p className="text-slate-400 mb-3">Tienes pagos pendientes que requieren atención</p>
-                <div className="space-y-2">
-                  {payments
-                    .filter((p) => p.status === 'pending')
-                    .map((payment) => (
-                      <div
-                        key={payment.id}
-                        className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg"
-                      >
-                        <div>
-                          <p className="text-white font-medium">{payment.description}</p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-white font-bold">
-                            ${payment.amount.toLocaleString()} {payment.currency}
-                          </span>
-                          <Button
-                            size="sm"
-                            onClick={() => handleProcessPayment(payment.id)}
-                            className="bg-primary hover:bg-primary/90"
-                          >
-                            Pagar Ahora
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Payment History */}
       <Card className="bg-slate-900 border-slate-800">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Receipt className="h-5 w-5" />
-            Historial de Pagos
-          </CardTitle>
-          <CardDescription className="text-slate-400">
-            Todos tus pagos y transacciones
-          </CardDescription>
+          <CardTitle className="text-white flex items-center gap-2"><Receipt className="h-5 w-5" />Historial de Pagos</CardTitle>
+          <CardDescription className="text-slate-400">Todos tus pagos y transacciones</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow className="border-slate-700">
-                <TableHead className="text-slate-400">Descripción</TableHead>
-                <TableHead className="text-slate-400">Tipo</TableHead>
-                <TableHead className="text-slate-400">Monto</TableHead>
-                <TableHead className="text-slate-400">Estado</TableHead>
-                <TableHead className="text-slate-400">Fecha</TableHead>
-                <TableHead className="text-slate-400">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {payments.map((payment) => (
-                <TableRow key={payment.id} className="border-slate-700">
-                  <TableCell className="text-white">
-                    <div className="flex items-center gap-2">
-                      {getTypeIcon(payment.type)}
-                      <div>
-                        <p className="font-medium">{payment.description}</p>
-                        {payment.transactionId && (
-                          <p className="text-xs text-slate-400">ID: {payment.transactionId}</p>
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-white">{getTypeLabel(payment.type)}</TableCell>
-                  <TableCell className="text-white font-medium">
-                    ${payment.amount.toLocaleString()} {payment.currency}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                  <TableCell className="text-white">
-                    {new Date(payment.date).toLocaleDateString('es-MX')}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      {payment.status === 'pending' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleProcessPayment(payment.id)}
-                          className="text-primary hover:text-primary/80 hover:bg-primary/10"
-                        >
-                          <CreditCard className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {payment.status === 'completed' && payment.invoiceUrl && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDownloadInvoice(payment.id)}
-                          className="text-blue-400 hover:text-blue-300 hover:bg-blue-900/20"
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
+          {payments.length === 0 ? (
+            <div className="text-center py-10 text-slate-500">No hay pagos registrados</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="border-slate-700">
+                  <TableHead className="text-slate-400">Descripción</TableHead>
+                  <TableHead className="text-slate-400">Tipo</TableHead>
+                  <TableHead className="text-slate-400">Monto</TableHead>
+                  <TableHead className="text-slate-400">Estado</TableHead>
+                  <TableHead className="text-slate-400">Fecha</TableHead>
+                  <TableHead className="text-slate-400">Recibo</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {payments.map((payment) => (
+                  <TableRow key={payment.id} className="border-slate-700">
+                    <TableCell className="text-white font-medium">{payment.description || getTypeLabel(payment.payment_type)}</TableCell>
+                    <TableCell className="text-slate-400">{getTypeLabel(payment.payment_type)}</TableCell>
+                    <TableCell className="text-white font-medium">${Number(payment.amount).toLocaleString()} {payment.currency?.toUpperCase() || 'MXN'}</TableCell>
+                    <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                    <TableCell className="text-white">{new Date(payment.created_at).toLocaleDateString('es-MX')}</TableCell>
+                    <TableCell>
+                      {payment.receipt_url && (
+                        <Button variant="ghost" size="sm" asChild className="text-blue-400 hover:text-blue-300">
+                          <a href={payment.receipt_url} target="_blank" rel="noopener noreferrer"><FileText className="h-4 w-4" /></a>
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
-      {/* Membership Selector Modal */}
       <MembershipSelector
         isOpen={showMembershipModal}
         onClose={() => setShowMembershipModal(false)}
         userType="coach"
-        currentMembershipStatus={membershipStatus.status}
+        currentMembershipStatus={membership?.membership_status || 'free'}
         onSuccess={() => {
           toast({ title: 'Membresía activada', description: 'Tu membresía anual de entrenador ha sido activada.' });
           setShowMembershipModal(false);
+          loadData();
         }}
       />
     </div>

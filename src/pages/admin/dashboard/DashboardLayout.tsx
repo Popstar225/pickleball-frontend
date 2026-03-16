@@ -1,6 +1,7 @@
 import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
 import type { RootState } from '@/store';
+import { getFullImageUrl } from '@/common/tools';
 import {
   LayoutDashboard,
   Users,
@@ -97,7 +98,7 @@ export default function DashboardLayout() {
         name: user.name || user.email || 'Admin',
         email: user.email || '',
         role: user.user_type === 'admin' ? 'System Administrator' : 'Administrator',
-        avatar: user.profile_picture || null,
+        avatar: getFullImageUrl(user.profile_picture) || null,
       }
     : {
         name: 'Admin Usuario',

@@ -2,7 +2,7 @@ import { useSelector } from 'react-redux';
 import DashboardLayoutBase, { NavItem } from '@/components/layouts/DashboardLayoutBase';
 import type { RootState } from '@/store';
 import { LayoutDashboard, User, Users, Trophy, MessageSquare, Receipt, CheckSquare, CalendarDays } from 'lucide-react';
-
+import { getFullImageUrl } from '@/common/tools';
 const navItems: NavItem[] = [
   {
     title: 'Dashboard',
@@ -68,7 +68,7 @@ export default function ClubDashboardLayout() {
         name: user.club_name || user.name || user.email || 'Club',
         email: user.email || '',
         role: 'Club Manager',
-        avatar: user.profile_picture || null,
+        avatar: getFullImageUrl(user.profile_picture ) || null,
       }
     : {
         name: 'Club Pickleball',
