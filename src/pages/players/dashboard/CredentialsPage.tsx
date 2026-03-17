@@ -398,33 +398,40 @@ export default function PlayerCredentialsPage() {
             <div className="flex flex-col gap-4">
               <HoloCard credential={myCredential} playerPhotoUrl={getFullImageUrl(playerProfile?.profilePhoto)} />
 
-              <Panel icon={Calendar} title="Vigencia de Membresía">
-                <div className="flex justify-between text-[12px] text-white/65 mb-2">
-                  <span>
-                    Emitida:{' '}
-                    <span className="text-white/88">
-                      {new Date(myCredential?.created_at).toLocaleDateString('es-MX')}
-                    </span>
-                  </span>
-                  <span>
-                    Expira:{' '}
-                    <span className="text-white/88">
-                      {getExpiryDate(myCredential).toLocaleDateString('es-MX')}
-                    </span>
-                  </span>
-                </div>
-                <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#7CAF00] to-[#C8FF00]"
-                    style={{ width: '75%' }}
-                  />
-                </div>
-                <div className="flex justify-between text-[10px] text-[#C8FF00]/40 mt-1.5">
-                  <span>Ene 2024</span>
-                  <span className="text-[#C8FF00]">75% transcurrido</span>
-                  <span>Dic 2024</span>
-                </div>
-              </Panel>
+              {(() => {
+                const start = new Date(myCredential?.issued_date || myCredential?.created_at);
+                const end = getExpiryDate(myCredential);
+                const now = new Date();
+                const total = end.getTime() - start.getTime();
+                const elapsed = Math.min(Math.max(now.getTime() - start.getTime(), 0), total);
+                const pct = total > 0 ? Math.round((elapsed / total) * 100) : 0;
+                const fmt = (d: Date) => d.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' });
+                return (
+                  <Panel icon={Calendar} title="Vigencia de Membresía">
+                    <div className="flex justify-between text-[12px] text-white/65 mb-2">
+                      <span>
+                        Emitida:{' '}
+                        <span className="text-white/88">{start.toLocaleDateString('es-MX')}</span>
+                      </span>
+                      <span>
+                        Expira:{' '}
+                        <span className="text-white/88">{end.toLocaleDateString('es-MX')}</span>
+                      </span>
+                    </div>
+                    <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-[#7CAF00] to-[#C8FF00]"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-[10px] text-[#C8FF00]/40 mt-1.5">
+                      <span>{fmt(start)}</span>
+                      <span className="text-[#C8FF00]">{pct}% transcurrido</span>
+                      <span>{fmt(end)}</span>
+                    </div>
+                  </Panel>
+                );
+              })()}
             </div>
 
             {/* Right */}
