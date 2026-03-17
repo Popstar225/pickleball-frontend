@@ -33,7 +33,7 @@ import {
 import { cn, getImageUrl } from '@/lib/utils';
 import { fetchClubs, fetchMyClubs, joinClub, leaveClub } from '@/store/slices/clubsSlice';
 import { get } from 'http';
-import { getFullImageUrl } from '@/common/tools';
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface Club extends APIClub {
@@ -105,7 +105,7 @@ function ClubLogo({
       )}
     >
       <img
-        src={getFullImageUrl(logo)}
+        src={getImageUrl(logo)}
         alt={name || 'Club'}
         className="w-full h-full object-cover"
         onError={() => setShowFallback(true)}

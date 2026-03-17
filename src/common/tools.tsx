@@ -1,9 +1,9 @@
-import { imageBaseURL } from '@/lib/const';
+import { getImageUrl } from '@/lib/utils';
 
+/** @deprecated Use getImageUrl from @/lib/utils instead */
 export const getFullImageUrl = (imagePath: string | null | undefined): string | null => {
-    if (!imagePath) return null;
-    if (imagePath.startsWith('http')) return imagePath;
-    return `${imageBaseURL}${imagePath}`;
-  };
+  const result = getImageUrl(imagePath);
+  return result || null;
+};
 
   
