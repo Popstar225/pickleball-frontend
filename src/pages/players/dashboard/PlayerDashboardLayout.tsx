@@ -29,10 +29,10 @@ const navItems: NavItem[] = [
     description: 'Gestionar mi cuenta',
   },
   {
-    title: 'Credenciales Digitales',
+    title: 'Credencial digital',
     url: '/players/dashboard/credentials',
     icon: CreditCard,
-    description: 'Mis credenciales digitales',
+    description: 'Mi credencial digital',
   },
   {
     title: 'Buscar Clubes',

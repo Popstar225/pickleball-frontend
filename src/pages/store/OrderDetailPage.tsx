@@ -110,7 +110,7 @@ export default function OrderDetailPage() {
               <p className="text-[#5A5A7A] text-xs mb-2">Pedido {order.order_number}</p>
               <div className="flex items-center gap-2.5">
                 <StatusIcon className="w-4 h-4" style={{ color: 'inherit' }} />
-                <span className={cn('px-2.5 py-1 rounded-lg border text-xs font-bold font-["Syne",sans-serif] uppercase tracking-wide', cfg.cls)}>
+                <span className={cn('px-2.5 py-1 rounded-lg border text-xs font-bold font-sans uppercase tracking-wide', cfg.cls)}>
                   {cfg.label}
                 </span>
               </div>
@@ -122,7 +122,7 @@ export default function OrderDetailPage() {
             </div>
             <div className="text-right">
               <p className="text-[#5A5A7A] text-xs mb-1">Total</p>
-              <p className="font-['Syne',sans-serif] font-extrabold text-2xl text-[#C8FF00]">
+              <p className="font-sans font-extrabold text-2xl text-[#C8FF00]">
                 ${Number(order.total).toLocaleString()}
                 <span className="text-xs font-normal text-[#5A5A7A] ml-1">MXN</span>
               </p>
@@ -139,7 +139,7 @@ export default function OrderDetailPage() {
 
         {/* Items */}
         <div className="bg-[#13131A] border border-[#1E1E2E] rounded-2xl p-5">
-          <p className="text-[#5A5A7A] text-[10px] uppercase tracking-widest font-['Syne',sans-serif] mb-4">
+          <p className="text-[#5A5A7A] text-[10px] uppercase tracking-widest font-sans mb-4">
             Artículos
           </p>
           <div className="space-y-3">
@@ -164,7 +164,7 @@ export default function OrderDetailPage() {
                     ×{item.quantity} · ${Number(item.unit_price).toLocaleString()} c/u
                   </p>
                 </div>
-                <p className="font-['Syne',sans-serif] font-bold text-[#C8FF00] text-sm">
+                <p className="font-sans font-bold text-[#C8FF00] text-sm">
                   ${Number(item.total_price).toLocaleString()}
                 </p>
               </div>
@@ -176,7 +176,7 @@ export default function OrderDetailPage() {
         <div className="bg-[#13131A] border border-[#1E1E2E] rounded-2xl p-5">
           <div className="flex items-center gap-2 mb-3">
             <MapPin className="w-4 h-4 text-[#C8FF00]" />
-            <p className="text-[#5A5A7A] text-[10px] uppercase tracking-widest font-['Syne',sans-serif]">
+            <p className="text-[#5A5A7A] text-[10px] uppercase tracking-widest font-sans">
               Dirección de envío
             </p>
           </div>
@@ -206,8 +206,8 @@ export default function OrderDetailPage() {
             <span className="text-[#C8FF00] font-semibold text-xs">Gratis</span>
           </div>
           <div className="flex justify-between border-t border-[#1E1E2E] pt-3">
-            <span className="font-['Syne',sans-serif] font-bold">Total</span>
-            <span className="font-['Syne',sans-serif] font-extrabold text-[#C8FF00]">
+            <span className="font-sans font-bold">Total</span>
+            <span className="font-sans font-extrabold text-[#C8FF00]">
               ${Number(order.total).toLocaleString()} MXN
             </span>
           </div>
@@ -218,7 +218,7 @@ export default function OrderDetailPage() {
           <button
             onClick={handleCancel}
             disabled={cancelling}
-            className="w-full py-3.5 bg-transparent border border-[rgba(226,75,74,0.25)] text-[#E24B4A] hover:bg-[rgba(226,75,74,0.07)] font-['Syne',sans-serif] font-bold text-sm rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 transition-all"
+            className="w-full py-3.5 bg-transparent border border-[rgba(226,75,74,0.25)] text-[#E24B4A] hover:bg-[rgba(226,75,74,0.07)] font-sans font-bold text-sm rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 transition-all"
           >
             <Loader2 className={`w-4 h-4 animate-spin ${cancelling ? '' : 'hidden'}`} />
             <XCircle className={`w-4 h-4 ${cancelling ? 'hidden' : ''}`} />

@@ -51,7 +51,7 @@ const statusCfg: Record<string, { label: string; cls: string; dot: string }> = {
   full: { label: 'Lleno', cls: 'bg-red-500/10 text-red-400 border-red-500/20', dot: 'bg-red-500' },
   closed: {
     label: 'Cerrado',
-    cls: 'bg-white/[0.05] text-white/35 border-white/[0.08]',
+    cls: 'bg-white/[0.05] text-white/65 border-white/[0.08]',
     dot: 'bg-white/25',
   },
   registered: {
@@ -66,7 +66,7 @@ const statusCfg: Record<string, { label: string; cls: string; dot: string }> = {
   },
   completed: {
     label: 'Completado',
-    cls: 'bg-white/[0.04] text-white/30 border-white/[0.07]',
+    cls: 'bg-white/[0.04] text-white/60 border-white/[0.07]',
     dot: 'bg-white/20',
   },
 };
@@ -74,7 +74,7 @@ const statusCfg: Record<string, { label: string; cls: string; dot: string }> = {
 function StatusBadge({ status }: { status: string }) {
   const cfg = statusCfg[status] ?? {
     label: status,
-    cls: 'bg-white/[0.05] text-white/35 border-white/[0.08]',
+    cls: 'bg-white/[0.05] text-white/65 border-white/[0.08]',
     dot: 'bg-white/25',
   };
   return (
@@ -113,12 +113,12 @@ function Countdown({ date }: { date: string }) {
     );
   if (days <= 30)
     return (
-      <span className="text-[11px] font-bold text-white/40 bg-white/[0.05] border border-white/[0.08] rounded-full px-2 py-0.5">
+      <span className="text-[11px] font-bold text-white/65 bg-white/[0.05] border border-white/[0.08] rounded-full px-2 py-0.5">
         En {Math.floor(days / 7)} sem.
       </span>
     );
   return (
-    <span className="text-[11px] font-bold text-white/30 bg-white/[0.04] border border-white/[0.07] rounded-full px-2 py-0.5">
+    <span className="text-[11px] font-bold text-white/60 bg-white/[0.04] border border-white/[0.07] rounded-full px-2 py-0.5">
       En {Math.floor(days / 30)} meses
     </span>
   );
@@ -132,8 +132,8 @@ function MetaItem({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-1.5 text-xs text-white/35 min-w-0">
-      <Icon className="w-3 h-3 shrink-0 text-white/20" />
+    <div className="flex items-center gap-1.5 text-xs text-white/65 min-w-0">
+      <Icon className="w-3 h-3 shrink-0 text-white/50" />
       <span className="truncate">{children}</span>
     </div>
   );
@@ -145,10 +145,10 @@ function CapacityBar({ current, max }: { current: number; max: number }) {
   return (
     <div>
       <div className="flex justify-between mb-1.5">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-white/20">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">
           Capacidad
         </span>
-        <span className="text-[10px] font-mono text-white/30">
+        <span className="text-[10px] font-mono text-white/60">
           {current}/{max} · {pct}%
         </span>
       </div>
@@ -169,7 +169,7 @@ function Loading() {
   return (
     <div className="flex flex-col items-center justify-center py-20 gap-3">
       <Loader2 className="w-6 h-6 text-[#ace600] animate-spin" />
-      <p className="text-xs text-white/25">Cargando torneos…</p>
+      <p className="text-xs text-white/88">Cargando torneos…</p>
     </div>
   );
 }
@@ -201,8 +201,8 @@ function EmptyState({
         <Trophy className="w-7 h-7 text-white/10" />
       </div>
       <div className="text-center">
-        <p className="text-sm font-semibold text-white/40 mb-1">{title}</p>
-        <p className="text-xs text-white/20 max-w-[280px] leading-relaxed">{desc}</p>
+        <p className="text-sm font-semibold text-white/65 mb-1">{title}</p>
+        <p className="text-xs text-white/50 max-w-[280px] leading-relaxed">{desc}</p>
       </div>
       {action}
     </div>
@@ -407,7 +407,7 @@ export default function PlayerTournamentsPage() {
               Aprobados
             </Badge>
           </div>
-          <p className="text-xs text-white/30">
+          <p className="text-xs text-white/60">
             Torneos publicados y verificados por la federación
           </p>
         </div>
@@ -415,11 +415,11 @@ export default function PlayerTournamentsPage() {
           {[
             { label: 'Disponibles', value: openCount, color: 'text-emerald-400' },
             { label: 'Inscritos', value: myRegistrations.length, color: 'text-[#ace600]' },
-            { label: 'Total', value: allTournaments.length, color: 'text-white/40' },
+            { label: 'Total', value: allTournaments.length, color: 'text-white/65' },
           ].map(({ label, value, color }) => (
             <div key={label} className="text-center">
               <p className={cn('text-2xl font-bold leading-none mb-0.5', color)}>{value}</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/20">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">
                 {label}
               </p>
             </div>
@@ -455,7 +455,7 @@ export default function PlayerTournamentsPage() {
           {/* Filter panel */}
           <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-4 space-y-3">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 pointer-events-none" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -465,7 +465,7 @@ export default function PlayerTournamentsPage() {
               {search && (
                 <button
                   onClick={() => setSearch('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/60 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/88 hover:text-white/60 transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -481,14 +481,14 @@ export default function PlayerTournamentsPage() {
                   'h-9 px-3.5 rounded-xl text-xs font-semibold gap-1.5 transition-all',
                   showFilters
                     ? 'border-[#ace600]/40 bg-[#ace600]/10 text-[#ace600] hover:bg-[#ace600]/15'
-                    : 'border-white/[0.08] bg-white/[0.03] text-white/40 hover:text-white hover:bg-white/[0.06]',
+                    : 'border-white/[0.08] bg-white/[0.03] text-white/65 hover:text-white hover:bg-white/[0.06]',
                 )}
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" /> Filtros{' '}
                 {showFilters && <X className="w-3 h-3" />}
               </Button>
               <div className="flex items-center gap-2 ml-auto">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-white/20">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">
                   Ordenar
                 </span>
                 <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
@@ -504,7 +504,7 @@ export default function PlayerTournamentsPage() {
                       <SelectItem
                         key={v}
                         value={v}
-                        className="text-white/70 focus:bg-white/[0.06] focus:text-white text-xs"
+                        className="text-white/85 focus:bg-white/[0.06] focus:text-white text-xs"
                       >
                         {l}
                       </SelectItem>
@@ -517,7 +517,7 @@ export default function PlayerTournamentsPage() {
             {showFilters && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-white/[0.05]">
                 <div>
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1.5 block">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-white/88 mb-1.5 block">
                     Estado
                   </Label>
                   <StateAutocomplete
@@ -528,7 +528,7 @@ export default function PlayerTournamentsPage() {
                   />
                 </div>
                 <div>
-                  <Label className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1.5 block">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-white/88 mb-1.5 block">
                     Nivel
                   </Label>
                   <Select value={filterLevel} onValueChange={setFilterLevel}>
@@ -546,7 +546,7 @@ export default function PlayerTournamentsPage() {
                         <SelectItem
                           key={v}
                           value={v}
-                          className="text-white/70 focus:bg-white/[0.06] focus:text-white text-xs"
+                          className="text-white/85 focus:bg-white/[0.06] focus:text-white text-xs"
                         >
                           {l}
                         </SelectItem>
@@ -558,7 +558,7 @@ export default function PlayerTournamentsPage() {
             )}
 
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/[0.04]">
-              <span className="text-xs text-white/25">
+              <span className="text-xs text-white/88">
                 <span className="font-semibold text-white/50">{filtered.length}</span> torneos
                 encontrados
               </span>
@@ -578,7 +578,7 @@ export default function PlayerTournamentsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={clearFilters}
-                    className="h-6 px-2 text-[11px] text-white/25 hover:text-white/50 hover:bg-transparent gap-1"
+                    className="h-6 px-2 text-[11px] text-white/88 hover:text-white/50 hover:bg-transparent gap-1"
                   >
                     <RefreshCw className="w-3 h-3" /> Limpiar todo
                   </Button>
@@ -640,7 +640,7 @@ export default function PlayerTournamentsPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-3 flex-wrap mb-2">
                           <div className="flex items-center gap-2.5 flex-wrap min-w-0">
-                            <h3 className="text-base font-bold text-white/80 group-hover:text-white transition-colors leading-snug">
+                            <h3 className="text-base font-bold text-white/95 group-hover:text-white transition-colors leading-snug">
                               {t.name}
                             </h3>
                             {t.is_endorsed && (
@@ -666,7 +666,7 @@ export default function PlayerTournamentsPage() {
                                 'h-8 px-3.5 rounded-xl text-xs font-bold gap-1.5 transition-all',
                                 isOpen && loadingReg !== t.id
                                   ? 'bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_12px_rgba(172,230,0,0.15)]'
-                                  : 'bg-white/[0.04] border border-white/[0.06] text-white/20 cursor-not-allowed hover:bg-white/[0.04]',
+                                  : 'bg-white/[0.04] border border-white/[0.06] text-white/50 cursor-not-allowed hover:bg-white/[0.04]',
                               )}
                             >
                               {loadingReg === t.id ? (
@@ -686,14 +686,14 @@ export default function PlayerTournamentsPage() {
                               variant="outline"
                               size="sm"
                               onClick={() => navigate(`/tournaments/${t.id}`)}
-                              className="h-8 px-3.5 rounded-xl text-xs border-white/[0.08] bg-transparent hover:bg-white/[0.05] text-white/35 hover:text-white/70 transition-all gap-1.5"
+                              className="h-8 px-3.5 rounded-xl text-xs border-white/[0.08] bg-transparent hover:bg-white/[0.05] text-white/65 hover:text-white/70 transition-all gap-1.5"
                             >
                               Detalles <ExternalLink className="w-3 h-3" />
                             </Button>
                           </div>
                         </div>
                         {t.description && (
-                          <p className="text-xs text-white/30 mb-3 line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-white/60 mb-3 line-clamp-2 leading-relaxed">
                             {t.description}
                           </p>
                         )}
@@ -727,12 +727,12 @@ export default function PlayerTournamentsPage() {
                         <div className="flex items-center justify-between gap-3 flex-wrap">
                           <div className="flex flex-wrap gap-1.5">
                             {t.age_restrictions && (
-                              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.07] text-white/30">
+                              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.07] text-white/60">
                                 Edad: {t.age_restrictions}
                               </span>
                             )}
                             {t.gender_restrictions && (
-                              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.07] text-white/30">
+                              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.07] text-white/60">
                                 {t.gender_restrictions}
                               </span>
                             )}
@@ -749,7 +749,7 @@ export default function PlayerTournamentsPage() {
                                 'h-8 px-3 rounded-xl text-xs font-bold transition-all',
                                 isOpen && loadingReg !== t.id
                                   ? 'bg-[#ace600] text-black'
-                                  : 'bg-white/[0.04] text-white/20 border border-white/[0.06]',
+                                  : 'bg-white/[0.04] text-white/50 border border-white/[0.06]',
                               )}
                             >
                               {loadingReg === t.id ? (
@@ -766,7 +766,7 @@ export default function PlayerTournamentsPage() {
                               variant="outline"
                               size="sm"
                               onClick={() => navigate(`/tournaments/${t.id}`)}
-                              className="h-8 px-3 rounded-xl text-xs border-white/[0.08] text-white/30 hover:text-white/60 transition-all"
+                              className="h-8 px-3 rounded-xl text-xs border-white/[0.08] text-white/60 hover:text-white/60 transition-all"
                             >
                               Info
                             </Button>
@@ -808,7 +808,7 @@ export default function PlayerTournamentsPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                  <p className="text-sm font-semibold text-white/75 truncate group-hover:text-white transition-colors">
+                  <p className="text-sm font-semibold text-white/88 truncate group-hover:text-white transition-colors">
                     {reg.event?.name}
                   </p>
                   <StatusBadge status={reg.status === 'confirmed' ? 'registered' : reg.status} />
@@ -844,7 +844,7 @@ export default function PlayerTournamentsPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-8 px-3 rounded-xl text-xs border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.07] text-white/40 hover:text-white transition-all"
+                  className="h-8 px-3 rounded-xl text-xs border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.07] text-white/65 hover:text-white transition-all"
                 >
                   Detalles
                 </Button>
@@ -863,7 +863,7 @@ export default function PlayerTournamentsPage() {
               </div>
               <div>
                 <h3 className="text-base font-bold text-white/60 mb-1">Historial de Torneos</h3>
-                <p className="text-sm text-white/25 max-w-[340px] leading-relaxed">
+                <p className="text-sm text-white/88 max-w-[340px] leading-relaxed">
                   Aquí aparecerán los torneos completados. Una vez que termines una competencia,
                   podrás ver tus resultados.
                 </p>
@@ -894,7 +894,7 @@ export default function PlayerTournamentsPage() {
                     className={cn('flex items-center gap-2 p-3 rounded-xl border', bg)}
                   >
                     <Icon className={cn('w-4 h-4 shrink-0', color)} />
-                    <span className="text-xs font-semibold text-white/40">{label}</span>
+                    <span className="text-xs font-semibold text-white/65">{label}</span>
                   </div>
                 ))}
               </div>
@@ -915,7 +915,7 @@ export default function PlayerTournamentsPage() {
                 </div>
                 <button
                   onClick={() => setShowEventSelector(false)}
-                  className="text-white/40 hover:text-white/80 transition-colors"
+                  className="text-white/65 hover:text-white/80 transition-colors"
                 >
                   <X className="w-6 h-6" />
                 </button>
@@ -974,7 +974,7 @@ export default function PlayerTournamentsPage() {
                       {/* Capacity Bar */}
                       <div>
                         <div className="flex justify-between mb-1.5">
-                          <span className="text-[10px] text-white/30">Capacidad</span>
+                          <span className="text-[10px] text-white/60">Capacidad</span>
                           <span className="text-[10px] text-white/50">
                             {event.current_participants}/{event.max_participants} ·{' '}
                             {capacityPercent}%

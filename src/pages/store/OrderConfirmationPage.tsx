@@ -44,7 +44,7 @@ export default function OrderConfirmationPage() {
           >
             <CheckCircle2 className="w-9 h-9 text-[#C8FF00]" />
           </div>
-          <h1 className="font-['Syne',sans-serif] text-3xl font-extrabold tracking-tight">
+          <h1 className="font-sans text-3xl font-extrabold tracking-tight">
             ¡Pedido confirmado!
           </h1>
           <p className="text-[#9090B0] mt-2 text-sm">
@@ -60,7 +60,7 @@ export default function OrderConfirmationPage() {
             {/* Meta rows */}
             <div className="space-y-3">
               {[
-                { label: 'Número de pedido', value: <span className="font-['Syne',sans-serif] font-bold">{order.order_number}</span> },
+                { label: 'Número de pedido', value: <span className="font-sans font-bold">{order.order_number}</span> },
                 {
                   label: 'Estado',
                   value: <span className="text-[#C8FF00] font-semibold text-sm">
@@ -75,7 +75,7 @@ export default function OrderConfirmationPage() {
                 },
                 {
                   label: 'Total',
-                  value: <span className="font-['Syne',sans-serif] font-bold text-[#C8FF00]">
+                  value: <span className="font-sans font-bold text-[#C8FF00]">
                     ${Number(order.total).toLocaleString()} MXN
                   </span>
                 },
@@ -91,7 +91,7 @@ export default function OrderConfirmationPage() {
             <div className="border-t border-[#1E1E2E] pt-4">
               <div className="flex items-center gap-1.5 mb-2">
                 <MapPin className="w-3 h-3 text-[#5A5A7A]" />
-                <p className="text-[#5A5A7A] text-[10px] uppercase tracking-widest font-['Syne',sans-serif]">
+                <p className="text-[#5A5A7A] text-[10px] uppercase tracking-widest font-sans">
                   Enviar a
                 </p>
               </div>
@@ -130,7 +130,7 @@ export default function OrderConfirmationPage() {
           </button>
           <button
             onClick={() => navigate('/store')}
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-['Syne',sans-serif] font-bold text-sm rounded-xl transition-all"
+            className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-sans font-bold text-sm rounded-xl transition-all"
           >
             <ShoppingBag className="w-4 h-4" />
             Seguir comprando

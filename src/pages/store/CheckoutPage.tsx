@@ -58,7 +58,7 @@ function StripePaymentForm({
       <button
         type="submit"
         disabled={!stripe || processing}
-        className="w-full py-3.5 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-['Syne',sans-serif] font-bold text-base rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        className="w-full py-3.5 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-sans font-bold text-base rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
       >
         <Loader2 className={`w-4 h-4 animate-spin ${processing ? '' : 'hidden'}`} />
         <CreditCard className={`w-4 h-4 ${processing ? 'hidden' : ''}`} />
@@ -87,7 +87,7 @@ function Field({
 }) {
   return (
     <div>
-      <label className="block text-[#5A5A7A] text-[10px] uppercase tracking-widest mb-1.5 font-['Syne',sans-serif]">
+      <label className="block text-[#5A5A7A] text-[10px] uppercase tracking-widest mb-1.5 font-sans">
         {label}
       </label>
       {children}
@@ -130,7 +130,7 @@ export default function CheckoutPage() {
         <p className="text-[#5A5A7A] mb-5">Tu carrito está vacío</p>
         <button
           onClick={() => navigate('/store')}
-          className="px-6 py-3 bg-[#C8FF00] text-black font-['Syne',sans-serif] font-bold text-sm rounded-xl hover:bg-[#d4ff1a] transition-all"
+          className="px-6 py-3 bg-[#C8FF00] text-black font-sans font-bold text-sm rounded-xl hover:bg-[#d4ff1a] transition-all"
         >
           Ir a la tienda
         </button>
@@ -205,7 +205,7 @@ export default function CheckoutPage() {
                   currentStepIndex === i ? 'text-white' : currentStepIndex > i ? 'text-[#C8FF00]' : 'text-[#3A3A5A]'
                 )}>
                   <div className={cn(
-                    'w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold font-["Syne",sans-serif] transition-all',
+                    'w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold font-sans transition-all',
                     currentStepIndex === i
                       ? 'bg-[#C8FF00] text-black'
                       : currentStepIndex > i
@@ -237,7 +237,7 @@ export default function CheckoutPage() {
             {/* Step 1: Address */}
             {step === 'address' && (
               <div className="bg-[#13131A] border border-[#1E1E2E] rounded-2xl p-6">
-                <h2 className="font-['Syne',sans-serif] font-bold text-base flex items-center gap-2 mb-5">
+                <h2 className="font-sans font-bold text-base flex items-center gap-2 mb-5">
                   <MapPin className="w-4 h-4 text-[#C8FF00]" />
                   Dirección de envío
                 </h2>
@@ -313,7 +313,7 @@ export default function CheckoutPage() {
                 </div>
                 <button
                   onClick={handleProceedToReview}
-                  className="w-full py-3.5 mt-5 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-['Syne',sans-serif] font-bold text-sm rounded-xl transition-all"
+                  className="w-full py-3.5 mt-5 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-sans font-bold text-sm rounded-xl transition-all"
                 >
                   Continuar a revisión
                 </button>
@@ -323,13 +323,13 @@ export default function CheckoutPage() {
             {/* Step 2: Review */}
             {step === 'review' && (
               <div className="bg-[#13131A] border border-[#1E1E2E] rounded-2xl p-6">
-                <h2 className="font-['Syne',sans-serif] font-bold text-base mb-5">Revisar pedido</h2>
+                <h2 className="font-sans font-bold text-base mb-5">Revisar pedido</h2>
 
                 {/* Address summary */}
                 <div className="bg-[#1C1C27] border border-[#2A2A3E] rounded-xl p-4 mb-4">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-[#5A5A7A] text-[10px] uppercase tracking-widest mb-2 font-['Syne',sans-serif]">
+                      <p className="text-[#5A5A7A] text-[10px] uppercase tracking-widest mb-2 font-sans">
                         Enviar a
                       </p>
                       <p className="font-medium text-sm">{address.full_name}</p>
@@ -374,7 +374,7 @@ export default function CheckoutPage() {
                         <p className="text-sm font-medium truncate">{item.product.name}</p>
                         <p className="text-[#5A5A7A] text-xs">×{item.quantity}</p>
                       </div>
-                      <span className="font-['Syne',sans-serif] font-bold text-[#C8FF00] text-sm flex-shrink-0">
+                      <span className="font-sans font-bold text-[#C8FF00] text-sm flex-shrink-0">
                         ${(Number(item.product.price) * item.quantity).toLocaleString()} MXN
                       </span>
                     </div>
@@ -382,9 +382,9 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="border-t border-[#1E1E2E] pt-4 flex justify-between items-baseline mb-5">
-                  <span className="font-['Syne',sans-serif] font-bold">Total</span>
+                  <span className="font-sans font-bold">Total</span>
                   <div>
-                    <span className="font-['Syne',sans-serif] font-extrabold text-xl text-[#C8FF00]">
+                    <span className="font-sans font-extrabold text-xl text-[#C8FF00]">
                       ${cartTotal.toLocaleString()}
                     </span>
                     <span className="text-[#5A5A7A] text-xs ml-1">MXN</span>
@@ -394,7 +394,7 @@ export default function CheckoutPage() {
                 <button
                   onClick={handleProceedToPayment}
                   disabled={loadingPayment}
-                  className="w-full py-3.5 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-['Syne',sans-serif] font-bold text-sm rounded-xl flex items-center justify-center gap-2 disabled:opacity-60 transition-all"
+                  className="w-full py-3.5 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-sans font-bold text-sm rounded-xl flex items-center justify-center gap-2 disabled:opacity-60 transition-all"
                 >
                   <Loader2 className={`w-4 h-4 animate-spin ${loadingPayment ? '' : 'hidden'}`} />
                   <CreditCard className={`w-4 h-4 ${loadingPayment ? 'hidden' : ''}`} />
@@ -406,7 +406,7 @@ export default function CheckoutPage() {
             {/* Step 3: Payment */}
             {step === 'payment' && paymentData && (
               <div className="bg-[#13131A] border border-[#1E1E2E] rounded-2xl p-6">
-                <h2 className="font-['Syne',sans-serif] font-bold text-base flex items-center gap-2 mb-5">
+                <h2 className="font-sans font-bold text-base flex items-center gap-2 mb-5">
                   <CreditCard className="w-4 h-4 text-[#C8FF00]" />
                   Pago seguro
                 </h2>
@@ -416,7 +416,7 @@ export default function CheckoutPage() {
                     Pedido{' '}
                     <span className="text-white font-medium">{paymentData.orderNumber}</span>
                   </p>
-                  <p className="font-['Syne',sans-serif] font-extrabold text-xl text-[#C8FF00] mt-1">
+                  <p className="font-sans font-extrabold text-xl text-[#C8FF00] mt-1">
                     ${cartTotal.toLocaleString()} MXN
                   </p>
                 </div>
@@ -446,7 +446,7 @@ export default function CheckoutPage() {
           {/* Aside summary */}
           <div>
             <div className="bg-[#13131A] border border-[#1E1E2E] rounded-2xl p-5 sticky top-20">
-              <p className="text-[#5A5A7A] text-[10px] uppercase tracking-widest font-['Syne',sans-serif] mb-4">
+              <p className="text-[#5A5A7A] text-[10px] uppercase tracking-widest font-sans mb-4">
                 Resumen
               </p>
               <div className="space-y-2.5 mb-4">
@@ -468,9 +468,9 @@ export default function CheckoutPage() {
                 </div>
               </div>
               <div className="border-t border-[#1E1E2E] pt-3 flex justify-between items-baseline">
-                <span className="font-['Syne',sans-serif] font-bold text-sm">Total</span>
+                <span className="font-sans font-bold text-sm">Total</span>
                 <div>
-                  <span className="font-['Syne',sans-serif] font-extrabold text-lg text-[#C8FF00]">
+                  <span className="font-sans font-extrabold text-lg text-[#C8FF00]">
                     ${cartTotal.toLocaleString()}
                   </span>
                   <span className="text-[#5A5A7A] text-xs ml-1">MXN</span>

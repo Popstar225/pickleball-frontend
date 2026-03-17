@@ -133,8 +133,8 @@ function MetaChip({
   children: React.ReactNode;
 }) {
   return (
-    <span className="inline-flex items-center gap-1 text-[11px] text-white/30">
-      <Icon className="w-3 h-3 text-white/20 shrink-0" />
+    <span className="inline-flex items-center gap-1 text-[11px] text-white/60">
+      <Icon className="w-3 h-3 text-white/50 shrink-0" />
       {children}
     </span>
   );
@@ -142,7 +142,7 @@ function MetaChip({
 
 function FacilityTag({ label }: { label: string }) {
   return (
-    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/[0.05] border border-white/[0.08] text-white/35">
+    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/[0.05] border border-white/[0.08] text-white/65">
       {label}
     </span>
   );
@@ -181,10 +181,10 @@ function PaginationControls({
       </button>
 
       <div className="flex items-center gap-2">
-        <span className="text-xs font-bold text-white/40">Página</span>
+        <span className="text-xs font-bold text-white/65">Página</span>
         <div className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06]">
-          <span className="text-sm font-bold text-white/80">{currentPage}</span>
-          <span className="text-xs text-white/30">/ {totalPages}</span>
+          <span className="text-sm font-bold text-white/95">{currentPage}</span>
+          <span className="text-xs text-white/60">/ {totalPages}</span>
         </div>
       </div>
 
@@ -271,7 +271,7 @@ function ClubDetailDialog({
               <div>
                 <h2 className="text-lg font-bold text-white leading-tight">{club.name}</h2>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">
                     {CLUB_TYPE_LABEL[club.club_type] ?? club.club_type}
                   </span>
                   {club.rating !== undefined && <StarRating rating={club.rating} />}
@@ -282,10 +282,10 @@ function ClubDetailDialog({
               </div>
               {club.membership_fee !== undefined && (
                 <div className="text-right shrink-0">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Membresía</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/88">Membresía</p>
                   <p className="text-xl font-black text-[#ace600] leading-tight">
                     ${club.membership_fee.toLocaleString()}
-                    <span className="text-xs font-normal text-white/30 ml-1">MXN</span>
+                    <span className="text-xs font-normal text-white/60 ml-1">MXN</span>
                   </p>
                 </div>
               )}
@@ -304,20 +304,20 @@ function ClubDetailDialog({
                 className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3 text-center"
               >
                 <p className="text-base font-black text-white">{value}</p>
-                <p className="text-[10px] text-white/30 mt-0.5">{label}</p>
+                <p className="text-[10px] text-white/60 mt-0.5">{label}</p>
               </div>
             ))}
           </div>
 
           {/* Description */}
           {club.description && (
-            <p className="text-xs text-white/45 leading-relaxed">{club.description}</p>
+            <p className="text-xs text-white/85 leading-relaxed">{club.description}</p>
           )}
 
           {/* Offerings */}
           {offerings.length > 0 && (
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2">
                 Servicios
               </p>
               <div className="flex flex-wrap gap-1.5">
@@ -341,13 +341,13 @@ function ClubDetailDialog({
             {/* Contact */}
             {(club.contact_email || club.contact_phone || club.contact_whatsapp || club.website) && (
               <div className="space-y-2">
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/20">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">
                   Contacto
                 </p>
                 {club.contact_email && (
                   <a
                     href={`mailto:${club.contact_email}`}
-                    className="flex items-center gap-2 text-[11px] text-white/35 hover:text-white/60 transition-colors truncate"
+                    className="flex items-center gap-2 text-[11px] text-white/65 hover:text-white transition-colors truncate"
                   >
                     <Mail className="w-3 h-3 shrink-0 text-white/15" />
                     {club.contact_email}
@@ -356,7 +356,7 @@ function ClubDetailDialog({
                 {club.contact_phone && (
                   <a
                     href={`tel:${club.contact_phone}`}
-                    className="flex items-center gap-2 text-[11px] text-white/35 hover:text-white/60 transition-colors"
+                    className="flex items-center gap-2 text-[11px] text-white/65 hover:text-white transition-colors"
                   >
                     <Phone className="w-3 h-3 shrink-0 text-white/15" />
                     {club.contact_phone}
@@ -380,14 +380,14 @@ function ClubDetailDialog({
             <div className="space-y-2">
               {club.address && (
                 <>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/20">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">
                     Dirección
                   </p>
-                  <p className="text-[11px] text-white/35 leading-relaxed">{club.address}</p>
+                  <p className="text-[11px] text-white/65 leading-relaxed">{club.address}</p>
                 </>
               )}
               {club.founded_date && (
-                <p className="text-[11px] text-white/25">
+                <p className="text-[11px] text-white/88">
                   Fundado:{' '}
                   {new Date(club.founded_date).toLocaleDateString('es-MX', {
                     year: 'numeric',
@@ -396,7 +396,7 @@ function ClubDetailDialog({
                 </p>
               )}
               {club.court_rental_fee !== undefined && (
-                <p className="text-[11px] text-white/30">
+                <p className="text-[11px] text-white/60">
                   Renta de cancha:{' '}
                   <span className="text-white/50 font-semibold">
                     ${club.court_rental_fee.toLocaleString()} MXN/hr
@@ -411,18 +411,18 @@ function ClubDetailDialog({
             <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-4 space-y-3">
               {club.club_rules && (
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-1.5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1.5">
                     Reglamento
                   </p>
-                  <p className="text-xs text-white/35 leading-relaxed">{club.club_rules}</p>
+                  <p className="text-xs text-white/65 leading-relaxed">{club.club_rules}</p>
                 </div>
               )}
               {club.dress_code && (
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-1.5">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1.5">
                     Código de vestimenta
                   </p>
-                  <p className="text-xs text-white/35">{club.dress_code}</p>
+                  <p className="text-xs text-white/65">{club.dress_code}</p>
                 </div>
               )}
             </div>
@@ -433,7 +433,7 @@ function ClubDetailDialog({
         <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-white/[0.06] bg-[#0a0e14] flex-shrink-0">
           <button
             onClick={onClose}
-            className="text-sm text-white/30 hover:text-white/55 transition-colors"
+            className="text-sm text-white/60 hover:text-white transition-colors"
           >
             Cerrar
           </button>
@@ -503,7 +503,7 @@ function ClubJoinPaymentForm({
 
   return (
     <div className="space-y-4">
-      <p className="text-[11px] font-semibold text-white/40 mb-3">Detalles de Pago</p>
+      <p className="text-[11px] font-semibold text-white/65 mb-3">Detalles de Pago</p>
       <PaymentElement options={{ layout: 'tabs' }} />
       {error && (
         <div className="flex gap-2.5 bg-red-500/[0.06] border border-red-500/15 rounded-xl px-4 py-3">
@@ -515,7 +515,7 @@ function ClubJoinPaymentForm({
         <button
           onClick={onBack}
           disabled={processing}
-          className="flex items-center gap-1.5 text-sm text-white/30 hover:text-white/55 transition-colors disabled:opacity-40"
+          className="flex items-center gap-1.5 text-sm text-white/60 hover:text-white transition-colors disabled:opacity-40"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Regresar
@@ -629,6 +629,7 @@ export default function PlayerClubsPage() {
       setLeavingClubId(clubId);
       try {
         await dispatch(leaveClub(clubId)).unwrap();
+        await dispatch(fetchMyClubs());
       } catch (err) {
         console.error('Failed to leave club:', err);
       } finally {
@@ -650,7 +651,7 @@ export default function PlayerClubsPage() {
             {myClubs.length} unidos
           </span>
         </div>
-        <p className="text-xs text-white/25">
+        <p className="text-xs text-white/88">
           Encuentra y únete a clubes de pickleball cerca de ti
         </p>
       </div>
@@ -659,7 +660,7 @@ export default function PlayerClubsPage() {
       <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 pointer-events-none" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/50 pointer-events-none" />
             <Input
               className={cn(inputCls, 'pl-10 pr-9')}
               placeholder="Buscar clubes…"
@@ -669,14 +670,14 @@ export default function PlayerClubsPage() {
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50 transition-colors"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/50 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
           <div className="relative flex-1">
-            <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 pointer-events-none" />
+            <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/50 pointer-events-none" />
             <Input
               className={cn(inputCls, 'pl-10 pr-9')}
               placeholder="Filtrar por ubicación…"
@@ -686,7 +687,7 @@ export default function PlayerClubsPage() {
             {location && (
               <button
                 onClick={() => setLocation('')}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50 transition-colors"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/50 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -704,10 +705,10 @@ export default function PlayerClubsPage() {
               <Building2 className="w-5 h-5 text-white/10" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-semibold text-white/35 mb-1">
+              <p className="text-sm font-semibold text-white/65 mb-1">
                 No te has unido a ningún club
               </p>
-              <p className="text-xs text-white/20 leading-relaxed max-w-[220px]">
+              <p className="text-xs text-white/50 leading-relaxed max-w-[220px]">
                 Explora y únete a clubes de pickleball debajo
               </p>
             </div>
@@ -723,7 +724,7 @@ export default function PlayerClubsPage() {
                   <ClubLogo logo={club.logo} name={club.name} size="lg" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 mb-1.5">
-                      <p className="text-sm font-bold text-white/80 group-hover:text-white transition-colors truncate">
+                      <p className="text-sm font-bold text-white/95 group-hover:text-white transition-colors truncate">
                         {club.name || 'Unknown Club'}
                       </p>
                       {club.rating && <StarRating rating={club.rating} />}
@@ -735,7 +736,7 @@ export default function PlayerClubsPage() {
                       )}
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[10px] text-white/20">
+                      <span className="text-[10px] text-white/50">
                         {club.joinedDate
                           ? `Miembro desde ${new Date(club.joinedDate).toLocaleDateString('es-MX', {
                               day: 'numeric',
@@ -790,7 +791,7 @@ export default function PlayerClubsPage() {
         {loading && (
           <div className="flex flex-col items-center justify-center py-12 gap-4 bg-[#0d1117] border border-white/[0.07] rounded-2xl">
             <Loader className="w-6 h-6 text-[#ace600] animate-spin" />
-            <p className="text-sm text-white/35">Cargando clubes...</p>
+            <p className="text-sm text-white/65">Cargando clubes...</p>
           </div>
         )}
 
@@ -800,8 +801,8 @@ export default function PlayerClubsPage() {
               <Building2 className="w-5 h-5 text-white/10" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-semibold text-white/35 mb-1">No se encontraron clubes</p>
-              <p className="text-xs text-white/20 leading-relaxed max-w-[200px]">
+              <p className="text-sm font-semibold text-white/65 mb-1">No se encontraron clubes</p>
+              <p className="text-xs text-white/50 leading-relaxed max-w-[200px]">
                 Intenta ajustar tus criterios de búsqueda
               </p>
             </div>
@@ -843,7 +844,7 @@ export default function PlayerClubsPage() {
                         <MetaChip icon={Users}>{club.member_count || 0} miembros</MetaChip>
                       </div>
                       {club.description && (
-                        <p className="text-xs text-white/35 mt-2 leading-relaxed max-w-md line-clamp-2">
+                        <p className="text-xs text-white/65 mt-2 leading-relaxed max-w-md line-clamp-2">
                           {club.description}
                         </p>
                       )}
@@ -858,9 +859,9 @@ export default function PlayerClubsPage() {
                 </div>
 
                 {/* ── Membership fee preview ──────────────────────────────── */}
-                {club.membership_fee !== undefined && (
+                {club.membership_fee != null && (
                   <div className="border-t border-white/[0.05] px-5 py-3 flex items-center justify-between">
-                    <span className="text-[11px] text-white/30">Cuota de membresía</span>
+                    <span className="text-[11px] text-white/60">Cuota de membresía</span>
                     <span className="text-sm font-bold text-[#ace600]">
                       ${club.membership_fee.toLocaleString()} MXN
                     </span>
@@ -874,7 +875,7 @@ export default function PlayerClubsPage() {
                       {/* Facilities */}
                       {club.court_types && (
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-2.5">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2.5">
                             Instalaciones
                           </p>
                           <div className="flex flex-wrap gap-1.5">
@@ -890,13 +891,13 @@ export default function PlayerClubsPage() {
                       {/* Contact */}
                       {(club.contact_phone || club.contact_email || club.website) && (
                         <div className="space-y-1.5">
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-2.5">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2.5">
                             Contacto
                           </p>
                           {club.contact_phone && (
                             <a
                               href={`tel:${club.contact_phone}`}
-                              className="flex items-center gap-2 text-[11px] text-white/30 hover:text-white/60 transition-colors"
+                              className="flex items-center gap-2 text-[11px] text-white/60 hover:text-white/60 transition-colors"
                             >
                               <Phone className="w-3 h-3 shrink-0 text-white/15" />
                               {club.contact_phone}
@@ -905,7 +906,7 @@ export default function PlayerClubsPage() {
                           {club.contact_email && (
                             <a
                               href={`mailto:${club.contact_email}`}
-                              className="flex items-center gap-2 text-[11px] text-white/30 hover:text-white/60 transition-colors truncate"
+                              className="flex items-center gap-2 text-[11px] text-white/60 hover:text-white/60 transition-colors truncate"
                             >
                               <Mail className="w-3 h-3 shrink-0 text-white/15" />
                               {club.contact_email}
@@ -928,10 +929,10 @@ export default function PlayerClubsPage() {
                       {/* Court info */}
                       {club.court_count && (
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-2.5">
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-2.5">
                             Instalaciones
                           </p>
-                          <div className="flex items-center gap-2 text-[11px] text-white/35">
+                          <div className="flex items-center gap-2 text-[11px] text-white/65">
                             <Wifi className="w-3 h-3 text-white/15" />
                             {club.court_count} canchas
                           </div>
@@ -985,7 +986,7 @@ export default function PlayerClubsPage() {
               </div>
               <div>
                 <h2 className="text-base font-bold text-white leading-tight">Unirse al Club</h2>
-                <p className="text-[11px] text-white/30 mt-0.5">Completa el pago para unirte</p>
+                <p className="text-[11px] text-white/60 mt-0.5">Completa el pago para unirte</p>
               </div>
             </div>
           </div>
@@ -994,22 +995,22 @@ export default function PlayerClubsPage() {
           <div className="overflow-y-auto flex-1 px-7 py-6 space-y-5">
             {/* Club summary */}
             <div className="bg-white/[0.03] border border-white/[0.07] rounded-xl p-4 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Resumen</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/88">Resumen</p>
               <div className="flex items-center gap-3">
                 <ClubLogo logo={joinPaymentClub?.logo} name={joinPaymentClub?.name} size="md" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">{joinPaymentClub?.name}</p>
-                  <p className="text-[11px] text-white/35">
+                  <p className="text-[11px] text-white/65">
                     {joinPaymentClub?.city}, {joinPaymentClub?.state}
                   </p>
                 </div>
               </div>
               {joinPaymentInfo && (
                 <div className="flex justify-between items-baseline pt-2 border-t border-white/[0.06]">
-                  <span className="text-[11px] text-white/35">Cuota de membresía</span>
+                  <span className="text-[11px] text-white/65">Cuota de membresía</span>
                   <span className="font-bold text-[#ace600] text-xl">
                     ${joinPaymentInfo.amount.toLocaleString()}{' '}
-                    <span className="text-sm font-normal text-white/30">MXN</span>
+                    <span className="text-sm font-normal text-white/60">MXN</span>
                   </span>
                 </div>
               )}
@@ -1047,6 +1048,7 @@ export default function PlayerClubsPage() {
                       setJoiningClubId(club.id);
                       try {
                         await dispatch(joinClub(club.id)).unwrap();
+                        await dispatch(fetchMyClubs());
                         toast.success(`Te uniste a ${club.name}`);
                       } catch (err) {
                         console.error('Failed to join club after payment:', err);

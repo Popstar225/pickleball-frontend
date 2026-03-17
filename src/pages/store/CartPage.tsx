@@ -27,11 +27,11 @@ export default function CartPage() {
         <div className="w-20 h-20 rounded-2xl bg-[#13131A] border border-[#1E1E2E] flex items-center justify-center mb-5">
           <ShoppingCart className="w-8 h-8 text-[#2A2A3E]" />
         </div>
-        <h2 className="font-['Syne',sans-serif] text-xl font-bold mb-2">Tu carrito está vacío</h2>
+        <h2 className="font-sans text-xl font-bold mb-2">Tu carrito está vacío</h2>
         <p className="text-[#5A5A7A] text-sm mb-7">Agrega productos para continuar</p>
         <button
           onClick={() => navigate('/store')}
-          className="flex items-center gap-2 px-6 py-3 bg-[#C8FF00] text-black font-['Syne',sans-serif] font-bold text-sm rounded-xl hover:bg-[#d4ff1a] transition-all"
+          className="flex items-center gap-2 px-6 py-3 bg-[#C8FF00] text-black font-sans font-bold text-sm rounded-xl hover:bg-[#d4ff1a] transition-all"
         >
           <ShoppingBag className="w-4 h-4" />
           Ir a la tienda
@@ -61,7 +61,7 @@ export default function CartPage() {
             Continuar comprando
           </button>
           <div className="flex items-center gap-2">
-            <span className="font-['Syne',sans-serif] font-extrabold text-base">Carrito</span>
+            <span className="font-sans font-extrabold text-base">Carrito</span>
             <span className="text-[#5A5A7A] text-sm">({cart.length})</span>
           </div>
         </div>
@@ -100,7 +100,7 @@ export default function CartPage() {
                   >
                     {item.product.name}
                   </h3>
-                  <p className="text-[#C8FF00] font-['Syne',sans-serif] font-bold text-sm mt-1">
+                  <p className="text-[#C8FF00] font-sans font-bold text-sm mt-1">
                     ${Number(item.product.price).toLocaleString()} MXN
                   </p>
                   <div className="flex items-center gap-3 mt-2.5">
@@ -111,7 +111,7 @@ export default function CartPage() {
                       >
                         <Minus className="w-3 h-3" />
                       </button>
-                      <span className="w-8 text-center text-sm font-['Syne',sans-serif] font-bold border-x border-[#2A2A3E]">
+                      <span className="w-8 text-center text-sm font-sans font-bold border-x border-[#2A2A3E]">
                         {item.quantity}
                       </span>
                       <button
@@ -132,7 +132,7 @@ export default function CartPage() {
                 </div>
 
                 <div className="text-right flex-shrink-0">
-                  <span className="font-['Syne',sans-serif] font-bold text-base">
+                  <span className="font-sans font-bold text-base">
                     ${(Number(item.product.price) * item.quantity).toLocaleString()}
                   </span>
                 </div>
@@ -151,7 +151,7 @@ export default function CartPage() {
           {/* Summary */}
           <div>
             <div className="bg-[#13131A] border border-[#1E1E2E] rounded-2xl p-5 sticky top-20">
-              <h3 className="font-['Syne',sans-serif] font-bold text-base mb-4">Resumen</h3>
+              <h3 className="font-sans font-bold text-base mb-4">Resumen</h3>
 
               <div className="space-y-2.5 mb-4">
                 {cart.map((item: CartItem) => (
@@ -175,9 +175,9 @@ export default function CartPage() {
 
               <div className="border-t border-[#1E1E2E] pt-3">
                 <div className="flex justify-between items-baseline">
-                  <span className="font-['Syne',sans-serif] font-bold">Total</span>
+                  <span className="font-sans font-bold">Total</span>
                   <div className="text-right">
-                    <span className="font-['Syne',sans-serif] font-extrabold text-2xl text-[#C8FF00]">
+                    <span className="font-sans font-extrabold text-2xl text-[#C8FF00]">
                       ${total.toLocaleString()}
                     </span>
                     <span className="text-[#5A5A7A] text-xs ml-1">MXN</span>
@@ -187,7 +187,7 @@ export default function CartPage() {
 
               <button
                 onClick={handleCheckout}
-                className="w-full py-3.5 mt-4 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-['Syne',sans-serif] font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+                className="w-full py-3.5 mt-4 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-sans font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
               >
                 <ShoppingCart className="w-4 h-4" />
                 Proceder al pago

@@ -24,6 +24,7 @@ import Tournaments from './pages/admin/Tournaments';
 import PressReleases from './pages/communication/PressReleases';
 import Partners from './pages/partners/Partners';
 import PricingPage from './pages/pricing/PricingPage';
+import CredentialVerifyPage from './pages/public/CredentialVerifyPage';
 
 // Auth pages
 import LoginPage from './pages/auth/LoginPage';
@@ -357,6 +358,12 @@ export const routes = [
     key: 'pricing',
     path: '/pricing',
     element: <PricingPage />,
+    public: true,
+  },
+  {
+    key: 'credential-verify',
+    path: '/credentials/verify/:code',
+    element: <CredentialVerifyPage />,
     public: true,
   },
   {

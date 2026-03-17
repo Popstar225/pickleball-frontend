@@ -52,7 +52,7 @@ function StatusBadge({ status }: { status: string }) {
   };
   const cfg = map[status] ?? { label: status, className: 'bg-white/[0.06] border border-white/[0.1] text-white/50', icon: null };
   return (
-    <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold font-["Syne",sans-serif] tracking-wide', cfg.className)}>
+    <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold font-sans tracking-wide', cfg.className)}>
       {cfg.icon}{cfg.label}
     </span>
   );
@@ -66,15 +66,15 @@ function StatCard({ icon: Icon, label, value, sub, iconColor }: {
     <Card className="bg-white/[0.025] border border-[#C8FF00]/[0.08] rounded-2xl">
       <CardContent className="p-5">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-[12px] text-white/40 font-medium">{label}</span>
+          <span className="text-[12px] text-white/65 font-medium">{label}</span>
           <div className={cn('w-8 h-8 rounded-[9px] flex items-center justify-center', iconColor)}>
             <Icon className="w-4 h-4" />
           </div>
         </div>
-        <p className="font-['Syne',sans-serif] font-extrabold text-[26px] leading-none text-white tracking-tight">
+        <p className="font-sans font-extrabold text-[26px] leading-none text-white tracking-tight">
           {value}
         </p>
-        <p className="text-[11px] text-white/30 mt-1.5">{sub}</p>
+        <p className="text-[11px] text-white/60 mt-1.5">{sub}</p>
       </CardContent>
     </Card>
   );
@@ -175,7 +175,7 @@ export default function PlayerPaymentsPage() {
       <div className="flex items-center justify-center py-32">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="w-7 h-7 text-[#C8FF00] animate-spin" />
-          <span className="text-white/30 text-sm font-['DM_Sans',sans-serif]">Cargando pagos…</span>
+          <span className="text-white/60 text-sm font-['DM_Sans',sans-serif]">Cargando pagos…</span>
         </div>
       </div>
     );
@@ -186,10 +186,10 @@ export default function PlayerPaymentsPage() {
 
       {/* ── Page header ── */}
       <div>
-        <h1 className="font-['Syne',sans-serif] font-extrabold text-[28px] tracking-tight text-white leading-none">
+        <h1 className="font-sans font-extrabold text-[28px] tracking-tight text-white leading-none">
           Pagos
         </h1>
-        <p className="text-white/35 text-[13px] mt-1.5">Historial de pagos y gestión de membresía</p>
+        <p className="text-white/65 text-[13px] mt-1.5">Historial de pagos y gestión de membresía</p>
       </div>
 
       {/* ── Error banner ── */}
@@ -225,11 +225,11 @@ export default function PlayerPaymentsPage() {
               </div>
               <div>
                 <div className="flex items-center gap-2.5 mb-1.5">
-                  <p className="font-['Syne',sans-serif] font-extrabold text-[15px] text-white">
+                  <p className="font-sans font-extrabold text-[15px] text-white">
                     Membresía Anual de Jugador
                   </p>
                   <span className={cn(
-                    'px-2.5 py-0.5 rounded-full text-[10px] font-bold font-["Syne",sans-serif] tracking-wide',
+                    'px-2.5 py-0.5 rounded-full text-[10px] font-bold font-sans tracking-wide',
                     isActive
                       ? 'bg-[#C8FF00]/[0.12] border border-[#C8FF00]/[0.25] text-[#C8FF00]'
                       : 'bg-[#FF5A1F]/[0.12] border border-[#FF5A1F]/[0.25] text-[#FF5A1F]',
@@ -237,17 +237,17 @@ export default function PlayerPaymentsPage() {
                     {isActive ? 'ACTIVA' : membership?.is_expired ? 'VENCIDA' : 'INACTIVA'}
                   </span>
                 </div>
-                <p className="font-['Syne',sans-serif] font-extrabold text-[28px] leading-none text-white tracking-tight">
+                <p className="font-sans font-extrabold text-[28px] leading-none text-white tracking-tight">
                   ${(membership?.annual_fee || 500).toLocaleString()}
-                  <span className="text-[14px] font-normal text-white/35 ml-1.5">MXN/año</span>
+                  <span className="text-[14px] font-normal text-white/65 ml-1.5">MXN/año</span>
                 </p>
                 {isActive && membership?.membership_expires_at ? (
-                  <p className="text-[12px] text-white/40 mt-1.5 flex items-center gap-1.5">
+                  <p className="text-[12px] text-white/65 mt-1.5 flex items-center gap-1.5">
                     <Calendar className="w-3 h-3" />
                     Vence el {new Date(membership.membership_expires_at).toLocaleDateString('es-MX')}
                   </p>
                 ) : (
-                  <p className="text-[12px] text-white/40 mt-1.5 max-w-sm">
+                  <p className="text-[12px] text-white/65 mt-1.5 max-w-sm">
                     Activa tu membresía para participar en torneos oficiales y acceder a funciones exclusivas
                   </p>
                 )}
@@ -256,7 +256,7 @@ export default function PlayerPaymentsPage() {
             <Button
               onClick={() => setShowMembershipModal(true)}
               className={cn(
-                'rounded-xl font-["Syne",sans-serif] font-extrabold text-[13px] gap-2',
+                'rounded-xl font-sans font-extrabold text-[13px] gap-2',
                 isActive
                   ? 'bg-white/[0.07] border border-white/[0.12] text-white hover:bg-white/[0.12]'
                   : 'bg-[#C8FF00] text-black hover:bg-[#d6ff26] shadow-[0_4px_20px_rgba(200,255,0,0.25)]',
@@ -277,10 +277,10 @@ export default function PlayerPaymentsPage() {
               <Zap className="w-3.5 h-3.5 text-[#C8FF00]" />
             </div>
             <div>
-              <CardTitle className="text-[13px] font-['Syne',sans-serif] font-bold tracking-[1px] uppercase text-white/80">
+              <CardTitle className="text-[13px] font-sans font-bold tracking-[1px] uppercase text-white/95">
                 Funciones Adicionales
               </CardTitle>
-              <CardDescription className="text-white/30 text-[12px] mt-0.5">
+              <CardDescription className="text-white/60 text-[12px] mt-0.5">
                 Funciones opcionales para jugadores
               </CardDescription>
             </div>
@@ -303,17 +303,17 @@ export default function PlayerPaymentsPage() {
                     ? 'bg-[#C8FF00]/[0.12] border border-[#C8FF00]/[0.2]'
                     : 'bg-white/[0.06] border border-white/[0.1]',
                 )}>
-                  <MapPin className={cn('w-4 h-4', searchFeaturePaid ? 'text-[#C8FF00]' : 'text-white/40')} />
+                  <MapPin className={cn('w-4 h-4', searchFeaturePaid ? 'text-[#C8FF00]' : 'text-white/65')} />
                 </div>
                 {searchFeaturePaid
-                  ? <span className="text-[10px] font-bold font-['Syne',sans-serif] bg-[#C8FF00]/[0.1] border border-[#C8FF00]/[0.22] text-[#C8FF00] px-2 py-0.5 rounded-full">ACTIVO</span>
-                  : <Lock className="w-3.5 h-3.5 text-white/20" />}
+                  ? <span className="text-[10px] font-bold font-sans bg-[#C8FF00]/[0.1] border border-[#C8FF00]/[0.22] text-[#C8FF00] px-2 py-0.5 rounded-full">ACTIVO</span>
+                  : <Lock className="w-3.5 h-3.5 text-white/50" />}
               </div>
-              <p className="font-['Syne',sans-serif] font-bold text-[13px] text-white mb-0.5">Búsqueda de Jugadores</p>
-              <p className="text-[11px] text-white/35 mb-2.5">Busca jugadores cercanos en el mapa</p>
-              <p className="font-['Syne',sans-serif] font-extrabold text-[15px] text-[#C8FF00]">
+              <p className="font-sans font-bold text-[13px] text-white mb-0.5">Búsqueda de Jugadores</p>
+              <p className="text-[11px] text-white/65 mb-2.5">Busca jugadores cercanos en el mapa</p>
+              <p className="font-sans font-extrabold text-[15px] text-[#C8FF00]">
                 $200 MXN
-                <span className="text-[11px] font-normal text-white/30 ml-1">pago único</span>
+                <span className="text-[11px] font-normal text-white/60 ml-1">pago único</span>
               </p>
               {!searchFeaturePaid && isActive && (
                 showSearchPayment && searchPaymentData ? (
@@ -338,7 +338,7 @@ export default function PlayerPaymentsPage() {
                     size="sm"
                     onClick={handleBuySearchFeature}
                     disabled={searchPaymentLoading}
-                    className="mt-3 w-full bg-[#C8FF00] text-black font-['Syne',sans-serif] font-extrabold rounded-xl text-[12px] hover:bg-[#d6ff26] gap-1.5"
+                    className="mt-3 w-full bg-[#C8FF00] text-black font-sans font-extrabold rounded-xl text-[12px] hover:bg-[#d6ff26] gap-1.5"
                   >
                     {searchPaymentLoading && <Loader2 className="w-3 h-3 animate-spin" />}
                     Comprar Acceso
@@ -346,28 +346,28 @@ export default function PlayerPaymentsPage() {
                 )
               )}
               {!searchFeaturePaid && !isActive && (
-                <p className="text-[11px] text-white/25 mt-2.5">Requiere membresía activa</p>
+                <p className="text-[11px] text-white/88 mt-2.5">Requiere membresía activa</p>
               )}
             </div>
 
             {/* Tournaments */}
             <div className="p-4 bg-white/[0.03] rounded-xl border border-white/[0.07]">
               <div className="w-8 h-8 rounded-[9px] bg-white/[0.06] border border-white/[0.1] flex items-center justify-center mb-3">
-                <Receipt className="w-4 h-4 text-white/40" />
+                <Receipt className="w-4 h-4 text-white/65" />
               </div>
-              <p className="font-['Syne',sans-serif] font-bold text-[13px] text-white mb-0.5">Inscripción a Torneos</p>
-              <p className="text-[11px] text-white/35 mb-2.5">Cuota variable por torneo</p>
-              <p className="font-['Syne',sans-serif] font-bold text-[13px] text-white/50">Varía por torneo</p>
+              <p className="font-sans font-bold text-[13px] text-white mb-0.5">Inscripción a Torneos</p>
+              <p className="text-[11px] text-white/65 mb-2.5">Cuota variable por torneo</p>
+              <p className="font-sans font-bold text-[13px] text-white/50">Varía por torneo</p>
             </div>
 
             {/* Courts */}
             <div className="p-4 bg-white/[0.03] rounded-xl border border-white/[0.07]">
               <div className="w-8 h-8 rounded-[9px] bg-white/[0.06] border border-white/[0.1] flex items-center justify-center mb-3">
-                <Calendar className="w-4 h-4 text-white/40" />
+                <Calendar className="w-4 h-4 text-white/65" />
               </div>
-              <p className="font-['Syne',sans-serif] font-bold text-[13px] text-white mb-0.5">Reserva de Canchas</p>
-              <p className="text-[11px] text-white/35 mb-2.5">Reserva canchas disponibles</p>
-              <p className="font-['Syne',sans-serif] font-bold text-[13px] text-white/50">Varía por cancha</p>
+              <p className="font-sans font-bold text-[13px] text-white mb-0.5">Reserva de Canchas</p>
+              <p className="text-[11px] text-white/65 mb-2.5">Reserva canchas disponibles</p>
+              <p className="font-sans font-bold text-[13px] text-white/50">Varía por cancha</p>
             </div>
           </div>
         </CardContent>
@@ -406,10 +406,10 @@ export default function PlayerPaymentsPage() {
               <Receipt className="w-3.5 h-3.5 text-[#C8FF00]" />
             </div>
             <div>
-              <CardTitle className="text-[13px] font-['Syne',sans-serif] font-bold tracking-[1px] uppercase text-white/80">
+              <CardTitle className="text-[13px] font-sans font-bold tracking-[1px] uppercase text-white/95">
                 Historial de Pagos
               </CardTitle>
-              <CardDescription className="text-white/30 text-[12px] mt-0.5">
+              <CardDescription className="text-white/60 text-[12px] mt-0.5">
                 Todos tus pagos en la plataforma
               </CardDescription>
             </div>
@@ -419,9 +419,9 @@ export default function PlayerPaymentsPage() {
           {payments.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <div className="w-12 h-12 rounded-2xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center">
-                <Receipt className="w-5 h-5 text-white/20" />
+                <Receipt className="w-5 h-5 text-white/50" />
               </div>
-              <p className="text-white/30 text-[13px]">No hay pagos registrados</p>
+              <p className="text-white/60 text-[13px]">No hay pagos registrados</p>
             </div>
           ) : (() => {
             const totalPages = Math.ceil(payments.length / PAGE_SIZE);
@@ -431,12 +431,12 @@ export default function PlayerPaymentsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-b border-white/[0.05] hover:bg-transparent">
-                      <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30 px-5">Fecha</TableHead>
-                      <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30">Descripción</TableHead>
-                      <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30">Tipo</TableHead>
-                      <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30">Monto</TableHead>
-                      <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30">Estado</TableHead>
-                      <TableHead className="text-[11px] font-bold font-['Syne',sans-serif] tracking-[1px] uppercase text-white/30 pr-5">Acciones</TableHead>
+                      <TableHead className="text-[11px] font-bold font-sans tracking-[1px] uppercase text-white/60 px-5">Fecha</TableHead>
+                      <TableHead className="text-[11px] font-bold font-sans tracking-[1px] uppercase text-white/60">Descripción</TableHead>
+                      <TableHead className="text-[11px] font-bold font-sans tracking-[1px] uppercase text-white/60">Tipo</TableHead>
+                      <TableHead className="text-[11px] font-bold font-sans tracking-[1px] uppercase text-white/60">Monto</TableHead>
+                      <TableHead className="text-[11px] font-bold font-sans tracking-[1px] uppercase text-white/60">Estado</TableHead>
+                      <TableHead className="text-[11px] font-bold font-sans tracking-[1px] uppercase text-white/60 pr-5">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -453,19 +453,19 @@ export default function PlayerPaymentsPage() {
                             {payment.description || TYPE_LABELS[payment.payment_type] || payment.payment_type}
                           </p>
                           {payment.invoice_number && (
-                            <p className="text-[11px] text-white/25 mt-0.5 font-['JetBrains_Mono',monospace]">
+                            <p className="text-[11px] text-white/88 mt-0.5 font-['JetBrains_Mono',monospace]">
                               {payment.invoice_number}
                             </p>
                           )}
                         </TableCell>
-                        <TableCell className="text-[12px] text-white/40 py-3.5">
+                        <TableCell className="text-[12px] text-white/65 py-3.5">
                           {TYPE_LABELS[payment.payment_type] || payment.payment_type}
                         </TableCell>
                         <TableCell className="py-3.5">
-                          <span className="font-['Syne',sans-serif] font-extrabold text-[15px] text-[#C8FF00]">
+                          <span className="font-sans font-extrabold text-[15px] text-[#C8FF00]">
                             ${Number(payment.amount).toLocaleString()}
                           </span>
-                          <span className="text-[11px] text-white/25 ml-1">
+                          <span className="text-[11px] text-white/88 ml-1">
                             {payment.currency?.toUpperCase() || 'MXN'}
                           </span>
                         </TableCell>
@@ -494,14 +494,14 @@ export default function PlayerPaymentsPage() {
                 {/* ── Pagination ── */}
                 {totalPages > 1 && (
                   <div className="flex items-center justify-between px-5 py-3.5 border-t border-white/[0.05]">
-                    <p className="text-[12px] text-white/30">
+                    <p className="text-[12px] text-white/60">
                       {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, payments.length)} de {payments.length} pagos
                     </p>
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => setPage(p => Math.max(1, p - 1))}
                         disabled={page === 1}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/[0.08] text-white/40 hover:text-white hover:bg-white/[0.06] disabled:opacity-25 disabled:cursor-not-allowed transition-all"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/[0.08] text-white/65 hover:text-white hover:bg-white/[0.06] disabled:opacity-25 disabled:cursor-not-allowed transition-all"
                       >
                         <ChevronLeft className="w-4 h-4" />
                       </button>
@@ -510,10 +510,10 @@ export default function PlayerPaymentsPage() {
                           key={p}
                           onClick={() => setPage(p)}
                           className={cn(
-                            'w-8 h-8 flex items-center justify-center rounded-lg text-[12px] font-bold font-["Syne",sans-serif] transition-all',
+                            'w-8 h-8 flex items-center justify-center rounded-lg text-[12px] font-bold font-sans transition-all',
                             p === page
                               ? 'bg-[#C8FF00]/[0.12] border border-[#C8FF00]/[0.25] text-[#C8FF00]'
-                              : 'border border-white/[0.08] text-white/35 hover:text-white hover:bg-white/[0.06]',
+                              : 'border border-white/[0.08] text-white/65 hover:text-white hover:bg-white/[0.06]',
                           )}
                         >
                           {p}
@@ -522,7 +522,7 @@ export default function PlayerPaymentsPage() {
                       <button
                         onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                         disabled={page === totalPages}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/[0.08] text-white/40 hover:text-white hover:bg-white/[0.06] disabled:opacity-25 disabled:cursor-not-allowed transition-all"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-white/[0.08] text-white/65 hover:text-white hover:bg-white/[0.06] disabled:opacity-25 disabled:cursor-not-allowed transition-all"
                       >
                         <ChevronRight className="w-4 h-4" />
                       </button>

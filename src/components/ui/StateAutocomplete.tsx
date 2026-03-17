@@ -62,6 +62,7 @@ export const StateAutocomplete: React.FC<StateAutocompleteProps> = ({
   };
 
   const handleFocus = () => {
+    setInputValue('');
     setShowOptions(true);
   };
 

@@ -34,7 +34,7 @@ import { getFullImageUrl } from '@/common/tools';
 
 /* ─── Keyframe-only styles (cannot be done in Tailwind) ─────── */
 const KEYFRAMES = `
-  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
 
   @keyframes blobDrift {
     from { transform: translate(0,0) scale(1); }
@@ -67,7 +67,7 @@ const KEYFRAMES = `
   }
 
   /* Font assignments */
-  .font-bebas  { font-family: 'Bebas Neue', sans-serif; }
+  .font-bebas  { font-family: 'Inter', sans-serif; }
   .font-outfit { font-family: 'Outfit', sans-serif; }
   .font-jetbrains { font-family: 'JetBrains Mono', monospace; }
 

@@ -9,6 +9,7 @@ import {
   updatePlayerProfile,
   deletePlayerAccount,
 } from '@/store/slices/playerDashboardSlice';
+import { fetchMyDigitalCredential } from '@/store/slices/digitalCredentialsSlice';
 import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
 import { getFullImageUrl } from '@/common/tools';
 import {
@@ -24,6 +25,15 @@ const NAV_TABS = [
   { id: 'preferences', label: 'Preferencias',  icon: Bell     },
 ];
 
+// ─── Skill levels ─────────────────────────────────────────────────────────────
+const SKILL_LEVELS = [
+  { value: 'Principiante', label: 'Principiante 2.0' },
+  { value: 'Intermedio',   label: 'Intermedio 3.0'   },
+  { value: 'Avanzado',     label: 'Avanzado 4.0'     },
+  { value: 'Profesional',  label: 'Profesional 5.0'  },
+];
+const skillLabel = (v: string) => SKILL_LEVELS.find(s => s.value === v)?.label ?? v;
+
 // ─── Shared tokens ────────────────────────────────────────────────────────────
 const inputCls =
   'w-full h-10 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white ' +
@@ -34,7 +44,7 @@ const inputCls =
 const selectCls =
   `${inputCls} appearance-none pr-8 cursor-pointer`;
 
-const labelCls = 'block text-[10px] font-bold uppercase tracking-widest text-white/30 mb-1.5';
+const labelCls = 'block text-[10px] font-bold uppercase tracking-widest text-white/60 mb-1.5';
 
 // ─── Atoms ────────────────────────────────────────────────────────────────────
 function SectionHeading({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) {
@@ -43,7 +53,7 @@ function SectionHeading({ icon: Icon, children }: { icon: React.ElementType; chi
       <div className="w-6 h-6 rounded-md bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center flex-shrink-0">
         <Icon className="w-3 h-3 text-[#ace600]" />
       </div>
-      <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/30">{children}</span>
+      <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/60">{children}</span>
       <div className="flex-1 h-px bg-white/[0.05]" />
     </div>
   );
@@ -61,8 +71,8 @@ function InfoRow({ icon: Icon, label, value, editing, type = 'text', onChange, d
           onChange={e => onChange?.(e.target.value)} disabled={disabled} />
       ) : (
         <div className="flex items-center gap-2.5 h-10 px-0">
-          <Icon className="w-3.5 h-3.5 text-white/25 flex-shrink-0" />
-          <span className="text-sm text-white/65">{value || <span className="text-white/20 italic">—</span>}</span>
+          <Icon className="w-3.5 h-3.5 text-white/88 flex-shrink-0" />
+          <span className="text-sm text-white/65">{value || <span className="text-white/50 italic">—</span>}</span>
         </div>
       )}
     </div>
@@ -74,8 +84,8 @@ function Toggle({ label, desc, defaultChecked }: { label: string; desc: string; 
   return (
     <div className="flex items-center justify-between py-3.5 border-b border-white/[0.04] last:border-0">
       <div>
-        <p className="text-sm font-medium text-white/75">{label}</p>
-        <p className="text-[11px] text-white/30 mt-0.5">{desc}</p>
+        <p className="text-sm font-medium text-white/88">{label}</p>
+        <p className="text-[11px] text-white/60 mt-0.5">{desc}</p>
       </div>
       <button onClick={() => setOn(v => !v)} type="button"
         className="relative shrink-0 rounded-full transition-all duration-200 focus:outline-none"
@@ -147,9 +157,10 @@ export default function PlayerAccountPage() {
       };
       Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') fd.append(k, v as any); });
       if (selectedFile) fd.set('profile_photo', selectedFile);
-      await dispatch(updatePlayerProfile(fd));
+      await dispatch(updatePlayerProfile(fd)).unwrap();
       setSelectedFile(null);
       setIsEditing(false);
+      dispatch(fetchMyDigitalCredential());
       toast({ title: 'Perfil actualizado', description: 'Tu información ha sido guardada.' });
     } catch (err: any) {
       toast({ title: 'Error al guardar', description: err?.message || 'No se pudo actualizar', variant: 'destructive' });
@@ -213,7 +224,7 @@ export default function PlayerAccountPage() {
     return (
       <div className="flex flex-col items-center justify-center h-96 gap-3">
         <Loader2 className="w-6 h-6 text-[#ace600] animate-spin" />
-        <p className="text-xs text-white/25">Cargando perfil…</p>
+        <p className="text-xs text-white/88">Cargando perfil…</p>
       </div>
     );
   }
@@ -252,7 +263,7 @@ export default function PlayerAccountPage() {
                 }
               </div>
               <button onClick={() => fileRef.current?.click()}
-                className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-[#0d1117] border border-white/[0.1] flex items-center justify-center text-white/40 hover:text-[#ace600] transition-colors">
+                className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-[#0d1117] border border-white/[0.1] flex items-center justify-center text-white/65 hover:text-[#ace600] transition-colors">
                 {selectedFile ? <Upload className="w-3 h-3" /> : <Camera className="w-3 h-3" />}
               </button>
               {selectedFile && (
@@ -272,18 +283,13 @@ export default function PlayerAccountPage() {
                   {form.membershipStatus || 'Activo'}
                 </span>
               </div>
-              <p className="text-xs text-white/30 mb-2">@{form.username || '—'}</p>
+              <p className="text-xs text-white/60 mb-2">@{form.username || '—'}</p>
               <div className="flex flex-wrap gap-1.5">
                 <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#ace600]/10 border border-[#ace600]/20 text-[#ace600]">
-                  <Star className="w-2.5 h-2.5" /> {form.nrtpLevel}
+                  <Star className="w-2.5 h-2.5" /> {skillLabel(form.nrtpLevel)}
                 </span>
-                {form.city && (
-                  <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-400">
-                    <MapPin className="w-2.5 h-2.5" /> {form.city}
-                  </span>
-                )}
                 {form.joinedDate && (
-                  <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.07] text-white/30">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.07] text-white/60">
                     <Calendar className="w-2.5 h-2.5" /> Desde {new Date(form.joinedDate).getFullYear()}
                   </span>
                 )}
@@ -306,7 +312,7 @@ export default function PlayerAccountPage() {
                   {profileLoading ? 'Guardando…' : 'Guardar'}
                 </button>
                 <button onClick={handleCancel} disabled={profileLoading}
-                  className="flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-white/[0.08] text-white/40 hover:text-white text-xs font-semibold transition-all">
+                  className="flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-white/[0.08] text-white/65 hover:text-white text-xs font-semibold transition-all">
                   <X className="w-3.5 h-3.5" /> Cancelar
                 </button>
               </>
@@ -321,13 +327,13 @@ export default function PlayerAccountPage() {
         {/* stat strip */}
         <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/[0.05] border-t border-white/[0.05]">
           {[
-            { label: 'Nivel', value: form.nrtpLevel || '—' },
+            { label: 'Categoría', value: skillLabel(form.nrtpLevel) || '—' },
             { label: 'Membresía', value: form.membershipStatus || 'Basic' },
             { label: 'Torneos', value: form.totalTournaments },
             { label: 'Último Login', value: form.lastActive ? new Date(form.lastActive).toLocaleDateString('es-MX') : '—' },
           ].map(({ label, value }) => (
             <div key={label} className="px-5 py-3.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1">{label}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/88 mb-1">{label}</p>
               <p className="text-sm font-bold text-[#ace600] truncate">{value}</p>
             </div>
           ))}
@@ -341,7 +347,7 @@ export default function PlayerAccountPage() {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
               activeTab === id
                 ? 'bg-[#ace600] text-black'
-                : 'text-white/35 hover:text-white/60 hover:bg-white/[0.04]'
+                : 'text-white/65 hover:text-white hover:bg-white/[0.04]'
             }`}>
             <Icon className="w-3.5 h-3.5" />
             {label}
@@ -364,7 +370,7 @@ export default function PlayerAccountPage() {
                     value={form.bio} onChange={e => set('bio', e.target.value)}
                     placeholder="Cuéntanos sobre ti…" disabled={profileLoading} />
                 : <p className="text-sm text-white/50 leading-relaxed">
-                    {form.bio || <span className="text-white/20 italic">Sin biografía aún.</span>}
+                    {form.bio || <span className="text-white/50 italic">Sin biografía aún.</span>}
                   </p>
               }
             </div>
@@ -375,7 +381,6 @@ export default function PlayerAccountPage() {
               <InfoRow icon={Mail}     label="Correo"            value={form.email}       editing={false} />
               <InfoRow icon={Phone}    label="Teléfono"          value={form.phone}       editing={isEditing} onChange={v => set('phone', v)}    disabled={profileLoading} />
               <InfoRow icon={Calendar} label="Fecha de Nacimiento" value={form.dateOfBirth?.split('T')[0] || ''} editing={isEditing} type="date" onChange={v => set('dateOfBirth', v)} disabled={profileLoading} />
-              <InfoRow icon={MapPin}   label="Ciudad"            value={form.city}        editing={isEditing} onChange={v => set('city', v)}     disabled={profileLoading} />
             </div>
           </div>
 
@@ -399,16 +404,16 @@ export default function PlayerAccountPage() {
               </div>
 
               <div>
-                <label className={labelCls}>Nivel de Habilidad</label>
+                <label className={labelCls}>Categoría</label>
                 <div className="relative">
-                  <select className={selectCls} value={form.nrtpLevel}
+                  <select className={`${selectCls} bg-[#0d1117]`} value={form.nrtpLevel}
                     onChange={e => set('nrtpLevel', e.target.value)}
                     disabled={!isEditing || profileLoading}>
-                    {['Principiante', 'Intermedio', 'Avanzado', 'Profesional'].map(l => (
-                      <option key={l} value={l}>{l}</option>
+                    {SKILL_LEVELS.map(({ value, label }) => (
+                      <option key={value} value={value} className="bg-[#0d1117] text-white">{label}</option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/88 pointer-events-none" />
                 </div>
               </div>
 
@@ -423,7 +428,7 @@ export default function PlayerAccountPage() {
                     <option value="female">Femenino</option>
                     <option value="other">Otro</option>
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/88 pointer-events-none" />
                 </div>
               </div>
 
@@ -442,7 +447,7 @@ export default function PlayerAccountPage() {
 
             {/* Emergency section */}
             <div className="space-y-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Información de Emergencia</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/88">Información de Emergencia</p>
 
               <div>
                 <label className={labelCls}>CURP</label>
@@ -492,7 +497,7 @@ export default function PlayerAccountPage() {
         <div className="space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: 'Nivel de Habilidad', value: form.nrtpLevel || '—', icon: Swords       },
+              { label: 'Categoría', value: skillLabel(form.nrtpLevel) || '—', icon: Swords       },
               { label: 'Membresía',          value: form.membershipStatus || 'Basic', icon: Trophy },
               { label: 'Verificación',       value: profile?.is_verified ? 'Verificado' : 'Pendiente', icon: Shield },
               { label: 'Torneos',            value: String(form.totalTournaments), icon: Trophy  },
@@ -501,7 +506,7 @@ export default function PlayerAccountPage() {
                 <div className="w-7 h-7 rounded-lg bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center mb-3">
                   <Icon className="w-3.5 h-3.5 text-[#ace600]" />
                 </div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1">{label}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/88 mb-1">{label}</p>
                 <p className="text-lg font-bold text-[#ace600]">{value}</p>
               </div>
             ))}
@@ -510,7 +515,7 @@ export default function PlayerAccountPage() {
           <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
             <div className="px-5 py-4 border-b border-white/[0.05]">
               <div className="flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-white/25" />
+                <Trophy className="w-4 h-4 text-white/88" />
                 <span className="text-sm font-semibold text-white/60">Detalles de Membresía</span>
               </div>
             </div>
@@ -523,10 +528,10 @@ export default function PlayerAccountPage() {
                 { label: 'Torneos Totales',     value: String(form.totalTournaments), badge: false },
               ].map(({ label, value, badge }) => (
                 <div key={label} className="flex items-center justify-between px-5 py-3.5">
-                  <span className="text-sm text-white/40">{label}</span>
+                  <span className="text-sm text-white/65">{label}</span>
                   {badge
                     ? <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#ace600]/10 border border-[#ace600]/20 text-[#ace600]">{value}</span>
-                    : <span className="text-sm font-semibold text-white/70">{value}</span>
+                    : <span className="text-sm font-semibold text-white/85">{value}</span>
                   }
                 </div>
               ))}
@@ -543,16 +548,16 @@ export default function PlayerAccountPage() {
             <SectionHeading icon={Swords}>Preferencias de Juego</SectionHeading>
 
             <div>
-              <label className={labelCls}>Nivel de Habilidad</label>
+              <label className={labelCls}>Categoría</label>
               <div className="relative">
-                <select className={selectCls} value={form.nrtpLevel}
+                <select className={`${selectCls} bg-[#0d1117]`} value={form.nrtpLevel}
                   onChange={e => set('nrtpLevel', e.target.value)}
                   disabled={!isEditing || profileLoading}>
-                  {['Principiante', 'Intermedio', 'Avanzado', 'Profesional'].map(l => (
-                    <option key={l} value={l}>{l}</option>
+                  {SKILL_LEVELS.map(({ value, label }) => (
+                    <option key={value} value={value} className="bg-[#0d1117] text-white">{label}</option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/88 pointer-events-none" />
               </div>
             </div>
 
@@ -562,13 +567,13 @@ export default function PlayerAccountPage() {
                 <select className={`${selectCls} opacity-40 cursor-not-allowed`} disabled>
                   {['Ambas', 'Derecha', 'Izquierda'].map(g => <option key={g}>{g}</option>)}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/88 pointer-events-none" />
               </div>
-              <p className="mt-1 text-[10px] text-white/20">Próximamente disponible</p>
+              <p className="mt-1 text-[10px] text-white/50">Próximamente disponible</p>
             </div>
 
             {!isEditing && (
-              <p className="text-[11px] text-white/25">Haz clic en "Editar Perfil" para modificar estas preferencias.</p>
+              <p className="text-[11px] text-white/88">Haz clic en "Editar Perfil" para modificar estas preferencias.</p>
             )}
           </div>
 
@@ -605,7 +610,7 @@ export default function PlayerAccountPage() {
                 <Trash2 className="w-5 h-5 text-red-400" />
               </div>
               <h2 className="text-base font-bold text-white mb-1">¿Eliminar cuenta?</h2>
-              <p className="text-sm text-white/35 leading-relaxed">
+              <p className="text-sm text-white/65 leading-relaxed">
                 Esta acción no se puede deshacer. Se eliminarán permanentemente tu cuenta y todos los datos asociados.
               </p>
             </div>

@@ -171,7 +171,7 @@ const PHASE_CONFIG: Record<
   },
   completed: {
     label: 'Completado',
-    cls: 'text-white/30 bg-white/[0.04] border-white/[0.07]',
+    cls: 'text-white/60 bg-white/[0.04] border-white/[0.07]',
     dot: 'bg-white/20',
   },
 };
@@ -223,15 +223,15 @@ function PositionIcon({ position }: { position: number }) {
   if (position === 1) return <Crown className="w-5 h-5 text-amber-400" />;
   if (position === 2) return <Medal className="w-5 h-5 text-slate-400" />;
   if (position <= 4) return <Medal className="w-5 h-5 text-amber-600/70" />;
-  return <span className="text-sm font-bold text-white/40">#{position}</span>;
+  return <span className="text-sm font-bold text-white/65">#{position}</span>;
 }
 
 function StandingRow({ label, value, sub }: { label: string; value: React.ReactNode; sub?: string }) {
   return (
     <div className="flex flex-col items-center bg-white/[0.03] border border-white/[0.06] rounded-xl py-3 px-2 text-center">
-      <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1">{label}</p>
+      <p className="text-[10px] font-bold uppercase tracking-widest text-white/88 mb-1">{label}</p>
       <div className="text-lg font-bold text-white leading-none">{value}</div>
-      {sub && <p className="text-[10px] text-white/20 mt-0.5">{sub}</p>}
+      {sub && <p className="text-[10px] text-white/50 mt-0.5">{sub}</p>}
     </div>
   );
 }
@@ -319,7 +319,7 @@ function ActiveCard({
               )}
             </div>
             <h3 className="text-base font-bold text-white/85 leading-tight">{t.name}</h3>
-            <p className="text-xs text-white/35 mt-0.5">
+            <p className="text-xs text-white/65 mt-0.5">
               <Badge
                 variant="outline"
                 className={cn(
@@ -346,26 +346,26 @@ function ActiveCard({
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08]">
                 <PositionIcon position={reg.standing.position} />
               </div>
-              <p className="text-[10px] text-white/25 mt-1">en grupo</p>
+              <p className="text-[10px] text-white/88 mt-1">en grupo</p>
             </div>
           )}
         </div>
 
         {/* Meta row */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-1.5 mb-4">
-          <div className="flex items-center gap-1.5 text-xs text-white/35 min-w-0">
-            <Calendar className="w-3 h-3 shrink-0 text-white/20" />
+          <div className="flex items-center gap-1.5 text-xs text-white/65 min-w-0">
+            <Calendar className="w-3 h-3 shrink-0 text-white/50" />
             <span className="truncate">
               {formatDate(t.start_date)} – {formatDate(t.end_date)}
             </span>
           </div>
-          <div className="flex items-center gap-1.5 text-xs text-white/35 min-w-0">
-            <MapPin className="w-3 h-3 shrink-0 text-white/20" />
+          <div className="flex items-center gap-1.5 text-xs text-white/65 min-w-0">
+            <MapPin className="w-3 h-3 shrink-0 text-white/50" />
             <span className="truncate">{t.venue_name || `${t.city}, ${t.state}`}</span>
           </div>
           {reg.group && (
-            <div className="flex items-center gap-1.5 text-xs text-white/35 min-w-0">
-              <Layers className="w-3 h-3 shrink-0 text-white/20" />
+            <div className="flex items-center gap-1.5 text-xs text-white/65 min-w-0">
+              <Layers className="w-3 h-3 shrink-0 text-white/50" />
               <span>Grupo {reg.group.group_number}</span>
             </div>
           )}
@@ -379,7 +379,7 @@ function ActiveCard({
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-sky-400">Próximo partido</p>
-              <p className="text-sm font-semibold text-white/80 truncate">
+              <p className="text-sm font-semibold text-white/95 truncate">
                 vs {reg.upcoming_match.opponent_name}
               </p>
               <p className="text-[11px] text-sky-400/60">
@@ -393,7 +393,7 @@ function ActiveCard({
         {/* Standing tiles (visible only when expanded or has upcoming match) */}
         {hasGroupData && reg.standing && (expanded || hasUpcoming) && (
           <div className="mb-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/88 mb-2">
               Posición en grupo
             </p>
             <div className="grid grid-cols-4 gap-2">
@@ -423,7 +423,7 @@ function ActiveCard({
         {/* Recent matches (visible when expanded) */}
         {hasRecent && expanded && (
           <div className="mb-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-2">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white/88 mb-2">
               Partidos recientes
             </p>
             <div className="space-y-1.5">
@@ -441,7 +441,7 @@ function ActiveCard({
               variant="ghost"
               size="sm"
               onClick={() => setExpanded((v) => !v)}
-              className="h-8 px-3 text-xs text-white/35 hover:text-white/70 hover:bg-white/[0.05] gap-1.5 transition-all"
+              className="h-8 px-3 text-xs text-white/65 hover:text-white/70 hover:bg-white/[0.05] gap-1.5 transition-all"
             >
               {expanded ? 'Menos' : 'Ver más'}
               <ChevronRight
@@ -453,7 +453,7 @@ function ActiveCard({
             variant="outline"
             size="sm"
             onClick={() => onViewDetails(t.id)}
-            className="h-8 px-3 ml-auto text-xs border-white/[0.08] bg-transparent hover:bg-white/[0.05] text-white/40 hover:text-white/70 gap-1.5 transition-all"
+            className="h-8 px-3 ml-auto text-xs border-white/[0.08] bg-transparent hover:bg-white/[0.05] text-white/65 hover:text-white/70 gap-1.5 transition-all"
           >
             Torneo <ChevronRight className="w-3 h-3" />
           </Button>
@@ -476,7 +476,7 @@ function HistoryCard({ reg }: { reg: HistoryRegistration }) {
         ? 'text-slate-400 bg-slate-500/10 border-slate-500/20'
         : reg.result === 'Semifinalist'
           ? 'text-violet-400 bg-violet-500/10 border-violet-500/20'
-          : 'text-white/35 bg-white/[0.04] border-white/[0.07]';
+          : 'text-white/65 bg-white/[0.04] border-white/[0.07]';
 
   return (
     <div className="flex items-center gap-4 p-4 bg-[#0d1117] border border-white/[0.07] rounded-2xl hover:border-white/[0.11] transition-all group">
@@ -485,14 +485,14 @@ function HistoryCard({ reg }: { reg: HistoryRegistration }) {
         {reg.final_position ? (
           <PositionIcon position={reg.final_position} />
         ) : (
-          <Trophy className="w-4 h-4 text-white/20" />
+          <Trophy className="w-4 h-4 text-white/50" />
         )}
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap mb-1">
-          <p className="text-sm font-semibold text-white/75 truncate group-hover:text-white transition-colors">
+          <p className="text-sm font-semibold text-white/88 truncate group-hover:text-white transition-colors">
             {t.name}
           </p>
           <Badge
@@ -511,12 +511,12 @@ function HistoryCard({ reg }: { reg: HistoryRegistration }) {
           >
             {eventLabel(e)}
           </span>
-          <span className="flex items-center gap-1 text-xs text-white/30">
+          <span className="flex items-center gap-1 text-xs text-white/60">
             <Calendar className="w-3 h-3" />
             {formatDate(t.start_date)}
           </span>
           {t.city && (
-            <span className="flex items-center gap-1 text-xs text-white/30">
+            <span className="flex items-center gap-1 text-xs text-white/60">
               <MapPin className="w-3 h-3" />
               {t.city}
             </span>
@@ -528,7 +528,7 @@ function HistoryCard({ reg }: { reg: HistoryRegistration }) {
       {reg.points_earned > 0 && (
         <div className="shrink-0 text-right">
           <p className="text-lg font-bold text-[#ace600] leading-none">+{reg.points_earned}</p>
-          <p className="text-[10px] text-white/25">pts</p>
+          <p className="text-[10px] text-white/88">pts</p>
         </div>
       )}
     </div>
@@ -594,7 +594,7 @@ export default function PlayerActiveTournamentsPage() {
               </Badge>
             )}
           </div>
-          <p className="text-xs text-white/30">Sigue tu progreso, grupos y resultados</p>
+          <p className="text-xs text-white/60">Sigue tu progreso, grupos y resultados</p>
         </div>
 
         <div className="flex items-center gap-5 sm:gap-6">
@@ -606,7 +606,7 @@ export default function PlayerActiveTournamentsPage() {
             ].map(({ label, value, color }) => (
               <div key={label} className="text-center">
                 <p className={cn('text-2xl font-bold leading-none mb-0.5', color)}>{value}</p>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/20">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">
                   {label}
                 </p>
               </div>
@@ -616,7 +616,7 @@ export default function PlayerActiveTournamentsPage() {
             size="sm"
             onClick={load}
             disabled={loading}
-            className="h-8 w-8 p-0 text-white/25 hover:text-white/60 hover:bg-white/[0.05]"
+            className="h-8 w-8 p-0 text-white/88 hover:text-white/60 hover:bg-white/[0.05]"
           >
             <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} />
           </Button>
@@ -654,7 +654,7 @@ export default function PlayerActiveTournamentsPage() {
       {loading && (
         <div className="flex flex-col items-center justify-center py-20 gap-3">
           <Loader2 className="w-6 h-6 text-[#ace600] animate-spin" />
-          <p className="text-xs text-white/25">Cargando torneos…</p>
+          <p className="text-xs text-white/88">Cargando torneos…</p>
         </div>
       )}
 
@@ -686,10 +686,10 @@ export default function PlayerActiveTournamentsPage() {
                 <Swords className="w-7 h-7 text-white/10" />
               </div>
               <div className="text-center">
-                <p className="text-sm font-semibold text-white/40 mb-1">
+                <p className="text-sm font-semibold text-white/65 mb-1">
                   No tienes torneos activos
                 </p>
-                <p className="text-xs text-white/20 max-w-[280px] leading-relaxed">
+                <p className="text-xs text-white/50 max-w-[280px] leading-relaxed">
                   Inscríbete en un torneo desde la sección de Torneos para ver tu progreso aquí.
                 </p>
               </div>
@@ -728,7 +728,7 @@ export default function PlayerActiveTournamentsPage() {
                   <h3 className="text-base font-bold text-white/60 mb-1">
                     Historial de Torneos
                   </h3>
-                  <p className="text-sm text-white/25 max-w-[340px] leading-relaxed">
+                  <p className="text-sm text-white/88 max-w-[340px] leading-relaxed">
                     Aquí aparecerán los torneos completados. Una vez que termines una competencia
                     podrás ver tus resultados y posición final.
                   </p>
@@ -759,7 +759,7 @@ export default function PlayerActiveTournamentsPage() {
                       className={cn('flex items-center gap-2 p-3 rounded-xl border', bg)}
                     >
                       <Icon className={cn('w-4 h-4 shrink-0', color)} />
-                      <span className="text-xs font-semibold text-white/40">{label}</span>
+                      <span className="text-xs font-semibold text-white/65">{label}</span>
                     </div>
                   ))}
                 </div>
@@ -805,7 +805,7 @@ export default function PlayerActiveTournamentsPage() {
                         <p className={cn('text-xl font-bold leading-none mb-0.5', color)}>
                           {value}
                         </p>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/20">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">
                           {label}
                         </p>
                       </div>

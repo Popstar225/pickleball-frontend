@@ -135,7 +135,7 @@ export default function StorePage() {
             <div className="w-7 h-7 rounded-lg bg-[#C8FF00] flex items-center justify-center">
               <ShoppingBag className="w-3.5 h-3.5 text-black" strokeWidth={2.5} />
             </div>
-            <span className="font-['Syne',sans-serif] font-extrabold text-[15px] tracking-[-0.3px] text-white">
+            <span className="font-sans font-extrabold text-[15px] tracking-[-0.3px] text-white">
               PADELSTORE
             </span>
           </div>
@@ -167,7 +167,7 @@ export default function StorePage() {
               <ShoppingCart className="w-3.5 h-3.5 group-hover:text-[#C8FF00] transition-colors" />
               <span className="group-hover:text-[#C8FF00] transition-colors">Carrito</span>
               {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] bg-[#C8FF00] text-black text-[10px] font-bold rounded-full flex items-center justify-center font-['Syne',sans-serif]">
+                <span className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] bg-[#C8FF00] text-black text-[10px] font-bold rounded-full flex items-center justify-center font-sans">
                   {cartCount}
                 </span>
               )}
@@ -203,7 +203,7 @@ export default function StorePage() {
           >
             {/* Mobile close */}
             <div className="flex items-center justify-between lg:hidden mb-1">
-              <span className="font-['Syne',sans-serif] font-bold text-sm text-white/60 uppercase tracking-widest">
+              <span className="font-sans font-bold text-sm text-white/60 uppercase tracking-widest">
                 Filtros
               </span>
               <button
@@ -216,7 +216,7 @@ export default function StorePage() {
 
             {/* Categories */}
             <div>
-              <p className="text-[10px] font-['Syne',sans-serif] font-bold uppercase tracking-[1.5px] text-white/30 mb-3 px-1">
+              <p className="text-[10px] font-sans font-bold uppercase tracking-[1.5px] text-white/30 mb-3 px-1">
                 Categorías
               </p>
               <nav className="flex flex-col gap-0.5">
@@ -254,7 +254,7 @@ export default function StorePage() {
 
             {/* Price range */}
             <div>
-              <p className="text-[10px] font-['Syne',sans-serif] font-bold uppercase tracking-[1.5px] text-white/30 mb-3 px-1">
+              <p className="text-[10px] font-sans font-bold uppercase tracking-[1.5px] text-white/30 mb-3 px-1">
                 Precio
               </p>
               <div className="flex flex-col gap-0.5">
@@ -283,7 +283,7 @@ export default function StorePage() {
 
             {/* Quick filters */}
             <div>
-              <p className="text-[10px] font-['Syne',sans-serif] font-bold uppercase tracking-[1.5px] text-white/30 mb-3 px-1">
+              <p className="text-[10px] font-sans font-bold uppercase tracking-[1.5px] text-white/30 mb-3 px-1">
                 Filtros rápidos
               </p>
               <div className="flex flex-col gap-1.5">
@@ -344,7 +344,7 @@ export default function StorePage() {
             <div className="mt-auto bg-[#C8FF00]/[0.06] border border-[#C8FF00]/[0.12] rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Award className="w-3.5 h-3.5 text-[#C8FF00]" />
-                <span className="text-[#C8FF00] text-[11px] font-bold font-['Syne',sans-serif] uppercase tracking-wide">
+                <span className="text-[#C8FF00] text-[11px] font-bold font-sans uppercase tracking-wide">
                   Envío gratis
                 </span>
               </div>
@@ -375,7 +375,7 @@ export default function StorePage() {
 
               {/* Breadcrumb / active filter label */}
               <div className="flex items-center gap-2">
-                <span className="font-['Syne',sans-serif] font-bold text-xl tracking-tight text-white">
+                <span className="font-sans font-bold text-xl tracking-tight text-white">
                   {activeCategory.label}
                 </span>
                 {pagination && (
@@ -532,7 +532,7 @@ export default function StorePage() {
                   className={cn(
                     'w-9 h-9 flex items-center justify-center rounded-xl text-[13px] font-medium transition-all',
                     page === p
-                      ? 'bg-[#C8FF00] text-black font-bold font-["Syne",sans-serif]'
+                      ? 'bg-[#C8FF00] text-black font-bold font-sans'
                       : 'bg-white/[0.05] border border-white/[0.07] text-white/40 hover:border-white/[0.15] hover:text-white'
                   )}
                 >
@@ -613,7 +613,7 @@ function ProductCard({
           {product.is_featured && (
             <div className="flex items-center gap-1 bg-[#C8FF00]/90 rounded-md px-2 py-0.5">
               <Star className="w-2.5 h-2.5 text-black fill-black" />
-              <span className="text-black text-[10px] font-extrabold font-['Syne',sans-serif] tracking-wide">
+              <span className="text-black text-[10px] font-extrabold font-sans tracking-wide">
                 TOP
               </span>
             </div>
@@ -622,7 +622,7 @@ function ProductCard({
 
         {discount > 0 && (
           <div className="absolute top-2.5 right-2.5 bg-[#FF5A1F] rounded-md px-2 py-0.5">
-            <span className="text-white text-[10px] font-bold font-['Syne',sans-serif]">
+            <span className="text-white text-[10px] font-bold font-sans">
               -{discount}%
             </span>
           </div>
@@ -630,7 +630,7 @@ function ProductCard({
 
         {product.stock_quantity === 0 && (
           <div className="absolute inset-0 bg-black/65 flex items-center justify-center backdrop-blur-[1px]">
-            <span className="text-white/50 font-['Syne',sans-serif] font-bold text-[11px] tracking-[2px] uppercase border border-white/20 px-3 py-1 rounded-full">
+            <span className="text-white/50 font-sans font-bold text-[11px] tracking-[2px] uppercase border border-white/20 px-3 py-1 rounded-full">
               Agotado
             </span>
           </div>
@@ -641,7 +641,7 @@ function ProductCard({
           <div className="absolute inset-x-2.5 bottom-2.5 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-200">
             <button
               onClick={(e) => { e.stopPropagation(); onAddToCart(); }}
-              className="w-full py-2 bg-[#C8FF00] rounded-xl text-black text-[12px] font-extrabold font-['Syne',sans-serif] flex items-center justify-center gap-1.5 hover:bg-[#d6ff26] active:scale-[0.98] transition-all"
+              className="w-full py-2 bg-[#C8FF00] rounded-xl text-black text-[12px] font-extrabold font-sans flex items-center justify-center gap-1.5 hover:bg-[#d6ff26] active:scale-[0.98] transition-all"
             >
               <ShoppingCart className="w-3 h-3" />
               Añadir al carrito
@@ -652,7 +652,7 @@ function ProductCard({
 
       {/* Body */}
       <div className="p-3.5">
-        <p className="text-white/25 text-[10px] uppercase tracking-[1.2px] mb-1 font-['Syne',sans-serif]">
+        <p className="text-white/25 text-[10px] uppercase tracking-[1.2px] mb-1 font-sans">
           {product.category}
         </p>
         <h3
@@ -663,7 +663,7 @@ function ProductCard({
         </h3>
         <div className="flex items-end justify-between gap-2">
           <div>
-            <div className="font-['Syne',sans-serif] font-bold text-[#C8FF00] text-[16px] leading-none">
+            <div className="font-sans font-bold text-[#C8FF00] text-[16px] leading-none">
               ${Number(product.price).toLocaleString()}
               <span className="text-white/30 text-[11px] font-normal ml-1">MXN</span>
             </div>
@@ -725,11 +725,11 @@ function ProductListItem({
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
-          <span className="text-white/25 text-[10px] uppercase tracking-[1.2px] font-['Syne',sans-serif]">
+          <span className="text-white/25 text-[10px] uppercase tracking-[1.2px] font-sans">
             {product.category}
           </span>
           {product.is_featured && (
-            <span className="flex items-center gap-0.5 text-[#C8FF00] text-[9px] font-bold font-['Syne',sans-serif] uppercase tracking-wide">
+            <span className="flex items-center gap-0.5 text-[#C8FF00] text-[9px] font-bold font-sans uppercase tracking-wide">
               <Star className="w-2.5 h-2.5 fill-[#C8FF00]" /> Top
             </span>
           )}
@@ -758,7 +758,7 @@ function ProductListItem({
       {/* Price + Add */}
       <div className="flex items-center gap-3 flex-shrink-0">
         <div className="text-right">
-          <div className="font-['Syne',sans-serif] font-bold text-[#C8FF00] text-[15px] leading-none">
+          <div className="font-sans font-bold text-[#C8FF00] text-[15px] leading-none">
             ${Number(product.price).toLocaleString()}
           </div>
           <div className="text-white/25 text-[11px] mt-0.5">MXN</div>
@@ -771,7 +771,7 @@ function ProductListItem({
         <button
           disabled={product.stock_quantity === 0}
           onClick={onAddToCart}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#C8FF00] hover:bg-[#d6ff26] text-black text-[12px] font-extrabold font-['Syne',sans-serif] rounded-xl disabled:bg-white/[0.06] disabled:text-white/20 disabled:cursor-not-allowed transition-all active:scale-[0.97]"
+          className="flex items-center gap-2 px-4 py-2.5 bg-[#C8FF00] hover:bg-[#d6ff26] text-black text-[12px] font-extrabold font-sans rounded-xl disabled:bg-white/[0.06] disabled:text-white/20 disabled:cursor-not-allowed transition-all active:scale-[0.97]"
         >
           <ShoppingCart className="w-3.5 h-3.5" />
           Agregar

@@ -137,7 +137,7 @@ export const DigitalCredentialPaymentModal = ({
                 </svg>
               </div>
               <div>
-                <DialogTitle className="font-['Syne',sans-serif] font-bold text-[17px] text-white leading-tight">
+                <DialogTitle className="font-sans font-bold text-[17px] text-white leading-tight">
                   Credencial Digital
                 </DialogTitle>
                 <DialogDescription className="text-[#5A5A7A] text-[13px] mt-0.5">
@@ -171,18 +171,18 @@ export const DigitalCredentialPaymentModal = ({
             <>
               {/* Plan badge */}
               <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[rgba(200,255,0,0.07)] border border-[rgba(200,255,0,0.16)] rounded-full">
-                <span className="text-[#C8FF00] text-[11px] font-bold font-['Syne',sans-serif] uppercase tracking-wide">
+                <span className="text-[#C8FF00] text-[11px] font-bold font-sans uppercase tracking-wide">
                   {planName}
                 </span>
               </div>
 
               {/* Price block */}
               <div className="bg-[#1C1C27] border border-[#2A2A3E] rounded-2xl p-5 text-center">
-                <p className="text-[#5A5A7A] text-[11px] uppercase tracking-widest font-['Syne',sans-serif] mb-2">
+                <p className="text-[#5A5A7A] text-[11px] uppercase tracking-widest font-sans mb-2">
                   Precio del plan
                 </p>
                 <div className="flex items-baseline justify-center gap-1.5">
-                  <span className="font-['Syne',sans-serif] font-extrabold text-[44px] text-[#C8FF00] leading-none">
+                  <span className="font-sans font-extrabold text-[44px] text-[#C8FF00] leading-none">
                     ${amount.toLocaleString()}
                   </span>
                 </div>
@@ -206,7 +206,7 @@ export const DigitalCredentialPaymentModal = ({
               <button
                 onClick={handleInitiatePayment}
                 disabled={loading}
-                className="w-full py-3.5 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-['Syne',sans-serif] font-extrabold text-[15px] rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
+                className="w-full py-3.5 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-sans font-extrabold text-[15px] rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.99] disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <>
@@ -233,13 +233,13 @@ export const DigitalCredentialPaymentModal = ({
             <>
               {/* Summary */}
               <div className="bg-[rgba(200,255,0,0.05)] border border-[rgba(200,255,0,0.12)] rounded-xl p-4">
-                <p className="text-[#5A5A7A] text-[11px] uppercase tracking-widest font-['Syne',sans-serif] mb-1.5">
+                <p className="text-[#5A5A7A] text-[11px] uppercase tracking-widest font-sans mb-1.5">
                   Resumen del pago
                 </p>
                 <p className="text-white font-medium text-sm">
                   {planName} — {userLabel}
                 </p>
-                <p className="font-['Syne',sans-serif] font-extrabold text-[22px] text-[#C8FF00] mt-0.5">
+                <p className="font-sans font-extrabold text-[22px] text-[#C8FF00] mt-0.5">
                   ${amount.toLocaleString()} MXN
                 </p>
                 <p className="text-[#5A5A7A] text-xs mt-0.5">

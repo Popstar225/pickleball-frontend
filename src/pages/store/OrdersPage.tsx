@@ -45,7 +45,7 @@ export function OrdersPage() {
           </button>
           <div className="flex items-center gap-2">
             <Package className="w-4 h-4 text-[#C8FF00]" />
-            <span className="font-['Syne',sans-serif] font-extrabold text-base">Mis pedidos</span>
+            <span className="font-sans font-extrabold text-base">Mis pedidos</span>
           </div>
         </div>
       </header>
@@ -64,7 +64,7 @@ export function OrdersPage() {
             <p className="text-[#5A5A7A] mb-6">No tienes pedidos aún</p>
             <button
               onClick={() => navigate('/store')}
-              className="flex items-center gap-2 px-6 py-3 bg-[#C8FF00] text-black font-['Syne',sans-serif] font-bold text-sm rounded-xl hover:bg-[#d4ff1a] transition-all mx-auto"
+              className="flex items-center gap-2 px-6 py-3 bg-[#C8FF00] text-black font-sans font-bold text-sm rounded-xl hover:bg-[#d4ff1a] transition-all mx-auto"
             >
               <ShoppingBag className="w-4 h-4" />
               Explorar tienda
@@ -82,10 +82,10 @@ export function OrdersPage() {
                 >
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2.5 mb-1">
-                      <span className="font-['Syne',sans-serif] font-bold text-[15px]">
+                      <span className="font-sans font-bold text-[15px]">
                         {order.order_number}
                       </span>
-                      <span className={cn('px-2.5 py-0.5 rounded-lg border text-[10px] font-bold font-["Syne",sans-serif] uppercase tracking-wide', cfg.cls)}>
+                      <span className={cn('px-2.5 py-0.5 rounded-lg border text-[10px] font-bold font-sans uppercase tracking-wide', cfg.cls)}>
                         {cfg.label}
                       </span>
                     </div>
@@ -97,7 +97,7 @@ export function OrdersPage() {
                     </p>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="font-['Syne',sans-serif] font-bold text-[#C8FF00]">
+                    <p className="font-sans font-bold text-[#C8FF00]">
                       ${Number(order.total).toLocaleString()}
                     </p>
                     <p className="text-[#5A5A7A] text-xs">MXN</p>

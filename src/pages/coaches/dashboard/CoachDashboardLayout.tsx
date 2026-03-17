@@ -46,7 +46,7 @@ const navItems: NavItem[] = [
     description: 'Gestionar mi cuenta',
   },
   {
-    title: 'Credenciales Digitales',
+    title: 'Credencial digital',
     url: '/coaches/dashboard/credentials',
     icon: Shield,
     description: 'Mis credenciales NRTP',

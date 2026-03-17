@@ -245,7 +245,7 @@ export const MembershipSelector = ({
               <div className="w-7 h-7 rounded-[8px] bg-[#C8FF00]/[0.08] border border-[#C8FF00]/[0.15] flex items-center justify-center flex-shrink-0">
                 <Zap className="w-3.5 h-3.5 text-[#C8FF00]" />
               </div>
-              <DialogTitle className="font-['Syne',sans-serif] font-extrabold text-[18px] text-white tracking-tight">
+              <DialogTitle className="font-sans font-extrabold text-[18px] text-white tracking-tight">
                 Planes de Membresía
               </DialogTitle>
             </div>
@@ -270,13 +270,13 @@ export const MembershipSelector = ({
               {/* Selected plan summary strip */}
               <div className="flex items-center justify-between p-4 bg-[#C8FF00]/[0.05] border border-[#C8FF00]/[0.15] rounded-xl">
                 <div>
-                  <p className="font-['Syne',sans-serif] font-extrabold text-[14px] text-white">
+                  <p className="font-sans font-extrabold text-[14px] text-white">
                     {selectedPlan.name}
                   </p>
                   <p className="text-[12px] text-white/40 mt-0.5">{selectedPlan.description}</p>
                 </div>
                 <div className="text-right flex-shrink-0 ml-4">
-                  <p className="font-['Syne',sans-serif] font-extrabold text-[22px] leading-none text-[#C8FF00]">
+                  <p className="font-sans font-extrabold text-[22px] leading-none text-[#C8FF00]">
                     ${selectedPlan.price.toLocaleString()}
                   </p>
                   <p className="text-[11px] text-white/30 mt-0.5">
@@ -330,14 +330,14 @@ export const MembershipSelector = ({
                     >
                       {/* Popular ribbon */}
                       {plan.popular && !isActive && (
-                        <div className="absolute top-3 right-[-34px] bg-[#C8FF00] text-black px-10 py-0.5 rotate-45 font-['Syne',sans-serif] text-[9px] font-extrabold tracking-[1px] overflow-hidden">
+                        <div className="absolute top-3 right-[-34px] bg-[#C8FF00] text-black px-10 py-0.5 rotate-45 font-sans text-[9px] font-extrabold tracking-[1px] overflow-hidden">
                           POPULAR
                         </div>
                       )}
 
                       {/* Active badge */}
                       {isActive && (
-                        <div className="absolute top-4 right-4 inline-flex items-center gap-1 bg-[#C8FF00]/[0.12] border border-[#C8FF00]/[0.25] rounded-full px-2.5 py-0.5 text-[10px] font-bold font-['Syne',sans-serif] text-[#C8FF00] tracking-wide">
+                        <div className="absolute top-4 right-4 inline-flex items-center gap-1 bg-[#C8FF00]/[0.12] border border-[#C8FF00]/[0.25] rounded-full px-2.5 py-0.5 text-[10px] font-bold font-sans text-[#C8FF00] tracking-wide">
                           <span className="w-1.5 h-1.5 rounded-full bg-[#C8FF00]" /> ACTIVO
                         </div>
                       )}
@@ -355,7 +355,7 @@ export const MembershipSelector = ({
                             : <Star className="w-4 h-4 text-[#C8FF00]" />}
                         </div>
                         <span className={cn(
-                          'text-[10px] font-bold font-["Syne",sans-serif] tracking-[1.5px] uppercase',
+                          'text-[10px] font-bold font-sans tracking-[1.5px] uppercase',
                           isPremium ? 'text-amber-400' : 'text-[#C8FF00]',
                         )}>
                           {isPremium ? 'Premium' : 'Membresía'}
@@ -363,7 +363,7 @@ export const MembershipSelector = ({
                       </div>
 
                       {/* Name + description */}
-                      <h3 className="font-['Syne',sans-serif] font-extrabold text-[16px] text-white mb-0.5">
+                      <h3 className="font-sans font-extrabold text-[16px] text-white mb-0.5">
                         {plan.name}
                       </h3>
                       <p className="text-[12px] text-white/35 mb-4 leading-relaxed">
@@ -373,7 +373,7 @@ export const MembershipSelector = ({
                       {/* Price */}
                       <div className="flex items-baseline gap-1.5 mb-5">
                         <span className={cn(
-                          'font-["Syne",sans-serif] font-extrabold text-[34px] leading-none tracking-tight',
+                          'font-sans font-extrabold text-[34px] leading-none tracking-tight',
                           isPremium ? 'text-amber-400' : 'text-[#C8FF00]',
                         )}>
                           ${plan.price.toLocaleString()}
@@ -410,7 +410,7 @@ export const MembershipSelector = ({
                         onClick={() => handleSelectPlan(plan)}
                         disabled={isActive || loading}
                         className={cn(
-                          'w-full rounded-xl font-["Syne",sans-serif] font-extrabold text-[13px] gap-2',
+                          'w-full rounded-xl font-sans font-extrabold text-[13px] gap-2',
                           isActive
                             ? 'bg-white/[0.06] text-white/30 cursor-not-allowed border border-white/[0.1]'
                             : isPremium

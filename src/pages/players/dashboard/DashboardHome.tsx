@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Loader2,
   ArrowUpRight,
+  Star,
 } from 'lucide-react';
 import { AppDispatch, RootState } from '@/store';
 import {
@@ -39,11 +40,11 @@ function StatCard({
   return (
     <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl px-4 py-3.5 flex items-center justify-between gap-3">
       <div className="min-w-0">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-1 truncate">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-1 truncate">
           {label}
         </p>
         <p className={cn('text-[22px] font-bold leading-none', color)}>{value}</p>
-        <p className="text-[10px] text-white/20 mt-1.5">{sub}</p>
+        <p className="text-[10px] text-white/45 mt-1.5">{sub}</p>
       </div>
       <div
         className={cn('w-9 h-9 rounded-xl border flex items-center justify-center shrink-0', bg)}
@@ -77,8 +78,8 @@ function SectionCard({
             <Icon className="w-3.5 h-3.5 text-[#ace600]" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white/80">{title}</p>
-            <p className="text-[10px] text-white/25">{sub}</p>
+            <p className="text-sm font-bold text-white">{title}</p>
+            <p className="text-[10px] text-white/55">{sub}</p>
           </div>
         </div>
         <Link
@@ -132,6 +133,7 @@ export default function PlayerDashboardHome() {
   }, [dispatch]);
 
   const firstName = profile?.fullName?.split(' ')[0] ?? 'Jugador';
+  const greeting = profile?.gender === 'femenino' ? 'Bienvenida' : 'Bienvenido';
 
   const QUICK_ACTIONS = [
     {
@@ -171,32 +173,33 @@ export default function PlayerDashboardHome() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-[22px] font-bold text-white tracking-tight">
-              ¡Bienvenido, {firstName}!
+            <h1 className="text-[22px] font-bold text-white tracking-wide">
+              ¡{greeting}, {firstName}!
             </h1>
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#ace600] animate-pulse" />
               Activo
             </span>
           </div>
-          <p className="text-xs text-white/25">
+          <p className="text-xs text-white/55">
             Gestiona tu cuenta, credenciales y participa en torneos
           </p>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <Link
-            to="/players/dashboard/credentials"
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-semibold border border-white/[0.09] bg-white/[0.04] hover:bg-white/[0.07] text-white/50 hover:text-white transition-all"
-          >
-            <CreditCard className="w-3.5 h-3.5" /> Ver Credencial
-          </Link>
-          <Link
-            to="/players/dashboard/tournaments"
-            className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-bold bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_14px_rgba(172,230,0,0.18)] transition-all"
-          >
-            <Trophy className="w-3.5 h-3.5" /> Buscar Torneos
-          </Link>
+        <div className="flex items-center gap-3 shrink-0">
+          <div className="bg-[#0d1117] border border-[#ace600]/20 rounded-2xl px-4 py-2.5 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center shrink-0">
+              <Star className="w-4 h-4 text-[#ace600]" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 leading-none mb-0.5">
+                Puntos de Ranking
+              </p>
+              <p className="text-[22px] font-bold leading-none text-[#ace600]">
+                {profile?.ranking ?? '—'}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -212,7 +215,7 @@ export default function PlayerDashboardHome() {
         />
         <StatCard
           icon={Building2}
-          label="Clubes Afiliado"
+          label="Afliaciones a clubes"
           value={profile?.club_id ? 1 : 0}
           sub="Clubes activos"
           color="text-sky-400"
@@ -232,7 +235,7 @@ export default function PlayerDashboardHome() {
           value={
             <span className="text-emerald-400 text-[15px] font-black tracking-wide">ACTIVA</span>
           }
-          sub="Credencial federated"
+          sub="Credencial federada"
           color="text-emerald-400"
           bg="bg-emerald-500/10 border-emerald-500/20"
         />
@@ -259,10 +262,10 @@ export default function PlayerDashboardHome() {
                   >
                     <div className={cn('w-1.5 h-1.5 rounded-full shrink-0', s.dot)} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-semibold text-white/70 truncate">
+                      <p className="text-xs font-semibold text-white/90 truncate">
                         {t.tournamentName}
                       </p>
-                      <p className="text-[10px] text-white/25 truncate">{t.category}</p>
+                      <p className="text-[10px] text-white/55 truncate">{t.category}</p>
                     </div>
                     <span
                       className={cn(
@@ -278,8 +281,8 @@ export default function PlayerDashboardHome() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-28 gap-2">
-              <Trophy className="w-6 h-6 text-white/8" />
-              <p className="text-xs text-white/20">Sin torneos registrados</p>
+              <Trophy className="w-6 h-6 text-white/20" />
+              <p className="text-xs text-white/50">Sin torneos registrados</p>
             </div>
           )}
         </SectionCard>
@@ -304,15 +307,15 @@ export default function PlayerDashboardHome() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-0.5">
-                      <p className="text-xs font-bold text-white/70 truncate">{m.senderName}</p>
-                      <span className="text-[9px] text-white/20 shrink-0">
+                      <p className="text-xs font-bold text-white/90 truncate">{m.senderName}</p>
+                      <span className="text-[9px] text-white/50 shrink-0">
                         {new Date(m.date).toLocaleDateString('es-MX', {
                           day: 'numeric',
                           month: 'short',
                         })}
                       </span>
                     </div>
-                    <p className="text-[11px] text-white/30 line-clamp-1 leading-relaxed">
+                    <p className="text-[11px] text-white/65 line-clamp-1 leading-relaxed">
                       {m.body}
                     </p>
                   </div>
@@ -321,8 +324,8 @@ export default function PlayerDashboardHome() {
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-28 gap-2">
-              <MessageSquare className="w-6 h-6 text-white/8" />
-              <p className="text-xs text-white/20">Sin mensajes</p>
+              <MessageSquare className="w-6 h-6 text-white/20" />
+              <p className="text-xs text-white/50">Sin mensajes</p>
             </div>
           )}
         </SectionCard>
@@ -330,7 +333,7 @@ export default function PlayerDashboardHome() {
 
       {/* ── Quick actions ────────────────────────────────────────────────────── */}
       <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-5">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-4">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-4">
           Acciones Rápidas
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -352,7 +355,7 @@ export default function PlayerDashboardHome() {
                 <Icon className={cn('w-4.5 h-4.5', color)} />
               </div>
               <div className="text-center">
-                <p className="text-xs font-bold text-white/55 group-hover:text-white transition-colors">
+                <p className="text-xs font-bold text-white/80 group-hover:text-white transition-colors">
                   {label}
                 </p>
               </div>

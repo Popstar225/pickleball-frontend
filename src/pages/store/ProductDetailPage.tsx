@@ -101,7 +101,7 @@ export default function ProductDetailPage() {
             <ShoppingCart className="w-4 h-4" />
             <span>Carrito</span>
             {cartCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#C8FF00] text-black text-[11px] font-bold rounded-full flex items-center justify-center font-['Syne',sans-serif]">
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#C8FF00] text-black text-[11px] font-bold rounded-full flex items-center justify-center font-sans">
                 {cartCount}
               </span>
             )}
@@ -128,14 +128,14 @@ export default function ProductDetailPage() {
               )}
               {product.stock_quantity === 0 && (
                 <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
-                  <span className="text-[#9090B0] font-['Syne',sans-serif] font-bold text-sm tracking-widest uppercase">
+                  <span className="text-[#9090B0] font-sans font-bold text-sm tracking-widest uppercase">
                     Agotado
                   </span>
                 </div>
               )}
               {discount > 0 && (
                 <div className="absolute top-4 right-4 bg-[#FF6B35] rounded-lg px-3 py-1">
-                  <span className="text-white text-sm font-bold font-['Syne',sans-serif]">
+                  <span className="text-white text-sm font-bold font-sans">
                     -{discount}%
                   </span>
                 </div>
@@ -179,7 +179,7 @@ export default function ProductDetailPage() {
 
             {/* Name */}
             <div>
-              <h1 className="font-['Syne',sans-serif] text-3xl font-extrabold tracking-tight leading-tight">
+              <h1 className="font-sans text-3xl font-extrabold tracking-tight leading-tight">
                 {product.name}
               </h1>
               {product.sku && (
@@ -190,7 +190,7 @@ export default function ProductDetailPage() {
             {/* Price */}
             <div>
               <div className="flex items-baseline gap-3">
-                <span className="font-['Syne',sans-serif] text-4xl font-extrabold text-[#C8FF00]">
+                <span className="font-sans text-4xl font-extrabold text-[#C8FF00]">
                   ${Number(product.price).toLocaleString()}
                 </span>
                 <span className="text-[#5A5A7A] text-base">MXN</span>
@@ -233,7 +233,7 @@ export default function ProductDetailPage() {
             {/* Description */}
             {product.description && (
               <div className="border-t border-[#1E1E2E] pt-5">
-                <h3 className="text-[#9090B0] text-xs uppercase tracking-widest font-['Syne',sans-serif] mb-2">
+                <h3 className="text-[#9090B0] text-xs uppercase tracking-widest font-sans mb-2">
                   Descripción
                 </h3>
                 <p className="text-[#9090B0] leading-relaxed text-sm">{product.description}</p>
@@ -252,7 +252,7 @@ export default function ProductDetailPage() {
                     >
                       <Minus className="w-3 h-3" />
                     </button>
-                    <span className="w-10 text-center font-['Syne',sans-serif] font-bold text-base border-x border-[#2A2A3E]">
+                    <span className="w-10 text-center font-sans font-bold text-base border-x border-[#2A2A3E]">
                       {qty}
                     </span>
                     <button
@@ -266,7 +266,7 @@ export default function ProductDetailPage() {
 
                 <button
                   onClick={handleAddToCart}
-                  className="w-full py-3.5 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-['Syne',sans-serif] font-bold text-base rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
+                  className="w-full py-3.5 bg-[#C8FF00] hover:bg-[#d4ff1a] text-black font-sans font-bold text-base rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   Agregar al carrito — ${(Number(product.price) * qty).toLocaleString()} MXN
@@ -277,7 +277,7 @@ export default function ProductDetailPage() {
                     dispatch(addToCart({ product, quantity: qty }));
                     navigate('/store/cart');
                   }}
-                  className="w-full py-3.5 bg-transparent border border-[rgba(200,255,0,0.35)] text-[#C8FF00] font-['Syne',sans-serif] font-bold text-base rounded-xl hover:bg-[rgba(200,255,0,0.05)] transition-all"
+                  className="w-full py-3.5 bg-transparent border border-[rgba(200,255,0,0.35)] text-[#C8FF00] font-sans font-bold text-base rounded-xl hover:bg-[rgba(200,255,0,0.05)] transition-all"
                 >
                   Comprar ahora
                 </button>

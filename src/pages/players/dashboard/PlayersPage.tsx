@@ -49,7 +49,7 @@ function Initials({ name }: { name: string }) {
 }
 
 function SkillPill({ level }: { level: string }) {
-  const c = SKILL_CONFIG[level] ?? { cls: 'bg-white/[0.05] text-white/30 border-white/[0.08]', dot: 'bg-white/20' };
+  const c = SKILL_CONFIG[level] ?? { cls: 'bg-white/[0.05] text-white/60 border-white/[0.08]', dot: 'bg-white/20' };
   return (
     <span className={cn('inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider shrink-0', c.cls)}>
       <span className={cn('w-1.5 h-1.5 rounded-full', c.dot)} />
@@ -60,8 +60,8 @@ function SkillPill({ level }: { level: string }) {
 
 function MetaChip({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-[11px] text-white/30">
-      <Icon className="w-3 h-3 text-white/20 shrink-0" />
+    <span className="inline-flex items-center gap-1.5 text-[11px] text-white/60">
+      <Icon className="w-3 h-3 text-white/50 shrink-0" />
       {children}
     </span>
   );
@@ -109,14 +109,14 @@ export default function PlayerSearchPage() {
               {filtered.length} resultado{filtered.length !== 1 ? 's' : ''}
             </span>
           </div>
-          <p className="text-xs text-white/25">Encuentra compañeros de juego y conecta con la comunidad</p>
+          <p className="text-xs text-white/88">Encuentra compañeros de juego y conecta con la comunidad</p>
         </div>
         <button onClick={() => setFilters(v => !v)}
           className={cn(
             'inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-bold border transition-all',
             showFilters
               ? 'bg-[#ace600]/10 border-[#ace600]/30 text-[#ace600]'
-              : 'bg-white/[0.04] border-white/[0.08] text-white/40 hover:text-white hover:bg-white/[0.07]',
+              : 'bg-white/[0.04] border-white/[0.08] text-white/65 hover:text-white hover:bg-white/[0.07]',
           )}>
           <Filter className="w-3.5 h-3.5" />
           Filtros
@@ -132,13 +132,13 @@ export default function PlayerSearchPage() {
       <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-4 space-y-3">
         {/* Search input */}
         <div className="relative">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 pointer-events-none" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/50 pointer-events-none" />
           <Input className={cn(inputCls, 'pl-10 pr-9')}
             placeholder="Buscar por nombre o club…"
             value={search} onChange={e => setSearch(e.target.value)} />
           {search && (
             <button onClick={() => setSearch('')}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50 transition-colors">
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/50 transition-colors">
               <X className="w-3.5 h-3.5" />
             </button>
           )}
@@ -149,15 +149,15 @@ export default function PlayerSearchPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-white/[0.05]">
             {/* Location */}
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1.5">Ubicación</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-white/88 mb-1.5">Ubicación</label>
               <div className="relative">
-                <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 pointer-events-none" />
+                <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/50 pointer-events-none" />
                 <Input className={cn(inputCls, 'pl-10 pr-9')}
                   placeholder="Ciudad o estado…"
                   value={location} onChange={e => setLocation(e.target.value)} />
                 {location && (
                   <button onClick={() => setLocation('')}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50 transition-colors">
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/50 hover:text-white/50 transition-colors">
                     <X className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -166,14 +166,14 @@ export default function PlayerSearchPage() {
 
             {/* Skill level — pill tabs */}
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1.5">Nivel de Habilidad</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-white/88 mb-1.5">Nivel de Habilidad</label>
               <div className="flex flex-wrap gap-1.5">
                 <button onClick={() => setSkill('')}
                   className={cn(
                     'px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all',
                     !skill
                       ? 'bg-[#ace600] border-[#ace600] text-black shadow-[0_0_8px_rgba(172,230,0,0.15)]'
-                      : 'bg-white/[0.03] border-white/[0.07] text-white/30 hover:text-white/55 hover:border-white/[0.12]',
+                      : 'bg-white/[0.03] border-white/[0.07] text-white/60 hover:text-white hover:border-white/[0.12]',
                   )}>
                   Todos
                 </button>
@@ -184,7 +184,7 @@ export default function PlayerSearchPage() {
                     <button key={s} onClick={() => setSkill(active ? '' : s)}
                       className={cn(
                         'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all',
-                        active ? cn(c.cls) : 'bg-white/[0.03] border-white/[0.07] text-white/30 hover:text-white/55 hover:border-white/[0.12]',
+                        active ? cn(c.cls) : 'bg-white/[0.03] border-white/[0.07] text-white/60 hover:text-white hover:border-white/[0.12]',
                       )}>
                       {active && <span className={cn('w-1.5 h-1.5 rounded-full shrink-0', c.dot)} />}
                       {s}
@@ -199,7 +199,7 @@ export default function PlayerSearchPage() {
         {/* Active filter chips */}
         {activeFilters.length > 0 && (
           <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-white/[0.05]">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-white/20">Filtros activos:</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">Filtros activos:</span>
             {activeFilters.map(({ label, clear }) => (
               <button key={label} onClick={clear}
                 className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#ace600]/10 border border-[#ace600]/20 text-[#ace600] hover:opacity-70 transition-opacity">
@@ -207,7 +207,7 @@ export default function PlayerSearchPage() {
               </button>
             ))}
             <button onClick={() => { setSearch(''); setLocation(''); setSkill(''); }}
-              className="text-[11px] text-white/20 hover:text-white/45 transition-colors">
+              className="text-[11px] text-white/50 hover:text-white/45 transition-colors">
               Limpiar todo
             </button>
           </div>
@@ -221,8 +221,8 @@ export default function PlayerSearchPage() {
             <Users className="w-5 h-5 text-white/10" />
           </div>
           <div className="text-center">
-            <p className="text-sm font-semibold text-white/35 mb-1">No se encontraron jugadores</p>
-            <p className="text-xs text-white/20 max-w-[200px] leading-relaxed">
+            <p className="text-sm font-semibold text-white/65 mb-1">No se encontraron jugadores</p>
+            <p className="text-xs text-white/50 max-w-[200px] leading-relaxed">
               Intenta ajustar tus criterios de búsqueda
             </p>
           </div>
@@ -239,7 +239,7 @@ export default function PlayerSearchPage() {
                   {/* Row 1: name + badges */}
                   <div className="flex items-start justify-between gap-3 mb-2 flex-wrap">
                     <div className="flex items-center gap-2 flex-wrap min-w-0">
-                      <h3 className="text-sm font-bold text-white/80 group-hover:text-white transition-colors">
+                      <h3 className="text-sm font-bold text-white/95 group-hover:text-white transition-colors">
                         {player.name}
                       </h3>
                       <SkillPill level={player.skillLevel} />
@@ -252,7 +252,7 @@ export default function PlayerSearchPage() {
                     {/* Actions */}
                     <div className="flex items-center gap-2 shrink-0">
                       <button onClick={() => alert(`Mensaje al jugador ${player.id}`)}
-                        className="inline-flex items-center gap-1.5 h-7 px-3 rounded-lg text-[11px] font-bold border border-white/[0.09] bg-white/[0.04] hover:bg-white/[0.09] text-white/40 hover:text-white transition-all">
+                        className="inline-flex items-center gap-1.5 h-7 px-3 rounded-lg text-[11px] font-bold border border-white/[0.09] bg-white/[0.04] hover:bg-white/[0.09] text-white/65 hover:text-white transition-all">
                         <MessageCircle className="w-3 h-3" /> Mensaje
                       </button>
                       <button onClick={() => alert(`Conectar con jugador ${player.id}`)}
@@ -273,20 +273,20 @@ export default function PlayerSearchPage() {
                   </div>
 
                   {/* Bio */}
-                  <p className="text-xs text-white/35 leading-relaxed mb-3">{player.bio}</p>
+                  <p className="text-xs text-white/65 leading-relaxed mb-3">{player.bio}</p>
 
                   {/* Tags row */}
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/20">Posiciones:</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">Posiciones:</span>
                     {player.preferredPositions.map((pos, i) => (
                       <span key={i}
-                        className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/[0.04] border border-white/[0.08] text-white/35">
+                        className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/[0.04] border border-white/[0.08] text-white/65">
                         {pos}
                       </span>
                     ))}
-                    <span className="ml-1 text-[10px] text-white/20">·</span>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/20">Disponible:</span>
-                    <span className="text-[10px] text-white/35">{player.availability}</span>
+                    <span className="ml-1 text-[10px] text-white/50">·</span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">Disponible:</span>
+                    <span className="text-[10px] text-white/65">{player.availability}</span>
                   </div>
                 </div>
               </div>
@@ -297,7 +297,7 @@ export default function PlayerSearchPage() {
 
       {/* ── Community stats ──────────────────────────────────────────────────── */}
       <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-5">
-        <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-4">Estadísticas de la Comunidad</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-4">Estadísticas de la Comunidad</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {COMMUNITY_STATS.map(({ label, value, color, bg, icon: Icon }) => (
             <div key={label} className="flex flex-col items-center justify-center gap-2 py-4 bg-white/[0.02] border border-white/[0.05] rounded-xl">
@@ -305,7 +305,7 @@ export default function PlayerSearchPage() {
                 <Icon className={cn('w-3.5 h-3.5', color)} />
               </div>
               <p className={cn('text-xl font-bold leading-none', color)}>{value}</p>
-              <p className="text-[10px] text-white/20 text-center leading-tight">{label}</p>
+              <p className="text-[10px] text-white/50 text-center leading-tight">{label}</p>
             </div>
           ))}
         </div>
