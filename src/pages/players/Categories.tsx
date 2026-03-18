@@ -190,7 +190,7 @@ const Categories = () => {
                           </div>
                           <div>
                             <h4 className="font-bold text-white mb-1">{benefit.title}</h4>
-                            <p className="text-sm text-slate-400">{benefit.desc}</p>
+                            <p className="text-sm text-slate-200">{benefit.desc}</p>
                           </div>
                         </div>
                       ))}
@@ -213,7 +213,7 @@ const Categories = () => {
               <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent mb-4">
                 {t('pages.categories.main_categories')}
               </h2>
-              <p className="text-slate-400 text-lg">
+              <p className="text-slate-200 text-lg">
                 {t('pages.categories.main_categories_desc')}
               </p>
             </div>
@@ -364,7 +364,7 @@ const Categories = () => {
                                   className="flex items-start gap-3 p-3 bg-slate-950/30 rounded-xl border border-slate-700/30 hover:border-primary/30 transition-colors duration-300"
                                 >
                                   <div className="w-2 h-2 rounded-full bg-primary mt-2 flex-shrink-0" />
-                                  <span className="text-sm text-slate-400">{char}</span>
+                                  <span className="text-sm text-slate-200">{char}</span>
                                 </div>
                               ))}
                             </div>
@@ -418,7 +418,7 @@ const Categories = () => {
                   <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
                     {t('pages.categories.cta_title')}
                   </h3>
-                  <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+                  <p className="text-slate-200 text-lg max-w-2xl mx-auto">
                     {t('pages.categories.cta_sub')}
                   </p>
                   <a

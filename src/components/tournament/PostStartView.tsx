@@ -70,15 +70,15 @@ export function PostStartView({ tournament, events, groups = [], brackets = [], 
 
           <div className="grid grid-cols-3 gap-4 mt-4">
             <div className="p-3 bg-gray-50 rounded">
-              <p className="text-xs text-gray-600 mb-1">Completed</p>
+              <p className="text-xs text-gray-300 mb-1">Completed</p>
               <p className="text-2xl font-bold text-green-600">{completedMatches}</p>
             </div>
             <div className="p-3 bg-gray-50 rounded">
-              <p className="text-xs text-gray-600 mb-1">Pending</p>
+              <p className="text-xs text-gray-300 mb-1">Pending</p>
               <p className="text-2xl font-bold text-yellow-600">{pendingMatches}</p>
             </div>
             <div className="p-3 bg-gray-50 rounded">
-              <p className="text-xs text-gray-600 mb-1">Total</p>
+              <p className="text-xs text-gray-300 mb-1">Total</p>
               <p className="text-2xl font-bold text-gray-900">{totalMatches}</p>
             </div>
           </div>
@@ -162,7 +162,7 @@ export function PostStartView({ tournament, events, groups = [], brackets = [], 
                           <tr key={idx} className="border-b hover:bg-gray-50">
                             <td className="py-2 px-2">
                               <p className="font-medium">{standing.player_name}</p>
-                              <p className="text-xs text-gray-500">{standing.player_email}</p>
+                              <p className="text-xs text-gray-300">{standing.player_email}</p>
                             </td>
                             <td className="text-center py-2 px-2 font-semibold">{standing.wins}</td>
                             <td className="text-center py-2 px-2 font-semibold">
@@ -182,8 +182,8 @@ export function PostStartView({ tournament, events, groups = [], brackets = [], 
           ) : (
             <Card>
               <CardContent className="py-8 text-center">
-                <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600">No groups created yet</p>
+                <AlertCircle className="w-12 h-12 text-gray-200 mx-auto mb-2" />
+                <p className="text-gray-300">No groups created yet</p>
               </CardContent>
             </Card>
           )}
@@ -211,7 +211,7 @@ export function PostStartView({ tournament, events, groups = [], brackets = [], 
                               <p className="font-medium">
                                 {match.player1_name} vs {match.player2_name}
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-gray-300">
                                 {match.set_scores
                                   ? JSON.parse(match.set_scores).join(', ')
                                   : 'No result yet'}
@@ -239,8 +239,8 @@ export function PostStartView({ tournament, events, groups = [], brackets = [], 
           ) : (
             <Card>
               <CardContent className="py-8 text-center">
-                <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-600">No bracket created yet</p>
+                <AlertCircle className="w-12 h-12 text-gray-200 mx-auto mb-2" />
+                <p className="text-gray-300">No bracket created yet</p>
               </CardContent>
             </Card>
           )}
@@ -271,7 +271,7 @@ export function PostStartView({ tournament, events, groups = [], brackets = [], 
                           <p className="font-medium text-sm text-gray-900">
                             {match.player1_name} vs {match.player2_name}
                           </p>
-                          <p className="text-xs text-gray-600">{match.event_name}</p>
+                          <p className="text-xs text-gray-300">{match.event_name}</p>
                         </div>
                         <Badge variant="secondary">
                           {match.correction_history.length} correction(s)
@@ -287,9 +287,9 @@ export function PostStartView({ tournament, events, groups = [], brackets = [], 
                               {new Date(correction.timestamp).toLocaleDateString()} at{' '}
                               {new Date(correction.timestamp).toLocaleTimeString()}
                             </p>
-                            <p className="text-gray-600 mt-1">By: {correction.corrected_by}</p>
-                            <p className="text-gray-600">Reason: {correction.reason}</p>
-                            <p className="text-gray-600">
+                            <p className="text-gray-300 mt-1">By: {correction.corrected_by}</p>
+                            <p className="text-gray-300">Reason: {correction.reason}</p>
+                            <p className="text-gray-300">
                               Result: {correction.previous_score} → {correction.new_score}
                             </p>
                           </div>
@@ -302,7 +302,7 @@ export function PostStartView({ tournament, events, groups = [], brackets = [], 
               {matches.filter((m) => m.correction_history?.length > 0).length === 0 && (
                 <div className="text-center py-8">
                   <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-2" />
-                  <p className="text-gray-600">No corrections recorded yet</p>
+                  <p className="text-gray-300">No corrections recorded yet</p>
                 </div>
               )}
             </CardContent>

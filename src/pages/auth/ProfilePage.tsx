@@ -134,7 +134,7 @@ const ProfilePage = () => {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading profile...</p>
+            <p className="text-gray-300">Loading profile...</p>
           </div>
         </div>
       </div>
@@ -150,7 +150,7 @@ const ProfilePage = () => {
             <h1 className="animate-on-scroll text-4xl md:text-5xl font-bold mb-4 text-gray-900">
               My Profile
             </h1>
-            <p className="animate-on-scroll text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-gray-600">
+            <p className="animate-on-scroll text-xl md:text-2xl mb-8 max-w-3xl mx-auto text-gray-300">
               Manage your account and track your pickleball journey
             </p>
           </div>
@@ -168,7 +168,7 @@ const ProfilePage = () => {
                     {user.profile_photo ? (
                       <img src={user.profile_photo} alt={user.full_name || user.username} className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-2xl font-bold text-gray-600">
+                      <span className="text-2xl font-bold text-gray-300">
                         {getInitials(user.full_name)}
                       </span>
                     )}
@@ -185,7 +185,7 @@ const ProfilePage = () => {
                 <h2 className="animate-on-scroll text-2xl font-bold text-gray-900">
                   {user.full_name || user.username}
                 </h2>
-                <p className="animate-on-scroll text-lg text-gray-600">
+                <p className="animate-on-scroll text-lg text-gray-300">
                   @{user.username}
                 </p>
                 <div className="flex justify-center mt-4">
@@ -196,14 +196,14 @@ const ProfilePage = () => {
               </div>
               <div className="px-6 py-4 space-y-4">
                 <div className="animate-on-scroll flex items-center text-sm">
-                  <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 mr-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
                   <span>{user.email}</span>
                 </div>
                 {user.phone && (
                   <div className="animate-on-scroll flex items-center text-sm">
-                    <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 mr-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                     </svg>
                     <span>{user.phone}</span>
@@ -211,7 +211,7 @@ const ProfilePage = () => {
                 )}
                 {user.city && user.state && (
                   <div className="animate-on-scroll flex items-center text-sm">
-                    <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 mr-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -220,7 +220,7 @@ const ProfilePage = () => {
                 )}
                 {user.date_of_birth && (
                   <div className="animate-on-scroll flex items-center text-sm">
-                    <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 mr-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span>Born {formatDate(user.date_of_birth)}</span>
@@ -229,17 +229,17 @@ const ProfilePage = () => {
                 <hr className="border-gray-200" />
                 <div className="space-y-2">
                   <div className="animate-on-scroll flex justify-between text-sm">
-                    <span className="text-gray-600">Member Since:</span>
+                    <span className="text-gray-300">Member Since:</span>
                     <span>{formatDate(user.created_at)}</span>
                   </div>
                   <div className="animate-on-scroll flex justify-between text-sm">
-                    <span className="text-gray-600">Status:</span>
+                    <span className="text-gray-300">Status:</span>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getMembershipStatusColor(user.membership_status)}`}>
                       {user.membership_status}
                     </span>
                   </div>
                   <div className="animate-on-scroll flex justify-between text-sm">
-                    <span className="text-gray-600">Plan:</span>
+                    <span className="text-gray-300">Plan:</span>
                     <span className="capitalize">{user.subscription_plan}</span>
                   </div>
                 </div>
@@ -254,10 +254,10 @@ const ProfilePage = () => {
                 <button className="px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-md shadow-sm">
                   Profile
                 </button>
-                <button className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">
+                <button className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-gray-700">
                   Rankings
                 </button>
-                <button className="px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">
+                <button className="px-3 py-2 text-sm font-medium text-gray-300 hover:text-gray-700">
                   Statistics
                 </button>
               </div>
@@ -269,7 +269,7 @@ const ProfilePage = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <h3 className="animate-on-scroll text-lg font-semibold text-gray-900">Personal Information</h3>
-                        <p className="animate-on-scroll text-gray-600">
+                        <p className="animate-on-scroll text-gray-300">
                           Update your profile information and preferences
                         </p>
                       </div>
@@ -420,19 +420,19 @@ const ProfilePage = () => {
                     </div>
                     <div className="px-6 py-4 space-y-4">
                       <div className="animate-on-scroll flex justify-between items-center">
-                        <span className="text-gray-600">Last Login</span>
+                        <span className="text-gray-300">Last Login</span>
                         <span className="font-semibold">
                           {user.last_login ? formatDate(user.last_login) : 'Never'}
                         </span>
                       </div>
                       <div className="animate-on-scroll flex justify-between items-center">
-                        <span className="text-gray-600">Email Verified</span>
+                        <span className="text-gray-300">Email Verified</span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.email_verified ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
                           {user.email_verified ? 'Yes' : 'No'}
                         </span>
                       </div>
                       <div className="animate-on-scroll flex justify-between items-center">
-                        <span className="text-gray-600">Account Status</span>
+                        <span className="text-gray-300">Account Status</span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                           {user.is_active ? 'Active' : 'Inactive'}
                         </span>
@@ -451,18 +451,18 @@ const ProfilePage = () => {
                     </div>
                     <div className="px-6 py-4 space-y-4">
                       <div className="animate-on-scroll flex justify-between items-center">
-                        <span className="text-gray-600">Plan</span>
+                        <span className="text-gray-300">Plan</span>
                         <span className="font-semibold capitalize">{user.subscription_plan}</span>
                       </div>
                       <div className="animate-on-scroll flex justify-between items-center">
-                        <span className="text-gray-600">Status</span>
+                        <span className="text-gray-300">Status</span>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getMembershipStatusColor(user.membership_status)}`}>
                           {user.membership_status}
                         </span>
                       </div>
                       {user.membership_expires_at && (
                         <div className="animate-on-scroll flex justify-between items-center">
-                          <span className="text-gray-600">Expires</span>
+                          <span className="text-gray-300">Expires</span>
                           <span className="font-semibold">{formatDate(user.membership_expires_at)}</span>
                         </div>
                       )}

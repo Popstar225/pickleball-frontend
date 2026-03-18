@@ -220,7 +220,7 @@ export const ProfileRegistrationModal = ({
               <div className="flex flex-col items-center justify-center space-y-4">
                 <CheckCircle2 className="w-12 h-12 text-green-600" />
                 <h3 className="text-2xl font-bold">Welcome!</h3>
-                <p className="text-gray-600 text-center">
+                <p className="text-gray-300 text-center">
                   Your account has been created successfully.
                   <br />
                   Check your email for activation details.
@@ -299,7 +299,7 @@ export const ProfileRegistrationModal = ({
                       </FormItem>
                     )}
                   />
-                  <p className="text-sm text-gray-600 mt-3 pt-3 border-t">
+                  <p className="text-sm text-gray-300 mt-3 pt-3 border-t">
                     Cuota de Registro:{' '}
                     <span className="font-bold">
                       {registrationAmount === 0 ? 'GRATIS' : `$${(registrationAmount / 100).toFixed(2)} MXN`}
@@ -418,7 +418,7 @@ export const ProfileRegistrationModal = ({
                 <Card className="p-4 bg-gray-50">
                   <div className="space-y-2">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Registration Type:</span>
+                      <span className="text-gray-300">Registration Type:</span>
                       <span className="font-semibold">
                         {USER_TYPE_LABELS[selectedUserType]}
                       </span>

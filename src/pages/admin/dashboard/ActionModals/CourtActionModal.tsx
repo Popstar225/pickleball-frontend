@@ -259,11 +259,11 @@ export default function CourtActionModal({
               <DialogTitle className="text-2xl">
                 {isCreate ? 'Nueva Cancha' : isView ? 'Detalles de la Cancha' : 'Editar Cancha'}
               </DialogTitle>
-              <DialogDescription className="text-slate-400">
+              <DialogDescription className="text-slate-200">
                 {isCreate ? 'Crea una nueva cancha' : `${court?.name} • ${court?.club_name || '-'}`}
               </DialogDescription>
             </div>
-            <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
+            <button onClick={onClose} className="text-slate-200 hover:text-white transition-colors">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -276,28 +276,28 @@ export default function CourtActionModal({
                   <CardContent className="p-6">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div>
-                        <span className="text-xs text-slate-400">Tipo</span>
+                        <span className="text-xs text-slate-200">Tipo</span>
                         <p className="mt-2 font-medium">
                           {COURT_TYPES[court?.court_type as keyof typeof COURT_TYPES] ||
                             court?.court_type}
                         </p>
                       </div>
                       <div>
-                        <span className="text-xs text-slate-400">Superficie</span>
+                        <span className="text-xs text-slate-200">Superficie</span>
                         <p className="mt-2 font-medium">
                           {COURT_SURFACES[court?.surface as keyof typeof COURT_SURFACES] ||
                             court?.surface}
                         </p>
                       </div>
                       <div>
-                        <span className="text-xs text-slate-400">Tarifa/Hora</span>
+                        <span className="text-xs text-slate-200">Tarifa/Hora</span>
                         <p className="mt-2 font-medium flex items-center gap-1">
                           <DollarSign className="h-4 w-4" />
                           {court?.hourly_rate ? `${Number(court.hourly_rate).toFixed(2)}` : '0.00'}
                         </p>
                       </div>
                       <div>
-                        <span className="text-xs text-slate-400">Disponible</span>
+                        <span className="text-xs text-slate-200">Disponible</span>
                         <Badge
                           className="mt-2"
                           variant={court?.is_available ? 'default' : 'secondary'}
@@ -322,27 +322,27 @@ export default function CourtActionModal({
 
                   <TabsContent value="general" className="space-y-4 mt-4">
                     <div>
-                      <span className="text-xs text-slate-400">Nombre</span>
+                      <span className="text-xs text-slate-200">Nombre</span>
                       <p className="mt-1 font-medium">{court?.name}</p>
                     </div>
                     <div>
-                      <span className="text-xs text-slate-400">Club</span>
+                      <span className="text-xs text-slate-200">Club</span>
                       <p className="mt-1 font-medium">
                         {court?.club?.name || court?.club_name || '-'}
                       </p>
                       {court?.club && (
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-slate-200 mt-1">
                           {court.club.city}, {court.club.state}
                         </p>
                       )}
                     </div>
                     <div>
-                      <span className="text-xs text-slate-400">Descripción</span>
+                      <span className="text-xs text-slate-200">Descripción</span>
                       <p className="mt-1">{court?.description || '-'}</p>
                     </div>
 
                     <div>
-                      <span className="text-xs text-slate-400">Dimensiones</span>
+                      <span className="text-xs text-slate-200">Dimensiones</span>
                       <p className="mt-1">
                         {typeof court?.dimensions === 'object' ? (
                           <span></span>
@@ -353,7 +353,7 @@ export default function CourtActionModal({
                     </div>
 
                     <div>
-                      <span className="text-xs text-slate-400">Horario de operación</span>
+                      <span className="text-xs text-slate-200">Horario de operación</span>
                       <div className="mt-1 text-sm text-slate-300">
                         {court?.operating_hours && typeof court.operating_hours === 'object' ? (
                           <div className="grid grid-cols-2 gap-1">
@@ -375,7 +375,7 @@ export default function CourtActionModal({
                     </div>
 
                     <div>
-                      <span className="text-xs text-slate-400">Tarifas</span>
+                      <span className="text-xs text-slate-200">Tarifas</span>
                       <div className="mt-1 flex flex-col text-slate-300">
                         <span>
                           Hora: $
@@ -395,7 +395,7 @@ export default function CourtActionModal({
                     </div>
 
                     <div>
-                      <span className="text-xs text-slate-400">Amenidades</span>
+                      <span className="text-xs text-slate-200">Amenidades</span>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {Array.isArray(court?.amenities) && court!.amenities!.length > 0 ? (
                           (court!.amenities as any[]).map((a, i) => (
@@ -407,13 +407,13 @@ export default function CourtActionModal({
                             </Badge>
                           ))
                         ) : (
-                          <span className="text-slate-400">-</span>
+                          <span className="text-slate-200">-</span>
                         )}
                       </div>
                     </div>
 
                     <div>
-                      <span className="text-xs text-slate-400">Equipo incluido</span>
+                      <span className="text-xs text-slate-200">Equipo incluido</span>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {Array.isArray(court?.equipment_included) &&
                         (court?.equipment_included as string[]).length > 0 ? (
@@ -426,13 +426,13 @@ export default function CourtActionModal({
                             </Badge>
                           ))
                         ) : (
-                          <span className="text-xs text-slate-500">No especificado</span>
+                          <span className="text-xs text-slate-300">No especificado</span>
                         )}
                       </div>
                     </div>
 
                     <div>
-                      <span className="text-xs text-slate-400">Fotos</span>
+                      <span className="text-xs text-slate-200">Fotos</span>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {Array.isArray(court?.photos) && court.photos.length > 0 ? (
                           (court.photos as string[]).slice(0, 6).map((url, i) => (
@@ -445,7 +445,7 @@ export default function CourtActionModal({
                             </a>
                           ))
                         ) : (
-                          <span className="text-slate-400">-</span>
+                          <span className="text-slate-200">-</span>
                         )}
                       </div>
                     </div>
@@ -454,15 +454,15 @@ export default function CourtActionModal({
                   <TabsContent value="details" className="space-y-4 mt-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <span className="text-xs text-slate-400">Capacidad</span>
+                        <span className="text-xs text-slate-200">Capacidad</span>
                         <p className="mt-1 font-medium">{court?.capacity || '-'}</p>
                       </div>
                       <div>
-                        <span className="text-xs text-slate-400">Reservas Totales</span>
+                        <span className="text-xs text-slate-200">Reservas Totales</span>
                         <p className="mt-1 font-medium">{court?.total_bookings || 0}</p>
                       </div>
                       <div>
-                        <span className="text-xs text-slate-400">Horas Totales</span>
+                        <span className="text-xs text-slate-200">Horas Totales</span>
                         <p className="mt-1 font-medium">
                           {court?.total_hours_booked
                             ? Number(court.total_hours_booked).toFixed(2)
@@ -470,19 +470,19 @@ export default function CourtActionModal({
                         </p>
                       </div>
                       <div>
-                        <span className="text-xs text-slate-400">Calificación</span>
+                        <span className="text-xs text-slate-200">Calificación</span>
                         <p className="mt-1 font-medium">{court?.average_rating || '-'}</p>
                       </div>
                       <div>
-                        <span className="text-xs text-slate-400">Reseñas</span>
+                        <span className="text-xs text-slate-200">Reseñas</span>
                         <p className="mt-1 font-medium">{(court as any)?.review_count ?? '-'}</p>
                       </div>
                       <div>
-                        <span className="text-xs text-slate-400">Destacado</span>
+                        <span className="text-xs text-slate-200">Destacado</span>
                         <p className="mt-1 font-medium">{court?.is_featured ? 'Sí' : 'No'}</p>
                       </div>
                       <div>
-                        <span className="text-xs text-slate-400">En Mantenimiento</span>
+                        <span className="text-xs text-slate-200">En Mantenimiento</span>
                         <Badge
                           className="mt-2"
                           variant={court?.is_maintenance ? 'destructive' : 'secondary'}
@@ -491,7 +491,7 @@ export default function CourtActionModal({
                         </Badge>
                       </div>
                       <div>
-                        <span className="text-xs text-slate-400">Disponible</span>
+                        <span className="text-xs text-slate-200">Disponible</span>
                         <Badge
                           className="mt-2"
                           variant={court?.is_available ? 'default' : 'secondary'}
@@ -502,16 +502,16 @@ export default function CourtActionModal({
                     </div>
                     <div className="grid grid-cols-1 gap-4">
                       <div>
-                        <span className="text-xs text-slate-400">Configuración</span>
+                        <span className="text-xs text-slate-200">Configuración</span>
                         <pre className="mt-1 text-sm text-slate-300 bg-slate-800 p-3 rounded">
                           {JSON.stringify(court?.settings || {}, null, 2)}
                         </pre>
                       </div>
                       <div>
-                        <span className="text-xs text-slate-400">Notas</span>
+                        <span className="text-xs text-slate-200">Notas</span>
                         <p className="mt-1 text-slate-300">{(court as any)?.notes || '-'}</p>
                       </div>
-                      <div className="flex gap-4 text-sm text-slate-400">
+                      <div className="flex gap-4 text-sm text-slate-200">
                         <div>
                           <span className="block text-xs">Creado</span>
                           <span className="font-medium text-white">
@@ -758,7 +758,7 @@ export default function CourtActionModal({
           <AlertDialogContent className="bg-slate-900 border-slate-800">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-white">Confirmar Eliminación</AlertDialogTitle>
-              <AlertDialogDescription className="text-slate-400">
+              <AlertDialogDescription className="text-slate-200">
                 ¿Estás seguro de que quieres eliminar la cancha "{court?.name}"? Esta acción no se
                 puede deshacer.
               </AlertDialogDescription>

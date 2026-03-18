@@ -227,7 +227,7 @@ const RequiredFieldsPage = () => {
               </span>
             </h3>
 
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="text-slate-200 text-lg max-w-2xl mx-auto">
               {t('auth.requiredFields.subtitle')}
             </p>
           </div>
@@ -247,7 +247,7 @@ const RequiredFieldsPage = () => {
                     </div>
                     {t('auth.requiredFields.account_details')}
                   </h2>
-                  <p className="text-slate-400 mt-2 ml-13">
+                  <p className="text-slate-200 mt-2 ml-13">
                     {t('auth.requiredFields.account_details_sub')}
                   </p>
                 </div>
@@ -268,7 +268,7 @@ const RequiredFieldsPage = () => {
 
                       <div className="relative">
                         {/* Icon */}
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none text-slate-500 group-focus-within/field:text-primary transition-colors duration-300">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none text-slate-300 group-focus-within/field:text-primary transition-colors duration-300">
                           <Icon className="w-6 h-6" />
                         </div>
 
@@ -301,7 +301,7 @@ const RequiredFieldsPage = () => {
                         {field.type === 'password' && (
                           <button
                             type="button"
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-primary transition-all duration-300 hover:scale-110"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-primary transition-all duration-300 hover:scale-110"
                             onClick={() => {
                               if (field.name === 'password') {
                                 setShowPassword(!showPassword);
@@ -346,7 +346,7 @@ const RequiredFieldsPage = () => {
                     </div>
                     {t('auth.requiredFields.privacy_title')}
                   </h2>
-                  <p className="text-slate-400 mt-2 ml-13">
+                  <p className="text-slate-200 mt-2 ml-13">
                     {t('auth.requiredFields.privacy_sub')}
                   </p>
                 </div>
@@ -393,7 +393,7 @@ const RequiredFieldsPage = () => {
                       </a>{' '}
                       {t('auth.requiredFields.privacy_accept_rest')}
                     </label>
-                    <p className="mt-3 text-slate-400 text-xs leading-relaxed">
+                    <p className="mt-3 text-slate-200 text-xs leading-relaxed">
                       {t('auth.requiredFields.privacy_desc')}
                     </p>
                   </div>

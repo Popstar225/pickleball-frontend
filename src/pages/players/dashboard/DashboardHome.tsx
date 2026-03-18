@@ -133,7 +133,7 @@ export default function PlayerDashboardHome() {
   }, [dispatch]);
 
   const firstName = profile?.fullName?.split(' ')[0] ?? 'Jugador';
-  const greeting = profile?.gender === 'femenino' ? 'Bienvenida' : 'Bienvenido';
+  const greeting = profile?.gender === 'female' ? 'Bienvenida' : 'Bienvenido';
 
   const QUICK_ACTIONS = [
     {
@@ -216,7 +216,7 @@ export default function PlayerDashboardHome() {
         <StatCard
           icon={Building2}
           label="Afliaciones a clubes"
-          value={profile?.club_id ? 1 : 0}
+          value={profile?.clubs_count ?? 0}
           sub="Clubes activos"
           color="text-sky-400"
           bg="bg-sky-500/10 border-sky-500/20"

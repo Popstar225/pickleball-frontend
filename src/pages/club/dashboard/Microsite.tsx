@@ -75,7 +75,7 @@ const Microsite: React.FC<MicrositeProps> = ({ micrositeConfig }) => {
         {!micrositeConfig ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading microsite configuration...</p>
+            <p className="text-gray-300">Loading microsite configuration...</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -170,10 +170,10 @@ const Microsite: React.FC<MicrositeProps> = ({ micrositeConfig }) => {
                 <div className="space-y-3">
                   <label className="animate-on-scroll block text-sm font-medium text-gray-700">Club Logo</label>
                   <div className="animate-on-scroll border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                    <svg className="h-8 w-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-8 w-8 mx-auto text-gray-200 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <p className="animate-on-scroll text-sm text-gray-600">Upload your club logo</p>
+                    <p className="animate-on-scroll text-sm text-gray-300">Upload your club logo</p>
                     <button className="animate-on-scroll inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-2">
                       <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -185,10 +185,10 @@ const Microsite: React.FC<MicrositeProps> = ({ micrositeConfig }) => {
                 <div className="space-y-3">
                   <label className="animate-on-scroll block text-sm font-medium text-gray-700">Banner Image</label>
                   <div className="animate-on-scroll border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                    <svg className="h-8 w-8 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-8 w-8 mx-auto text-gray-200 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <p className="animate-on-scroll text-sm text-gray-600">Upload banner image</p>
+                    <p className="animate-on-scroll text-sm text-gray-300">Upload banner image</p>
                     <button className="animate-on-scroll inline-flex items-center px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mt-2">
                       <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

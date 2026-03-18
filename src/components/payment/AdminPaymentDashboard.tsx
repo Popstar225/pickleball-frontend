@@ -117,7 +117,7 @@ export const AdminPaymentDashboard = ({
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Total Revenue</p>
+              <p className="text-gray-300 text-sm">Total Revenue</p>
               <p className="text-2xl font-bold">
                 ${paymentStats?.stats?.total_revenue ? (paymentStats.stats.total_revenue / 100).toFixed(2) : '0.00'}
               </p>
@@ -129,7 +129,7 @@ export const AdminPaymentDashboard = ({
         <Card className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-gray-600 text-sm">Total Transactions</p>
+              <p className="text-gray-300 text-sm">Total Transactions</p>
               <p className="text-2xl font-bold">{paymentStats?.stats?.total_payments || 0}</p>
             </div>
             <TrendingUp className="w-8 h-8 text-blue-600 opacity-20" />
@@ -187,7 +187,7 @@ export const AdminPaymentDashboard = ({
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {Object.entries(paymentStats.stats.by_method).map(([method, data]) => (
                   <div key={method} className="p-3 border rounded-lg">
-                    <p className="text-gray-600 text-sm capitalize">{method}</p>
+                    <p className="text-gray-300 text-sm capitalize">{method}</p>
                     <p className="text-2xl font-bold">{data.count || 0}</p>
                   </div>
                 ))}
@@ -222,7 +222,7 @@ export const AdminPaymentDashboard = ({
                             key={type}
                             className="p-3 border rounded-lg text-center hover:bg-gray-50"
                           >
-                            <p className="text-gray-600 text-sm capitalize">{type}</p>
+                            <p className="text-gray-300 text-sm capitalize">{type}</p>
                             <p className="text-2xl font-bold">{data.count || 0}</p>
                           </div>
                         )
@@ -237,17 +237,17 @@ export const AdminPaymentDashboard = ({
                     <h3 className="text-lg font-semibold">Registration Revenue</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
                       <div>
-                        <p className="text-gray-600 text-sm">Total Revenue</p>
+                        <p className="text-gray-300 text-sm">Total Revenue</p>
                         <p className="text-2xl font-bold">
                           ${(profileStats.stats.total_revenue / 100).toFixed(2)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-gray-600 text-sm">Total Registrations</p>
+                        <p className="text-gray-300 text-sm">Total Registrations</p>
                         <p className="text-2xl font-bold">{profileStats.stats.total_registrations || 0}</p>
                       </div>
                       <div>
-                        <p className="text-gray-600 text-sm">User Types</p>
+                        <p className="text-gray-300 text-sm">User Types</p>
                         <p className="text-2xl font-bold">{profileStats.stats.by_user_type ? Object.keys(profileStats.stats.by_user_type).length : 0}</p>
                       </div>
                     </div>

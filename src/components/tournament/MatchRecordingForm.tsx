@@ -147,7 +147,7 @@ export function MatchRecordingForm({
                 <p className="text-sm font-medium mb-2">Set {set.set}</p>
                 <div className="flex gap-2">
                   <div className="flex-1">
-                    <label className="text-xs text-gray-600 block mb-1">{player1Name}</label>
+                    <label className="text-xs text-gray-300 block mb-1">{player1Name}</label>
                     <input
                       type="number"
                       min="0"
@@ -157,9 +157,9 @@ export function MatchRecordingForm({
                       className="w-full px-3 py-2 border rounded-lg text-center font-bold"
                     />
                   </div>
-                  <div className="flex items-center justify-center text-gray-500">-</div>
+                  <div className="flex items-center justify-center text-gray-300">-</div>
                   <div className="flex-1">
-                    <label className="text-xs text-gray-600 block mb-1">{player2Name}</label>
+                    <label className="text-xs text-gray-300 block mb-1">{player2Name}</label>
                     <input
                       type="number"
                       min="0"
@@ -228,7 +228,7 @@ export function MatchRecordingForm({
           )}
         </Button>
 
-        <p className="text-xs text-gray-500 text-center">
+        <p className="text-xs text-gray-300 text-center">
           ✨ After all group matches are recorded, the bracket will be automatically generated with qualifiers advanced!
         </p>
       </CardContent>

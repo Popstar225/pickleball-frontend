@@ -77,7 +77,7 @@ export default function ApprovalAuditTrailView() {
       case 'pending_state_approval':
         return <Clock className="h-5 w-5 text-yellow-600" />;
       default:
-        return <Shield className="h-5 w-5 text-gray-600" />;
+        return <Shield className="h-5 w-5 text-gray-300" />;
     }
   };
 
@@ -139,7 +139,7 @@ export default function ApprovalAuditTrailView() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">Approval Audit Trail</h1>
-        <p className="text-gray-600 mt-1">Complete history of all state approval decisions</p>
+        <p className="text-gray-300 mt-1">Complete history of all state approval decisions</p>
       </div>
 
       {/* Current Status Card */}
@@ -152,7 +152,7 @@ export default function ApprovalAuditTrailView() {
             {getStatusIcon(auditTrail.current_status)}
             <div>
               <p className="text-2xl font-bold">{getStatusLabel(auditTrail.current_status)}</p>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-300 mt-1">
                 Last updated:{' '}
                 {formatDate(auditTrail.status_history[0]?.changed_at || new Date().toISOString())}
               </p>
@@ -195,7 +195,7 @@ export default function ApprovalAuditTrailView() {
                       </Badge>
                     </div>
 
-                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+                    <div className="flex items-center gap-2 text-sm text-gray-300 mb-4">
                       <Calendar className="h-4 w-4" />
                       {formatDate(transition.changed_at)}
                     </div>
@@ -264,12 +264,12 @@ export default function ApprovalAuditTrailView() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Total Changes</p>
+                <p className="text-sm text-gray-300">Total Changes</p>
                 <p className="text-2xl font-bold">{auditTrail.status_history.length}</p>
               </div>
 
               <div>
-                <p className="text-sm text-gray-600">First Decision</p>
+                <p className="text-sm text-gray-300">First Decision</p>
                 <p className="text-sm font-semibold">
                   {new Date(
                     auditTrail.status_history[auditTrail.status_history.length - 1]?.changed_at,
@@ -282,7 +282,7 @@ export default function ApprovalAuditTrailView() {
               </div>
 
               <div>
-                <p className="text-sm text-gray-600">Latest Decision</p>
+                <p className="text-sm text-gray-300">Latest Decision</p>
                 <p className="text-sm font-semibold">
                   {new Date(auditTrail.status_history[0]?.changed_at).toLocaleDateString('en-US', {
                     month: 'short',
@@ -293,7 +293,7 @@ export default function ApprovalAuditTrailView() {
               </div>
 
               <div>
-                <p className="text-sm text-gray-600">Current Status</p>
+                <p className="text-sm text-gray-300">Current Status</p>
                 <p className="text-sm font-semibold">{getStatusLabel(auditTrail.current_status)}</p>
               </div>
             </div>

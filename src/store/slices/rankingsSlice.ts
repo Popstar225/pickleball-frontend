@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { api } from '../../lib/api';
+import { fetchUserRankings } from '../../services/rankingService';
 
 interface RankingIssue {
   id: string;
@@ -35,7 +36,8 @@ interface RankingIssueUpdate {
 interface RankingsState {
   rankingIssues: RankingIssue[];
   selectedIssue: RankingIssue | null;
-  playerRankings: any[]; // Add player rankings state
+  playerRankings: any[];
+  userRanking: any | null;
   loading: boolean;
   error: string | null;
   pagination: {
@@ -55,7 +57,8 @@ interface RankingsState {
 const initialState: RankingsState = {
   rankingIssues: [],
   selectedIssue: null,
-  playerRankings: [], // Initialize player rankings
+  playerRankings: [],
+  userRanking: null,
   loading: false,
   error: null,
   pagination: null,
@@ -139,6 +142,14 @@ export const rejectRankingIssue = createAsyncThunk(
     const response = await api.post(`/admin/rankings/issues/${id}/reject`, { review_notes: notes });
     return response;
   }
+);
+
+export const fetchCurrentUserRanking = createAsyncThunk(
+  'rankings/fetchCurrentUserRanking',
+  async (userId: string) => {
+    const response = await fetchUserRankings(userId);
+    return response;
+  },
 );
 
 export const fetchRankingStats = createAsyncThunk(
@@ -372,6 +383,18 @@ const rankingsSlice = createSlice({
       .addCase(fetchPlayerRankings.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch player rankings';
+      })
+      // Fetch Current User Ranking
+      .addCase(fetchCurrentUserRanking.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(fetchCurrentUserRanking.fulfilled, (state, action) => {
+        const payload = action.payload as any;
+        const rankings: any[] = payload?.data?.rankings || [];
+        state.userRanking = rankings.find((r: any) => r.is_current) ?? rankings[0] ?? null;
+      })
+      .addCase(fetchCurrentUserRanking.rejected, (state) => {
+        state.userRanking = null;
       });
   },
 });

@@ -78,27 +78,27 @@ export const StateAutocomplete: React.FC<StateAutocompleteProps> = ({
           onBlur={handleBlur}
           placeholder={placeholder}
           disabled={disabled}
-          className={`pr-10 ${className}`}
+          className={`pr-10 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus-visible:ring-[#ace600]/50 focus-visible:border-[#ace600]/50 disabled:opacity-35 ${className}`}
           autoComplete="off"
         />
-        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40 pointer-events-none" />
       </div>
 
       {showOptions && filteredOptions.length > 0 && (
-        <ul className="absolute z-50 mt-1 w-full bg-slate-900 border border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+        <ul className="absolute z-50 mt-1 w-full bg-[#0d1117] border border-white/[0.08] rounded-lg shadow-2xl max-h-60 overflow-auto">
           {filteredOptions.map((state) => (
             <li
               key={state.code}
-              className={`px-4 py-2 cursor-pointer transition-colors ${
+              className={`px-4 py-2 cursor-pointer transition-colors text-sm ${
                 value === state.code
-                  ? 'bg-emerald-600/30 text-emerald-200'
-                  : 'hover:bg-slate-700/50 text-slate-200'
+                  ? 'bg-[#ace600]/10 text-[#ace600]'
+                  : 'hover:bg-white/[0.05] text-white/80'
               }`}
               onMouseDown={() => handleOptionClick(state.code)}
             >
               <div className="flex justify-between items-center">
                 <span>{state.state}</span>
-                <span className="text-slate-400 text-sm ml-2">{state.code}</span>
+                <span className="text-white/30 text-xs ml-2">{state.code}</span>
               </div>
             </li>
           ))}
@@ -106,8 +106,8 @@ export const StateAutocomplete: React.FC<StateAutocompleteProps> = ({
       )}
 
       {showOptions && filteredOptions.length === 0 && inputValue && (
-        <ul className="absolute z-50 mt-1 w-full bg-slate-900 border border-slate-700 rounded-lg shadow-lg p-3">
-          <li className="text-slate-400 text-sm">No states found</li>
+        <ul className="absolute z-50 mt-1 w-full bg-[#0d1117] border border-white/[0.08] rounded-lg shadow-2xl p-3">
+          <li className="text-white/40 text-sm">No se encontraron estados</li>
         </ul>
       )}
     </div>

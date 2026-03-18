@@ -297,7 +297,7 @@ const DigitalCredentialsManagement: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Digital Credentials Management</h1>
-            <p className="text-gray-600">Manage and monitor all digital credentials in the system</p>
+            <p className="text-gray-300">Manage and monitor all digital credentials in the system</p>
           </div>
           <div className="flex items-center space-x-3">
             <button
@@ -325,7 +325,7 @@ const DigitalCredentialsManagement: React.FC = () => {
                 <Users className="h-6 w-6 text-blue-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Credentials</p>
+                <p className="text-sm font-medium text-gray-300">Total Credentials</p>
                 <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
               </div>
             </div>
@@ -337,7 +337,7 @@ const DigitalCredentialsManagement: React.FC = () => {
                 <Shield className="h-6 w-6 text-green-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Active Credentials</p>
+                <p className="text-sm font-medium text-gray-300">Active Credentials</p>
                 <p className="text-2xl font-semibold text-gray-900">{stats.active}</p>
               </div>
             </div>
@@ -349,7 +349,7 @@ const DigitalCredentialsManagement: React.FC = () => {
                 <Trophy className="h-6 w-6 text-purple-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Verified</p>
+                <p className="text-sm font-medium text-gray-300">Verified</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {stats.breakdown?.find(b => b.is_verified)?.count || 0}
                 </p>
@@ -363,7 +363,7 @@ const DigitalCredentialsManagement: React.FC = () => {
                 <Calendar className="h-6 w-6 text-orange-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">This Month</p>
+                <p className="text-sm font-medium text-gray-300">This Month</p>
                 <p className="text-2xl font-semibold text-gray-900">
                   {stats.breakdown?.find(b => b.affiliation_status === 'active')?.count || 0}
                 </p>
@@ -378,7 +378,7 @@ const DigitalCredentialsManagement: React.FC = () => {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
           <div className="flex-1 max-w-lg">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-200" />
               <input
                 type="text"
                 placeholder="Search credentials..."
@@ -483,7 +483,7 @@ const DigitalCredentialsManagement: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('credential_number')}
                 >
                   <div className="flex items-center space-x-1">
@@ -496,7 +496,7 @@ const DigitalCredentialsManagement: React.FC = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('player_name')}
                 >
                   <div className="flex items-center space-x-1">
@@ -509,7 +509,7 @@ const DigitalCredentialsManagement: React.FC = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('affiliation_status')}
                 >
                   <div className="flex items-center space-x-1">
@@ -522,7 +522,7 @@ const DigitalCredentialsManagement: React.FC = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('state_affiliation')}
                 >
                   <div className="flex items-center space-x-1">
@@ -535,7 +535,7 @@ const DigitalCredentialsManagement: React.FC = () => {
                   </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                   onClick={() => handleSort('issued_date')}
                 >
                   <div className="flex items-center space-x-1">
@@ -547,7 +547,7 @@ const DigitalCredentialsManagement: React.FC = () => {
                     )}
                   </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -557,10 +557,10 @@ const DigitalCredentialsManagement: React.FC = () => {
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center space-y-3">
-                      <Users className="h-12 w-12 text-gray-400" />
+                      <Users className="h-12 w-12 text-gray-200" />
                       <div>
                         <h3 className="text-lg font-medium text-gray-900">No credentials found</h3>
-                        <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+                        <p className="text-gray-300">Try adjusting your search or filter criteria</p>
                       </div>
                     </div>
                   </td>
@@ -579,7 +579,7 @@ const DigitalCredentialsManagement: React.FC = () => {
                       <div className="text-sm font-medium text-gray-900">
                         {credential.credential_number}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-300">
                         {credential.verification_code}
                       </div>
                     </div>
@@ -590,7 +590,7 @@ const DigitalCredentialsManagement: React.FC = () => {
                       <div className="text-sm font-medium text-gray-900">
                         {credential.player_name}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-300">
                         {credential.nrtp_level || 'Not Rated'}
                       </div>
                     </div>
@@ -609,7 +609,7 @@ const DigitalCredentialsManagement: React.FC = () => {
                   
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-1">
-                      <MapPin className="h-3 w-3 text-gray-400" />
+                      <MapPin className="h-3 w-3 text-gray-200" />
                       <span className="text-sm text-gray-900">
                         {credential.state_affiliation || 'Not Specified'}
                       </span>
@@ -727,7 +727,7 @@ const DigitalCredentialsManagement: React.FC = () => {
               </div>
               <h3 className="text-lg font-medium text-gray-900 mt-4">Delete Credential</h3>
               <div className="mt-2 px-7 py-3">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-300">
                   Are you sure you want to delete this digital credential? This action cannot be undone.
                 </p>
               </div>

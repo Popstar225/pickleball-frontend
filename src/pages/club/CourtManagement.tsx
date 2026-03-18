@@ -130,7 +130,7 @@ const CourtManagement = () => {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="animate-on-scroll text-3xl font-bold text-gray-900 mb-2">Court Management</h1>
-            <p className="animate-on-scroll text-gray-600">Manage your club's courts, schedules, and maintenance</p>
+            <p className="animate-on-scroll text-gray-300">Manage your club's courts, schedules, and maintenance</p>
           </div>
           <button 
             onClick={() => setIsAddingCourt(true)} 
@@ -155,7 +155,7 @@ const CourtManagement = () => {
             </div>
             <div className="px-6 pb-4">
               <div className="animate-on-scroll text-2xl font-bold text-blue-600">{courts.length}</div>
-              <p className="animate-on-scroll text-xs text-gray-600">courts available</p>
+              <p className="animate-on-scroll text-xs text-gray-300">courts available</p>
             </div>
           </div>
 
@@ -170,7 +170,7 @@ const CourtManagement = () => {
               <div className="animate-on-scroll text-2xl font-bold text-green-600">
                 {courts.filter(c => c.status === 'Available').length}
               </div>
-              <p className="animate-on-scroll text-xs text-gray-600">ready for use</p>
+              <p className="animate-on-scroll text-xs text-gray-300">ready for use</p>
             </div>
           </div>
 
@@ -185,7 +185,7 @@ const CourtManagement = () => {
               <div className="animate-on-scroll text-2xl font-bold text-red-600">
                 {courts.filter(c => c.status === 'Maintenance').length}
               </div>
-              <p className="animate-on-scroll text-xs text-gray-600">currently unavailable</p>
+              <p className="animate-on-scroll text-xs text-gray-300">currently unavailable</p>
             </div>
           </div>
 
@@ -200,7 +200,7 @@ const CourtManagement = () => {
               <div className="animate-on-scroll text-2xl font-bold text-purple-600">
                 ${courts.reduce((sum, court) => sum + (court.hourlyRate * 8 * 30), 0).toLocaleString()}
               </div>
-              <p className="animate-on-scroll text-xs text-gray-600">estimated monthly</p>
+              <p className="animate-on-scroll text-xs text-gray-300">estimated monthly</p>
             </div>
           </div>
         </div>
@@ -314,7 +314,7 @@ const CourtManagement = () => {
                       </svg>
                       <span>{court.name}</span>
                     </h3>
-                    <p className="animate-on-scroll text-sm text-gray-600 mt-1">
+                    <p className="animate-on-scroll text-sm text-gray-300 mt-1">
                       {court.type} • {court.surface} • {court.lighting}
                     </p>
                   </div>
@@ -341,23 +341,23 @@ const CourtManagement = () => {
               <div className="px-6 py-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
-                    <label className="animate-on-scroll block text-sm font-medium text-gray-500 mb-1">Status</label>
+                    <label className="animate-on-scroll block text-sm font-medium text-gray-300 mb-1">Status</label>
                     <span className={`animate-on-scroll inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(court.status)}`}>
                       {court.status}
                     </span>
                   </div>
                   <div>
-                    <label className="animate-on-scroll block text-sm font-medium text-gray-500 mb-1">Maintenance</label>
+                    <label className="animate-on-scroll block text-sm font-medium text-gray-300 mb-1">Maintenance</label>
                     <span className={`animate-on-scroll inline-block px-2 py-1 rounded-full text-xs font-medium ${getMaintenanceColor(court.maintenance)}`}>
                       {court.maintenance}
                     </span>
                   </div>
                   <div>
-                    <label className="animate-on-scroll block text-sm font-medium text-gray-500 mb-1">Hourly Rate</label>
+                    <label className="animate-on-scroll block text-sm font-medium text-gray-300 mb-1">Hourly Rate</label>
                     <p className="animate-on-scroll text-lg font-semibold text-green-600">${court.hourlyRate}</p>
                   </div>
                   <div>
-                    <label className="animate-on-scroll block text-sm font-medium text-gray-500 mb-1">Max Capacity</label>
+                    <label className="animate-on-scroll block text-sm font-medium text-gray-300 mb-1">Max Capacity</label>
                     <p className="animate-on-scroll text-lg font-semibold text-blue-600">{court.maxCapacity}</p>
                   </div>
                 </div>
@@ -367,11 +367,11 @@ const CourtManagement = () => {
                   <h4 className="animate-on-scroll font-medium text-gray-900 mb-2">Maintenance Schedule</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="animate-on-scroll text-gray-500">Last Maintenance:</span>
+                      <span className="animate-on-scroll text-gray-300">Last Maintenance:</span>
                       <p className="animate-on-scroll font-medium">{court.lastMaintenance}</p>
                     </div>
                     <div>
-                      <span className="animate-on-scroll text-gray-500">Next Maintenance:</span>
+                      <span className="animate-on-scroll text-gray-300">Next Maintenance:</span>
                       <p className="animate-on-scroll font-medium">{court.nextMaintenance}</p>
                     </div>
                   </div>

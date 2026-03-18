@@ -291,7 +291,7 @@ const FeatureRow: React.FC<{ feature: PlanFeature }> = ({ feature }) => (
       className={`mt-0.5 flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center ${
         feature.included
           ? 'bg-emerald-500/20 text-emerald-400'
-          : 'bg-slate-700/50 text-slate-600'
+          : 'bg-slate-700/50 text-slate-300'
       }`}
     >
       {feature.included ? (
@@ -300,10 +300,10 @@ const FeatureRow: React.FC<{ feature: PlanFeature }> = ({ feature }) => (
         <span className="w-2 h-0.5 bg-slate-600 rounded-full block" />
       )}
     </span>
-    <span className={`text-sm leading-relaxed ${feature.included ? 'text-slate-300' : 'text-slate-600'}`}>
+    <span className={`text-sm leading-relaxed ${feature.included ? 'text-slate-300' : 'text-slate-300'}`}>
       {feature.label}
       {feature.note && (
-        <span className="ml-1.5 text-xs text-slate-500 italic">({feature.note})</span>
+        <span className="ml-1.5 text-xs text-slate-300 italic">({feature.note})</span>
       )}
     </span>
   </li>
@@ -311,7 +311,7 @@ const FeatureRow: React.FC<{ feature: PlanFeature }> = ({ feature }) => (
 
 const AdditionalFeatureRow: React.FC<{ label: string; price: string }> = ({ label, price }) => (
   <li className="flex items-center justify-between py-1.5 border-b border-slate-700/40 last:border-0">
-    <span className="text-sm text-slate-400">{label}</span>
+    <span className="text-sm text-slate-200">{label}</span>
     <span className="text-xs font-medium text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">
       {price}
     </span>
@@ -347,7 +347,7 @@ const PricingCard: React.FC<{ plan: PricingPlan }> = ({ plan }) => (
           {plan.icon}
         </div>
         <h3 className="text-xl font-bold text-white mb-1">{plan.name}</h3>
-        <p className="text-sm text-slate-400 leading-relaxed">{plan.description}</p>
+        <p className="text-sm text-slate-200 leading-relaxed">{plan.description}</p>
       </div>
 
       {/* Price */}
@@ -357,17 +357,17 @@ const PricingCard: React.FC<{ plan: PricingPlan }> = ({ plan }) => (
             {plan.price}
           </span>
           {plan.priceNote && (
-            <span className="text-base font-semibold text-slate-400 mb-1">{plan.priceNote}</span>
+            <span className="text-base font-semibold text-slate-200 mb-1">{plan.priceNote}</span>
           )}
           {plan.period && (
-            <span className="text-sm text-slate-500 mb-1">{plan.period}</span>
+            <span className="text-sm text-slate-300 mb-1">{plan.period}</span>
           )}
         </div>
       </div>
 
       {/* Features */}
       <div className="flex-1">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
+        <p className="text-xs font-semibold text-slate-300 uppercase tracking-widest mb-3">
           Incluido
         </p>
         <ul className="space-y-0.5">
@@ -379,7 +379,7 @@ const PricingCard: React.FC<{ plan: PricingPlan }> = ({ plan }) => (
         {/* Additional paid features */}
         {plan.additionalFeatures && plan.additionalFeatures.length > 0 && (
           <div className="mt-5 pt-5 border-t border-slate-700/50">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
+            <p className="text-xs font-semibold text-slate-300 uppercase tracking-widest mb-3">
               Servicios adicionales
             </p>
             <ul>
@@ -428,7 +428,7 @@ const FaqAccordion: React.FC<{ items: FaqItem[] }> = ({ items }) => {
             aria-expanded={openIndex === idx}
           >
             <span className="text-sm font-medium text-white">{item.question}</span>
-            <span className="flex-shrink-0 text-slate-400">
+            <span className="flex-shrink-0 text-slate-200">
               {openIndex === idx ? (
                 <ChevronUp className="w-4 h-4" />
               ) : (
@@ -438,7 +438,7 @@ const FaqAccordion: React.FC<{ items: FaqItem[] }> = ({ items }) => {
           </button>
           {openIndex === idx && (
             <div className="px-6 pb-5">
-              <p className="text-sm text-slate-400 leading-relaxed">{item.answer}</p>
+              <p className="text-sm text-slate-200 leading-relaxed">{item.answer}</p>
             </div>
           )}
         </div>
@@ -488,7 +488,7 @@ const PricingPage: React.FC = () => {
                   Precios
                 </span>
               </h1>
-              <p className="mt-4 text-lg sm:text-xl text-slate-400 leading-relaxed max-w-2xl mx-auto">
+              <p className="mt-4 text-lg sm:text-xl text-slate-200 leading-relaxed max-w-2xl mx-auto">
                 Transparencia total en las cuotas de afiliación para jugadores, entrenadores, clubes,
                 socios y asociaciones estatales de la Federación Mexicana de Pickleball.
               </p>
@@ -497,7 +497,7 @@ const PricingPage: React.FC = () => {
             {/* Federation note */}
             <div className="flex justify-center mb-12">
               <div className="inline-flex items-center gap-2.5 bg-slate-800/70 border border-slate-700/60 rounded-xl px-5 py-3 backdrop-blur-sm">
-                <Shield className="w-4 h-4 text-slate-400" />
+                <Shield className="w-4 h-4 text-slate-200" />
                 <span className="text-sm text-slate-300">
                   La Federación tiene{' '}
                   <span className="font-semibold text-white">acceso completo sin costo</span>
@@ -513,7 +513,7 @@ const PricingPage: React.FC = () => {
                   className="flex flex-col items-center gap-1.5 bg-slate-800/50 border border-slate-700/40 rounded-xl px-4 py-4 backdrop-blur-sm"
                 >
                   <span className="text-primary">{stat.icon}</span>
-                  <span className="text-xs text-slate-500 text-center">{stat.label}</span>
+                  <span className="text-xs text-slate-300 text-center">{stat.label}</span>
                   <span className="text-sm font-bold text-white text-center">{stat.value}</span>
                 </div>
               ))}
@@ -533,7 +533,7 @@ const PricingPage: React.FC = () => {
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
                 Jugadores y Entrenadores
               </h2>
-              <p className="mt-3 text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
+              <p className="mt-3 text-slate-200 max-w-xl mx-auto text-sm sm:text-base">
                 Membresías anuales para participar activamente en la federación.
               </p>
             </div>
@@ -559,7 +559,7 @@ const PricingPage: React.FC = () => {
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
                 Planes para Clubes
               </h2>
-              <p className="mt-3 text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
+              <p className="mt-3 text-slate-200 max-w-xl mx-auto text-sm sm:text-base">
                 Dos niveles de afiliación para que tu club crezca dentro de la federación.
               </p>
             </div>
@@ -597,7 +597,7 @@ const PricingPage: React.FC = () => {
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
                 Planes para Socios
               </h2>
-              <p className="mt-3 text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
+              <p className="mt-3 text-slate-200 max-w-xl mx-auto text-sm sm:text-base">
                 Únete como socio de forma gratuita o potencia tu presencia con el plan premium.
               </p>
             </div>
@@ -623,7 +623,7 @@ const PricingPage: React.FC = () => {
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
                 Estados y Federación
               </h2>
-              <p className="mt-3 text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
+              <p className="mt-3 text-slate-200 max-w-xl mx-auto text-sm sm:text-base">
                 Cuotas institucionales para asociaciones estatales y acceso sin costo para la federación.
               </p>
             </div>
@@ -657,7 +657,7 @@ const PricingPage: React.FC = () => {
               <h2 className="text-2xl sm:text-3xl font-bold text-white">
                 Resumen de Cuotas
               </h2>
-              <p className="mt-2 text-slate-400 text-sm sm:text-base">
+              <p className="mt-2 text-slate-200 text-sm sm:text-base">
                 Todas las cuotas de afiliación en un solo vistazo.
               </p>
             </div>
@@ -667,8 +667,8 @@ const PricingPage: React.FC = () => {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="bg-slate-800/80 border-b border-slate-700/50">
-                      <th className="text-left px-5 py-3 text-slate-400 font-semibold">Tipo de Usuario</th>
-                      <th className="text-right px-5 py-3 text-slate-400 font-semibold">Cuota Anual</th>
+                      <th className="text-left px-5 py-3 text-slate-200 font-semibold">Tipo de Usuario</th>
+                      <th className="text-right px-5 py-3 text-slate-200 font-semibold">Cuota Anual</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-700/30">
@@ -680,7 +680,7 @@ const PricingPage: React.FC = () => {
                       { label: 'Socio (Gratuito)', price: 'Gratis', color: 'text-teal-400' },
                       { label: 'Socio Premium', price: '$8,000 MXN', color: 'text-rose-400', tag: 'RECOMENDADO' },
                       { label: 'Asociación Estatal', price: '$15,000 MXN', color: 'text-indigo-400', tag: 'TODO INCLUIDO' },
-                      { label: 'Federación / Admin', price: 'Sin costo', color: 'text-slate-400' },
+                      { label: 'Federación / Admin', price: 'Sin costo', color: 'text-slate-200' },
                     ].map((row, idx) => (
                       <tr
                         key={idx}
@@ -689,7 +689,7 @@ const PricingPage: React.FC = () => {
                         <td className="px-5 py-3.5 text-slate-300 font-medium">
                           {row.label}
                           {row.tag && (
-                            <span className="ml-2 text-[10px] font-bold bg-slate-700 text-slate-400 px-1.5 py-0.5 rounded-full">
+                            <span className="ml-2 text-[10px] font-bold bg-slate-700 text-slate-200 px-1.5 py-0.5 rounded-full">
                               {row.tag}
                             </span>
                           )}
@@ -704,7 +704,7 @@ const PricingPage: React.FC = () => {
               </div>
             </div>
 
-            <p className="mt-4 text-center text-xs text-slate-600">
+            <p className="mt-4 text-center text-xs text-slate-300">
               Todos los precios en pesos mexicanos (MXN). Vigencia anual desde la fecha de registro.
             </p>
           </div>
@@ -725,7 +725,7 @@ const PricingPage: React.FC = () => {
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
                   ¿Listo para unirte?
                 </h2>
-                <p className="text-slate-400 mb-8 max-w-lg mx-auto text-sm sm:text-base">
+                <p className="text-slate-200 mb-8 max-w-lg mx-auto text-sm sm:text-base">
                   Regístrate hoy y forma parte de la comunidad oficial de Pickleball en México.
                   Tu membresía activa acceso inmediato a todos los beneficios de tu plan.
                 </p>
@@ -763,7 +763,7 @@ const PricingPage: React.FC = () => {
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
                 ¿Tienes dudas sobre los precios?
               </h2>
-              <p className="mt-3 text-slate-400 max-w-xl mx-auto text-sm sm:text-base">
+              <p className="mt-3 text-slate-200 max-w-xl mx-auto text-sm sm:text-base">
                 Respondemos las preguntas más comunes sobre membresías, cuotas y pagos.
               </p>
             </div>
@@ -774,7 +774,7 @@ const PricingPage: React.FC = () => {
 
             {/* Contact prompt */}
             <div className="mt-12 text-center">
-              <p className="text-slate-500 text-sm">
+              <p className="text-slate-300 text-sm">
                 ¿No encontraste lo que buscas?{' '}
                 <Link
                   to="/contact"

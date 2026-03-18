@@ -59,7 +59,7 @@ const DetailRow = ({
   className?: string;
 }) => (
   <div
-    className={`flex items-center gap-3 text-sm text-slate-400 group-hover:text-slate-300 transition-colors ${className}`}
+    className={`flex items-center gap-3 text-sm text-slate-200 group-hover:text-slate-300 transition-colors ${className}`}
   >
     <div className="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700/50 flex items-center justify-center flex-shrink-0">
       <Icon className="w-4 h-4 text-primary" />
@@ -174,10 +174,10 @@ const Courts = () => {
                       <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                         <Building2 className="w-20 h-20 sm:w-24 sm:h-24 text-primary" />
                       </div>
-                      <p className="text-slate-400 text-center font-semibold text-lg">
+                      <p className="text-slate-200 text-center font-semibold text-lg">
                         Red Nacional de Canchas
                       </p>
-                      <p className="text-slate-600 text-sm text-center max-w-xs leading-relaxed">
+                      <p className="text-slate-300 text-sm text-center max-w-xs leading-relaxed">
                         Instalaciones certificadas en todo el país para entrenar y competir
                       </p>
                     </div>
@@ -226,7 +226,7 @@ const Courts = () => {
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent mb-6">
                   Todas las Instalaciones
                 </h2>
-                <p className="text-slate-400 text-base sm:text-lg md:text-xl leading-relaxed">
+                <p className="text-slate-200 text-base sm:text-lg md:text-xl leading-relaxed">
                   Encuentra la cancha perfecta cerca de ti con todas las amenidades que necesitas
                 </p>
                 <div className="flex items-center justify-center gap-3 mt-8">
@@ -243,7 +243,7 @@ const Courts = () => {
                   <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
                     {/* search */}
                     <div className="relative flex-1">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                       <input
                         type="text"
                         placeholder="Buscar por nombre, ubicación o estado..."
@@ -255,7 +255,7 @@ const Courts = () => {
 
                     {/* state */}
                     <div className="relative">
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
                       <select
                         value={stateFilter}
                         onChange={(e) => setStateFilter(e.target.value)}
@@ -272,7 +272,7 @@ const Courts = () => {
 
                     {/* type */}
                     <div className="relative">
-                      <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                      <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
                       <select
                         value={typeFilter}
                         onChange={(e) => setTypeFilter(e.target.value)}
@@ -289,14 +289,14 @@ const Courts = () => {
 
               {/* result count + clear */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                <p className="text-slate-500 text-sm">
+                <p className="text-slate-300 text-sm">
                   Mostrando <span className="text-white font-bold">{filtered.length}</span>{' '}
                   instalaciones
                 </p>
                 {hasActiveFilter && (
                   <button
                     onClick={clearFilters}
-                    className="text-sm text-slate-500 hover:text-primary transition-colors flex items-center gap-1.5"
+                    className="text-sm text-slate-300 hover:text-primary transition-colors flex items-center gap-1.5"
                   >
                     <X className="w-3.5 h-3.5" /> Limpiar filtros
                   </button>
@@ -419,10 +419,10 @@ const Courts = () => {
               {filtered.length === 0 && (
                 <div className="text-center py-24">
                   <div className="w-24 h-24 rounded-3xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-6">
-                    <Filter className="w-12 h-12 text-slate-600" />
+                    <Filter className="w-12 h-12 text-slate-300" />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-3">No se encontraron canchas</h3>
-                  <p className="text-slate-400 mb-6">Intenta ajustar tus filtros de búsqueda</p>
+                  <p className="text-slate-200 mb-6">Intenta ajustar tus filtros de búsqueda</p>
                   <button
                     onClick={clearFilters}
                     className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-bold px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-primary/30 transition-all duration-500"
@@ -460,7 +460,7 @@ const Courts = () => {
                       ¿Tienes una cancha de pickleball?
                     </h3>
 
-                    <p className="text-slate-400 text-base sm:text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
+                    <p className="text-slate-200 text-base sm:text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
                       Únete a nuestra red nacional de instalaciones certificadas. Registra tu cancha
                       para aparecer en nuestro directorio y atraer más jugadores.
                     </p>
@@ -484,7 +484,7 @@ const Courts = () => {
                       </a>
                     </div>
 
-                    <div className="mt-12 flex items-center justify-center gap-8 text-slate-500 text-sm flex-wrap">
+                    <div className="mt-12 flex items-center justify-center gap-8 text-slate-300 text-sm flex-wrap">
                       {['Verificación Oficial', 'Mayor Visibilidad', 'Comunidad Nacional'].map(
                         (label, i) => (
                           <div key={label} className="flex items-center gap-2">
@@ -540,7 +540,7 @@ const Courts = () => {
                   {/* close */}
                   <button
                     onClick={() => setSelected(null)}
-                    className="absolute top-4 right-4 z-[9999] w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:border-primary transition-colors"
+                    className="absolute top-4 right-4 z-[9999] w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-200 hover:text-white hover:border-primary transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -636,7 +636,7 @@ const Courts = () => {
                               <Mail className="w-4 h-4 text-primary" />
                             </div>
                             <div>
-                              <div className="text-xs text-slate-500">Email</div>
+                              <div className="text-xs text-slate-300">Email</div>
                               <div className="text-sm text-primary truncate max-w-[14rem]">
                                 {selected.contactEmail}
                               </div>
@@ -650,7 +650,7 @@ const Courts = () => {
                               <Phone className="w-4 h-4 text-primary" />
                             </div>
                             <div>
-                              <div className="text-xs text-slate-500">Teléfono</div>
+                              <div className="text-xs text-slate-300">Teléfono</div>
                               <div className="text-sm text-primary truncate max-w-[10rem]">
                                 {selected.contactPhone}
                               </div>

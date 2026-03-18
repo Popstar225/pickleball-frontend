@@ -191,7 +191,7 @@ export default function StoreManagement() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">Tienda — Productos</h1>
-          <p className="text-slate-400 text-sm">Administra el catálogo de equipamiento</p>
+          <p className="text-slate-200 text-sm">Administra el catálogo de equipamiento</p>
         </div>
         <Button className="bg-green-600 hover:bg-green-700 text-black font-bold" onClick={openCreate}>
           <Plus className="h-4 w-4 mr-2" /> Nuevo producto
@@ -202,7 +202,7 @@ export default function StoreManagement() {
       <Card className="bg-slate-800 border-slate-700">
         <CardContent className="p-4 flex flex-wrap gap-3">
           <div className="flex-1 min-w-48 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-200" />
             <Input
               placeholder="Buscar por nombre o SKU..."
               value={search}
@@ -240,7 +240,7 @@ export default function StoreManagement() {
           {loading ? (
             <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-green-400" /></div>
           ) : products.length === 0 ? (
-            <div className="text-center py-12 text-slate-400">
+            <div className="text-center py-12 text-slate-200">
               <Package className="h-10 w-10 mx-auto mb-2 opacity-40" />
               <p>Sin productos</p>
             </div>
@@ -248,12 +248,12 @@ export default function StoreManagement() {
             <Table>
               <TableHeader>
                 <TableRow className="border-slate-700">
-                  <TableHead className="text-slate-400">Producto</TableHead>
-                  <TableHead className="text-slate-400">Categoría</TableHead>
-                  <TableHead className="text-slate-400">Precio</TableHead>
-                  <TableHead className="text-slate-400">Stock</TableHead>
-                  <TableHead className="text-slate-400">Estado</TableHead>
-                  <TableHead className="text-slate-400 text-right">Acciones</TableHead>
+                  <TableHead className="text-slate-200">Producto</TableHead>
+                  <TableHead className="text-slate-200">Categoría</TableHead>
+                  <TableHead className="text-slate-200">Precio</TableHead>
+                  <TableHead className="text-slate-200">Stock</TableHead>
+                  <TableHead className="text-slate-200">Estado</TableHead>
+                  <TableHead className="text-slate-200 text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -266,13 +266,13 @@ export default function StoreManagement() {
                             <img src={getFullImageUrl(p.images[0]) ?? ''} alt="" className="w-full h-full object-cover" />
                           ) : (
                             <div className="flex items-center justify-center h-full">
-                              <Package className="h-4 w-4 text-slate-500" />
+                              <Package className="h-4 w-4 text-slate-300" />
                             </div>
                           )}
                         </div>
                         <div>
                           <p className="font-medium text-white text-sm">{p.name}</p>
-                          {p.sku && <p className="text-xs text-slate-500">SKU: {p.sku}</p>}
+                          {p.sku && <p className="text-xs text-slate-300">SKU: {p.sku}</p>}
                         </div>
                       </div>
                     </TableCell>
@@ -280,7 +280,7 @@ export default function StoreManagement() {
                     <TableCell>
                       <p className="text-green-400 font-semibold text-sm">${Number(p.price).toLocaleString()}</p>
                       {p.compare_price && (
-                        <p className="text-slate-500 text-xs line-through">${Number(p.compare_price).toLocaleString()}</p>
+                        <p className="text-slate-300 text-xs line-through">${Number(p.compare_price).toLocaleString()}</p>
                       )}
                     </TableCell>
                     <TableCell>
@@ -291,7 +291,7 @@ export default function StoreManagement() {
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <div className={`h-2 w-2 rounded-full ${p.is_active ? 'bg-green-500' : 'bg-slate-500'}`} />
-                        <span className="text-xs text-slate-400">{p.is_active ? 'Activo' : 'Inactivo'}</span>
+                        <span className="text-xs text-slate-200">{p.is_active ? 'Activo' : 'Inactivo'}</span>
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
@@ -314,7 +314,7 @@ export default function StoreManagement() {
               <Button variant="outline" size="sm" disabled={page === 1} onClick={() => { setPage(p => p - 1); load(page - 1); }} className="border-slate-600 text-slate-300">
                 Anterior
               </Button>
-              <span className="text-slate-400 text-sm">Página {page} / {pagination.pages}</span>
+              <span className="text-slate-200 text-sm">Página {page} / {pagination.pages}</span>
               <Button variant="outline" size="sm" disabled={page === pagination.pages} onClick={() => { setPage(p => p + 1); load(page + 1); }} className="border-slate-600 text-slate-300">
                 Siguiente
               </Button>
@@ -426,7 +426,7 @@ export default function StoreManagement() {
                   onClick={() => fileRef.current?.click()}
                   className="w-16 h-16 rounded-lg border-2 border-dashed border-slate-600 flex items-center justify-center hover:border-green-600 transition-colors"
                 >
-                  <Plus className="h-5 w-5 text-slate-400" />
+                  <Plus className="h-5 w-5 text-slate-200" />
                 </button>
                 <input
                   ref={fileRef}
@@ -457,7 +457,7 @@ export default function StoreManagement() {
           <DialogHeader>
             <DialogTitle className="text-white">Eliminar producto</DialogTitle>
           </DialogHeader>
-          <p className="text-slate-400 text-sm">
+          <p className="text-slate-200 text-sm">
             ¿Seguro que deseas eliminar <span className="font-semibold text-white">{deleteConfirm?.name}</span>? Esta acción no se puede deshacer.
           </p>
           <div className="flex gap-2 mt-2">

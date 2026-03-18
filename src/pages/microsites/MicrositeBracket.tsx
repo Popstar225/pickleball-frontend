@@ -207,12 +207,12 @@ export default function MicrositeBracket({
                 onClick={() => tournaments.length > 1 && setPickerOpen(o => !o)}
                 className="inline-flex items-center gap-1.5 group"
               >
-                <span className="text-slate-400 text-sm font-semibold truncate max-w-[300px]">
+                <span className="text-slate-200 text-sm font-semibold truncate max-w-[300px]">
                   {selectedTournament?.name ?? 'Seleccionar torneo'}
                 </span>
                 {tournaments.length > 1 && (
                   <ChevronDown
-                    className={`w-4 h-4 text-slate-500 transition-transform shrink-0 ${pickerOpen ? 'rotate-180' : ''}`}
+                    className={`w-4 h-4 text-slate-300 transition-transform shrink-0 ${pickerOpen ? 'rotate-180' : ''}`}
                   />
                 )}
               </button>
@@ -229,7 +229,7 @@ export default function MicrositeBracket({
                         key={t.id}
                         onClick={() => { setSelectedTournament(t); setPickerOpen(false); }}
                         className={`w-full text-left px-4 py-3 text-sm font-semibold hover:bg-slate-800 transition-colors flex items-center justify-between gap-3 ${
-                          selectedTournament?.id === t.id ? 'text-white bg-slate-800/50' : 'text-slate-400'
+                          selectedTournament?.id === t.id ? 'text-white bg-slate-800/50' : 'text-slate-200'
                         }`}
                       >
                         <span className="truncate">{t.name}</span>
@@ -282,7 +282,7 @@ export default function MicrositeBracket({
                 className={`px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
                   selectedEventId === evt.id
                     ? 'text-black shadow-md'
-                    : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white border border-slate-700'
+                    : 'bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white border border-slate-700'
                 }`}
                 style={selectedEventId === evt.id ? { background: tc } : {}}
               >
@@ -294,7 +294,7 @@ export default function MicrositeBracket({
 
         {/* ── Info bar ── */}
         {bracketData && (
-          <div className="mb-4 flex flex-wrap items-center gap-4 text-sm text-slate-400">
+          <div className="mb-4 flex flex-wrap items-center gap-4 text-sm text-slate-200">
             <span className="flex items-center gap-1.5 font-medium">
               <Zap className="w-3.5 h-3.5 shrink-0" style={{ color: tc }} />
               {bracketData.matches.length} Partidos
@@ -314,7 +314,7 @@ export default function MicrositeBracket({
             {isLive && (
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-[10px] font-mono uppercase tracking-widest text-slate-400">En Vivo</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-slate-200">En Vivo</span>
               </span>
             )}
           </div>
@@ -332,7 +332,7 @@ export default function MicrositeBracket({
               >
                 <Trophy className="w-6 h-6" style={{ color: tc }} />
               </motion.div>
-              <p className="text-slate-500 text-xs font-black uppercase tracking-widest">
+              <p className="text-slate-300 text-xs font-black uppercase tracking-widest">
                 {loadingEvents ? 'Cargando eventos…' : 'Cargando cuadro…'}
               </p>
             </div>
@@ -354,7 +354,7 @@ export default function MicrositeBracket({
             >
               {events.length === 0 ? 'Sin eventos' : 'Cuadro no disponible'}
             </p>
-            <p className="text-slate-500 text-sm max-w-sm">
+            <p className="text-slate-300 text-sm max-w-sm">
               {events.length === 0
                 ? 'Este torneo no tiene eventos registrados.'
                 : error ?? 'El cuadro se generará cuando el torneo esté en curso.'}
@@ -406,7 +406,7 @@ export default function MicrositeBracket({
                   {championName}
                 </h3>
                 {runnerUpName && (
-                  <p className="text-slate-400 text-sm mt-1.5 font-medium">
+                  <p className="text-slate-200 text-sm mt-1.5 font-medium">
                     Final: venció a{' '}
                     <span className="text-slate-300 font-bold">{runnerUpName}</span>
                   </p>
@@ -420,7 +420,7 @@ export default function MicrositeBracket({
                   >
                     {bracketData?.matches.filter(m => m.status === 'completed').length ?? 0}
                   </p>
-                  <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-0.5">
+                  <p className="text-slate-300 text-[10px] font-black uppercase tracking-widest mt-0.5">
                     Jugados
                   </p>
                 </div>
@@ -431,7 +431,7 @@ export default function MicrositeBracket({
                   >
                     {bracketData?.total_rounds ?? 0}
                   </p>
-                  <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-0.5">
+                  <p className="text-slate-300 text-[10px] font-black uppercase tracking-widest mt-0.5">
                     Rondas
                   </p>
                 </div>

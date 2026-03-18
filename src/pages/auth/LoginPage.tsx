@@ -194,7 +194,7 @@ const LoginPage = () => {
                 <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent pt-3">
                   {t('auth.login.heading')}
                 </CardTitle>
-                <CardDescription className="text-slate-400 text-sm sm:text-base">
+                <CardDescription className="text-slate-200 text-sm sm:text-base">
                   {t('auth.login.subtitle')}
                 </CardDescription>
               </CardHeader>
@@ -207,7 +207,7 @@ const LoginPage = () => {
                       {t('auth.login.email')}
                     </Label>
                     <div className="relative group/input">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within/input:text-primary transition-colors duration-300 pointer-events-none z-10" />
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within/input:text-primary transition-colors duration-300 pointer-events-none z-10" />
                       <Input
                         id="email"
                         name="email"
@@ -217,7 +217,7 @@ const LoginPage = () => {
                         onChange={handleChange}
                         placeholder={t('auth.login.email_placeholder')}
                         disabled={isAnyActionPending}
-                        className="h-12 sm:h-14 pl-12 pr-4 bg-slate-950/50 border-slate-700 text-white placeholder:text-slate-500 text-sm sm:text-base focus-visible:ring-primary/50 focus-visible:border-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm rounded-xl"
+                        className="h-12 sm:h-14 pl-12 pr-4 bg-slate-950/50 border-slate-700 text-white placeholder:text-slate-300 text-sm sm:text-base focus-visible:ring-primary/50 focus-visible:border-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm rounded-xl"
                       />
                     </div>
                   </div>
@@ -237,7 +237,7 @@ const LoginPage = () => {
                       </Link>
                     </div>
                     <div className="relative group/input">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within/input:text-primary transition-colors duration-300 pointer-events-none z-10" />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within/input:text-primary transition-colors duration-300 pointer-events-none z-10" />
                       <Input
                         id="password"
                         name="password"
@@ -247,12 +247,12 @@ const LoginPage = () => {
                         onChange={handleChange}
                         placeholder={t('auth.login.password_placeholder')}
                         disabled={isAnyActionPending}
-                        className="h-12 sm:h-14 pl-12 pr-12 bg-slate-950/50 border-slate-700 text-white placeholder:text-slate-500 text-sm sm:text-base focus-visible:ring-primary/50 focus-visible:border-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm rounded-xl"
+                        className="h-12 sm:h-14 pl-12 pr-12 bg-slate-950/50 border-slate-700 text-white placeholder:text-slate-300 text-sm sm:text-base focus-visible:ring-primary/50 focus-visible:border-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm rounded-xl"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-primary transition-colors duration-300 z-10"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 hover:text-primary transition-colors duration-300 z-10"
                         disabled={isAnyActionPending}
                       >
                         {showPassword ? (
@@ -293,7 +293,7 @@ const LoginPage = () => {
                     <div className="w-full border-t border-slate-700/50" />
                   </div>
                   <div className="relative flex justify-center text-xs sm:text-sm">
-                    <span className="px-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-500">
+                    <span className="px-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-slate-300">
                       {t('auth.login.new_here')}
                     </span>
                   </div>
@@ -301,7 +301,7 @@ const LoginPage = () => {
 
                 {/* Sign Up Link */}
                 <div className="text-center">
-                  <p className="text-sm sm:text-base text-slate-400">
+                  <p className="text-sm sm:text-base text-slate-200">
                     {t('auth.login.no_account')}{' '}
                     <Link
                       to="/register/select-type"
@@ -323,7 +323,7 @@ const LoginPage = () => {
 
           {/* Bottom Info */}
           <div className="mt-6 sm:mt-8 text-center space-y-2">
-            <p className="text-xs sm:text-sm text-slate-500 flex items-center justify-center gap-2">
+            <p className="text-xs sm:text-sm text-slate-300 flex items-center justify-center gap-2">
               <Shield className="w-4 h-4" />
               {t('auth.login.secure')}
             </p>

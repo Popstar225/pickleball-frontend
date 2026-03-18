@@ -101,7 +101,7 @@ const AdminDashboard = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2 animate-on-scroll">
             Welcome back, {user?.username || 'Super Admin'}!
           </h1>
-          <p className="text-gray-600 animate-on-scroll">System-wide overview and performance metrics</p>
+          <p className="text-gray-300 animate-on-scroll">System-wide overview and performance metrics</p>
         </div>
 
                 {/* Main Content Tabs */}
@@ -114,7 +114,7 @@ const AdminDashboard = () => {
                 className={`px-4 py-3 text-sm font-medium rounded-l-lg transition-colors ${
                   activeTab === 'overview'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                    : 'bg-white text-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Overview
@@ -124,7 +124,7 @@ const AdminDashboard = () => {
                 className={`px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === 'rankings'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                    : 'bg-white text-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Rankings
@@ -134,7 +134,7 @@ const AdminDashboard = () => {
                 className={`px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === 'microsites'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                    : 'bg-white text-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Microsites
@@ -144,7 +144,7 @@ const AdminDashboard = () => {
                 className={`px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === 'court-monitor'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                    : 'bg-white text-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Court Monitor
@@ -154,7 +154,7 @@ const AdminDashboard = () => {
                 className={`px-4 py-3 text-sm font-medium transition-colors ${
                   activeTab === 'affiliations'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                    : 'bg-white text-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Affiliations
@@ -164,7 +164,7 @@ const AdminDashboard = () => {
                 className={`px-4 py-3 text-sm font-medium rounded-r-lg transition-colors ${
                   activeTab === 'messaging'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                    : 'bg-white text-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Messaging

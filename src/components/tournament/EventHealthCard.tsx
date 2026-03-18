@@ -49,7 +49,7 @@ export function EventHealthCard({ event, onAction }) {
           <h3 className={`font-semibold text-lg ${statusInfo.textColor}`}>
             {event.skill_block} {event.gender} {event.modality}
           </h3>
-          <p className="text-sm text-gray-600 mt-1">{event.format}</p>
+          <p className="text-sm text-gray-300 mt-1">{event.format}</p>
         </div>
 
         {/* Registration Status */}
@@ -72,7 +72,7 @@ export function EventHealthCard({ event, onAction }) {
               style={{ width: `${Math.min(capacityPercent, 100)}%` }}
             ></div>
           </div>
-          <p className="text-xs text-gray-600 mt-1">
+          <p className="text-xs text-gray-300 mt-1">
             Minimum: {event.minimum_participants} • Max: {event.max_participants}
           </p>
         </div>
@@ -128,15 +128,15 @@ export function EventHealthCard({ event, onAction }) {
           )}
 
           {statusInfo.status === 'partial' && (
-            <p className="text-xs text-gray-600 font-medium">✓ Ready to proceed</p>
+            <p className="text-xs text-gray-300 font-medium">✓ Ready to proceed</p>
           )}
 
           {statusInfo.status === 'full' && (
-            <p className="text-xs text-gray-600 font-medium">✓ At capacity</p>
+            <p className="text-xs text-gray-300 font-medium">✓ At capacity</p>
           )}
 
           {statusInfo.status === 'none' && (
-            <p className="text-xs text-gray-600 font-medium text-center">No registrations yet</p>
+            <p className="text-xs text-gray-300 font-medium text-center">No registrations yet</p>
           )}
         </div>
       </CardContent>

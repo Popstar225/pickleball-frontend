@@ -326,7 +326,7 @@ const AdminProfile = () => {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2 animate-on-scroll">Admin Profile</h1>
-            <p className="text-gray-600 animate-on-scroll">Manage your profile and system access settings</p>
+            <p className="text-gray-300 animate-on-scroll">Manage your profile and system access settings</p>
           </div>
           <div className="flex space-x-3">
             {isEditing ? (
@@ -387,7 +387,7 @@ const AdminProfile = () => {
                       value={isEditing ? editedData.personalInfo.firstName : (user?.first_name || adminData.personalInfo.firstName)}
                       onChange={(e) => handleInputChange('personalInfo', 'firstName', e.target.value)}
                       disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                     />
                   </div>
                   <div>
@@ -398,7 +398,7 @@ const AdminProfile = () => {
                       value={isEditing ? editedData.personalInfo.lastName : (user?.last_name || adminData.personalInfo.lastName)}
                       onChange={(e) => handleInputChange('personalInfo', 'lastName', e.target.value)}
                       disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                     />
                   </div>
                   <div>
@@ -409,7 +409,7 @@ const AdminProfile = () => {
                       value={isEditing ? editedData.personalInfo.email : (user?.email || adminData.personalInfo.email)}
                       onChange={(e) => handleInputChange('personalInfo', 'email', e.target.value)}
                       disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                     />
                   </div>
                   <div>
@@ -420,7 +420,7 @@ const AdminProfile = () => {
                       value={isEditing ? editedData.personalInfo.phone : (user?.phone || adminData.personalInfo.phone)}
                       onChange={(e) => handleInputChange('personalInfo', 'phone', e.target.value)}
                       disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                     />
                   </div>
                   <div>
@@ -431,7 +431,7 @@ const AdminProfile = () => {
                       value={isEditing ? editedData.personalInfo.title : adminData.personalInfo.title}
                       onChange={(e) => handleInputChange('personalInfo', 'title', e.target.value)}
                       disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                     />
                   </div>
                   <div>
@@ -442,7 +442,7 @@ const AdminProfile = () => {
                       value={isEditing ? editedData.personalInfo.department : adminData.personalInfo.department}
                       onChange={(e) => handleInputChange('personalInfo', 'department', e.target.value)}
                       disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                     />
                   </div>
                 </div>
@@ -454,7 +454,7 @@ const AdminProfile = () => {
                     onChange={(e) => handleInputChange('personalInfo', 'bio', e.target.value)}
                     disabled={!isEditing}
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   />
                 </div>
               </div>
@@ -473,19 +473,19 @@ const AdminProfile = () => {
               <div className="p-6 space-y-4">
                 <div className="flex items-center space-x-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-500 animate-on-scroll">Role</label>
+                    <label className="text-sm font-medium text-gray-300 animate-on-scroll">Role</label>
                     <span className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full ${getRoleColor(adminData.systemAccess.role)} animate-on-scroll`}>
                       {getRoleDisplayName(adminData.systemAccess.role)}
                     </span>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500 animate-on-scroll">Last Login</label>
+                    <label className="text-sm font-medium text-gray-300 animate-on-scroll">Last Login</label>
                     <p className="text-sm text-gray-900 animate-on-scroll">{adminData.systemAccess.lastLogin}</p>
                   </div>
                 </div>
                 
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Permissions</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Permissions</label>
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     {adminData.systemAccess.permissions.map((permission, index) => (
                       <div key={index} className="flex items-center space-x-2 animate-on-scroll">
@@ -497,12 +497,12 @@ const AdminProfile = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Recent Login History</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Recent Login History</label>
                   <div className="space-y-2 mt-2">
                     {adminData.systemAccess.loginHistory.map((login, index) => (
                       <div key={index} className="flex items-center justify-between text-sm p-2 bg-gray-50 rounded animate-on-scroll">
                         <span className="animate-on-scroll">{login.date}</span>
-                        <div className="flex items-center space-x-4 text-gray-600 animate-on-scroll">
+                        <div className="flex items-center space-x-4 text-gray-300 animate-on-scroll">
                           <span className="animate-on-scroll">{login.ip}</span>
                           <span className="animate-on-scroll">{login.location}</span>
                         </div>
@@ -532,7 +532,7 @@ const AdminProfile = () => {
                       value={isEditing ? editedData.preferences.language : adminData.preferences.language} 
                       onChange={(e) => handleInputChange('preferences', 'language', e.target.value)}
                       disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                     >
                       <option value="English">English</option>
                       <option value="Spanish">Spanish</option>
@@ -545,7 +545,7 @@ const AdminProfile = () => {
                       value={isEditing ? editedData.preferences.timezone : adminData.preferences.timezone} 
                       onChange={(e) => handleInputChange('preferences', 'timezone', e.target.value)}
                       disabled={!isEditing}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                     >
                       <option value="America/New_York">Eastern Time</option>
                       <option value="America/Chicago">Central Time</option>
@@ -556,7 +556,7 @@ const AdminProfile = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Notifications</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Notifications</label>
                   <div className="space-y-3 mt-2">
                     {Object.entries(adminData.preferences.notifications).map(([key, value]) => (
                       <div key={key} className="flex items-center justify-between animate-on-scroll">
@@ -639,7 +639,7 @@ const AdminProfile = () => {
                     Profile photo loaded successfully
                   </div>
                 ) : (
-                  <div className="mt-2 text-xs text-gray-500 flex items-center justify-center animate-on-scroll">
+                  <div className="mt-2 text-xs text-gray-300 flex items-center justify-center animate-on-scroll">
                     <div className="w-2 h-2 bg-gray-400 rounded-full mr-2 animate-on-scroll"></div>
                     No profile photo uploaded
                   </div>
@@ -689,7 +689,7 @@ const AdminProfile = () => {
                     {adminData.security.twoFactorEnabled ? 'Enabled' : 'Disabled'}
                   </span>
                 </div>
-                <div className="text-sm text-gray-600 animate-on-scroll">
+                <div className="text-sm text-gray-300 animate-on-scroll">
                   <p className="animate-on-scroll">Last Password Change: {adminData.security.lastPasswordChange}</p>
                   <p className="animate-on-scroll">Password Expires: {adminData.security.passwordExpiryDays} days</p>
                 </div>
@@ -720,15 +720,15 @@ const AdminProfile = () => {
               <div className="p-6 space-y-4">
                 <div className="text-center animate-on-scroll">
                   <div className="text-2xl font-bold text-blue-600 animate-on-scroll">8+</div>
-                  <p className="text-sm text-gray-600 animate-on-scroll">Years Experience</p>
+                  <p className="text-sm text-gray-300 animate-on-scroll">Years Experience</p>
                 </div>
                 <div className="text-center animate-on-scroll">
                   <div className="text-2xl font-bold text-green-600 animate-on-scroll">99.9%</div>
-                  <p className="text-sm text-gray-600 animate-on-scroll">System Uptime</p>
+                  <p className="text-sm text-gray-300 animate-on-scroll">System Uptime</p>
                 </div>
                 <div className="text-center animate-on-scroll">
                   <div className="text-2xl font-bold text-purple-600 animate-on-scroll">24/7</div>
-                  <p className="text-sm text-gray-600 animate-on-scroll">Support Available</p>
+                  <p className="text-sm text-gray-300 animate-on-scroll">Support Available</p>
                 </div>
               </div>
             </div>

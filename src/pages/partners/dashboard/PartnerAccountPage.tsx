@@ -238,7 +238,7 @@ export default function PartnerAccountPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white">Gestión de Cuenta</h1>
-          <p className="text-slate-400 mt-1">Administra tu perfil y patrocinios</p>
+          <p className="text-slate-200 mt-1">Administra tu perfil y patrocinios</p>
         </div>
         <div className="flex gap-3">
           <Button
@@ -260,7 +260,7 @@ export default function PartnerAccountPage() {
             <AlertDialogContent className="bg-slate-900 border-slate-800">
               <AlertDialogHeader>
                 <AlertDialogTitle className="text-white">¿Eliminar cuenta?</AlertDialogTitle>
-                <AlertDialogDescription className="text-slate-400">
+                <AlertDialogDescription className="text-slate-200">
                   Esta acción no se puede deshacer. Se eliminará permanentemente tu cuenta y todos
                   los datos asociados, incluyendo patrocinios activos.
                 </AlertDialogDescription>
@@ -307,7 +307,7 @@ export default function PartnerAccountPage() {
                 <User className="h-5 w-5" />
                 Información del Perfil
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-slate-200">
                 Datos de tu empresa y contacto
               </CardDescription>
             </CardHeader>
@@ -440,13 +440,13 @@ export default function PartnerAccountPage() {
             <CardContent>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <div className="space-y-2">
-                  <Label className="text-slate-400">Nivel</Label>
+                  <Label className="text-slate-200">Nivel</Label>
                   <Badge className="bg-yellow-600 hover:bg-yellow-700 text-lg px-4 py-2">
                     {formData.partnershipLevel || 'N/A'}
                   </Badge>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-slate-400">Fecha de Inicio</Label>
+                  <Label className="text-slate-200">Fecha de Inicio</Label>
                   <p className="text-white font-medium">
                     {formData.partnershipStartDate
                       ? new Date(formData.partnershipStartDate).toLocaleDateString('es-MX')
@@ -454,7 +454,7 @@ export default function PartnerAccountPage() {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-slate-400">Próxima Renovación</Label>
+                  <Label className="text-slate-200">Próxima Renovación</Label>
                   <p className="text-white font-medium">
                     {formData.nextRenewalDate
                       ? new Date(formData.nextRenewalDate).toLocaleDateString('es-MX')
@@ -462,7 +462,7 @@ export default function PartnerAccountPage() {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-slate-400">Inversión Total</Label>
+                  <Label className="text-slate-200">Inversión Total</Label>
                   <p className="text-white font-medium">
                     ${formData.totalInvestment ? formData.totalInvestment.toLocaleString() : '0'}{' '}
                     MXN
@@ -481,7 +481,7 @@ export default function PartnerAccountPage() {
                     <DollarSign className="h-5 w-5" />
                     Patrocinios
                   </CardTitle>
-                  <CardDescription className="text-slate-400">
+                  <CardDescription className="text-slate-200">
                     Gestiona tus patrocinios y colaboraciones
                   </CardDescription>
                 </div>
@@ -495,7 +495,7 @@ export default function PartnerAccountPage() {
                   <DialogContent className="bg-slate-900 border-slate-800 max-w-md">
                     <DialogHeader>
                       <DialogTitle className="text-white">Agregar Nuevo Patrocinio</DialogTitle>
-                      <DialogDescription className="text-slate-400">
+                      <DialogDescription className="text-slate-200">
                         Completa los detalles del nuevo patrocinio
                       </DialogDescription>
                     </DialogHeader>
@@ -608,12 +608,12 @@ export default function PartnerAccountPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="border-slate-700">
-                    <TableHead className="text-slate-400">Nombre</TableHead>
-                    <TableHead className="text-slate-400">Tipo</TableHead>
-                    <TableHead className="text-slate-400">Monto</TableHead>
-                    <TableHead className="text-slate-400">Estado</TableHead>
-                    <TableHead className="text-slate-400">Periodo</TableHead>
-                    <TableHead className="text-slate-400">Acciones</TableHead>
+                    <TableHead className="text-slate-200">Nombre</TableHead>
+                    <TableHead className="text-slate-200">Tipo</TableHead>
+                    <TableHead className="text-slate-200">Monto</TableHead>
+                    <TableHead className="text-slate-200">Estado</TableHead>
+                    <TableHead className="text-slate-200">Periodo</TableHead>
+                    <TableHead className="text-slate-200">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -622,7 +622,7 @@ export default function PartnerAccountPage() {
                       <TableCell className="text-white">
                         <div>
                           <p className="font-medium">{sponsorship.name}</p>
-                          <p className="text-sm text-slate-400">{sponsorship.description}</p>
+                          <p className="text-sm text-slate-200">{sponsorship.description}</p>
                         </div>
                       </TableCell>
                       <TableCell className="text-white">{sponsorship.type}</TableCell>

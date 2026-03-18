@@ -207,14 +207,14 @@ const Rules = () => {
                             <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2 sm:mb-3 group-hover:text-primary transition-colors duration-500">
                               {doc.title}
                             </h3>
-                            <p className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed group-hover:text-slate-300 transition-colors duration-500">
+                            <p className="text-slate-200 text-sm sm:text-base md:text-lg leading-relaxed group-hover:text-slate-300 transition-colors duration-500">
                               {doc.description}
                             </p>
                           </div>
                         </div>
 
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-                          <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500">
+                          <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-300">
                             <FileText className="w-4 h-4 flex-shrink-0" />
                             <span>{t('pages.rules.pdf_format')}</span>
                           </div>
@@ -261,7 +261,7 @@ const Rules = () => {
                   <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
                     {t('pages.rules.cta_title')}
                   </h3>
-                  <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+                  <p className="text-slate-200 text-lg max-w-2xl mx-auto">
                     {t('pages.rules.cta_subtitle')}
                   </p>
                   <a

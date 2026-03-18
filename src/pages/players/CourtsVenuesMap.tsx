@@ -222,7 +222,7 @@ const CourtsVenuesMap = () => {
             <div className="p-4 border-b border-slate-700/50">
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-400 mb-1.5 block uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-slate-200 mb-1.5 block uppercase tracking-wide">
                     View Type
                   </label>
                   <Select value={viewType} onValueChange={(v) => setViewType(v as 'courts' | 'venues')}>
@@ -246,7 +246,7 @@ const CourtsVenuesMap = () => {
                   </Select>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-400 mb-1.5 block uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-slate-200 mb-1.5 block uppercase tracking-wide">
                     State / Region
                   </label>
                   <Select value={selectedState} onValueChange={setSelectedState}>
@@ -267,14 +267,14 @@ const CourtsVenuesMap = () => {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-green-500" />
-                  <span className="text-xs text-slate-400">Courts</span>
+                  <span className="text-xs text-slate-200">Courts</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-purple-500" />
-                  <span className="text-xs text-slate-400">Venues</span>
+                  <span className="text-xs text-slate-200">Venues</span>
                 </div>
                 <div className="ml-auto">
-                  <span className="text-xs text-slate-500">{locations.length} found</span>
+                  <span className="text-xs text-slate-300">{locations.length} found</span>
                 </div>
               </div>
             </div>
@@ -284,7 +284,7 @@ const CourtsVenuesMap = () => {
               {loading && (
                 <div className="flex flex-col items-center justify-center py-16 gap-3">
                   <Loader className="w-7 h-7 text-primary animate-spin" />
-                  <p className="text-slate-400 text-sm">Loading locations...</p>
+                  <p className="text-slate-200 text-sm">Loading locations...</p>
                 </div>
               )}
 
@@ -301,10 +301,10 @@ const CourtsVenuesMap = () => {
               {!loading && !error && locations.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
                   <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center">
-                    <MapPin className="w-7 h-7 text-slate-500" />
+                    <MapPin className="w-7 h-7 text-slate-300" />
                   </div>
-                  <p className="text-slate-400 font-semibold">No locations found</p>
-                  <p className="text-slate-500 text-sm">Try adjusting your filters</p>
+                  <p className="text-slate-200 font-semibold">No locations found</p>
+                  <p className="text-slate-300 text-sm">Try adjusting your filters</p>
                 </div>
               )}
 
@@ -335,15 +335,15 @@ const CourtsVenuesMap = () => {
                         {location.name}
                       </p>
                       <div className="flex items-center gap-1 mt-0.5">
-                        <MapPin className="w-3 h-3 text-slate-500 flex-shrink-0" />
-                        <p className="text-xs text-slate-400 truncate">
+                        <MapPin className="w-3 h-3 text-slate-300 flex-shrink-0" />
+                        <p className="text-xs text-slate-200 truncate">
                           {location.city && location.state
                             ? `${location.city}, ${location.state}`
                             : location.state || 'Mexico'}
                         </p>
                       </div>
                       {location.address && (
-                        <p className="text-xs text-slate-500 mt-1 truncate">{location.address}</p>
+                        <p className="text-xs text-slate-300 mt-1 truncate">{location.address}</p>
                       )}
                       <div className="flex items-center gap-2 mt-1.5">
                         <Badge variant="outline" className={`text-xs py-0 h-5 ${
@@ -352,7 +352,7 @@ const CourtsVenuesMap = () => {
                           {location.type === 'court' ? 'Court' : 'Venue'}
                         </Badge>
                         {location.type === 'court' && location.details && (
-                          <span className="text-xs text-slate-500">
+                          <span className="text-xs text-slate-300">
                             {(location.details as Court).surface || ''}
                           </span>
                         )}
@@ -491,12 +491,12 @@ const CourtsVenuesMap = () => {
               <div className="bg-slate-900/90 backdrop-blur-sm border border-slate-700/50 rounded-xl p-3 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-green-400" />
                 <span className="text-white text-sm font-bold">{locations.filter(l => l.type === 'court').length}</span>
-                <span className="text-slate-400 text-xs">courts</span>
+                <span className="text-slate-200 text-xs">courts</span>
               </div>
               <div className="bg-slate-900/90 backdrop-blur-sm border border-slate-700/50 rounded-xl p-3 flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-purple-400" />
                 <span className="text-white text-sm font-bold">{locations.filter(l => l.type === 'venue').length}</span>
-                <span className="text-slate-400 text-xs">venues</span>
+                <span className="text-slate-200 text-xs">venues</span>
               </div>
             </div>
 

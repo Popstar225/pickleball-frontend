@@ -107,7 +107,7 @@ function AmenityChip({ icon, label, active }: { icon: React.ReactNode; label: st
     <span className={`inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border font-medium ${
       active
         ? 'bg-[#ace600]/10 border-[#ace600]/30 text-[#ace600]'
-        : 'bg-white/[0.03] border-white/10 text-gray-600'
+        : 'bg-white/[0.03] border-white/10 text-gray-300'
     }`}>
       {icon}
       {label}
@@ -374,7 +374,7 @@ export default function CourtReservationPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold tracking-tight">Court Reservations</h1>
-            <p className="text-xs text-gray-500 mt-0.5">Browse courts, check availability and book your slot</p>
+            <p className="text-xs text-gray-300 mt-0.5">Browse courts, check availability and book your slot</p>
           </div>
           <Badge className="bg-[#ace600]/10 text-[#ace600] border border-[#ace600]/25 text-xs">
             {courts.length} courts
@@ -392,18 +392,18 @@ export default function CourtReservationPage() {
           {/* Search + filter header */}
           <div className="p-3 border-b border-white/[0.06] space-y-2">
             <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search courts, venues…"
-                className="w-full bg-[#161b22] border border-white/10 rounded-lg pl-8 pr-3 py-2 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#ace600]/40 transition-colors"
+                className="w-full bg-[#161b22] border border-white/10 rounded-lg pl-8 pr-3 py-2 text-sm text-white placeholder:text-gray-300 focus:outline-none focus:border-[#ace600]/40 transition-colors"
               />
             </div>
 
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+              className="flex items-center gap-1.5 text-xs text-gray-300 hover:text-gray-300 transition-colors"
             >
               <SlidersHorizontal className="w-3 h-3" />
               Filters
@@ -419,14 +419,14 @@ export default function CourtReservationPage() {
               <div className="space-y-2 pt-1">
                 {/* Type filter */}
                 <div>
-                  <p className="text-[10px] text-gray-600 uppercase tracking-wider mb-1">Court Type</p>
+                  <p className="text-[10px] text-gray-300 uppercase tracking-wider mb-1">Court Type</p>
                   <div className="flex flex-wrap gap-1">
                     <button
                       onClick={() => setFilterType('')}
                       className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
                         !filterType
                           ? 'bg-[#ace600]/15 border-[#ace600]/40 text-[#ace600]'
-                          : 'border-white/10 text-gray-500 hover:border-white/20'
+                          : 'border-white/10 text-gray-300 hover:border-white/20'
                       }`}
                     >
                       All
@@ -438,7 +438,7 @@ export default function CourtReservationPage() {
                         className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors capitalize ${
                           filterType === t
                             ? 'bg-[#ace600]/15 border-[#ace600]/40 text-[#ace600]'
-                            : 'border-white/10 text-gray-500 hover:border-white/20'
+                            : 'border-white/10 text-gray-300 hover:border-white/20'
                         }`}
                       >
                         {t}
@@ -449,14 +449,14 @@ export default function CourtReservationPage() {
                 {/* Surface filter */}
                 {surfaceTypes.length > 0 && (
                   <div>
-                    <p className="text-[10px] text-gray-600 uppercase tracking-wider mb-1">Surface</p>
+                    <p className="text-[10px] text-gray-300 uppercase tracking-wider mb-1">Surface</p>
                     <div className="flex flex-wrap gap-1">
                       <button
                         onClick={() => setFilterSurface('')}
                         className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
                           !filterSurface
                             ? 'bg-[#ace600]/15 border-[#ace600]/40 text-[#ace600]'
-                            : 'border-white/10 text-gray-500 hover:border-white/20'
+                            : 'border-white/10 text-gray-300 hover:border-white/20'
                         }`}
                       >
                         All
@@ -468,7 +468,7 @@ export default function CourtReservationPage() {
                           className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
                             filterSurface === s
                               ? 'bg-[#ace600]/15 border-[#ace600]/40 text-[#ace600]'
-                              : 'border-white/10 text-gray-500 hover:border-white/20'
+                              : 'border-white/10 text-gray-300 hover:border-white/20'
                           }`}
                         >
                           {SURFACE_LABELS[s!] ?? s}
@@ -492,14 +492,14 @@ export default function CourtReservationPage() {
           {/* Court list */}
           <div className="flex-1 overflow-y-auto py-2 px-2 space-y-1.5">
             {loadingCourts ? (
-              <div className="flex items-center justify-center py-12 gap-2 text-sm text-gray-600">
+              <div className="flex items-center justify-center py-12 gap-2 text-sm text-gray-300">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 Loading courts…
               </div>
             ) : filteredCourts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 gap-2 text-center px-4">
                 <Search className="w-6 h-6 text-gray-700" />
-                <p className="text-sm text-gray-600">No courts match your search</p>
+                <p className="text-sm text-gray-300">No courts match your search</p>
                 <button onClick={() => { setSearch(''); setFilterType(''); setFilterSurface(''); }} className="text-xs text-[#ace600] hover:underline">
                   Clear all filters
                 </button>
@@ -523,7 +523,7 @@ export default function CourtReservationPage() {
                       <span className={`text-sm font-semibold leading-tight ${isSelected ? 'text-white' : 'text-gray-200'}`}>
                         {court.name}
                       </span>
-                      <span className={`text-xs font-bold shrink-0 ${isSelected ? 'text-[#ace600]' : 'text-gray-400'}`}>
+                      <span className={`text-xs font-bold shrink-0 ${isSelected ? 'text-[#ace600]' : 'text-gray-200'}`}>
                         ${Number(court.hourly_rate).toFixed(0)}/h
                       </span>
                     </div>
@@ -532,13 +532,13 @@ export default function CourtReservationPage() {
                     <div className="flex items-center gap-1 flex-wrap mb-2">
                       {court.court_type && (
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-medium ${
-                          isSelected ? 'bg-[#ace600]/20 text-[#ace600]' : 'bg-white/5 text-gray-500'
+                          isSelected ? 'bg-[#ace600]/20 text-[#ace600]' : 'bg-white/5 text-gray-300'
                         }`}>
                           {TYPE_LABELS[court.court_type] ?? court.court_type}
                         </span>
                       )}
                       {court.surface && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white/5 text-gray-500">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white/5 text-gray-300">
                           {SURFACE_LABELS[court.surface] ?? court.surface}
                         </span>
                       )}
@@ -552,8 +552,8 @@ export default function CourtReservationPage() {
                     {/* Club / venue */}
                     {(court.club?.name || court.venue?.name) && (
                       <div className="flex items-center gap-1 mb-1.5">
-                        <Building2 className="w-3 h-3 text-gray-600 shrink-0" />
-                        <span className="text-[11px] text-gray-500 truncate">
+                        <Building2 className="w-3 h-3 text-gray-300 shrink-0" />
+                        <span className="text-[11px] text-gray-300 truncate">
                           {court.venue?.name ?? court.club?.name}
                         </span>
                       </div>
@@ -563,23 +563,23 @@ export default function CourtReservationPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex gap-1">
                         {court.has_lighting && (
-                          <Lightbulb className={`w-3 h-3 ${isSelected ? 'text-[#ace600]' : 'text-gray-600'}`} title="Lighting" />
+                          <Lightbulb className={`w-3 h-3 ${isSelected ? 'text-[#ace600]' : 'text-gray-300'}`} title="Lighting" />
                         )}
                         {court.has_net && (
-                          <Wifi className={`w-3 h-3 ${isSelected ? 'text-[#ace600]' : 'text-gray-600'}`} title="Net included" />
+                          <Wifi className={`w-3 h-3 ${isSelected ? 'text-[#ace600]' : 'text-gray-300'}`} title="Net included" />
                         )}
                         {court.has_equipment && (
-                          <Package className={`w-3 h-3 ${isSelected ? 'text-[#ace600]' : 'text-gray-600'}`} title="Equipment" />
+                          <Package className={`w-3 h-3 ${isSelected ? 'text-[#ace600]' : 'text-gray-300'}`} title="Equipment" />
                         )}
                         {court.capacity && (
-                          <span className="flex items-center gap-0.5 text-[10px] text-gray-600">
+                          <span className="flex items-center gap-0.5 text-[10px] text-gray-300">
                             <Users className="w-3 h-3" />
                             {court.capacity}
                           </span>
                         )}
                       </div>
                       {rating > 0 && (
-                        <span className="flex items-center gap-0.5 text-[10px] text-gray-500">
+                        <span className="flex items-center gap-0.5 text-[10px] text-gray-300">
                           <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                           {rating.toFixed(1)}
                         </span>
@@ -602,8 +602,8 @@ export default function CourtReservationPage() {
                 <MapPin className="w-7 h-7 text-gray-700" />
               </div>
               <div>
-                <p className="text-gray-400 font-medium">Select a court</p>
-                <p className="text-gray-600 text-sm mt-1">Choose a court from the left panel to view availability</p>
+                <p className="text-gray-200 font-medium">Select a court</p>
+                <p className="text-gray-300 text-sm mt-1">Choose a court from the left panel to view availability</p>
               </div>
             </div>
           ) : (
@@ -626,7 +626,7 @@ export default function CourtReservationPage() {
                         </Badge>
                       )}
                       {selectedCourt.surface && (
-                        <Badge className="bg-white/5 text-gray-400 border border-white/10 text-[10px] px-2 py-0.5">
+                        <Badge className="bg-white/5 text-gray-200 border border-white/10 text-[10px] px-2 py-0.5">
                           {SURFACE_LABELS[selectedCourt.surface] ?? selectedCourt.surface}
                         </Badge>
                       )}
@@ -635,8 +635,8 @@ export default function CourtReservationPage() {
                     {/* Location */}
                     {(selectedCourt.venue?.address || selectedCourt.club?.city) && (
                       <div className="flex items-center gap-1.5 mt-1">
-                        <MapPin className="w-3 h-3 text-gray-500 shrink-0" />
-                        <span className="text-xs text-gray-400 truncate">
+                        <MapPin className="w-3 h-3 text-gray-300 shrink-0" />
+                        <span className="text-xs text-gray-200 truncate">
                           {selectedCourt.venue?.address
                             ? `${selectedCourt.venue.address}${selectedCourt.club?.city ? `, ${selectedCourt.club.city}` : ''}`
                             : `${selectedCourt.club?.city ?? ''}${selectedCourt.club?.state ? `, ${selectedCourt.club.state}` : ''}`}
@@ -648,31 +648,31 @@ export default function CourtReservationPage() {
                     <div className="flex items-center flex-wrap gap-4 mt-2">
                       {/* Rating */}
                       {Number(selectedCourt.average_rating ?? 0) > 0 && (
-                        <span className="flex items-center gap-1.5 text-xs text-gray-400">
+                        <span className="flex items-center gap-1.5 text-xs text-gray-200">
                           <RatingStars value={Number(selectedCourt.average_rating)} />
                           <span>{Number(selectedCourt.average_rating).toFixed(1)}</span>
                           {selectedCourt.review_count ? (
-                            <span className="text-gray-600">({selectedCourt.review_count} reviews)</span>
+                            <span className="text-gray-300">({selectedCourt.review_count} reviews)</span>
                           ) : null}
                         </span>
                       )}
                       {/* Total bookings */}
                       {(selectedCourt.total_bookings ?? 0) > 0 && (
-                        <span className="flex items-center gap-1 text-xs text-gray-500">
+                        <span className="flex items-center gap-1 text-xs text-gray-300">
                           <TrendingUp className="w-3 h-3" />
                           {selectedCourt.total_bookings} bookings
                         </span>
                       )}
                       {/* Capacity */}
                       {selectedCourt.capacity && (
-                        <span className="flex items-center gap-1 text-xs text-gray-500">
+                        <span className="flex items-center gap-1 text-xs text-gray-300">
                           <Users className="w-3 h-3" />
                           {selectedCourt.capacity} players
                         </span>
                       )}
                       {/* Price */}
                       <span className="flex items-center gap-1 text-xs">
-                        <span className="text-gray-500">Rate:</span>
+                        <span className="text-gray-300">Rate:</span>
                         <span className="font-semibold text-[#ace600]">${Number(selectedCourt.hourly_rate).toFixed(2)}/hr</span>
                       </span>
                     </div>
@@ -690,19 +690,19 @@ export default function CourtReservationPage() {
                 {(selectedCourt.club || selectedCourt.venue) && (
                   <div className="mt-3 pt-3 border-t border-white/[0.06] flex flex-wrap gap-3">
                     {selectedCourt.club && (
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                        <Building2 className="w-3 h-3 text-gray-600" />
+                      <div className="flex items-center gap-1.5 text-xs text-gray-300">
+                        <Building2 className="w-3 h-3 text-gray-300" />
                         <span>Club: <span className="text-gray-300">{selectedCourt.club.name}</span></span>
                       </div>
                     )}
                     {selectedCourt.venue && (
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                        <MapPin className="w-3 h-3 text-gray-600" />
+                      <div className="flex items-center gap-1.5 text-xs text-gray-300">
+                        <MapPin className="w-3 h-3 text-gray-300" />
                         <span>Venue: <span className="text-gray-300">{selectedCourt.venue.name}</span></span>
                       </div>
                     )}
                     {selectedCourt.description && (
-                      <p className="w-full text-xs text-gray-600 italic leading-relaxed">{selectedCourt.description}</p>
+                      <p className="w-full text-xs text-gray-300 italic leading-relaxed">{selectedCourt.description}</p>
                     )}
                   </div>
                 )}
@@ -712,7 +712,7 @@ export default function CourtReservationPage() {
               <div className="flex items-center gap-3 px-5 py-3 border-b border-white/[0.06] bg-[#0d1117]">
                 <button
                   onClick={() => setSelectedDate((d) => subDays(d, 1))}
-                  className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all"
+                  className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-200 hover:text-white hover:border-white/20 transition-all"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
@@ -721,19 +721,19 @@ export default function CourtReservationPage() {
                 </span>
                 <button
                   onClick={() => setSelectedDate((d) => addDays(d, 1))}
-                  className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all"
+                  className="p-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-200 hover:text-white hover:border-white/20 transition-all"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => { setSelectedDate(startOfToday()); clearSelection(); }}
-                  className="text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/20 transition-all"
+                  className="text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-200 hover:text-white hover:border-white/20 transition-all"
                 >
                   Today
                 </button>
 
                 {/* Legend */}
-                <div className="ml-auto hidden sm:flex items-center gap-3 text-[11px] text-gray-600">
+                <div className="ml-auto hidden sm:flex items-center gap-3 text-[11px] text-gray-300">
                   <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-[#ace600]/20 border border-[#ace600]/40" /> Available</span>
                   <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-[#ace600] border border-[#ace600]" /> Selected</span>
                   <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-sm bg-white/5 border border-white/10" /> Booked</span>
@@ -743,14 +743,14 @@ export default function CourtReservationPage() {
               {/* ── Time slot grid ── */}
               <div className="flex-1 overflow-y-auto">
                 {loading ? (
-                  <div className="flex items-center justify-center py-16 gap-2 text-sm text-gray-500">
+                  <div className="flex items-center justify-center py-16 gap-2 text-sm text-gray-300">
                     <Loader2 className="w-5 h-5 animate-spin text-[#ace600]" />
                     Loading availability…
                   </div>
                 ) : (
                   <div className="px-3 py-3">
                     {/* Instruction hint */}
-                    <p className="text-[11px] text-gray-600 mb-3 px-1">
+                    <p className="text-[11px] text-gray-300 mb-3 px-1">
                       {selStart === null
                         ? 'Click a slot to set start time'
                         : selEnd === null
@@ -844,7 +844,7 @@ export default function CourtReservationPage() {
           {/* Booking summary */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             <div className="bg-[#161b22] rounded-xl border border-white/[0.07] p-4">
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+              <h3 className="text-xs font-semibold text-gray-200 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5 text-[#ace600]" />
                 Booking Summary
               </h3>
@@ -857,7 +857,7 @@ export default function CourtReservationPage() {
                       <div>
                         <p className="text-xs font-semibold leading-tight">{selectedCourt.name}</p>
                         {selectedCourt.venue?.name && (
-                          <p className="text-[11px] text-gray-600 mt-0.5">{selectedCourt.venue.name}</p>
+                          <p className="text-[11px] text-gray-300 mt-0.5">{selectedCourt.venue.name}</p>
                         )}
                       </div>
                     </div>
@@ -865,7 +865,7 @@ export default function CourtReservationPage() {
                       <Calendar className="w-3.5 h-3.5 text-[#ace600] mt-0.5 shrink-0" />
                       <div>
                         <p className="text-xs font-semibold leading-tight">{format(selectedDate, 'EEE, MMM d')}</p>
-                        <p className="text-[11px] text-gray-500 mt-0.5">
+                        <p className="text-[11px] text-gray-300 mt-0.5">
                           {fmtHour(rangeStart)}
                           {rangeEnd !== null && rangeEnd !== rangeStart
                             ? ` – ${fmtHour(rangeEnd + 1)}`
@@ -882,11 +882,11 @@ export default function CourtReservationPage() {
                   )}
 
                   <div className="space-y-1.5 text-xs">
-                    <div className="flex justify-between text-gray-500">
+                    <div className="flex justify-between text-gray-300">
                       <span>Duration</span>
                       <span>{duration || 1} hour{(duration || 1) !== 1 ? 's' : ''}</span>
                     </div>
-                    <div className="flex justify-between text-gray-500">
+                    <div className="flex justify-between text-gray-300">
                       <span>Rate</span>
                       <span>${price.toFixed(2)}/hr</span>
                     </div>
@@ -905,7 +905,7 @@ export default function CourtReservationPage() {
                   </Button>
                   <button
                     onClick={clearSelection}
-                    className="w-full text-[11px] text-gray-700 hover:text-gray-400 transition-colors py-0.5"
+                    className="w-full text-[11px] text-gray-700 hover:text-gray-200 transition-colors py-0.5"
                   >
                     Clear selection
                   </button>
@@ -915,7 +915,7 @@ export default function CourtReservationPage() {
                   <div className="w-10 h-10 rounded-full bg-white/[0.04] flex items-center justify-center">
                     <Clock className="w-4 h-4 text-gray-700" />
                   </div>
-                  <p className="text-xs text-gray-500">No slot selected</p>
+                  <p className="text-xs text-gray-300">No slot selected</p>
                   <p className="text-[11px] text-gray-700">Click a green slot on the calendar</p>
                 </div>
               )}
@@ -924,7 +924,7 @@ export default function CourtReservationPage() {
             {/* Selected court quick stats */}
             {selectedCourt && (
               <div className="bg-[#161b22] rounded-xl border border-white/[0.07] p-4">
-                <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                <h3 className="text-xs font-semibold text-gray-200 uppercase tracking-wider mb-3">
                   Court Info
                 </h3>
                 <div className="space-y-2 text-xs">
@@ -936,7 +936,7 @@ export default function CourtReservationPage() {
                     { label: 'Net', value: selectedCourt.has_net ? 'Included' : 'Not included' },
                   ].filter(Boolean).map((item: any) => (
                     <div key={item.label} className="flex justify-between">
-                      <span className="text-gray-600">{item.label}</span>
+                      <span className="text-gray-300">{item.label}</span>
                       <span className="text-gray-300">{item.value}</span>
                     </div>
                   ))}
@@ -946,7 +946,7 @@ export default function CourtReservationPage() {
 
             {/* How it works */}
             <div className="bg-[#161b22] rounded-xl border border-white/[0.07] p-4">
-              <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
+              <h3 className="text-xs font-semibold text-gray-200 uppercase tracking-wider mb-3">
                 How it works
               </h3>
               <ol className="space-y-2">
@@ -961,8 +961,8 @@ export default function CourtReservationPage() {
                       {i + 1}
                     </span>
                     <div>
-                      <p className="text-[11px] font-medium text-gray-400">{step}</p>
-                      <p className="text-[11px] text-gray-600">{desc}</p>
+                      <p className="text-[11px] font-medium text-gray-200">{step}</p>
+                      <p className="text-[11px] text-gray-300">{desc}</p>
                     </div>
                   </li>
                 ))}
@@ -980,14 +980,14 @@ export default function CourtReservationPage() {
             Upcoming Reservations
           </h2>
           {upcoming.length > 0 && (
-            <span className="text-xs text-gray-600">{upcoming.length} upcoming</span>
+            <span className="text-xs text-gray-300">{upcoming.length} upcoming</span>
           )}
         </div>
 
         {upcoming.length === 0 ? (
           <div className="bg-[#161b22] rounded-xl border border-white/[0.07] flex items-center justify-center py-8 gap-3">
             <Calendar className="w-5 h-5 text-gray-700" />
-            <p className="text-gray-600 text-sm">No upcoming reservations</p>
+            <p className="text-gray-300 text-sm">No upcoming reservations</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3">
@@ -1007,7 +1007,7 @@ export default function CourtReservationPage() {
                           ? 'bg-[#ace600]/10 text-[#ace600] border-[#ace600]/25'
                           : r.status === 'pending'
                           ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/25'
-                          : 'bg-white/5 text-gray-500 border-white/10'
+                          : 'bg-white/5 text-gray-300 border-white/10'
                       }`}
                     >
                       {r.status}
@@ -1031,13 +1031,13 @@ export default function CourtReservationPage() {
                   <div className="space-y-1.5">
                     <p className="text-sm font-semibold truncate">{courtName}</p>
                     {courtData?.venue?.name && (
-                      <p className="text-[11px] text-gray-600 truncate">{courtData.venue.name}</p>
+                      <p className="text-[11px] text-gray-300 truncate">{courtData.venue.name}</p>
                     )}
-                    <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
+                    <div className="flex items-center gap-1.5 text-[11px] text-gray-300">
                       <Calendar className="w-3 h-3 shrink-0" />
                       {format(new Date(r.start_time), 'EEE, MMM d')}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[11px] text-gray-500">
+                    <div className="flex items-center gap-1.5 text-[11px] text-gray-300">
                       <Clock className="w-3 h-3 shrink-0" />
                       {format(new Date(r.start_time), 'h:mm a')} – {format(new Date(r.end_time), 'h:mm a')}
                     </div>
@@ -1076,7 +1076,7 @@ export default function CourtReservationPage() {
                     ['Duration', `${duration} hour${duration !== 1 ? 's' : ''}`],
                   ].filter(([, v]) => v !== '—' || true).map(([label, value]) => (
                     <div key={label} className="flex justify-between">
-                      <span className="text-gray-500">{label}</span>
+                      <span className="text-gray-300">{label}</span>
                       <span className="font-medium text-gray-200">{value}</span>
                     </div>
                   ))}
@@ -1148,7 +1148,7 @@ export default function CourtReservationPage() {
               </div>
               <div>
                 <p className="font-bold text-lg">Processing Payment…</p>
-                <p className="text-sm text-gray-500 mt-1">Please don't close this window</p>
+                <p className="text-sm text-gray-300 mt-1">Please don't close this window</p>
               </div>
             </div>
           )}
@@ -1167,7 +1167,7 @@ export default function CourtReservationPage() {
                   <div>
                     <p className="font-bold text-lg">Court booked successfully!</p>
                     {createdReservation?.id && (
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-gray-300 mt-0.5">
                         Ref #{String(createdReservation.id).slice(0, 8).toUpperCase()}
                       </p>
                     )}
@@ -1181,7 +1181,7 @@ export default function CourtReservationPage() {
                     ['Duration', `${duration}h`],
                   ].map(([label, value]) => (
                     <div key={label} className="flex justify-between">
-                      <span className="text-gray-500">{label}</span>
+                      <span className="text-gray-300">{label}</span>
                       <span className="font-medium">{value}</span>
                     </div>
                   ))}
@@ -1258,8 +1258,8 @@ function CourtPaymentForm({
     <form onSubmit={handlePay} className="space-y-4 mt-2">
       <div className="flex items-center justify-between bg-[#ace600]/8 border border-[#ace600]/20 rounded-xl p-3.5">
         <div>
-          <span className="text-sm text-gray-400">Total a pagar</span>
-          <p className="text-[11px] text-gray-500">{duration}h × ${price.toFixed(2)}/hr</p>
+          <span className="text-sm text-gray-200">Total a pagar</span>
+          <p className="text-[11px] text-gray-300">{duration}h × ${price.toFixed(2)}/hr</p>
         </div>
         <span className="font-bold text-[#ace600] text-2xl">${amount.toFixed(2)}</span>
       </div>
@@ -1272,7 +1272,7 @@ function CourtPaymentForm({
         </div>
       )}
 
-      <div className="flex items-center gap-1.5 text-[11px] text-gray-600">
+      <div className="flex items-center gap-1.5 text-[11px] text-gray-300">
         <Shield className="w-3 h-3" /> Pago seguro con cifrado SSL
       </div>
 

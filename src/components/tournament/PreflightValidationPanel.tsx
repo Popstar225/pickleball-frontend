@@ -53,7 +53,7 @@ export function PreflightValidationPanel(props: any = {}) {
         <CardContent>
           {summary && <p className="text-sm text-gray-700">{summary}</p>}
           {!isValid && (
-            <p className="text-xs text-gray-600 mt-2">
+            <p className="text-xs text-gray-300 mt-2">
               Resolve all blocking issues before starting the tournament.
             </p>
           )}
@@ -128,7 +128,7 @@ export function PreflightValidationPanel(props: any = {}) {
                       <p className="font-medium text-sm">
                         {evt.skill_block} {evt.gender} {evt.modality}
                       </p>
-                      <p className="text-xs text-gray-600">{evt.format}</p>
+                      <p className="text-xs text-gray-300">{evt.format}</p>
                     </div>
                     <div className="text-right">
                       {evt.status === 'ready' && (

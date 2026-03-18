@@ -178,7 +178,7 @@ const ClubMicrosite = () => {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Club Microsite</h1>
-            <p className="text-gray-600">Customize and manage your club's public website</p>
+            <p className="text-gray-300">Customize and manage your club's public website</p>
           </div>
           <div className="flex space-x-3">
             <Button variant="outline" className="flex items-center space-x-2">
@@ -211,11 +211,11 @@ const ClubMicrosite = () => {
                     {micrositeData.settings.isPublished ? 'Published' : 'Draft'}
                   </Badge>
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-300">
                   Last updated: {new Date().toLocaleDateString()}
                 </div>
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-300">
                 Site URL: <span className="font-mono text-blue-600">club.elitepickleball.com</span>
               </div>
             </div>
@@ -433,7 +433,7 @@ const ClubMicrosite = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Show Statistics</Label>
-                    <p className="text-sm text-gray-600">Display member count, court availability, etc.</p>
+                    <p className="text-sm text-gray-300">Display member count, court availability, etc.</p>
                   </div>
                   <Switch
                     checked={micrositeData.appearance.showStats}
@@ -444,7 +444,7 @@ const ClubMicrosite = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Show Testimonials</Label>
-                    <p className="text-sm text-gray-600">Display member testimonials on the homepage</p>
+                    <p className="text-sm text-gray-300">Display member testimonials on the homepage</p>
                   </div>
                   <Switch
                     checked={micrositeData.appearance.showTestimonials}
@@ -455,7 +455,7 @@ const ClubMicrosite = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Show Photo Gallery</Label>
-                    <p className="text-sm text-gray-600">Display facility and event photos</p>
+                    <p className="text-sm text-gray-300">Display facility and event photos</p>
                   </div>
                   <Switch
                     checked={micrositeData.appearance.showGallery}
@@ -630,7 +630,7 @@ const ClubMicrosite = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Publish Site</Label>
-                    <p className="text-sm text-gray-600">Make your site visible to the public</p>
+                    <p className="text-sm text-gray-300">Make your site visible to the public</p>
                   </div>
                   <Switch
                     checked={micrositeData.settings.isPublished}
@@ -641,7 +641,7 @@ const ClubMicrosite = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Allow Online Bookings</Label>
-                    <p className="text-sm text-gray-600">Let visitors book courts online</p>
+                    <p className="text-sm text-gray-300">Let visitors book courts online</p>
                   </div>
                   <Switch
                     checked={micrositeData.settings.allowOnlineBookings}
@@ -652,7 +652,7 @@ const ClubMicrosite = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Show Member Directory</Label>
-                    <p className="text-sm text-gray-600">Display member profiles (public)</p>
+                    <p className="text-sm text-gray-300">Display member profiles (public)</p>
                   </div>
                   <Switch
                     checked={micrositeData.settings.showMemberDirectory}
@@ -663,7 +663,7 @@ const ClubMicrosite = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Show Court Availability</Label>
-                    <p className="text-sm text-gray-600">Display real-time court status</p>
+                    <p className="text-sm text-gray-300">Display real-time court status</p>
                   </div>
                   <Switch
                     checked={micrositeData.settings.showCourtAvailability}
@@ -674,7 +674,7 @@ const ClubMicrosite = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>Allow Public Comments</Label>
-                    <p className="text-sm text-gray-600">Let visitors leave comments</p>
+                    <p className="text-sm text-gray-300">Let visitors leave comments</p>
                   </div>
                   <Switch
                     checked={micrositeData.settings.allowPublicComments}
@@ -685,7 +685,7 @@ const ClubMicrosite = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>SEO Optimization</Label>
-                    <p className="text-sm text-gray-600">Enable search engine optimization</p>
+                    <p className="text-sm text-gray-300">Enable search engine optimization</p>
                   </div>
                   <Switch
                     checked={micrositeData.settings.seoEnabled}

@@ -85,7 +85,7 @@ function Head({ tc }: { tc: string }) {
           Calendario
         </h2>
       </div>
-      <p className="text-slate-400 text-sm font-medium ml-12">Programa de torneos día a día, semana a semana</p>
+      <p className="text-slate-200 text-sm font-medium ml-12">Programa de torneos día a día, semana a semana</p>
     </div>
   );
 }
@@ -155,7 +155,7 @@ export default function MicrositeSchedule({ tournaments, tc }: { tournaments: T[
                 key={v}
                 onClick={() => { setView(v); setSelected(null); }}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all ${
-                  view === v ? 'text-black shadow-sm' : 'text-slate-400 hover:text-slate-700'
+                  view === v ? 'text-black shadow-sm' : 'text-slate-200 hover:text-slate-700'
                 }`}
                 style={view === v ? { background: tc } : {}}
               >
@@ -167,19 +167,19 @@ export default function MicrositeSchedule({ tournaments, tc }: { tournaments: T[
           {/* Period navigation */}
           <div className="flex items-center gap-2">
             <button onClick={() => go(-1)}
-              className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all">
+              className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-300 hover:text-slate-900 hover:bg-slate-50 transition-all">
               <ChevronLeft className="w-4 h-4" />
             </button>
             <span className="min-w-[190px] text-center text-sm font-black text-slate-900 capitalize select-none">
               {periodLabel}
             </span>
             <button onClick={() => go(1)}
-              className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all">
+              className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-300 hover:text-slate-900 hover:bg-slate-50 transition-all">
               <ChevronRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => { setCursor(new Date()); setSelected(new Date()); }}
-              className="px-3 py-1.5 text-[11px] font-black uppercase tracking-widest rounded-lg border border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-all"
+              className="px-3 py-1.5 text-[11px] font-black uppercase tracking-widest rounded-lg border border-slate-200 text-slate-300 hover:text-slate-900 hover:bg-slate-50 transition-all"
             >
               Hoy
             </button>
@@ -199,7 +199,7 @@ export default function MicrositeSchedule({ tournaments, tc }: { tournaments: T[
                 {/* Weekday headers */}
                 <div className="grid grid-cols-7 bg-slate-50 border-b border-slate-100">
                   {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(d => (
-                    <div key={d} className="py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    <div key={d} className="py-3 text-center text-[10px] font-black uppercase tracking-widest text-slate-200">
                       {d}
                     </div>
                   ))}
@@ -232,7 +232,7 @@ export default function MicrositeSchedule({ tournaments, tc }: { tournaments: T[
                         <div className="space-y-0.5">
                           {ts.slice(0, 2).map(t => <Pill key={t.id} t={t} tc={tc} tiny />)}
                           {ts.length > 2 && (
-                            <div className="text-[9px] font-bold text-slate-400 px-1">
+                            <div className="text-[9px] font-bold text-slate-200 px-1">
                               +{ts.length - 2} más
                             </div>
                           )}
@@ -263,7 +263,7 @@ export default function MicrositeSchedule({ tournaments, tc }: { tournaments: T[
                           onClick={() => setSelected(isSel ? null : day)}
                           className="w-full p-3 text-center border-b border-slate-100 hover:bg-slate-50 transition-colors"
                         >
-                          <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1 capitalize">
+                          <div className="text-[10px] font-black uppercase tracking-widest text-slate-200 mb-1 capitalize">
                             {format(day, 'EEE', { locale: es })}
                           </div>
                           <div
@@ -292,7 +292,7 @@ export default function MicrositeSchedule({ tournaments, tc }: { tournaments: T[
                 {/* Day header */}
                 <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                   <div>
-                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-0.5 capitalize">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-200 mb-0.5 capitalize">
                       {format(cursor, 'EEEE', { locale: es })}
                     </div>
                     <div
@@ -319,7 +319,7 @@ export default function MicrositeSchedule({ tournaments, tc }: { tournaments: T[
                           style={{ background: `${tc}08` }}>
                           <Calendar className="w-6 h-6" style={{ color: tc }} />
                         </div>
-                        <p className="font-bold text-slate-400 text-sm">Sin eventos este día</p>
+                        <p className="font-bold text-slate-200 text-sm">Sin eventos este día</p>
                       </div>
                     );
                     return (
@@ -340,13 +340,13 @@ export default function MicrositeSchedule({ tournaments, tc }: { tournaments: T[
                                 {t.name}
                               </h4>
                               {(t.city || t.state) && (
-                                <p className="text-sm text-slate-400 flex items-center gap-1.5 mt-1 font-medium">
+                                <p className="text-sm text-slate-200 flex items-center gap-1.5 mt-1 font-medium">
                                   <MapPin className="w-3.5 h-3.5 shrink-0" style={{ color: tc }} />
                                   {[t.city, t.state].filter(Boolean).join(', ')}
                                 </p>
                               )}
                               {t.end_date && t.end_date !== t.start_date && (
-                                <p className="text-xs text-slate-400 flex items-center gap-1.5 mt-1 font-medium">
+                                <p className="text-xs text-slate-200 flex items-center gap-1.5 mt-1 font-medium">
                                   <Clock className="w-3 h-3" style={{ color: tc }} />
                                   Hasta {format(parseISO(t.end_date), "d 'de' MMMM", { locale: es })}
                                 </p>
@@ -401,7 +401,7 @@ export default function MicrositeSchedule({ tournaments, tc }: { tournaments: T[
                         <div className="space-y-1">
                           {ts.slice(0, 3).map(t => <Pill key={t.id} t={t} tc={tc} tiny />)}
                           {ts.length > 3 && (
-                            <div className="text-[9px] font-bold text-slate-400 px-1">
+                            <div className="text-[9px] font-bold text-slate-200 px-1">
                               +{ts.length - 3} más
                             </div>
                           )}
@@ -443,7 +443,7 @@ export default function MicrositeSchedule({ tournaments, tc }: { tournaments: T[
                   </h3>
                   <button
                     onClick={() => setSelected(null)}
-                    className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors"
+                    className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-300 transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -461,7 +461,7 @@ export default function MicrositeSchedule({ tournaments, tc }: { tournaments: T[
                           {t.name}
                         </p>
                         {(t.city || t.state) && (
-                          <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                          <p className="text-xs text-slate-200 flex items-center gap-1 mt-0.5">
                             <MapPin className="w-3 h-3" style={{ color: tc }} />
                             {[t.city, t.state].filter(Boolean).join(', ')}
                           </p>
@@ -491,7 +491,7 @@ export default function MicrositeSchedule({ tournaments, tc }: { tournaments: T[
           }) as [string, string][]).map(([s, label]) => (
             <div key={s} className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full" style={{ background: STATUS_COLOR[s] }} />
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</span>
+              <span className="text-[10px] font-bold text-slate-200 uppercase tracking-widest">{label}</span>
             </div>
           ))}
         </div>

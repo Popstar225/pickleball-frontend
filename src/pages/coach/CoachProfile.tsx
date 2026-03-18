@@ -106,7 +106,7 @@ const CoachProfile = () => {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="animate-on-scroll text-3xl font-bold text-gray-900 mb-2">Coach Profile</h1>
-            <p className="animate-on-scroll text-gray-600">Manage your coaching information and credentials</p>
+            <p className="animate-on-scroll text-gray-300">Manage your coaching information and credentials</p>
           </div>
           <div className="flex space-x-3">
             {!isEditing ? (
@@ -167,7 +167,7 @@ const CoachProfile = () => {
                       value={profileData.firstName}
                       onChange={(e) => handleInputChange('firstName', e.target.value)}
                       disabled={!isEditing}
-                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                     />
                   </div>
                   <div>
@@ -178,7 +178,7 @@ const CoachProfile = () => {
                       value={profileData.lastName}
                       onChange={(e) => handleInputChange('lastName', e.target.value)}
                       disabled={!isEditing}
-                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                     />
                   </div>
                 </div>
@@ -191,7 +191,7 @@ const CoachProfile = () => {
                       value={profileData.username}
                       onChange={(e) => handleInputChange('username', e.target.value)}
                       disabled={!isEditing}
-                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                     />
                   </div>
                   <div>
@@ -202,7 +202,7 @@ const CoachProfile = () => {
                       value={profileData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
                       disabled={!isEditing}
-                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                     />
                   </div>
                 </div>
@@ -215,7 +215,7 @@ const CoachProfile = () => {
                       value={profileData.phone}
                       onChange={(e) => handleInputChange('phone', e.target.value)}
                       disabled={!isEditing}
-                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                     />
                   </div>
                   <div>
@@ -226,7 +226,7 @@ const CoachProfile = () => {
                       value={profileData.dateOfBirth}
                       onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
                       disabled={!isEditing}
-                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                     />
                   </div>
                 </div>
@@ -254,7 +254,7 @@ const CoachProfile = () => {
                       value={profileData.city}
                       onChange={(e) => handleInputChange('city', e.target.value)}
                       disabled={!isEditing}
-                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                     />
                   </div>
                   <div>
@@ -265,7 +265,7 @@ const CoachProfile = () => {
                       value={profileData.state}
                       onChange={(e) => handleInputChange('state', e.target.value)}
                       disabled={!isEditing}
-                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                     />
                   </div>
                 </div>
@@ -292,7 +292,7 @@ const CoachProfile = () => {
                       value={profileData.coachingExperience}
                       onChange={(e) => handleInputChange('coachingExperience', e.target.value)}
                       disabled={!isEditing}
-                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                     />
                   </div>
                   <div>
@@ -303,7 +303,7 @@ const CoachProfile = () => {
                       value={profileData.specialization}
                       onChange={(e) => handleInputChange('specialization', e.target.value)}
                       disabled={!isEditing}
-                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                     />
                   </div>
                 </div>
@@ -316,7 +316,7 @@ const CoachProfile = () => {
                       value={profileData.hourlyRate}
                       onChange={(e) => handleInputChange('hourlyRate', e.target.value)}
                       disabled={!isEditing}
-                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                     />
                   </div>
                   <div>
@@ -327,7 +327,7 @@ const CoachProfile = () => {
                       value={profileData.availability}
                       onChange={(e) => handleInputChange('availability', e.target.value)}
                       disabled={!isEditing}
-                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                      className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                     />
                   </div>
                 </div>
@@ -339,7 +339,7 @@ const CoachProfile = () => {
                     value={profileData.bio}
                     onChange={(e) => handleInputChange('bio', e.target.value)}
                     disabled={!isEditing}
-                    className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-500"
+                    className="animate-on-scroll block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm disabled:bg-gray-100 disabled:text-gray-300"
                   />
                 </div>
               </div>
@@ -364,23 +364,23 @@ const CoachProfile = () => {
                           <h4 className="animate-on-scroll font-medium text-gray-900 mb-2">{credential.name}</h4>
                           <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
-                              <span className="animate-on-scroll text-gray-500">Issuer:</span>
+                              <span className="animate-on-scroll text-gray-300">Issuer:</span>
                               <p className="animate-on-scroll font-medium">{credential.issuer}</p>
                             </div>
                             <div>
-                              <span className="animate-on-scroll text-gray-500">Level:</span>
+                              <span className="animate-on-scroll text-gray-300">Level:</span>
                               <p className="animate-on-scroll font-medium">{credential.level}</p>
                             </div>
                             <div>
-                              <span className="animate-on-scroll text-gray-500">Date:</span>
+                              <span className="animate-on-scroll text-gray-300">Date:</span>
                               <p className="animate-on-scroll font-medium">{credential.date}</p>
                             </div>
                             <div>
-                              <span className="animate-on-scroll text-gray-500">Expiry:</span>
+                              <span className="animate-on-scroll text-gray-300">Expiry:</span>
                               <p className="animate-on-scroll font-medium">{credential.expiry}</p>
                             </div>
                             <div>
-                              <span className="animate-on-scroll text-gray-500">Status:</span>
+                              <span className="animate-on-scroll text-gray-300">Status:</span>
                               <p className="animate-on-scroll font-medium">{credential.status}</p>
                             </div>
                           </div>
@@ -432,26 +432,26 @@ const CoachProfile = () => {
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="animate-on-scroll text-2xl font-bold text-blue-600">{coachingStats.totalStudents}</div>
-                    <div className="animate-on-scroll text-sm text-gray-600">Total Students</div>
+                    <div className="animate-on-scroll text-sm text-gray-300">Total Students</div>
                   </div>
                   <div>
                     <div className="animate-on-scroll text-2xl font-bold text-green-600">{coachingStats.activeStudents}</div>
-                    <div className="animate-on-scroll text-sm text-gray-600">Active Students</div>
+                    <div className="animate-on-scroll text-sm text-gray-300">Active Students</div>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="animate-on-scroll text-2xl font-bold text-purple-600">{coachingStats.averageRating}</div>
-                    <div className="animate-on-scroll text-sm text-gray-600">Average Rating</div>
+                    <div className="animate-on-scroll text-sm text-gray-300">Average Rating</div>
                   </div>
                   <div>
                     <div className="animate-on-scroll text-2xl font-bold text-orange-600">{coachingStats.totalSessions}</div>
-                    <div className="animate-on-scroll text-sm text-gray-600">Total Sessions</div>
+                    <div className="animate-on-scroll text-sm text-gray-300">Total Sessions</div>
                   </div>
                 </div>
                 <div className="pt-4 border-t">
                   <div className="text-center">
-                    <div className="animate-on-scroll text-sm text-gray-600">Experience</div>
+                    <div className="animate-on-scroll text-sm text-gray-300">Experience</div>
                     <div className="animate-on-scroll font-medium">{coachingStats.yearsExperience} years</div>
                   </div>
                 </div>

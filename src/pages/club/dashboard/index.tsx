@@ -168,15 +168,15 @@ const ClubDashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="animate-on-scroll text-3xl font-bold text-gray-900">Club Dashboard</h1>
-              <p className="animate-on-scroll text-gray-600">Welcome back, {user?.name || 'Club Manager'}</p>
+              <p className="animate-on-scroll text-gray-300">Welcome back, {user?.name || 'Club Manager'}</p>
             </div>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-5 w-5 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
-                <span className="animate-on-scroll text-sm text-gray-600">Elite Pickleball Club</span>
+                <span className="animate-on-scroll text-sm text-gray-300">Elite Pickleball Club</span>
               </div>
             </div>
           </div>
@@ -190,7 +190,7 @@ const ClubDashboard = () => {
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                   activeTab === 'overview'
                     ? 'bg-blue-100 text-blue-700 border border-blue-200 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
+                    : 'text-gray-300 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
                 }`}
                 onClick={() => setActiveTab('overview')}
               >
@@ -203,7 +203,7 @@ const ClubDashboard = () => {
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                   activeTab === 'courts'
                     ? 'bg-blue-100 text-blue-700 border border-blue-200 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
+                    : 'text-gray-300 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
                 }`}
                 onClick={() => setActiveTab('courts')}
               >
@@ -217,7 +217,7 @@ const ClubDashboard = () => {
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                   activeTab === 'tournaments'
                     ? 'bg-blue-100 text-blue-700 border border-blue-200 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
+                    : 'text-gray-300 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
                 }`}
                 onClick={() => setActiveTab('tournaments')}
               >
@@ -230,7 +230,7 @@ const ClubDashboard = () => {
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                   activeTab === 'invoices'
                     ? 'bg-blue-100 text-blue-700 border border-blue-200 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
+                    : 'text-gray-300 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
                 }`}
                 onClick={() => setActiveTab('invoices')}
               >
@@ -243,7 +243,7 @@ const ClubDashboard = () => {
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                   activeTab === 'microsite'
                     ? 'bg-blue-100 text-blue-700 border border-blue-200 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
+                    : 'text-gray-300 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
                 }`}
                 onClick={() => setActiveTab('microsite')}
               >
@@ -256,7 +256,7 @@ const ClubDashboard = () => {
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                   activeTab === 'reports'
                     ? 'bg-blue-100 text-blue-700 border border-blue-200 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
+                    : 'text-gray-300 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
                 }`}
                 onClick={() => setActiveTab('reports')}
               >
@@ -269,7 +269,7 @@ const ClubDashboard = () => {
                 className={`px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
                   activeTab === 'members'
                     ? 'bg-blue-100 text-blue-700 border border-blue-200 shadow-sm'
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
+                    : 'text-gray-300 hover:text-gray-700 hover:bg-gray-100 border border-transparent'
                 }`}
                 onClick={() => setActiveTab('members')}
               >
@@ -374,14 +374,14 @@ const ClubDashboard = () => {
                       </div>
                       <div>
                         <h4 className="animate-on-scroll font-medium text-gray-900">{event.title}</h4>
-                        <p className="animate-on-scroll text-sm text-gray-600">{event.date} at {event.time}</p>
+                        <p className="animate-on-scroll text-sm text-gray-300">{event.date} at {event.time}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <span className={`animate-on-scroll inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(event.status)}`}>
                         {event.status}
                       </span>
-                      <p className="animate-on-scroll text-sm text-gray-600 mt-1">{event.participants} participants</p>
+                      <p className="animate-on-scroll text-sm text-gray-300 mt-1">{event.participants} participants</p>
                     </div>
                   </div>
                 ))}
@@ -415,7 +415,7 @@ const ClubDashboard = () => {
                       </div>
                       <div>
                         <h4 className="animate-on-scroll font-medium text-gray-900">{member.full_name}</h4>
-                        <p className="animate-on-scroll text-sm text-gray-600">{member.membership_status} • Joined: {member.created_at}</p>
+                        <p className="animate-on-scroll text-sm text-gray-300">{member.membership_status} • Joined: {member.created_at}</p>
                       </div>
                     </div>
                     <div className="text-right">

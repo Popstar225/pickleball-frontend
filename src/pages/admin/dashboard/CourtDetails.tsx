@@ -518,8 +518,8 @@ export default function CourtDetails() {
                 <span className="text-base font-medium">
                   {court?.club?.name || court?.club_name || 'Sin club'}
                 </span>
-                <span className="text-slate-500">•</span>
-                <span className="text-slate-400">
+                <span className="text-slate-300">•</span>
+                <span className="text-slate-200">
                   {court?.club?.city}, {court?.club?.state}
                 </span>
               </div>
@@ -640,7 +640,7 @@ export default function CourtDetails() {
               </div>
               <div>
                 <h3 className="text-xl font-semibold text-white mb-2">Cancha no encontrada</h3>
-                <p className="text-slate-400 mb-6">
+                <p className="text-slate-200 mb-6">
                   No pudimos encontrar la información de esta cancha
                 </p>
                 <Button
@@ -862,7 +862,7 @@ export default function CourtDetails() {
                         <h3 className="text-lg font-semibold text-white mb-2">
                           No hay fotos disponibles
                         </h3>
-                        <p className="text-slate-400 text-sm mb-4">
+                        <p className="text-slate-200 text-sm mb-4">
                           {editMode
                             ? 'Agrega fotos para mostrar esta cancha'
                             : 'Esta cancha no tiene fotos'}
@@ -901,7 +901,7 @@ export default function CourtDetails() {
                   ) : (
                     <p className="text-base text-slate-200 leading-relaxed">
                       {formData.description || (
-                        <span className="text-slate-400 italic">
+                        <span className="text-slate-200 italic">
                           No hay descripción disponible para esta cancha.
                         </span>
                       )}
@@ -974,7 +974,7 @@ export default function CourtDetails() {
                       <div className="h-20 w-20 rounded-full bg-slate-700 flex items-center justify-center mx-auto mb-4">
                         <CheckCircle2 className="h-10 w-10 text-primary" />
                       </div>
-                      <p className="text-slate-400 text-base">
+                      <p className="text-slate-200 text-base">
                         {editMode
                           ? 'Agrega amenidades usando el campo de arriba'
                           : 'No hay amenidades registradas'}
@@ -1178,7 +1178,7 @@ export default function CourtDetails() {
                   </>
                 )}
               </Button>
-              <p className="text-xs text-slate-400 mt-2">
+              <p className="text-xs text-slate-200 mt-2">
                 Formatos: JPG, PNG, GIF • Máximo 5MB por archivo
               </p>
             </div>
@@ -1188,7 +1188,7 @@ export default function CourtDetails() {
                 <span className="w-full border-t border-primary/20" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-slate-800 px-2 text-slate-400">O</span>
+                <span className="bg-slate-800 px-2 text-slate-200">O</span>
               </div>
             </div>
 

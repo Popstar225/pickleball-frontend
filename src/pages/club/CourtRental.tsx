@@ -433,7 +433,7 @@ const CourtRental: React.FC<CourtRentalProps> = ({
         {/* Calendar Grid */}
         <div className="grid grid-cols-7 gap-1 mb-6">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="p-2 text-center text-sm font-medium text-gray-500 bg-gray-50">
+            <div key={day} className="p-2 text-center text-sm font-medium text-gray-300 bg-gray-50">
               {day}
             </div>
           ))}
@@ -448,7 +448,7 @@ const CourtRental: React.FC<CourtRentalProps> = ({
               <div
                 key={index}
                 className={`p-2 min-h-[80px] border border-gray-200 cursor-pointer transition-colors ${
-                  !isCurrentMonth ? 'bg-gray-50 text-gray-400' : 'bg-white hover:bg-gray-50'
+                  !isCurrentMonth ? 'bg-gray-50 text-gray-200' : 'bg-white hover:bg-gray-50'
                 } ${isCurrentDate ? 'ring-2 ring-blue-500' : ''} ${isSelected ? 'bg-blue-50' : ''}`}
                 onClick={() => {
                   if (isCurrentMonth) {
@@ -491,7 +491,7 @@ const CourtRental: React.FC<CourtRentalProps> = ({
                     
                     const availability = getCourtAvailability(court.id, time);
                     if (!availability) return (
-                      <div key={court.id} className="text-center text-gray-400">-</div>
+                      <div key={court.id} className="text-center text-gray-200">-</div>
                     );
 
                     return (
@@ -515,7 +515,7 @@ const CourtRental: React.FC<CourtRentalProps> = ({
                           </div>
                           <div className="text-sm font-bold">${availability.price}</div>
                           {availability.status === 'booked' && (
-                            <div className="text-xs text-gray-600 truncate">{availability.player}</div>
+                            <div className="text-xs text-gray-300 truncate">{availability.player}</div>
                           )}
                           {availability.status === 'available' && (
                             <div className="text-xs text-green-600 font-medium">Click to Book</div>
@@ -539,7 +539,7 @@ const CourtRental: React.FC<CourtRentalProps> = ({
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Available Slots</p>
+              <p className="text-sm font-medium text-gray-300">Available Slots</p>
               <p className="text-2xl font-semibold text-gray-900">{getAvailableSlotsCount()}</p>
             </div>
           </div>
@@ -551,7 +551,7 @@ const CourtRental: React.FC<CourtRentalProps> = ({
               <Users className="h-8 w-8 text-red-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Booked Slots</p>
+              <p className="text-sm font-medium text-gray-300">Booked Slots</p>
               <p className="text-2xl font-semibold text-gray-900">{getBookedSlotsCount()}</p>
             </div>
           </div>
@@ -563,7 +563,7 @@ const CourtRental: React.FC<CourtRentalProps> = ({
               <Wrench className="h-8 w-8 text-yellow-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Maintenance</p>
+              <p className="text-sm font-medium text-gray-300">Maintenance</p>
               <p className="text-2xl font-semibold text-gray-900">{getMaintenanceCount()}</p>
             </div>
           </div>
@@ -575,7 +575,7 @@ const CourtRental: React.FC<CourtRentalProps> = ({
               <DollarSign className="h-8 w-8 text-blue-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Revenue Today</p>
+              <p className="text-sm font-medium text-gray-300">Revenue Today</p>
               <p className="text-2xl font-semibold text-gray-900">${getRevenueToday()}</p>
             </div>
           </div>

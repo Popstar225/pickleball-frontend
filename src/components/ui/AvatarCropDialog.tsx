@@ -66,7 +66,7 @@ export const AvatarCropDialog = ({ imageSrc, onCropComplete, onCancel, originalF
           <h3 className="text-lg font-bold text-white">{t('auth.optionalFields.crop_title')}</h3>
           <button
             onClick={onCancel}
-            className="w-8 h-8 rounded-lg bg-slate-700/50 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+            className="w-8 h-8 rounded-lg bg-slate-700/50 hover:bg-slate-700 flex items-center justify-center text-slate-200 hover:text-white transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -96,7 +96,7 @@ export const AvatarCropDialog = ({ imageSrc, onCropComplete, onCancel, originalF
           <div className="flex items-center gap-3">
             <button
               onClick={() => setZoom((z) => Math.max(1, z - 0.1))}
-              className="text-slate-400 hover:text-primary transition-colors"
+              className="text-slate-200 hover:text-primary transition-colors"
             >
               <ZoomOut className="w-5 h-5" />
             </button>
@@ -111,12 +111,12 @@ export const AvatarCropDialog = ({ imageSrc, onCropComplete, onCancel, originalF
             />
             <button
               onClick={() => setZoom((z) => Math.min(3, z + 0.1))}
-              className="text-slate-400 hover:text-primary transition-colors"
+              className="text-slate-200 hover:text-primary transition-colors"
             >
               <ZoomIn className="w-5 h-5" />
             </button>
           </div>
-          <p className="text-xs text-slate-500 text-center mt-2">{t('auth.optionalFields.crop_hint')}</p>
+          <p className="text-xs text-slate-300 text-center mt-2">{t('auth.optionalFields.crop_hint')}</p>
         </div>
 
         {/* Actions */}

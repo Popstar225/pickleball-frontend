@@ -151,7 +151,7 @@ const MemberManagement = () => {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="animate-on-scroll text-3xl font-bold text-gray-900 mb-2">Member Management</h1>
-            <p className="animate-on-scroll text-gray-600">Manage your club's members and memberships</p>
+            <p className="animate-on-scroll text-gray-300">Manage your club's members and memberships</p>
           </div>
           <button 
             onClick={() => setIsAddingMember(true)} 
@@ -175,7 +175,7 @@ const MemberManagement = () => {
             </div>
             <div className="px-6 pb-4">
               <div className="animate-on-scroll text-2xl font-bold text-blue-600">{memberStats.total}</div>
-              <p className="animate-on-scroll text-xs text-gray-600">registered members</p>
+              <p className="animate-on-scroll text-xs text-gray-300">registered members</p>
             </div>
           </div>
 
@@ -188,7 +188,7 @@ const MemberManagement = () => {
             </div>
             <div className="px-6 pb-4">
               <div className="animate-on-scroll text-2xl font-bold text-green-600">{memberStats.active}</div>
-              <p className="animate-on-scroll text-xs text-gray-600">currently active</p>
+              <p className="animate-on-scroll text-xs text-gray-300">currently active</p>
             </div>
           </div>
 
@@ -201,7 +201,7 @@ const MemberManagement = () => {
             </div>
             <div className="px-6 pb-4">
               <div className="animate-on-scroll text-2xl font-bold text-purple-600">{memberStats.premium}</div>
-              <p className="animate-on-scroll text-xs text-gray-600">premium subscriptions</p>
+              <p className="animate-on-scroll text-xs text-gray-300">premium subscriptions</p>
             </div>
           </div>
 
@@ -214,7 +214,7 @@ const MemberManagement = () => {
             </div>
             <div className="px-6 pb-4">
               <div className="animate-on-scroll text-2xl font-bold text-orange-600">{memberStats.newThisMonth}</div>
-              <p className="animate-on-scroll text-xs text-gray-600">recent additions</p>
+              <p className="animate-on-scroll text-xs text-gray-300">recent additions</p>
             </div>
           </div>
         </div>
@@ -226,7 +226,7 @@ const MemberManagement = () => {
               <div className="md:col-span-2">
                 <label htmlFor="search" className="animate-on-scroll block text-sm font-medium text-gray-700 mb-2">Search Members</label>
                 <div className="relative">
-                  <svg className="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="absolute left-3 top-3 h-4 w-4 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                   <input
@@ -372,15 +372,15 @@ const MemberManagement = () => {
                   
                   <div className="flex items-center space-x-4">
                     <div className="text-right">
-                      <p className="animate-on-scroll text-sm text-gray-600">Last Visit</p>
+                      <p className="animate-on-scroll text-sm text-gray-300">Last Visit</p>
                       <p className="animate-on-scroll font-medium">{member.lastVisit}</p>
                     </div>
                     <div className="text-right">
-                      <p className="animate-on-scroll text-sm text-gray-600">Total Visits</p>
+                      <p className="animate-on-scroll text-sm text-gray-300">Total Visits</p>
                       <p className="animate-on-scroll font-medium">{member.totalVisits}</p>
                     </div>
                     <div className="text-right">
-                      <p className="animate-on-scroll text-sm text-gray-600">Expires</p>
+                      <p className="animate-on-scroll text-sm text-gray-300">Expires</p>
                       <p className="animate-on-scroll font-medium">{member.membershipExpiry}</p>
                     </div>
                   </div>
@@ -409,19 +409,19 @@ const MemberManagement = () => {
                 <div className="mt-4 pt-4 border-t">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div className="animate-on-scroll flex items-center space-x-2">
-                      <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
                       <span>{member.email}</span>
                     </div>
                     <div className="animate-on-scroll flex items-center space-x-2">
-                      <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                       </svg>
                       <span>{member.phone}</span>
                     </div>
                     <div className="animate-on-scroll flex items-center space-x-2">
-                      <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                       <span>Joined: {member.joinDate}</span>
@@ -478,11 +478,11 @@ const MemberManagement = () => {
         {filteredMembers.length === 0 && (
           <div className="animate-on-scroll bg-white rounded-lg shadow-lg border border-gray-200">
             <div className="px-6 py-4 text-center">
-              <svg className="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-12 w-12 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
               <h3 className="animate-on-scroll text-lg font-medium text-gray-900 mb-2">No members found</h3>
-              <p className="animate-on-scroll text-gray-600">Try adjusting your search criteria or add a new member.</p>
+              <p className="animate-on-scroll text-gray-300">Try adjusting your search criteria or add a new member.</p>
             </div>
           </div>
         )}

@@ -105,7 +105,7 @@ const Microsites: React.FC<MicrositesProps> = ({ microsites }) => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 animate-on-scroll">Microsite Management</h2>
-          <p className="text-gray-600 animate-on-scroll">Monitor and manage all microsites across the platform</p>
+          <p className="text-gray-300 animate-on-scroll">Monitor and manage all microsites across the platform</p>
         </div>
         <div className="flex space-x-3">
           <button 
@@ -125,9 +125,9 @@ const Microsites: React.FC<MicrositesProps> = ({ microsites }) => {
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Total Microsites</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Total Microsites</p>
               <div className="text-2xl font-bold text-blue-600 animate-on-scroll">{stats.total}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">active sites</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">active sites</p>
             </div>
             <div className="p-2 rounded-full bg-blue-100 text-blue-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -140,9 +140,9 @@ const Microsites: React.FC<MicrositesProps> = ({ microsites }) => {
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Active Sites</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Active Sites</p>
               <div className="text-2xl font-bold text-green-600 animate-on-scroll">{stats.active}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">currently live</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">currently live</p>
             </div>
             <div className="p-2 rounded-full bg-green-100 text-green-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,9 +155,9 @@ const Microsites: React.FC<MicrositesProps> = ({ microsites }) => {
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Pending Review</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Pending Review</p>
               <div className="text-2xl font-bold text-yellow-600 animate-on-scroll">{stats.pending}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">awaiting approval</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">awaiting approval</p>
             </div>
             <div className="p-2 rounded-full bg-yellow-100 text-yellow-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,9 +170,9 @@ const Microsites: React.FC<MicrositesProps> = ({ microsites }) => {
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Content Issues</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Content Issues</p>
               <div className="text-2xl font-bold text-red-600 animate-on-scroll">{stats.issues}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">issues detected</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">issues detected</p>
             </div>
             <div className="p-2 rounded-full bg-red-100 text-red-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,7 +190,7 @@ const Microsites: React.FC<MicrositesProps> = ({ microsites }) => {
             <div>
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">Search Microsites</label>
               <div className="relative">
-                <svg className="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="absolute left-3 top-3 h-4 w-4 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
@@ -268,7 +268,7 @@ const Microsites: React.FC<MicrositesProps> = ({ microsites }) => {
                     <td className="py-3 px-4 font-medium animate-on-scroll">
                       <div>
                         <div className="animate-on-scroll">{microsite.name}</div>
-                        <div className="text-sm text-gray-500 animate-on-scroll">{microsite.url}</div>
+                        <div className="text-sm text-gray-300 animate-on-scroll">{microsite.url}</div>
                       </div>
                     </td>
                     <td className="py-3 px-4">
@@ -354,11 +354,11 @@ const Microsites: React.FC<MicrositesProps> = ({ microsites }) => {
 
           {filteredMicrosites.length === 0 && (
             <div className="text-center py-8 animate-on-scroll">
-              <svg className="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-12 w-12 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <h3 className="text-lg font-medium text-gray-900 mb-2 animate-on-scroll">No microsites found</h3>
-              <p className="text-gray-600 animate-on-scroll">Try adjusting your search criteria or filters.</p>
+              <p className="text-gray-300 animate-on-scroll">Try adjusting your search criteria or filters.</p>
             </div>
           )}
         </div>
@@ -383,11 +383,11 @@ const Microsites: React.FC<MicrositesProps> = ({ microsites }) => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Name</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Name</label>
                   <p className="font-medium animate-on-scroll">{selectedMicrosite.name}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Type</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Type</label>
                   <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getTypeColor(selectedMicrosite.type)} animate-on-scroll`}>
                     <span className="capitalize animate-on-scroll">{selectedMicrosite.type}</span>
                   </span>
@@ -396,17 +396,17 @@ const Microsites: React.FC<MicrositesProps> = ({ microsites }) => {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Owner</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Owner</label>
                   <p className="animate-on-scroll">{selectedMicrosite.owner}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Region</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Region</label>
                   <p className="animate-on-scroll">{selectedMicrosite.region}</p>
                 </div>
               </div>
               
               <div>
-                <label className="text-sm font-medium text-gray-500 animate-on-scroll">URL</label>
+                <label className="text-sm font-medium text-gray-300 animate-on-scroll">URL</label>
                 <div className="flex items-center space-x-2 mt-1">
                   <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded animate-on-scroll">
                     {selectedMicrosite.url}
@@ -426,7 +426,7 @@ const Microsites: React.FC<MicrositesProps> = ({ microsites }) => {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Status</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Status</label>
                   <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedMicrosite.status)} animate-on-scroll`}>
                     <div className="flex items-center space-x-1">
                       {getStatusIcon(selectedMicrosite.status)}
@@ -435,13 +435,13 @@ const Microsites: React.FC<MicrositesProps> = ({ microsites }) => {
                   </span>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Last Updated</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Last Updated</label>
                   <p className="animate-on-scroll">{selectedMicrosite.lastUpdated}</p>
                 </div>
               </div>
               
               <div>
-                <label className="text-sm font-medium text-gray-500 animate-on-scroll">Content Issues</label>
+                <label className="text-sm font-medium text-gray-300 animate-on-scroll">Content Issues</label>
                 <div className="mt-1">
                   {selectedMicrosite.contentIssues > 0 ? (
                     <span className="inline-block px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full animate-on-scroll">{selectedMicrosite.contentIssues} issues detected</span>

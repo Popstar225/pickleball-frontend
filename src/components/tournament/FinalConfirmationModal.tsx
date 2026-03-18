@@ -32,7 +32,7 @@ export function FinalConfirmationModal({ isOpen, isLoading, tournament, onConfir
             {tournament && (
               <div className="mt-4 space-y-1">
                 <p className="font-semibold text-gray-900">{tournament.name}</p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-300">
                   {tournament.total_events} event{tournament.total_events !== 1 ? 's' : ''} •{' '}
                   {tournament.total_registrations} registration
                   {tournament.total_registrations !== 1 ? 's' : ''}
@@ -56,7 +56,7 @@ export function FinalConfirmationModal({ isOpen, isLoading, tournament, onConfir
             <Lock className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-medium text-sm text-gray-900">Registration will close</p>
-              <p className="text-xs text-gray-600">No more players can register for any event</p>
+              <p className="text-xs text-gray-300">No more players can register for any event</p>
             </div>
           </div>
 
@@ -67,7 +67,7 @@ export function FinalConfirmationModal({ isOpen, isLoading, tournament, onConfir
               <p className="font-medium text-sm text-gray-900">
                 Groups and brackets will be generated
               </p>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-gray-300">
                 Automatic group assignments, seeding, and matchup creation
               </p>
             </div>
@@ -78,7 +78,7 @@ export function FinalConfirmationModal({ isOpen, isLoading, tournament, onConfir
             <Lock className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-medium text-sm text-gray-900">Tournament format will be locked</p>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-gray-300">
                 Event formats, categories, and structure cannot be changed after start
               </p>
             </div>
@@ -89,7 +89,7 @@ export function FinalConfirmationModal({ isOpen, isLoading, tournament, onConfir
             <Lock className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
             <div>
               <p className="font-medium text-sm text-gray-900">Participant slots will be locked</p>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-gray-300">
                 No registrations or cancellations allowed for any event
               </p>
             </div>
@@ -122,7 +122,7 @@ export function FinalConfirmationModal({ isOpen, isLoading, tournament, onConfir
               <p className="text-sm font-medium text-gray-900">
                 I understand and confirm to start this tournament
               </p>
-              <p className="text-xs text-gray-600">This action cannot be undone</p>
+              <p className="text-xs text-gray-300">This action cannot be undone</p>
             </div>
           </label>
         </div>

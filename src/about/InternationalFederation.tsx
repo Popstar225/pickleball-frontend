@@ -330,7 +330,7 @@ const InternationalFederation = () => {
                               {benefit.title}
                             </h4>
                             <p
-                              className="text-xs sm:text-sm text-slate-400 leading-relaxed 
+                              className="text-xs sm:text-sm text-slate-200 leading-relaxed 
                               group-hover/item:text-slate-300 transition-colors duration-500 
                               line-clamp-2"
                             >
@@ -457,7 +457,7 @@ const InternationalFederation = () => {
 
                       {/* Description */}
                       <p
-                        className="text-slate-400 leading-relaxed text-sm sm:text-base 
+                        className="text-slate-200 leading-relaxed text-sm sm:text-base 
                         group-hover:text-slate-300 transition-colors duration-500 
                         flex-1 line-clamp-4"
                       >
@@ -517,7 +517,7 @@ const InternationalFederation = () => {
 
                   {/* Description */}
                   <p
-                    className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 
+                    className="text-slate-200 text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 
                     max-w-2xl mx-auto px-2"
                   >
                     Sé parte de la conexión de México con la comunidad mundial de Pickleball

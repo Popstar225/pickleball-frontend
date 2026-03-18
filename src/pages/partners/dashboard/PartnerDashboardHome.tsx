@@ -46,7 +46,7 @@ export default function PartnerDashboardHome() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white">¡Bienvenido al Panel de Partner!</h1>
-          <p className="text-slate-400 mt-1">
+          <p className="text-slate-200 mt-1">
             Gestiona tus patrocinios y colaboraciones con la federación
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function PartnerDashboardHome() {
                 <h3 className="text-xl font-semibold text-white">
                   Nivel de Partnership: {profile?.sponsorshipLevel || 'Sin nivel'}
                 </h3>
-                <p className="text-slate-400">
+                <p className="text-slate-200">
                   Próxima renovación:{' '}
                   {profile?.sponsorshipEndDate
                     ? new Date(profile.sponsorshipEndDate).toLocaleDateString('es-MX')
@@ -101,7 +101,7 @@ export default function PartnerDashboardHome() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">
+            <CardTitle className="text-sm font-medium text-slate-200">
               Patrocinios Activos
             </CardTitle>
             <Handshake className="h-4 w-4 text-primary" />
@@ -110,42 +110,42 @@ export default function PartnerDashboardHome() {
             <div className="text-2xl font-bold text-white">
               {sponsorships?.filter((s) => s.status === 'active').length || 0}
             </div>
-            <p className="text-xs text-slate-400">En curso</p>
+            <p className="text-xs text-slate-200">En curso</p>
           </CardContent>
         </Card>
 
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Inversión Total</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-200">Inversión Total</CardTitle>
             <DollarSign className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
               ${(sponsorships?.reduce((sum, s) => sum + (s.amount || 0), 0) || 0).toLocaleString()}
             </div>
-            <p className="text-xs text-slate-400">MXN este año</p>
+            <p className="text-xs text-slate-200">MXN este año</p>
           </CardContent>
         </Card>
 
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Patrocinios</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-200">Patrocinios</CardTitle>
             <Calendar className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{sponsorships?.length || 0}</div>
-            <p className="text-xs text-slate-400">Total</p>
+            <p className="text-xs text-slate-200">Total</p>
           </CardContent>
         </Card>
 
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Mensajes</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-200">Mensajes</CardTitle>
             <MessageSquare className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{messages?.length || 0}</div>
-            <p className="text-xs text-slate-400">Total</p>
+            <p className="text-xs text-slate-200">Total</p>
           </CardContent>
         </Card>
       </div>
@@ -159,7 +159,7 @@ export default function PartnerDashboardHome() {
               <Handshake className="h-5 w-5" />
               Patrocinios Activos
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-slate-200">
               Tus colaboraciones actuales con la federación
             </CardDescription>
           </CardHeader>
@@ -176,7 +176,7 @@ export default function PartnerDashboardHome() {
                 >
                   <div className="flex-1">
                     <h4 className="font-medium text-white">Nivel: {sponsorship.level}</h4>
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-slate-200">
                       {new Date(sponsorship.startDate).toLocaleDateString('es-MX')} -{' '}
                       {new Date(sponsorship.endDate).toLocaleDateString('es-MX')}
                     </p>
@@ -186,7 +186,7 @@ export default function PartnerDashboardHome() {
                       <p className="font-medium text-white">
                         ${sponsorship.amount.toLocaleString()}
                       </p>
-                      <p className="text-xs text-slate-400">MXN</p>
+                      <p className="text-xs text-slate-200">MXN</p>
                     </div>
                     <Badge
                       variant={sponsorship.status === 'active' ? 'default' : 'secondary'}
@@ -202,7 +202,7 @@ export default function PartnerDashboardHome() {
                 </div>
               ))
             ) : (
-              <p className="text-slate-400 text-center py-4">Sin patrocinios registrados</p>
+              <p className="text-slate-200 text-center py-4">Sin patrocinios registrados</p>
             )}
             <Button
               asChild
@@ -221,7 +221,7 @@ export default function PartnerDashboardHome() {
               <Calendar className="h-5 w-5" />
               Eventos Próximos
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-slate-200">
               Eventos donde eres patrocinador
             </CardDescription>
           </CardHeader>
@@ -241,7 +241,7 @@ export default function PartnerDashboardHome() {
                   >
                     <div className="flex-1">
                       <h4 className="font-medium text-white">{sponsorship.level} Sponsorship</h4>
-                      <p className="text-sm text-slate-400">
+                      <p className="text-sm text-slate-200">
                         {new Date(sponsorship.endDate).toLocaleDateString('es-MX')}
                       </p>
                     </div>
@@ -249,7 +249,7 @@ export default function PartnerDashboardHome() {
                   </div>
                 ))
             ) : (
-              <p className="text-slate-400 text-center py-4">Sin eventos próximos</p>
+              <p className="text-slate-200 text-center py-4">Sin eventos próximos</p>
             )}
             <Button
               asChild
@@ -266,7 +266,7 @@ export default function PartnerDashboardHome() {
       <Card className="bg-slate-900 border-slate-800">
         <CardHeader>
           <CardTitle className="text-white">Acciones Rápidas</CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-slate-200">
             Accede rápidamente a las funciones más utilizadas
           </CardDescription>
         </CardHeader>

@@ -221,7 +221,7 @@ function PhaseBadge({ phase }: { phase: string }) {
 
 function PositionIcon({ position }: { position: number }) {
   if (position === 1) return <Crown className="w-5 h-5 text-amber-400" />;
-  if (position === 2) return <Medal className="w-5 h-5 text-slate-400" />;
+  if (position === 2) return <Medal className="w-5 h-5 text-slate-200" />;
   if (position <= 4) return <Medal className="w-5 h-5 text-amber-600/70" />;
   return <span className="text-sm font-bold text-white/65">#{position}</span>;
 }
@@ -473,7 +473,7 @@ function HistoryCard({ reg }: { reg: HistoryRegistration }) {
     reg.result === 'Champion'
       ? 'text-amber-400 bg-amber-500/10 border-amber-500/20'
       : reg.result === 'Runner-up'
-        ? 'text-slate-400 bg-slate-500/10 border-slate-500/20'
+        ? 'text-slate-200 bg-slate-500/10 border-slate-500/20'
         : reg.result === 'Semifinalist'
           ? 'text-violet-400 bg-violet-500/10 border-violet-500/20'
           : 'text-white/65 bg-white/[0.04] border-white/[0.07]';

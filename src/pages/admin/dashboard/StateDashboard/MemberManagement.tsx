@@ -347,7 +347,7 @@ export default function MemberManagement() {
         <Card className="border-slate-700 bg-slate-900/50">
           <CardContent className="pt-6">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-slate-400">Total Miembros</p>
+              <p className="text-sm font-medium text-slate-200">Total Miembros</p>
               <p className="text-3xl font-bold text-white">{stats.total}</p>
             </div>
           </CardContent>
@@ -355,7 +355,7 @@ export default function MemberManagement() {
         <Card className="border-slate-700 bg-slate-900/50">
           <CardContent className="pt-6">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-slate-400">Administradores</p>
+              <p className="text-sm font-medium text-slate-200">Administradores</p>
               <p className="text-3xl font-bold text-red-400">{stats.admins}</p>
             </div>
           </CardContent>
@@ -363,7 +363,7 @@ export default function MemberManagement() {
         <Card className="border-slate-700 bg-slate-900/50">
           <CardContent className="pt-6">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-slate-400">Gerentes</p>
+              <p className="text-sm font-medium text-slate-200">Gerentes</p>
               <p className="text-3xl font-bold text-purple-400">{stats.managers}</p>
             </div>
           </CardContent>
@@ -371,7 +371,7 @@ export default function MemberManagement() {
         <Card className="border-slate-700 bg-slate-900/50">
           <CardContent className="pt-6">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-slate-400">Activos</p>
+              <p className="text-sm font-medium text-slate-200">Activos</p>
               <p className="text-3xl font-bold text-green-400">{stats.active}</p>
             </div>
           </CardContent>
@@ -379,7 +379,7 @@ export default function MemberManagement() {
         <Card className="border-slate-700 bg-slate-900/50">
           <CardContent className="pt-6">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-slate-400">Inactivos</p>
+              <p className="text-sm font-medium text-slate-200">Inactivos</p>
               <p className="text-3xl font-bold text-amber-400">{stats.inactive}</p>
             </div>
           </CardContent>
@@ -392,7 +392,7 @@ export default function MemberManagement() {
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
               <Input
                 placeholder="Buscar por nombre, email o club..."
                 value={search}
@@ -400,7 +400,7 @@ export default function MemberManagement() {
                   setSearch(e.target.value);
                   setPagination((prev) => ({ ...prev, page: 1 }));
                 }}
-                className="pl-10 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500"
+                className="pl-10 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-300"
               />
             </div>
 
@@ -497,7 +497,7 @@ export default function MemberManagement() {
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : paginatedMembers.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-96 text-slate-400">
+            <div className="flex flex-col items-center justify-center h-96 text-slate-200">
               <AlertCircle className="h-12 w-12 mb-4 opacity-50" />
               <p className="text-lg font-medium">No hay miembros</p>
               <p className="text-sm">Intenta ajustar los filtros</p>
@@ -507,7 +507,7 @@ export default function MemberManagement() {
               <Table>
                 <TableHeader>
                   <TableRow className="border-slate-700 hover:bg-transparent">
-                    <TableHead className="text-slate-400">
+                    <TableHead className="text-slate-200">
                       <button
                         onClick={() => handleSort('name')}
                         className="flex items-center gap-2 hover:text-white transition-colors"
@@ -516,9 +516,9 @@ export default function MemberManagement() {
                         {getSortIcon('name')}
                       </button>
                     </TableHead>
-                    <TableHead className="text-slate-400">Email</TableHead>
-                    <TableHead className="text-slate-400">Club</TableHead>
-                    <TableHead className="text-slate-400">
+                    <TableHead className="text-slate-200">Email</TableHead>
+                    <TableHead className="text-slate-200">Club</TableHead>
+                    <TableHead className="text-slate-200">
                       <button
                         onClick={() => handleSort('role')}
                         className="flex items-center gap-2 hover:text-white transition-colors"
@@ -527,8 +527,8 @@ export default function MemberManagement() {
                         {getSortIcon('role')}
                       </button>
                     </TableHead>
-                    <TableHead className="text-slate-400">Estado</TableHead>
-                    <TableHead className="text-slate-400">
+                    <TableHead className="text-slate-200">Estado</TableHead>
+                    <TableHead className="text-slate-200">
                       <button
                         onClick={() => handleSort('joined_date')}
                         className="flex items-center gap-2 hover:text-white transition-colors"
@@ -537,8 +537,8 @@ export default function MemberManagement() {
                         {getSortIcon('joined_date')}
                       </button>
                     </TableHead>
-                    <TableHead className="text-slate-400">Historial</TableHead>
-                    <TableHead className="text-right text-slate-400">Acciones</TableHead>
+                    <TableHead className="text-slate-200">Historial</TableHead>
+                    <TableHead className="text-right text-slate-200">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -569,7 +569,7 @@ export default function MemberManagement() {
                         <div className="flex flex-col gap-1">
                           <span>{formatDate(member.joined_date)}</span>
                           {member.activity_date && (
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-slate-300">
                               Última actividad: {formatDate(member.activity_date)}
                             </span>
                           )}
@@ -579,7 +579,7 @@ export default function MemberManagement() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-slate-400 hover:text-white hover:bg-slate-700/50"
+                          className="text-slate-200 hover:text-white hover:bg-slate-700/50"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -590,7 +590,7 @@ export default function MemberManagement() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-700/50"
+                              className="h-8 w-8 text-slate-200 hover:text-white hover:bg-slate-700/50"
                             >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
@@ -603,7 +603,7 @@ export default function MemberManagement() {
                             <DropdownMenuSeparator className="bg-slate-700" />
 
                             {/* Assign Role */}
-                            <DropdownMenuLabel className="text-xs text-slate-400 font-normal px-2 py-1.5">
+                            <DropdownMenuLabel className="text-xs text-slate-200 font-normal px-2 py-1.5">
                               Asignar Rol
                             </DropdownMenuLabel>
                             {(['admin', 'manager', 'moderator'] as UserRole[]).map((role) => (
@@ -619,7 +619,7 @@ export default function MemberManagement() {
                             <DropdownMenuSeparator className="bg-slate-700" />
 
                             {/* Change Status */}
-                            <DropdownMenuLabel className="text-xs text-slate-400 font-normal px-2 py-1.5">
+                            <DropdownMenuLabel className="text-xs text-slate-200 font-normal px-2 py-1.5">
                               Cambiar Estado
                             </DropdownMenuLabel>
                             {(['active', 'inactive', 'banned'] as MembershipStatus[]).map(
@@ -664,7 +664,7 @@ export default function MemberManagement() {
       {/* Pagination */}
       {pagination.pages > 1 && !loading && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-200">
             Página <span className="text-white font-medium">{pagination.page}</span> de{' '}
             <span className="text-white font-medium">{pagination.pages}</span>
           </p>

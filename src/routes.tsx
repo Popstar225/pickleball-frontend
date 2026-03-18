@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 import Index from './pages/Index';
 import NotFound from './pages/NotFound';
 import Benefits from './pages/about/Benefits';
+import PrivacyPolicy from './pages/about/PrivacyPolicy';
 import BoardOfDirectors from './pages/about/BoardOfDirectors';
 import WhoWeAre from './pages/about/WhoWeAre';
 import InternationalFederation from './pages/about/InternationalFederation';
@@ -73,6 +74,7 @@ import PlayerClubsPage from './pages/players/dashboard/ClubsPage';
 import PlayerSearchPage from './pages/players/dashboard/PlayersPage';
 import PlayerTournamentsPage from './pages/players/dashboard/TournamentsPage';
 import PlayerActiveTournamentsPage from './pages/players/dashboard/PlayerActiveTournamentsPage';
+import PlayerRankingPage from './pages/players/dashboard/RankingPage';
 import PlayerMessagesPage from './pages/players/dashboard/MessagesPage';
 import PlayerPaymentsPage from './pages/players/dashboard/PaymentsPage';
 
@@ -253,6 +255,12 @@ export const routes = [
     public: true,
   },
   {
+    key: 'privacy_policy',
+    path: '/privacy-policy',
+    element: <PrivacyPolicy />,
+    public: true,
+  },
+  {
     key: 'about_board',
     path: '/about/board',
     element: <BoardOfDirectors />,
@@ -363,6 +371,12 @@ export const routes = [
   {
     key: 'credential-verify',
     path: '/credentials/verify/:code',
+    element: <CredentialVerifyPage />,
+    public: true,
+  },
+  {
+    key: 'credential-verify-alt',
+    path: '/verify-credential/:code',
     element: <CredentialVerifyPage />,
     public: true,
   },
@@ -812,6 +826,12 @@ export const routes = [
         key: 'player-dashboard-players',
         path: '/players/dashboard/players',
         element: <PlayerSearchPage />,
+        public: false,
+      },
+      {
+        key: 'player-dashboard-ranking',
+        path: '/players/dashboard/ranking',
+        element: <PlayerRankingPage />,
         public: false,
       },
       {

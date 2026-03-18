@@ -78,7 +78,7 @@ export default function StatePaymentsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-white">Pagos y Afiliación Estatal</h1>
-        <p className="text-slate-400 mt-1">Gestiona la afiliación anual de tu federación estatal</p>
+        <p className="text-slate-200 mt-1">Gestiona la afiliación anual de tu federación estatal</p>
       </div>
 
       {error && (
@@ -96,7 +96,7 @@ export default function StatePaymentsPage() {
             <Building2 className="h-5 w-5 text-primary" />
             Afiliación Anual Estatal
           </CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-slate-200">
             Cuota única que da acceso completo al panel estatal y todas sus funcionalidades
           </CardDescription>
         </CardHeader>
@@ -106,9 +106,9 @@ export default function StatePaymentsPage() {
               <Badge className={isActive ? 'bg-green-600' : 'bg-red-600'}>
                 {isActive ? 'Activa' : membership?.is_expired ? 'Vencida' : 'Inactiva'}
               </Badge>
-              <p className="text-3xl font-bold text-white">$15,000 MXN<span className="text-lg text-slate-400 font-normal">/año</span></p>
+              <p className="text-3xl font-bold text-white">$15,000 MXN<span className="text-lg text-slate-200 font-normal">/año</span></p>
               {isActive && membership?.membership_expires_at && (
-                <p className="text-sm text-slate-400">Vence: {new Date(membership.membership_expires_at).toLocaleDateString('es-MX')}</p>
+                <p className="text-sm text-slate-200">Vence: {new Date(membership.membership_expires_at).toLocaleDateString('es-MX')}</p>
               )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm mt-2">
                 {[
@@ -137,7 +137,7 @@ export default function StatePaymentsPage() {
                 {isActive ? 'Renovar Afiliación' : 'Activar Afiliación Anual'}
               </Button>
               {!isActive && (
-                <p className="text-xs text-slate-500 text-center">
+                <p className="text-xs text-slate-300 text-center">
                   Sin afiliación activa no se puede acceder al panel estatal
                 </p>
               )}
@@ -150,34 +150,34 @@ export default function StatePaymentsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Total Pagado</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-200">Total Pagado</CardTitle>
             <DollarSign className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">${stats.totalPaid.toLocaleString()}</div>
-            <p className="text-xs text-slate-400">MXN total</p>
+            <p className="text-xs text-slate-200">MXN total</p>
           </CardContent>
         </Card>
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Pagos Pendientes</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-200">Pagos Pendientes</CardTitle>
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{stats.pendingPayments}</div>
-            <p className="text-xs text-slate-400">Por procesar</p>
+            <p className="text-xs text-slate-200">Por procesar</p>
           </CardContent>
         </Card>
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Próxima Renovación</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-200">Próxima Renovación</CardTitle>
             <Calendar className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
               {stats.nextRenewal ? new Date(stats.nextRenewal).toLocaleDateString('es-MX') : '—'}
             </div>
-            <p className="text-xs text-slate-400">Afiliación estatal</p>
+            <p className="text-xs text-slate-200">Afiliación estatal</p>
           </CardContent>
         </Card>
       </div>
@@ -186,21 +186,21 @@ export default function StatePaymentsPage() {
       <Card className="bg-slate-900 border-slate-800">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2"><Receipt className="h-5 w-5" />Historial de Pagos</CardTitle>
-          <CardDescription className="text-slate-400">Todos los pagos de la federación estatal</CardDescription>
+          <CardDescription className="text-slate-200">Todos los pagos de la federación estatal</CardDescription>
         </CardHeader>
         <CardContent>
           {payments.length === 0 ? (
-            <div className="text-center py-10 text-slate-500">No hay pagos registrados</div>
+            <div className="text-center py-10 text-slate-300">No hay pagos registrados</div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow className="border-slate-800">
-                  <TableHead className="text-slate-400">Fecha</TableHead>
-                  <TableHead className="text-slate-400">Descripción</TableHead>
-                  <TableHead className="text-slate-400">Tipo</TableHead>
-                  <TableHead className="text-slate-400">Monto</TableHead>
-                  <TableHead className="text-slate-400">Estado</TableHead>
-                  <TableHead className="text-slate-400">Recibo</TableHead>
+                  <TableHead className="text-slate-200">Fecha</TableHead>
+                  <TableHead className="text-slate-200">Descripción</TableHead>
+                  <TableHead className="text-slate-200">Tipo</TableHead>
+                  <TableHead className="text-slate-200">Monto</TableHead>
+                  <TableHead className="text-slate-200">Estado</TableHead>
+                  <TableHead className="text-slate-200">Recibo</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -208,7 +208,7 @@ export default function StatePaymentsPage() {
                   <TableRow key={payment.id} className="border-slate-800">
                     <TableCell className="text-white">{new Date(payment.created_at).toLocaleDateString('es-MX')}</TableCell>
                     <TableCell className="text-white font-medium">{payment.description || getTypeLabel(payment.payment_type)}</TableCell>
-                    <TableCell className="text-slate-400">{getTypeLabel(payment.payment_type)}</TableCell>
+                    <TableCell className="text-slate-200">{getTypeLabel(payment.payment_type)}</TableCell>
                     <TableCell className="text-white font-medium">${Number(payment.amount).toLocaleString()} {payment.currency?.toUpperCase() || 'MXN'}</TableCell>
                     <TableCell>{getStatusBadge(payment.status)}</TableCell>
                     <TableCell>

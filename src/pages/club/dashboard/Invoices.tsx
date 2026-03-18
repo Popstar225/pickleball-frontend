@@ -200,7 +200,7 @@ const Invoices: React.FC<InvoicesProps> = ({ invoices: initialInvoices }) => {
       case 'paid': return <DollarSign className="h-4 w-4 text-green-600" />;
       case 'pending': return <Calendar className="h-4 w-4 text-yellow-600" />;
       case 'overdue': return <Bell className="h-4 w-4 text-red-600" />;
-      default: return <FileText className="h-4 w-4 text-gray-600" />;
+      default: return <FileText className="h-4 w-4 text-gray-300" />;
     }
   };
 
@@ -264,7 +264,7 @@ const Invoices: React.FC<InvoicesProps> = ({ invoices: initialInvoices }) => {
               <FileText className="h-8 w-8 text-blue-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Invoices</p>
+              <p className="text-sm font-medium text-gray-300">Total Invoices</p>
               <p className="text-2xl font-semibold text-gray-900">{filteredInvoices.length}</p>
             </div>
           </div>
@@ -276,7 +276,7 @@ const Invoices: React.FC<InvoicesProps> = ({ invoices: initialInvoices }) => {
               <DollarSign className="h-8 w-8 text-green-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Amount</p>
+              <p className="text-sm font-medium text-gray-300">Total Amount</p>
               <p className="text-2xl font-semibold text-gray-900">${getTotalAmount()}</p>
             </div>
           </div>
@@ -288,7 +288,7 @@ const Invoices: React.FC<InvoicesProps> = ({ invoices: initialInvoices }) => {
               <DollarSign className="h-8 w-8 text-yellow-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Paid Amount</p>
+              <p className="text-sm font-medium text-gray-300">Paid Amount</p>
               <p className="text-2xl font-semibold text-gray-900">${getPaidAmount()}</p>
             </div>
           </div>
@@ -300,7 +300,7 @@ const Invoices: React.FC<InvoicesProps> = ({ invoices: initialInvoices }) => {
               <Calendar className="h-8 w-8 text-red-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Pending Amount</p>
+              <p className="text-sm font-medium text-gray-300">Pending Amount</p>
               <p className="text-2xl font-semibold text-gray-900">${getPendingAmount()}</p>
             </div>
           </div>
@@ -312,7 +312,7 @@ const Invoices: React.FC<InvoicesProps> = ({ invoices: initialInvoices }) => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <Filter className="h-4 w-4 text-gray-500" />
+              <Filter className="h-4 w-4 text-gray-300" />
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
@@ -349,20 +349,20 @@ const Invoices: React.FC<InvoicesProps> = ({ invoices: initialInvoices }) => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Invoice ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paid Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Invoice ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Member</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Due Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Paid Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredInvoices.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={8} className="px-6 py-4 text-center text-gray-300">
                     {loading ? 'Loading invoices...' : 'No invoices found'}
                   </td>
                 </tr>
@@ -561,7 +561,7 @@ const Invoices: React.FC<InvoicesProps> = ({ invoices: initialInvoices }) => {
                 {selectedInvoice.description && (
                   <div className="flex justify-between">
                     <span className="font-medium">Description:</span>
-                    <span className="text-sm text-gray-600">{selectedInvoice.description}</span>
+                    <span className="text-sm text-gray-300">{selectedInvoice.description}</span>
                   </div>
                 )}
               </div>

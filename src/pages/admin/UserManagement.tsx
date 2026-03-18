@@ -164,7 +164,7 @@ const UserManagement = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4 animate-on-scroll">User Management</h1>
-          <p className="text-gray-600 mb-6 animate-on-scroll">
+          <p className="text-gray-300 mb-6 animate-on-scroll">
             Manage user accounts, roles, and permissions across the platform
           </p>
           <button
@@ -192,7 +192,7 @@ const UserManagement = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent animate-on-scroll"
                   />
-                  <svg className="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-gray-200 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </div>
@@ -262,19 +262,19 @@ const UserManagement = () => {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider animate-on-scroll">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider animate-on-scroll">
                     User
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider animate-on-scroll">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider animate-on-scroll">
                     Role
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider animate-on-scroll">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider animate-on-scroll">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider animate-on-scroll">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider animate-on-scroll">
                     Last Login
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider animate-on-scroll">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider animate-on-scroll">
                     Actions
                   </th>
                 </tr>
@@ -293,10 +293,10 @@ const UserManagement = () => {
                           <div className="text-sm font-medium text-gray-900 animate-on-scroll">
                             {user.firstName} {user.lastName}
                           </div>
-                          <div className="text-sm text-gray-500 animate-on-scroll">
+                          <div className="text-sm text-gray-300 animate-on-scroll">
                             {user.email}
                           </div>
-                          <div className="text-xs text-gray-400 animate-on-scroll">
+                          <div className="text-xs text-gray-200 animate-on-scroll">
                             @{user.username}
                           </div>
                         </div>
@@ -315,7 +315,7 @@ const UserManagement = () => {
                       </span>
                     </td>
                     
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 animate-on-scroll">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 animate-on-scroll">
                       {user.lastLogin}
                     </td>
                     
@@ -369,11 +369,11 @@ const UserManagement = () => {
         {filteredUsers.length === 0 && (
           <div className="text-center py-16">
             <div className="max-w-md mx-auto">
-              <svg className="w-16 h-16 text-gray-400 mx-auto mb-4 animate-on-scroll" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-16 h-16 text-gray-200 mx-auto mb-4 animate-on-scroll" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
               </svg>
               <h3 className="text-xl font-semibold text-gray-900 mb-2 animate-on-scroll">No users found</h3>
-              <p className="text-gray-600 mb-6 animate-on-scroll">
+              <p className="text-gray-300 mb-6 animate-on-scroll">
                 Try adjusting your search criteria or create a new user.
               </p>
               <button

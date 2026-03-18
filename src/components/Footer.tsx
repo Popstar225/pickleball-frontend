@@ -227,7 +227,7 @@ const Footer = () => {
             <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-[10px] sm:text-xs text-white/40 text-center sm:text-left">
               <span>{t('footer.copyright')}</span>
               <div className="flex items-center gap-3 sm:gap-4">
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="/privacy-policy" className="hover:text-white transition-colors">
                   {t('footer.privacy')}
                 </a>
                 <a href="#" className="hover:text-white transition-colors">

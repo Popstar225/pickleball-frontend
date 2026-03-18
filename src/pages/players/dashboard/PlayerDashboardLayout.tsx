@@ -12,12 +12,13 @@ import {
   Swords,
   MessageSquare,
   Receipt,
+  TrendingUp,
 } from 'lucide-react';
 import PlayerTournamentsPage from './TournamentsPage';
 
 const navItems: NavItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Panel de jugador',
     url: '/players/dashboard',
     icon: LayoutDashboard,
     description: 'Vista general',
@@ -51,6 +52,12 @@ const navItems: NavItem[] = [
     url: '/players/dashboard/tournaments',
     icon: Trophy,
     description: 'Ver y registrarme en torneos',
+  },
+  {
+    title: 'Mi Ranking',
+    url: '/players/dashboard/ranking',
+    icon: TrendingUp,
+    description: 'Mi posición en el ranking nacional',
   },
   {
     title: 'Mi Panel de Torneos',

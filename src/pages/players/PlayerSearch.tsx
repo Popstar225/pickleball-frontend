@@ -430,7 +430,7 @@ const PlayerSearch = () => {
                       {t('pages.playerSearch.cta_title')}
                     </h3>
 
-                    <p className="text-slate-400 text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
+                    <p className="text-slate-200 text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
                       {t('pages.playerSearch.cta_sub')}
                     </p>
 

@@ -7,19 +7,19 @@ export default function StateSettings() {
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-white">Configuración</h1>
-        <p className="text-slate-400">Personaliza los ajustes y configuración de tu estado.</p>
+        <p className="text-slate-200">Personaliza los ajustes y configuración de tu estado.</p>
       </div>
 
       {/* Placeholder Content */}
       <Card className="border-slate-700 bg-slate-900/50">
         <CardHeader>
           <CardTitle className="text-white">Configuración General</CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-slate-200">
             Esta sección está siendo desarrollada actualmente
           </CardDescription>
         </CardHeader>
         <CardContent className="min-h-[400px] space-y-6">
-          <div className="flex items-center justify-center text-slate-400">
+          <div className="flex items-center justify-center text-slate-200">
             <p>Las opciones de configuración estarán disponibles pronto...</p>
           </div>
         </CardContent>

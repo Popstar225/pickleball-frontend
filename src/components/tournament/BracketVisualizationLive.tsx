@@ -90,7 +90,7 @@ export function BracketVisualization({ tournamentId, eventId, onBracketGenerated
     return (
       <Card>
         <CardContent className="py-8">
-          <p className="text-gray-500 text-center">No bracket generated yet. Complete the group stage to auto-generate.</p>
+          <p className="text-gray-300 text-center">No bracket generated yet. Complete the group stage to auto-generate.</p>
         </CardContent>
       </Card>
     );
@@ -162,7 +162,7 @@ function BracketMatchCard({ match }: { match: BracketMatch }) {
         }`}>
           <div>
             <p className="font-medium">{match.player1?.name || 'TBD'}</p>
-            <p className="text-sm text-gray-500">{match.player1?.id?.substring(0, 8)}</p>
+            <p className="text-sm text-gray-300">{match.player1?.id?.substring(0, 8)}</p>
           </div>
           <div className="text-right">
             {match.status === 'completed' && match.winner_id === match.player1?.id && (
@@ -171,7 +171,7 @@ function BracketMatchCard({ match }: { match: BracketMatch }) {
           </div>
         </div>
 
-        <div className="text-center text-xs text-gray-400">vs</div>
+        <div className="text-center text-xs text-gray-200">vs</div>
 
         {/* Player 2 */}
         <div className={`flex items-center justify-between p-2 rounded ${
@@ -179,7 +179,7 @@ function BracketMatchCard({ match }: { match: BracketMatch }) {
         }`}>
           <div>
             <p className="font-medium">{match.player2?.name || 'TBD'}</p>
-            <p className="text-sm text-gray-500">{match.player2?.id?.substring(0, 8)}</p>
+            <p className="text-sm text-gray-300">{match.player2?.id?.substring(0, 8)}</p>
           </div>
           <div className="text-right">
             {match.status === 'completed' && match.winner_id === match.player2?.id && (
@@ -195,7 +195,7 @@ function BracketMatchCard({ match }: { match: BracketMatch }) {
               {match.status === 'completed' ? 'Completed' : 'Pending'}
             </Badge>
           </div>
-          <div className="text-gray-600">
+          <div className="text-gray-300">
             {match.status === 'completed' && match.set_scores && (
               <span>{getSetScoreDisplay()}</span>
             )}
@@ -235,17 +235,17 @@ function TournamentProgress({ rounds }: { rounds: BracketRound[] }) {
               style={{ width: `${progressPercent}%` }}
             ></div>
           </div>
-          <p className="text-xs text-gray-500 mt-1">{progressPercent}% Complete</p>
+          <p className="text-xs text-gray-300 mt-1">{progressPercent}% Complete</p>
         </div>
 
         <div className="grid grid-cols-2 gap-4 text-center">
           <div>
             <p className="text-2xl font-bold text-green-600">{completedMatches}</p>
-            <p className="text-sm text-gray-600">Completed</p>
+            <p className="text-sm text-gray-300">Completed</p>
           </div>
           <div>
             <p className="text-2xl font-bold text-yellow-600">{totalMatches - completedMatches}</p>
-            <p className="text-sm text-gray-600">Remaining</p>
+            <p className="text-sm text-gray-300">Remaining</p>
           </div>
         </div>
       </CardContent>

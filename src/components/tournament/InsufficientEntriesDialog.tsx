@@ -103,7 +103,7 @@ export function InsufficientEntriesDialog({
                 <Trash2 className="w-5 h-5 text-red-600 mt-1 flex-shrink-0" />
                 <div>
                   <p className="font-semibold text-gray-900">Cancel Event</p>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-300 mt-1">
                     Refund all {event?.current_participants} participant
                     {event?.current_participants !== 1 ? 's' : ''} and remove the event
                   </p>
@@ -121,7 +121,7 @@ export function InsufficientEntriesDialog({
                 <Shuffle className="w-5 h-5 text-yellow-600 mt-1 flex-shrink-0" />
                 <div>
                   <p className="font-semibold text-gray-900">Change Format</p>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-300 mt-1">
                     Switch to Single Elimination (no minimum required due to bye matches)
                   </p>
                 </div>
@@ -139,7 +139,7 @@ export function InsufficientEntriesDialog({
                   <Combine className="w-5 h-5 text-blue-600 mt-1 flex-shrink-0" />
                   <div>
                     <p className="font-semibold text-gray-900">Merge with Another Event</p>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-300 mt-1">
                       Combine with a similar event and remove this one
                     </p>
                   </div>

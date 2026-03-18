@@ -102,7 +102,7 @@ export default function TournamentStartWorkflow() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">{tournament.name}</h1>
-          <p className="text-gray-500 mt-1">
+          <p className="text-gray-300 mt-1">
             {tournament.venue_name} • {tournament.state}, {tournament.city}
           </p>
         </div>
@@ -134,21 +134,21 @@ export default function TournamentStartWorkflow() {
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-500">Status</p>
+                <p className="text-sm text-gray-300">Status</p>
                 <p className="text-lg font-semibold capitalize">{tournament.status}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Start Date</p>
+                <p className="text-sm text-gray-300">Start Date</p>
                 <p className="text-lg font-semibold">
                   {new Date(tournament.start_date).toLocaleDateString()}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Total Registrations</p>
+                <p className="text-sm text-gray-300">Total Registrations</p>
                 <p className="text-lg font-semibold">{tournament.current_participants}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Events</p>
+                <p className="text-sm text-gray-300">Events</p>
                 <p className="text-lg font-semibold">{tournament.events?.length || 0}</p>
               </div>
             </CardContent>

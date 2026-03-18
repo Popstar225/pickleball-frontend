@@ -81,7 +81,7 @@ export function CoachPostMatchWorkflow({
               <TrendingUp className="h-8 w-8 text-blue-600" />
               <div>
                 <p className="text-2xl font-bold">{completedMatches}/{totalMatches}</p>
-                <p className="text-sm text-gray-600">Matches Done</p>
+                <p className="text-sm text-gray-300">Matches Done</p>
               </div>
             </div>
           </CardContent>
@@ -97,7 +97,7 @@ export function CoachPostMatchWorkflow({
               )}
               <div>
                 <p className="text-2xl font-bold">{bracketGenerated ? '✓' : '—'}</p>
-                <p className="text-sm text-gray-600">Bracket Ready</p>
+                <p className="text-sm text-gray-300">Bracket Ready</p>
               </div>
             </div>
           </CardContent>
@@ -109,7 +109,7 @@ export function CoachPostMatchWorkflow({
               <Users className="h-8 w-8 text-purple-600" />
               <div>
                 <p className="text-2xl font-bold">{qualifierCount}</p>
-                <p className="text-sm text-gray-600">Qualifiers</p>
+                <p className="text-sm text-gray-300">Qualifiers</p>
               </div>
             </div>
           </CardContent>
@@ -123,7 +123,7 @@ export function CoachPostMatchWorkflow({
                 <p className="text-2xl font-bold">
                   {data?.completion?.tournament_complete ? '✓' : '—'}
                 </p>
-                <p className="text-sm text-gray-600">Tournament Complete</p>
+                <p className="text-sm text-gray-300">Tournament Complete</p>
               </div>
             </div>
           </CardContent>
@@ -220,7 +220,7 @@ export function CoachPostMatchWorkflow({
                         <p className="font-medium">
                           {match.player1.name} vs {match.player2.name}
                         </p>
-                        <p className="text-xs text-gray-500">Group {match.group_id || 'bracket'}</p>
+                        <p className="text-xs text-gray-300">Group {match.group_id || 'bracket'}</p>
                       </div>
                       <Badge variant={match.status === 'completed' ? 'default' : 'secondary'}>
                         {match.status}
@@ -229,7 +229,7 @@ export function CoachPostMatchWorkflow({
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-4">No matches yet</p>
+                <p className="text-gray-300 text-center py-4">No matches yet</p>
               )}
             </CardContent>
           </Card>
@@ -263,7 +263,7 @@ export function CoachPostMatchWorkflow({
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-4">No qualifiers yet. Complete group stage first.</p>
+                <p className="text-gray-300 text-center py-4">No qualifiers yet. Complete group stage first.</p>
               )}
             </CardContent>
           </Card>
@@ -292,7 +292,7 @@ export function CoachPostMatchWorkflow({
                   )}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-4">
+                <p className="text-gray-300 text-center py-4">
                   Bracket will be generated automatically once all group matches are completed.
                 </p>
               )}
@@ -318,7 +318,7 @@ function WorkflowStep({
   status: 'pending' | 'in-progress' | 'completed';
 }) {
   const statusColors = {
-    pending: 'bg-gray-100 border-gray-300 text-gray-600',
+    pending: 'bg-gray-100 border-gray-300 text-gray-300',
     'in-progress': 'bg-yellow-100 border-yellow-300 text-yellow-800',
     completed: 'bg-green-100 border-green-300 text-green-800',
   };

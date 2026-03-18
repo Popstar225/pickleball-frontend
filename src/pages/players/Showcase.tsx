@@ -99,10 +99,10 @@ const Showcase = () => {
                       <div className="w-32 h-32 sm:w-36 sm:h-36 lg:w-40 lg:h-40 rounded-2xl sm:rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                         <Trophy className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 text-primary" />
                       </div>
-                      <p className="text-slate-400 text-center font-semibold text-base sm:text-lg">
+                      <p className="text-slate-200 text-center font-semibold text-base sm:text-lg">
                         Jugadores Elite
                       </p>
-                      <p className="text-slate-600 text-xs sm:text-sm text-center max-w-xs leading-relaxed">
+                      <p className="text-slate-300 text-xs sm:text-sm text-center max-w-xs leading-relaxed">
                         Historias de los mejores competidores del pickleball mexicano
                       </p>
                     </div>
@@ -147,7 +147,7 @@ const Showcase = () => {
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent mb-4 sm:mb-6">
                   Nuestros Campeones
                 </h2>
-                <p className="text-slate-400 text-base sm:text-lg lg:text-xl leading-relaxed px-4">
+                <p className="text-slate-200 text-base sm:text-lg lg:text-xl leading-relaxed px-4">
                   Historias de excelencia, dedicación y pasión por el pickleball
                 </p>
                 <div className="flex items-center justify-center gap-3 mt-6 sm:mt-8">
@@ -237,7 +237,7 @@ const Showcase = () => {
                             />
 
                             <div className="relative z-10 space-y-4 sm:space-y-6 h-full min-h-0 flex flex-col justify-center">
-                              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-400">
+                              <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-200">
                                 <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-slate-800/80 border border-slate-700/50 flex items-center justify-center">
                                   <Calendar className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                                 </div>
@@ -327,7 +327,7 @@ const Showcase = () => {
                       Más Campeones Próximamente
                     </h3>
 
-                    <p className="text-slate-400 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto mb-6 sm:mb-8 leading-relaxed px-4">
+                    <p className="text-slate-200 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto mb-6 sm:mb-8 leading-relaxed px-4">
                       Estamos trabajando en perfiles adicionales de jugadores destacados. ¡Mantente
                       atento para conocer más campeones que están haciendo historia en el pickleball
                       mexicano!
@@ -376,7 +376,7 @@ const Showcase = () => {
                       ¿Listo para competir?
                     </h3>
 
-                    <p className="text-slate-400 text-base sm:text-lg lg:text-xl leading-relaxed mb-6 sm:mb-10 max-w-2xl mx-auto px-4">
+                    <p className="text-slate-200 text-base sm:text-lg lg:text-xl leading-relaxed mb-6 sm:mb-10 max-w-2xl mx-auto px-4">
                       Descubre torneos, mejora tu ranking y únete a la comunidad de jugadores de
                       pickleball más grande de México.
                     </p>
@@ -400,7 +400,7 @@ const Showcase = () => {
                       </a>
                     </div>
 
-                    <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 lg:gap-8 text-slate-500 text-xs sm:text-sm flex-wrap">
+                    <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-6 lg:gap-8 text-slate-300 text-xs sm:text-sm flex-wrap">
                       {['Torneos Oficiales', 'Rankings DUPR', 'Comunidad Nacional'].map(
                         (label, i) => (
                           <div key={label} className="flex items-center gap-1.5 sm:gap-2">

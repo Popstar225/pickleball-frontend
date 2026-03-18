@@ -139,7 +139,7 @@ export default function OrganizerPreStartDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">{dashboard.tournament.name}</h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-gray-300 mt-1">
             {new Date(dashboard.tournament.start_date).toLocaleDateString()} • Registration
             deadline: {new Date(dashboard.tournament.registration_deadline).toLocaleDateString()}
           </p>
@@ -153,11 +153,11 @@ export default function OrganizerPreStartDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Total Events</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-300">Total Events</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{dashboard.overview.totalEvents}</div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-300 mt-1">
               {dashboard.overview.totalRegistrations} total registrations
             </p>
           </CardContent>
@@ -165,35 +165,35 @@ export default function OrganizerPreStartDashboard() {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">At Capacity</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-300">At Capacity</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-red-600">
               {dashboard.overview.trafficLightCounts.full}
             </div>
-            <p className="text-xs text-gray-500 mt-1">Events full</p>
+            <p className="text-xs text-gray-300 mt-1">Events full</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">Ready to Start</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-300">Ready to Start</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-green-600">
               {dashboard.overview.readyToStart}
             </div>
-            <p className="text-xs text-gray-500 mt-1">meet minimum</p>
+            <p className="text-xs text-gray-300 mt-1">meet minimum</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">At Risk</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-300">At Risk</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold text-orange-600">{dashboard.overview.atRisk}</div>
-            <p className="text-xs text-gray-500 mt-1">Need more registrations</p>
+            <p className="text-xs text-gray-300 mt-1">Need more registrations</p>
           </CardContent>
         </Card>
       </div>
@@ -227,7 +227,7 @@ export default function OrganizerPreStartDashboard() {
                   <h3 className="font-semibold text-sm mt-2">{event.name}</h3>
 
                   {/* Registrations */}
-                  <div className="mt-2 text-xs text-gray-600">
+                  <div className="mt-2 text-xs text-gray-300">
                     <p className="font-medium">
                       {event.registrations.current}/{event.registrations.maximum} Registered
                     </p>
@@ -245,7 +245,7 @@ export default function OrganizerPreStartDashboard() {
                         }}
                       ></div>
                     </div>
-                    <p className="text-gray-500 mt-1">
+                    <p className="text-gray-300 mt-1">
                       {event.registrations.openSlots} slots available
                     </p>
                   </div>
@@ -310,7 +310,7 @@ export default function OrganizerPreStartDashboard() {
                         }}
                       ></div>
                     </div>
-                    <span className="text-xs text-gray-600 ml-1">
+                    <span className="text-xs text-gray-300 ml-1">
                       {event.registrations.capacityPercent}%
                     </span>
                   </TableCell>

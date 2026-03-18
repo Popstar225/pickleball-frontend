@@ -228,7 +228,7 @@ Payment Method: ${payment.payment_method || 'Unknown'}
     return (
       <Card className="p-6 text-center">
         <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-        <p className="text-gray-600">No payments found</p>
+        <p className="text-gray-300">No payments found</p>
       </Card>
     );
   }
@@ -421,13 +421,13 @@ Payment Method: ${payment.payment_method || 'Unknown'}
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-gray-600 text-sm">Amount</p>
+                  <p className="text-gray-300 text-sm">Amount</p>
                   <p className="text-2xl font-bold">
                     {selectedPayment.currency.toUpperCase()} {(selectedPayment.amount / 100).toFixed(2)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-600 text-sm">Status</p>
+                  <p className="text-gray-300 text-sm">Status</p>
                   <Badge className={PAYMENT_STATUS_COLORS[selectedPayment.status]}>
                     {selectedPayment.status}
                   </Badge>
@@ -435,23 +435,23 @@ Payment Method: ${payment.payment_method || 'Unknown'}
               </div>
 
               <div className="space-y-2">
-                <p className="text-gray-600 text-sm">Type</p>
+                <p className="text-gray-300 text-sm">Type</p>
                 <p>{PAYMENT_TYPE_LABELS[selectedPayment.payment_type]}</p>
               </div>
 
               <div>
-                <p className="text-gray-600 text-sm">Payment Method</p>
+                <p className="text-gray-300 text-sm">Payment Method</p>
                 <p>{selectedPayment.payment_method}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <p className="text-gray-600">Date</p>
+                  <p className="text-gray-300">Date</p>
                   <p>{new Date(selectedPayment.created_at).toLocaleString()}</p>
                 </div>
                 {selectedPayment.refund_amount && (
                   <div>
-                    <p className="text-gray-600">Refund Amount</p>
+                    <p className="text-gray-300">Refund Amount</p>
                     <p>${(selectedPayment.refund_amount / 100).toFixed(2)}</p>
                   </div>
                 )}

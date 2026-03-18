@@ -51,7 +51,7 @@ const Credentials: React.FC<CredentialsProps> = ({ credentials }) => {
               <div key={credential.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 border border-gray-200 animate-on-scroll">
                 <div className="p-4 border-b">
                   <h4 className="text-lg font-semibold">{credential.name}</h4>
-                  <p className="text-sm text-gray-600">{credential.issuingOrg}</p>
+                  <p className="text-sm text-gray-300">{credential.issuingOrg}</p>
                 </div>
                 <div className="p-4">
                   <div className="space-y-3">

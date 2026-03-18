@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchMyDigitalCredential } from '@/store/slices/digitalCredentialsSlice';
@@ -14,170 +14,13 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getFullImageUrl } from '@/common/tools';
+import { CredentialHoloCard } from '@/components/credentials/CredentialHoloCard';
 
-import MXFlag from '@/assets/images/flag/MX.png';
-import FederationLogo from '@/assets/images/Logos/Logo pickleball compressed.png';
-import IpfLogo from '@/assets/images/Logos/IPF.png';
-import conadeLogo from '@/assets/images/Logos/conade-logo.png';
-import EagleImg from '@/assets/images/toppng.png';
-
-/* ─── helpers ───────────────────────────────────────────────── */
 function getExpiryDate(credential: any): Date {
   if (credential.expiry_date) return new Date(credential.expiry_date);
   const d = new Date(credential.issued_date || credential.created_at);
   d.setFullYear(d.getFullYear() + 1);
   return d;
-}
-
-/* ─── HoloCard ──────────────────────────────────────────────── */
-function HoloCard({ credential, playerPhotoUrl }: { credential: any; playerPhotoUrl?: string | null }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const onMove = (e: MouseEvent) => {
-      const r = el.getBoundingClientRect();
-      const dx = ((e.clientX - r.left) / r.width - 0.5) * 14;
-      const dy = ((e.clientY - r.top) / r.height - 0.5) * -9;
-      el.style.transform = `perspective(800px) rotateY(${dx}deg) rotateX(${dy}deg)`;
-    };
-    const onLeave = () => {
-      el.style.transform = 'perspective(800px) rotateY(0) rotateX(0)';
-    };
-    el.addEventListener('mousemove', onMove);
-    el.addEventListener('mouseleave', onLeave);
-    return () => {
-      el.removeEventListener('mousemove', onMove);
-      el.removeEventListener('mouseleave', onLeave);
-    };
-  }, []);
-
-  const isActive = credential.affiliation_status === 'active';
-
-  return (
-    <div
-      ref={ref}
-      className={cn(
-        'relative w-full rounded-[20px] overflow-hidden cursor-default',
-        'bg-[#0A0D1A]',
-        'border border-[#C8FF00]/[0.14]',
-        'shadow-[0_0_0_1px_rgba(200,255,0,0.03),0_24px_60px_rgba(0,0,0,0.7),0_0_60px_rgba(200,255,0,0.05)]',
-        'hover:shadow-[0_0_0_1px_rgba(200,255,0,0.2),0_32px_80px_rgba(0,0,0,0.8),0_0_80px_rgba(200,255,0,0.1)]',
-        'transition-shadow duration-200',
-      )}
-    >
-      {/* Shimmer */}
-      <div className="absolute inset-0 z-20 pointer-events-none rounded-[20px] bg-gradient-to-br from-transparent via-[#C8FF64]/[0.05] to-transparent" />
-
-      {/* Top bar */}
-      <div className="h-1 bg-gradient-to-r from-[#7CAF00] via-[#C8FF00] to-[#7CAF00]" />
-
-      {/* Federation header */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#0D1F08] via-[#152B0B] to-[#0D1F08]">
-        <div className="absolute inset-0 [background-image:repeating-linear-gradient(-45deg,transparent,transparent_8px,rgba(200,255,0,0.02)_8px,rgba(200,255,0,0.02)_9px)]" />
-        <div className="relative z-10 flex flex-col items-center gap-1.5 px-4 py-3.5">
-          <div className="flex items-center gap-3 w-full justify-center">
-            <div className="w-12 h-12 rounded-full bg-white border-2 border-[#C8FF00]/50 flex items-center justify-center shrink-0 overflow-hidden shadow-[0_0_8px_rgba(200,255,0,0.3)]">
-              <img src={EagleImg} alt="Escudo" className="w-10 h-10 object-contain" />
-            </div>
-            <div className="text-center font-sans font-extrabold text-[14px] tracking-[2px] text-white leading-snug">
-              FEDMEX PICKLEBALL
-            </div>
-            <div className="w-12 h-12 rounded-full bg-white border-2 border-[#C8FF00]/50 flex items-center justify-center shrink-0 overflow-hidden shadow-[0_0_8px_rgba(200,255,0,0.3)]">
-              <img src={EagleImg} alt="Escudo" className="w-10 h-10 object-contain" />
-            </div>
-          </div>
-          <div className="bg-[#C8FF00] text-black font-sans font-extrabold text-[11px] tracking-[5px] px-5 py-1 rounded-sm">
-            {credential.state_affiliation?.toUpperCase() || 'N/A'}
-          </div>
-        </div>
-      </div>
-
-      {/* Photo zone */}
-      <div className="relative h-[220px] overflow-hidden bg-gradient-to-b from-[#0A1A06] to-[#050D03]">
-        <div className="absolute inset-0 [background-image:linear-gradient(rgba(200,255,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(200,255,0,0.03)_1px,transparent_1px)] [background-size:24px_24px]" />
-        <p className="absolute top-2.5 inset-x-0 text-center font-sans text-[9px] font-bold tracking-[5px] text-white/50 uppercase">
-          JUGADOR OFICIAL
-        </p>
-        <div className="absolute left-1/2 top-[46%] -translate-x-1/2 -translate-y-[54%] w-24 h-24 rounded-[10px] border-2 border-white/80 bg-[#12152A] overflow-hidden flex items-center justify-center text-4xl shadow-[0_4px_24px_rgba(0,0,0,0.6),0_0_0_4px_rgba(255,255,255,0.05)]">
-          {(credential?.user?.profile_photo || playerPhotoUrl)
-            ? <img src={getFullImageUrl(credential?.user?.profile_photo || playerPhotoUrl)} alt="player" className="w-full h-full object-cover" />
-            : '👤'}
-        </div>
-        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[rgba(5,9,3,0.97)] via-[rgba(5,9,3,0.7)] to-transparent pb-2 pt-8 px-3 text-center">
-          <p className="font-sans font-extrabold text-[17px] tracking-[1.5px] text-white leading-tight">
-            {credential.player_name}
-          </p>
-          {credential?.user?.date_of_birth && (
-            <p className="font-sans text-[12px] text-[#C8FF00]/80 tracking-[1px] mt-0.5">
-              {new Date(credential.user.date_of_birth).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {/* Status band */}
-      <div className={cn(
-        'flex items-center justify-center gap-2 py-1.5',
-        isActive
-          ? 'bg-gradient-to-r from-[#0D1F08] via-[#1E3C0E] to-[#0D1F08]'
-          : 'bg-gradient-to-r from-[#1F0808] via-[#3C0E0E] to-[#1F0808]',
-      )}>
-        <span className={cn(
-          'w-1.5 h-1.5 rounded-full',
-          isActive ? 'bg-[#C8FF00] shadow-[0_0_6px_#C8FF00]' : 'bg-[#ff6b6b] shadow-[0_0_6px_#ff6b6b]',
-        )} />
-        <span className={cn(
-          'font-sans font-extrabold text-[13px] tracking-[5px]',
-          isActive ? 'text-[#C8FF00]' : 'text-[#ff6b6b]',
-        )}>
-          {isActive ? 'ACTIVO' : 'INACTIVO'}
-        </span>
-      </div>
-
-      {/* ID */}
-      <div className="bg-[#080D18] py-1.5 text-center font-['JetBrains_Mono',monospace] text-[13px] tracking-[3px] text-[rgba(200,240,200,0.7)] border-y border-[#C8FF00]/[0.06]">
-        {credential.credential_number || credential.id}
-      </div>
-
-      {/* Logos */}
-      <div className="bg-[#F2F2F2] flex items-center justify-around px-5 py-2.5 border-y border-black/[0.07]">
-        <img src={IpfLogo} alt="IPF" className="w-[46px] h-[46px] object-contain" />
-        <img src={FederationLogo} alt="Federation" className="w-[72px] h-[44px] object-contain" />
-        <img src={conadeLogo} alt="CONADE" className="w-[46px] h-[46px] object-contain" />
-      </div>
-
-      {/* QR */}
-      <div className="bg-white flex items-center justify-center py-4 px-5">
-        <div className="p-2 bg-white border-2 border-[#E0E0E0] rounded-md shadow-md">
-          {credential.qr_code_url ? (
-            <img src={getFullImageUrl(credential.qr_code_url)} alt="QR" className="w-[200px] h-[200px] block" />
-          ) : (
-            <img
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/credentials/verify/${credential.verification_code}`)}&margin=4`}
-              alt="QR"
-              className="w-[200px] h-[200px] block"
-            />
-          )}
-        </div>
-      </div>
-
-      {/* NTPR */}
-      <div className="py-2 text-center font-sans font-extrabold text-[18px] tracking-[5px] text-white bg-gradient-to-r from-[#152B0B] via-[#1F3E10] to-[#152B0B]">
-        NTPR: {credential.nrtp_level || '3.5'}
-      </div>
-
-      {/* Flag */}
-      <div className="bg-white flex items-center justify-center py-2 border-t border-black/[0.06]">
-        <img src={MXFlag} alt="México" className="h-8 w-auto" />
-      </div>
-
-      {/* Bottom bar */}
-      <div className="h-[3px] bg-gradient-to-r from-[#7CAF00] via-[#C8FF00] to-[#7CAF00]" />
-    </div>
-  );
 }
 
 /* ─── Panel card ─────────────────────────────────────────────── */
@@ -396,7 +239,7 @@ export default function PlayerCredentialsPage() {
 
             {/* Left */}
             <div className="flex flex-col gap-4">
-              <HoloCard credential={myCredential} playerPhotoUrl={getFullImageUrl(playerProfile?.profilePhoto)} />
+              <CredentialHoloCard credential={myCredential} photoUrl={playerProfile?.profilePhoto} />
 
               {(() => {
                 const start = new Date(myCredential?.issued_date || myCredential?.created_at);

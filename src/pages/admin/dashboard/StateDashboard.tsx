@@ -15,7 +15,7 @@ export default function StateDashboard() {
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold text-white">Estado Dashboard</h1>
-        <p className="text-slate-400">
+        <p className="text-slate-200">
           Gestiona los miembros, visualiza estadísticas y administra la configuración de tu estado.
         </p>
       </div>
@@ -70,12 +70,12 @@ export default function StateDashboard() {
                     <Trophy className="h-5 w-5 text-yellow-500" />
                     Gestionar Torneos Estatales
                   </CardTitle>
-                  <CardDescription className="text-slate-400">
+                  <CardDescription className="text-slate-200">
                     Crea y gestiona torneos a nivel estatal
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="min-h-[400px] space-y-6 flex flex-col justify-center items-center">
-                  <p className="text-slate-400 text-center max-w-md">
+                  <p className="text-slate-200 text-center max-w-md">
                     Tu estado tiene las mismas capacidades que clubes y federaciones para crear y
                     gestionar torneos. Haz clic en el botón de abajo para crear un nuevo torneo
                     estatal.
@@ -96,7 +96,7 @@ export default function StateDashboard() {
                     <Trophy className="h-5 w-5 text-yellow-500" />
                     Crear Nuevo Torneo Estatal
                   </CardTitle>
-                  <CardDescription className="text-slate-400">
+                  <CardDescription className="text-slate-200">
                     Completa los pasos para crear y configurar tu torneo
                   </CardDescription>
                 </CardHeader>
@@ -123,11 +123,11 @@ export default function StateDashboard() {
             <Card className="border-slate-700 bg-slate-900/50">
               <CardHeader>
                 <CardTitle className="text-white">Estadísticas</CardTitle>
-                <CardDescription className="text-slate-400">
+                <CardDescription className="text-slate-200">
                   Visualiza estadísticas detalladas de tu estado
                 </CardDescription>
               </CardHeader>
-              <CardContent className="min-h-[300px] text-center text-slate-400">
+              <CardContent className="min-h-[300px] text-center text-slate-200">
                 <p>Estadísticas en desarrollo...</p>
               </CardContent>
             </Card>
@@ -138,11 +138,11 @@ export default function StateDashboard() {
             <Card className="border-slate-700 bg-slate-900/50">
               <CardHeader>
                 <CardTitle className="text-white">Reportes</CardTitle>
-                <CardDescription className="text-slate-400">
+                <CardDescription className="text-slate-200">
                   Genera y descarga reportes de tu estado
                 </CardDescription>
               </CardHeader>
-              <CardContent className="min-h-[300px] text-center text-slate-400">
+              <CardContent className="min-h-[300px] text-center text-slate-200">
                 <p>Reportes en desarrollo...</p>
               </CardContent>
             </Card>
@@ -153,11 +153,11 @@ export default function StateDashboard() {
             <Card className="border-slate-700 bg-slate-900/50">
               <CardHeader>
                 <CardTitle className="text-white">Configuración</CardTitle>
-                <CardDescription className="text-slate-400">
+                <CardDescription className="text-slate-200">
                   Personaliza la configuración de tu estado
                 </CardDescription>
               </CardHeader>
-              <CardContent className="min-h-[300px] text-center text-slate-400">
+              <CardContent className="min-h-[300px] text-center text-slate-200">
                 <p>Configuración en desarrollo...</p>
               </CardContent>
             </Card>

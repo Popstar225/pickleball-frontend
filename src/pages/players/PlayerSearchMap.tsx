@@ -149,7 +149,7 @@ function PaymentGateModal({ open, onClose, onSuccess }: PaymentGateModalProps) {
             <Zap className="w-5 h-5 text-primary" />
             Desbloquear Buscador de Jugadores
           </DialogTitle>
-          <DialogDescription className="text-slate-400">
+          <DialogDescription className="text-slate-200">
             Accede al mapa interactivo y encuentra jugadores cercanos a ti
           </DialogDescription>
         </DialogHeader>
@@ -165,7 +165,7 @@ function PaymentGateModal({ open, onClose, onSuccess }: PaymentGateModalProps) {
           <div className="space-y-4">
             <div className="p-4 bg-primary/10 border border-primary/30 rounded-xl">
               <p className="font-semibold text-white">Buscador de Jugadores — ${FEATURE_PRICE} MXN</p>
-              <p className="text-sm text-slate-400">Pago único, acceso permanente</p>
+              <p className="text-sm text-slate-200">Pago único, acceso permanente</p>
             </div>
             <Elements stripe={stripePromise} options={{ clientSecret: paymentData.clientSecret }}>
               <PaymentForm
@@ -188,7 +188,7 @@ function PaymentGateModal({ open, onClose, onSuccess }: PaymentGateModalProps) {
             <div className="text-center p-6 bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30 rounded-xl">
               <div className="flex items-baseline justify-center gap-1 mb-1">
                 <span className="text-4xl font-bold text-white">${FEATURE_PRICE}</span>
-                <span className="text-slate-400">MXN</span>
+                <span className="text-slate-200">MXN</span>
               </div>
               <p className="text-sm text-primary font-semibold">Pago único — acceso permanente</p>
             </div>
@@ -231,11 +231,11 @@ function LoginGate() {
     <div className="min-h-screen flex flex-col bg-slate-950 items-center justify-center p-6">
       <div className="max-w-md w-full text-center space-y-6">
         <div className="w-20 h-20 mx-auto rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center">
-          <Lock className="w-9 h-9 text-slate-400" />
+          <Lock className="w-9 h-9 text-slate-200" />
         </div>
         <div>
           <h2 className="text-2xl font-bold text-white mb-2">Acceso restringido</h2>
-          <p className="text-slate-400">Inicia sesión para usar el Buscador de Jugadores.</p>
+          <p className="text-slate-200">Inicia sesión para usar el Buscador de Jugadores.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button className="bg-primary text-black hover:bg-primary/90 font-bold" onClick={() => navigate('/login')}>
@@ -377,7 +377,7 @@ const PlayerSearchMap = () => {
       <div className="min-h-screen flex items-center justify-center bg-slate-950">
         <div className="flex flex-col items-center gap-3">
           <Loader className="w-8 h-8 text-primary animate-spin" />
-          <p className="text-slate-400 text-sm">Verificando acceso...</p>
+          <p className="text-slate-200 text-sm">Verificando acceso...</p>
         </div>
       </div>
     );
@@ -394,14 +394,14 @@ const PlayerSearchMap = () => {
                 <MapPin className="w-10 h-10 text-primary" />
               </div>
               <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center">
-                <Lock className="w-4 h-4 text-slate-400" />
+                <Lock className="w-4 h-4 text-slate-200" />
               </div>
             </div>
 
             {/* Text */}
             <div>
               <h2 className="text-2xl font-bold text-white mb-2">Buscador de Jugadores</h2>
-              <p className="text-slate-400 leading-relaxed">
+              <p className="text-slate-200 leading-relaxed">
                 Esta función requiere un pago único de{' '}
                 <span className="text-primary font-bold">${FEATURE_PRICE} MXN</span>{' '}
                 para desbloquear el acceso permanente.
@@ -411,7 +411,7 @@ const PlayerSearchMap = () => {
             {/* Feature preview chips */}
             <div className="flex flex-wrap gap-2 justify-center">
               {['Mapa interactivo', 'Filtro por nivel', 'Buscar por distancia', 'Contacto directo'].map((f) => (
-                <span key={f} className="text-xs px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-400">
+                <span key={f} className="text-xs px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-200">
                   {f}
                 </span>
               ))}
@@ -425,7 +425,7 @@ const PlayerSearchMap = () => {
               Desbloquear por ${FEATURE_PRICE} MXN
             </Button>
 
-            <p className="text-xs text-slate-500">Pago único · Acceso permanente · Procesado con Stripe</p>
+            <p className="text-xs text-slate-300">Pago único · Acceso permanente · Procesado con Stripe</p>
           </div>
         </div>
 
@@ -501,7 +501,7 @@ const PlayerSearchMap = () => {
             <div className="p-4 border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-sm">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-slate-400 mb-1.5 block uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-slate-200 mb-1.5 block uppercase tracking-wide">
                     Search Radius
                   </label>
                   <Select value={selectedRadius} onValueChange={setSelectedRadius}>
@@ -519,7 +519,7 @@ const PlayerSearchMap = () => {
                   </Select>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-400 mb-1.5 block uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-slate-200 mb-1.5 block uppercase tracking-wide">
                     Skill Level
                   </label>
                   <Select value={selectedSkillLevel} onValueChange={setSelectedSkillLevel}>
@@ -544,7 +544,7 @@ const PlayerSearchMap = () => {
                 {([['#3B82F6', '2.5–3.0'], ['#84CC16', '3.0–4.0'], ['#F59E0B', '4.0–5.0'], ['#EF4444', '5.0+']] as const).map(([color, label]) => (
                   <div key={label} className="flex items-center gap-1.5">
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
-                    <span className="text-xs text-slate-400">{label}</span>
+                    <span className="text-xs text-slate-200">{label}</span>
                   </div>
                 ))}
               </div>
@@ -555,7 +555,7 @@ const PlayerSearchMap = () => {
               {loading && (
                 <div className="flex flex-col items-center justify-center py-16 gap-3">
                   <Loader className="w-7 h-7 text-primary animate-spin" />
-                  <p className="text-slate-400 text-sm">Searching for players...</p>
+                  <p className="text-slate-200 text-sm">Searching for players...</p>
                 </div>
               )}
 
@@ -572,10 +572,10 @@ const PlayerSearchMap = () => {
               {!loading && !error && players.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
                   <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center">
-                    <Search className="w-7 h-7 text-slate-500" />
+                    <Search className="w-7 h-7 text-slate-300" />
                   </div>
-                  <p className="text-slate-400 font-semibold">No players found</p>
-                  <p className="text-slate-500 text-sm">Try increasing the search radius</p>
+                  <p className="text-slate-200 font-semibold">No players found</p>
+                  <p className="text-slate-300 text-sm">Try increasing the search radius</p>
                 </div>
               )}
 
@@ -611,25 +611,25 @@ const PlayerSearchMap = () => {
                       </p>
                       {player.email && (
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <Mail className="w-3 h-3 text-slate-500 flex-shrink-0" />
-                          <p className="text-xs text-slate-400 truncate">{player.email}</p>
+                          <Mail className="w-3 h-3 text-slate-300 flex-shrink-0" />
+                          <p className="text-xs text-slate-200 truncate">{player.email}</p>
                         </div>
                       )}
                       {player.phone && (
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <Phone className="w-3 h-3 text-slate-500 flex-shrink-0" />
-                          <p className="text-xs text-slate-400 truncate">{player.phone}</p>
+                          <Phone className="w-3 h-3 text-slate-300 flex-shrink-0" />
+                          <p className="text-xs text-slate-200 truncate">{player.phone}</p>
                         </div>
                       )}
                       {player.address && (
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <Home className="w-3 h-3 text-slate-500 flex-shrink-0" />
-                          <p className="text-xs text-slate-400 truncate">{player.address}</p>
+                          <Home className="w-3 h-3 text-slate-300 flex-shrink-0" />
+                          <p className="text-xs text-slate-200 truncate">{player.address}</p>
                         </div>
                       )}
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <MapPin className="w-3 h-3 text-slate-500 flex-shrink-0" />
-                        <p className="text-xs text-slate-400 truncate">
+                        <MapPin className="w-3 h-3 text-slate-300 flex-shrink-0" />
+                        <p className="text-xs text-slate-200 truncate">
                           {player.city && player.state ? `${player.city}, ${player.state}` : player.state || 'Unknown'}
                         </p>
                       </div>
@@ -641,7 +641,7 @@ const PlayerSearchMap = () => {
                         }}>
                           {player.skill_level || 'N/A'}
                         </span>
-                        <Badge variant="outline" className="text-xs border-slate-600 text-slate-400 py-0 h-5">
+                        <Badge variant="outline" className="text-xs border-slate-600 text-slate-200 py-0 h-5">
                           {player.distance_km} km
                         </Badge>
                       </div>
@@ -751,7 +751,7 @@ const PlayerSearchMap = () => {
             <div className="absolute top-4 right-4 z-[1000] bg-slate-900/90 backdrop-blur-sm border border-slate-700/50 rounded-xl p-3 flex items-center gap-2 pointer-events-none">
               <Users className="w-4 h-4 text-primary" />
               <span className="text-white text-sm font-bold">{players.length}</span>
-              <span className="text-slate-400 text-xs">nearby</span>
+              <span className="text-slate-200 text-xs">nearby</span>
             </div>
           </div>
         </div>

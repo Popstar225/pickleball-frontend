@@ -18,25 +18,26 @@ export interface PlayerProfile {
   username: string;
   membershipStatus: string;
   city: string;
+  address: string;
+  website: string;
   bio: string | null;
   emergencyContact: string | null;
   medicalInfo: string | null;
   joinedDate: string | null;
   lastActive: string | null;
   totalTournaments: number;
+  clubs_count: number;
   ranking: string | null;
   currentClub: string | null;
   // Legacy fields for backward compatibility
   user_type?: string;
   role?: string;
-  address?: string;
   latitude?: number | null;
   longitude?: number | null;
   rfc?: string | null;
   business_name?: string | null;
   contact_person?: string | null;
   job_title?: string | null;
-  website?: string | null;
   membership_expires_at?: string | null;
   email_verified?: boolean;
   preferences?: any | null;
@@ -295,7 +296,7 @@ export const fetchPlayerClubs = createAsyncThunk(
   'playerDashboard/fetchClubs',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/players/clubs/my-clubs');
+      const response = await api.get('/clubs/memberships');
       return (response as any).data.data.clubs;
     } catch (error: any) {
       return rejectWithValue(

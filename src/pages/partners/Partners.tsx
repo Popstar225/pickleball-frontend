@@ -164,7 +164,7 @@ const getLevelColor = (level: string) => {
       return {
         bg: 'bg-slate-400/20',
         border: 'border-slate-400/30',
-        text: 'text-slate-400',
+        text: 'text-slate-200',
         glow: 'from-slate-400 to-slate-500',
       };
     default:
@@ -296,10 +296,10 @@ const Partners = () => {
                       <div className="w-40 h-40 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                         <Handshake className="w-24 h-24 text-primary" />
                       </div>
-                      <p className="text-slate-400 text-center font-semibold text-lg">
+                      <p className="text-slate-200 text-center font-semibold text-lg">
                         Red de Aliados
                       </p>
-                      <p className="text-slate-600 text-sm text-center max-w-xs leading-relaxed">
+                      <p className="text-slate-300 text-sm text-center max-w-xs leading-relaxed">
                         Colaboraciones estratégicas para el desarrollo del pickleball mexicano
                       </p>
                     </div>
@@ -348,7 +348,7 @@ const Partners = () => {
                 <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent mb-6">
                   Todos Nuestros Socios
                 </h2>
-                <p className="text-slate-400 text-xl leading-relaxed">
+                <p className="text-slate-200 text-xl leading-relaxed">
                   Explora nuestra red de aliados comprometidos con el crecimiento del deporte
                 </p>
                 <div className="flex items-center justify-center gap-3 mt-8">
@@ -365,7 +365,7 @@ const Partners = () => {
                   <div className="flex flex-col gap-4">
                     {/* search */}
                     <div className="relative flex-1">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                       <input
                         type="text"
                         placeholder="Buscar socios por nombre, descripción o ubicación..."
@@ -387,7 +387,7 @@ const Partners = () => {
                             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 ${
                               isActive
                                 ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30'
-                                : 'bg-slate-800/60 border border-slate-700/50 text-slate-400 hover:text-white hover:border-primary/50'
+                                : 'bg-slate-800/60 border border-slate-700/50 text-slate-200 hover:text-white hover:border-primary/50'
                             }`}
                           >
                             <Icon className="w-4 h-4" />
@@ -402,13 +402,13 @@ const Partners = () => {
 
               {/* result count + clear */}
               <div className="flex items-center justify-between">
-                <p className="text-slate-500 text-sm">
+                <p className="text-slate-300 text-sm">
                   Mostrando <span className="text-white font-bold">{filtered.length}</span> socios
                 </p>
                 {hasActiveFilter && (
                   <button
                     onClick={clearFilters}
-                    className="text-sm text-slate-500 hover:text-primary transition-colors flex items-center gap-1.5"
+                    className="text-sm text-slate-300 hover:text-primary transition-colors flex items-center gap-1.5"
                   >
                     <X className="w-3.5 h-3.5" /> Limpiar filtros
                   </button>
@@ -478,12 +478,12 @@ const Partners = () => {
                                 {partner.name}
                               </h3>
 
-                              <p className="text-slate-400 text-sm leading-relaxed mb-4 flex-1">
+                              <p className="text-slate-200 text-sm leading-relaxed mb-4 flex-1">
                                 {partner.description}
                               </p>
 
                               {/* Location */}
-                              <div className="flex items-center gap-2 text-slate-500 text-sm mb-4">
+                              <div className="flex items-center gap-2 text-slate-300 text-sm mb-4">
                                 <MapPin className="w-4 h-4 text-primary" />
                                 {partner.location}
                               </div>
@@ -496,7 +496,7 @@ const Partners = () => {
                                     className="bg-slate-800/40 border border-slate-700/40 rounded-lg p-3 text-center"
                                   >
                                     <div className="text-primary font-bold text-lg">{value}</div>
-                                    <div className="text-slate-500 text-xs capitalize">{key}</div>
+                                    <div className="text-slate-300 text-xs capitalize">{key}</div>
                                   </div>
                                 ))}
                               </div>
@@ -571,12 +571,12 @@ const Partners = () => {
                                 {partner.name}
                               </h3>
 
-                              <p className="text-slate-400 text-xs leading-relaxed mb-3 flex-1 line-clamp-2">
+                              <p className="text-slate-200 text-xs leading-relaxed mb-3 flex-1 line-clamp-2">
                                 {partner.description}
                               </p>
 
                               {/* Location */}
-                              <div className="flex items-center gap-1.5 text-slate-500 text-xs mb-3">
+                              <div className="flex items-center gap-1.5 text-slate-300 text-xs mb-3">
                                 <MapPin className="w-3 h-3 text-primary" />
                                 {partner.location}
                               </div>
@@ -599,10 +599,10 @@ const Partners = () => {
               {filtered.length === 0 && (
                 <div className="text-center py-24">
                   <div className="w-24 h-24 rounded-3xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-6">
-                    <Search className="w-12 h-12 text-slate-600" />
+                    <Search className="w-12 h-12 text-slate-300" />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-3">No se encontraron socios</h3>
-                  <p className="text-slate-400 mb-6">Intenta ajustar tus filtros de búsqueda</p>
+                  <p className="text-slate-200 mb-6">Intenta ajustar tus filtros de búsqueda</p>
                   <button
                     onClick={clearFilters}
                     className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-bold px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-primary/30 transition-all duration-500"
@@ -638,7 +638,7 @@ const Partners = () => {
                       ¿Quieres ser nuestro socio?
                     </h3>
 
-                    <p className="text-slate-400 text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
+                    <p className="text-slate-200 text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
                       Únete a nuestra red de aliados y contribuye al desarrollo del pickleball en
                       México. Juntos podemos hacer crecer este increíble deporte.
                     </p>
@@ -662,7 +662,7 @@ const Partners = () => {
                       </a>
                     </div>
 
-                    <div className="mt-12 flex items-center justify-center gap-8 text-slate-500 text-sm flex-wrap">
+                    <div className="mt-12 flex items-center justify-center gap-8 text-slate-300 text-sm flex-wrap">
                       {['Múltiples Categorías', 'Beneficios Exclusivos', 'Red Nacional'].map(
                         (label, i) => (
                           <div key={label} className="flex items-center gap-2">
@@ -717,7 +717,7 @@ const Partners = () => {
 
                   <button
                     onClick={() => setSelectedPartner(null)}
-                    className="absolute top-4 right-4 z-20 w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:border-primary transition-colors"
+                    className="absolute top-4 right-4 z-20 w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-200 hover:text-white hover:border-primary transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -751,7 +751,7 @@ const Partners = () => {
                       <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
                         {selectedPartner.name}
                       </h2>
-                      <p className="text-slate-400 text-sm sm:text-base leading-relaxed mb-4">
+                      <p className="text-slate-200 text-sm sm:text-base leading-relaxed mb-4">
                         {selectedPartner.description}
                       </p>
 
@@ -765,7 +765,7 @@ const Partners = () => {
                             <div className="text-primary font-bold text-xl sm:text-2xl mb-1">
                               {value}
                             </div>
-                            <div className="text-slate-500 text-xs sm:text-sm capitalize">
+                            <div className="text-slate-300 text-xs sm:text-sm capitalize">
                               {key}
                             </div>
                           </div>
@@ -779,7 +779,7 @@ const Partners = () => {
                             <MapPin className="w-5 h-5 text-primary" />
                           </div>
                           <div>
-                            <div className="text-xs text-slate-500">Ubicación</div>
+                            <div className="text-xs text-slate-300">Ubicación</div>
                             <div className="text-sm text-white font-medium">
                               {selectedPartner.location}
                             </div>
@@ -791,7 +791,7 @@ const Partners = () => {
                             <Mail className="w-5 h-5 text-primary" />
                           </div>
                           <div>
-                            <div className="text-xs text-slate-500">Email</div>
+                            <div className="text-xs text-slate-300">Email</div>
                             <a
                               href={`mailto:${selectedPartner.email}`}
                               className="text-sm text-primary hover:underline"
@@ -806,7 +806,7 @@ const Partners = () => {
                             <Phone className="w-5 h-5 text-primary" />
                           </div>
                           <div>
-                            <div className="text-xs text-slate-500">Teléfono</div>
+                            <div className="text-xs text-slate-300">Teléfono</div>
                             <a
                               href={`tel:${selectedPartner.phone}`}
                               className="text-sm text-primary hover:underline"

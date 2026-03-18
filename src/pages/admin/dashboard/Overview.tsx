@@ -118,7 +118,7 @@ const Overview: React.FC<OverviewProps> = ({
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Total Users</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Total Users</p>
               <p className="text-2xl font-bold text-blue-600 animate-on-scroll">
                 {/* formatNumber(systemStats.totalUsers) */}
               </p>
@@ -139,7 +139,7 @@ const Overview: React.FC<OverviewProps> = ({
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Active Users</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Active Users</p>
               <p className="text-2xl font-bold text-green-600 animate-on-scroll">
                 {/* {formatNumber(systemStats.activeUsers)} */}
               </p>
@@ -160,7 +160,7 @@ const Overview: React.FC<OverviewProps> = ({
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Total Clubs</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Total Clubs</p>
               <p className="text-2xl font-bold text-purple-600 animate-on-scroll">
                 {/* {formatNumber(systemStats.totalClubs)} */}
               </p>
@@ -181,7 +181,7 @@ const Overview: React.FC<OverviewProps> = ({
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Monthly Revenue</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Monthly Revenue</p>
               <p className="text-2xl font-bold text-green-600 animate-on-scroll">
                 {/* {formatCurrency(systemStats.monthlyRevenue)} */}
               </p>
@@ -202,7 +202,7 @@ const Overview: React.FC<OverviewProps> = ({
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">System Uptime</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">System Uptime</p>
               <p className="text-2xl font-bold text-blue-600 animate-on-scroll">
                 {/* {systemStats.systemUptime}% */}
               </p>
@@ -226,7 +226,7 @@ const Overview: React.FC<OverviewProps> = ({
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Total Courts</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Total Courts</p>
               <p className="text-2xl font-bold text-indigo-600 animate-on-scroll">
                 {/* {formatNumber(systemStats.totalCourts)} */}
               </p>
@@ -253,7 +253,7 @@ const Overview: React.FC<OverviewProps> = ({
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">
                 Total Tournaments
               </p>
               <p className="text-2xl font-bold text-orange-600 animate-on-scroll">
@@ -276,7 +276,7 @@ const Overview: React.FC<OverviewProps> = ({
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">
                 Pending Approvals
               </p>
               <p className="text-2xl font-bold text-yellow-600 animate-on-scroll">
@@ -299,7 +299,7 @@ const Overview: React.FC<OverviewProps> = ({
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">
                 Active Federations
               </p>
               <p className="text-2xl font-bold text-purple-600 animate-on-scroll">
@@ -322,7 +322,7 @@ const Overview: React.FC<OverviewProps> = ({
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Total States</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Total States</p>
               <p className="text-2xl font-bold text-red-600 animate-on-scroll">
                 {/* {systemStats.totalStates} */}
               </p>
@@ -424,8 +424,8 @@ const Overview: React.FC<OverviewProps> = ({
                     <p className="text-sm font-medium text-gray-900 animate-on-scroll">
                       {event.type}
                     </p>
-                    <p className="text-sm text-gray-600 animate-on-scroll">{event.description}</p>
-                    <div className="flex items-center space-x-4 mt-1 text-xs text-gray-500 animate-on-scroll">
+                    <p className="text-sm text-gray-300 animate-on-scroll">{event.description}</p>
+                    <div className="flex items-center space-x-4 mt-1 text-xs text-gray-300 animate-on-scroll">
                       <span className="animate-on-scroll">{event.timestamp}</span>
                       <span className="animate-on-scroll">•</span>
                       <span className="animate-on-scroll">{event.user}</span>
@@ -475,7 +475,7 @@ const Overview: React.FC<OverviewProps> = ({
                         {action.priority}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 animate-on-scroll">{action.description}</p>
+                    <p className="text-sm text-gray-300 animate-on-scroll">{action.description}</p>
                   </div>
                   <div className="text-right">
                     <div className="text-2xl font-bold text-blue-600 animate-on-scroll">

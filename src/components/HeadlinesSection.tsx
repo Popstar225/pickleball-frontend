@@ -72,7 +72,7 @@ const HeadlinesSection = () => {
           <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent mb-3 sm:mb-4 md:mb-5 lg:mb-6 px-2">
             {t('headlines.subtitle')}
           </h2>
-          <p className="text-slate-400 text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed px-4 sm:px-2 md:px-0">
+          <p className="text-slate-200 text-xs sm:text-sm md:text-base lg:text-lg leading-relaxed px-4 sm:px-2 md:px-0">
             {t('headlines.description')}
           </p>
         </div>

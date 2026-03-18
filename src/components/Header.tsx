@@ -58,37 +58,37 @@ const Header = () => {
     switch (user?.user_type) {
       case 'player':
         links.push(
-          { label: t('header.my_account'), href: '/players/account', icon: User },
+          { label: t('header.my_account'), href: '/players/dashboard/account', icon: User },
           { label: t('header.my_dashboard'), href: '/players/dashboard', icon: User },
         );
         break;
       case 'coach':
         links.push(
-          { label: t('header.my_account'), href: '/coach/account', icon: User },
+          { label: t('header.my_account'), href: '/coach/dashboard/account', icon: User },
           { label: t('header.my_dashboard'), href: '/coach/dashboard', icon: User },
         );
         break;
       case 'club':
         links.push(
-          { label: t('header.my_account'), href: '/clubs/account', icon: User },
+          { label: t('header.my_account'), href: '/clubs/dashboard/account', icon: User },
           { label: t('header.my_dashboard'), href: '/clubs/dashboard', icon: User },
         );
         break;
       case 'partner':
         links.push(
-          { label: t('header.my_account'), href: '/partner/account', icon: User },
+          { label: t('header.my_account'), href: '/partner/dashboard/account', icon: User },
           { label: t('header.my_dashboard'), href: '/partner/dashboard', icon: User },
         );
         break;
       case 'state':
         links.push(
-          { label: t('header.my_account'), href: '/state/account', icon: User },
+          { label: t('header.my_account'), href: '/state/dashboard/account', icon: User },
           { label: t('header.my_dashboard'), href: '/state/dashboard', icon: User },
         );
         break;
       case 'admin':
         links.push(
-          { label: t('header.my_account'), href: '/admin/account', icon: User },
+          { label: t('header.my_account'), href: '/admin/dashboard/account', icon: User },
           { label: t('header.my_dashboard'), href: '/admin/dashboard', icon: User },
         );
         break;
@@ -214,7 +214,7 @@ const Header = () => {
                   {userDropdownOpen && (
                     <div className="absolute top-full right-0 mt-1 bg-card border border-border rounded-lg shadow-xl py-2 min-w-[200px] z-50">
                       <div className="px-4 py-2 border-b border-border">
-                        <p className="text-xs text-slate-400">{t('header.account_type')}</p>
+                        <p className="text-xs text-slate-200">{t('header.account_type')}</p>
                         <p className="text-sm font-medium text-white capitalize">
                           {user?.user_type}
                         </p>
@@ -342,11 +342,11 @@ const Header = () => {
                 ) : (
                   <>
                     <div className="px-3 py-3 rounded-md bg-white/5 flex-1">
-                      <p className="text-xs text-slate-400 mb-1">{t('header.logged_in_as')}</p>
+                      <p className="text-xs text-slate-200 mb-1">{t('header.logged_in_as')}</p>
                       <p className="text-sm font-medium text-white">
                         {user?.username || 'Usuario'}
                       </p>
-                      <p className="text-xs text-slate-400 capitalize mt-1">{user?.user_type}</p>
+                      <p className="text-xs text-slate-200 capitalize mt-1">{user?.user_type}</p>
                     </div>
                     <div className="flex-1 space-y-1">
                       {getRoleBasedLinks().map((link) => (

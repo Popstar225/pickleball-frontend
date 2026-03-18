@@ -88,7 +88,7 @@ const Sessions: React.FC<SessionsProps> = ({ allSessions }) => {
                     <td className="py-3 px-4 font-medium">{session.title}</td>
                     <td className="py-3 px-4">
                       <div>{session.date}</div>
-                      <div className="text-sm text-gray-600">{session.time}</div>
+                      <div className="text-sm text-gray-300">{session.time}</div>
                     </td>
                     <td className="py-3 px-4">
                       <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getSessionTypeColor(session.type)}`}>

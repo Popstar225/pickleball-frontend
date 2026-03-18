@@ -181,17 +181,17 @@ export function MatchBatchRecorder({
               {/* Player 1 */}
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="font-semibold">{currentMatch.player1.name}</p>
-                <p className="text-xs text-gray-500">{currentMatch.player1.id.substring(0, 8)}</p>
+                <p className="text-xs text-gray-300">{currentMatch.player1.id.substring(0, 8)}</p>
               </div>
 
               <div className="text-center">
-                <p className="text-gray-500 font-bold">vs</p>
+                <p className="text-gray-300 font-bold">vs</p>
               </div>
 
               {/* Player 2 */}
               <div className="p-4 bg-red-50 rounded-lg border border-red-200">
                 <p className="font-semibold">{currentMatch.player2.name}</p>
-                <p className="text-xs text-gray-500">{currentMatch.player2.id.substring(0, 8)}</p>
+                <p className="text-xs text-gray-300">{currentMatch.player2.id.substring(0, 8)}</p>
               </div>
             </div>
 

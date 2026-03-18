@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
 import { fetchMyCoachCredential } from '@/store/slices/coachDashboardSlice';
@@ -24,13 +24,8 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-import Federation from '@/assets/images/international-federation.png';
-import MXFlag from '@/assets/images/flag/MX.png';
-import FederationLogo from '@/assets/images/Logos/Logo pickleball compressed.png';
-import IpfLogo from '@/assets/images/Logos/IPF.png';
-import conadeLogo from '@/assets/images/Logos/conade-logo.png';
-
-import { getFullImageUrl } from '@/common/tools';
+import { cn } from '@/lib/utils';
+import { CredentialHoloCard } from '@/components/credentials/CredentialHoloCard';
 
 /* ─── Keyframe-only styles (cannot be done in Tailwind) ─────── */
 const KEYFRAMES = `
@@ -140,243 +135,6 @@ const KEYFRAMES = `
   .spin { animation: spin 1s linear infinite; }
 `;
 
-/* ─── Holographic Card ──────────────────────────────────────── */
-function HoloCard({ credential }: { credential: any }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const onMove = (e: MouseEvent) => {
-      const r = el.getBoundingClientRect();
-      const dx = ((e.clientX - r.left) / r.width - 0.5) * 14;
-      const dy = ((e.clientY - r.top) / r.height - 0.5) * -9;
-      el.style.transform = `rotateY(${dx}deg) rotateX(${dy}deg)`;
-    };
-    const onLeave = () => {
-      el.style.transform = 'rotateY(0) rotateX(0)';
-    };
-    el.addEventListener('mousemove', onMove);
-    el.addEventListener('mouseleave', onLeave);
-    return () => {
-      el.removeEventListener('mousemove', onMove);
-      el.removeEventListener('mouseleave', onLeave);
-    };
-  }, []);
-
-  const isActive = credential.affiliation_status === 'active';
-  const statusColor = isActive ? '#00e676' : '#f44336';
-  const statusBg = isActive
-    ? 'linear-gradient(90deg,#1a5c2a,#236b33,#1a5c2a)'
-    : 'linear-gradient(90deg,#5c1a1a,#6b2323,#5c1a1a)';
-  const statusText = isActive ? 'CERTIFICADO ACTIVO' : 'INACTIVO';
-
-  return (
-    <div
-      ref={ref}
-      className="holo-card relative w-full max-w-[340px] rounded-[22px] overflow-hidden cursor-default transition-[transform,box-shadow] duration-200"
-      style={{
-        background: 'linear-gradient(160deg, #071a0e 0%, #0c2417 55%, #071308 100%)',
-        border: '1px solid rgba(0,230,118,0.2)',
-        boxShadow:
-          '0 0 0 1px rgba(0,230,118,0.04), 0 28px 70px rgba(0,0,0,0.75), 0 0 70px rgba(0,230,118,0.07)',
-      }}
-    >
-      <div className="holo-shimmer" />
-      <div className="card-topbar" />
-
-      {/* 1. Federation header */}
-      <div
-        className="fed-header-hatch relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #1a5c2a 0%, #236b33 45%, #1a5c2a 100%)' }}
-      >
-        <div className="relative z-10 flex flex-col items-center gap-1.5 px-4 pt-3.5 pb-2.5">
-          <div className="flex items-center justify-center gap-2.5">
-            <div className="w-11 h-11 rounded-full bg-black/25 border border-white/30 flex items-center justify-center text-[22px] shadow-md">
-              🏆
-            </div>
-            <div
-              className="font-bebas text-base text-center text-white leading-[1.1]"
-              style={{ letterSpacing: '3px', textShadow: '0 1px 4px rgba(0,0,0,0.5)' }}
-            >
-              LICENCIA DE
-              <br />
-              ENTRENADOR
-              <br />
-              CERTIFICADO
-            </div>
-            <div className="w-11 h-11 rounded-full bg-black/25 border border-white/30 flex items-center justify-center text-[22px] shadow-md">
-              🏆
-            </div>
-          </div>
-          <div
-            className="font-bebas text-[#1a5c2a] bg-white text-[13px] px-5 py-1 rounded-sm shadow-md"
-            style={{ letterSpacing: '5px' }}
-          >
-            CIUDAD DE MÉXICO
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Photo zone */}
-      <div className="relative h-[210px] overflow-hidden">
-        <img
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: 'brightness(0.45) saturate(0.8)' }}
-          src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=500&q=70"
-          alt=""
-        />
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(180deg, #0d3020 0%, #041008 100%)' }}
-        />
-        {/* Grid overlay */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(0,230,118,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,230,118,0.04) 1px, transparent 1px)',
-            backgroundSize: '26px 26px',
-          }}
-        />
-        {/* Role label */}
-        <div
-          className="font-outfit absolute top-3 left-0 right-0 text-center text-[9px] font-bold text-white/70 uppercase"
-          style={{ letterSpacing: '5px', textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}
-        >
-          ENTRENADOR REGISTRADO
-        </div>
-        {/* Photo ring */}
-        <div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[110px] h-[110px] rounded-xl overflow-hidden flex items-center justify-center text-[48px]"
-          style={{
-            border: '2.5px solid rgba(255,255,255,0.85)',
-            background: '#1a3a22',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.6), 0 0 0 5px rgba(255,255,255,0.07)',
-          }}
-        >
-          {credential?.user?.profile_photo ? (
-            <img
-              src={getFullImageUrl(credential.user.profile_photo)}
-              alt="coach"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            '👨‍🏫'
-          )}
-        </div>
-        {/* Name overlay */}
-        <div
-          className="absolute bottom-0 left-0 right-0 text-center pb-2.5 pt-8 px-3.5"
-          style={{
-            background:
-              'linear-gradient(0deg, rgba(6,30,14,0.96) 0%, rgba(6,30,14,0.7) 60%, transparent 100%)',
-          }}
-        >
-          <div
-            className="font-bebas text-base text-white"
-            style={{ letterSpacing: '2px', textShadow: '0 1px 6px rgba(0,0,0,0.8)' }}
-          >
-            {credential.coach_name}
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Status band */}
-      <div
-        className="font-bebas flex items-center justify-center gap-2 px-3 py-[7px] text-base text-white"
-        style={{ background: statusBg, letterSpacing: '6px' }}
-      >
-        <span
-          className="status-dot w-[7px] h-[7px] rounded-full"
-          style={{ background: statusColor }}
-        />
-        {statusText}
-      </div>
-
-      {/* 4. Credential ID */}
-      <div
-        className="font-jetbrains text-center py-[7px] px-3.5 text-[rgba(200,230,210,0.8)] text-[14px]"
-        style={{
-          background: '#0d1f13',
-          letterSpacing: '4px',
-          borderTop: '1px solid rgba(0,230,118,0.08)',
-          borderBottom: '1px solid rgba(0,230,118,0.08)',
-        }}
-      >
-        {credential.credential_number || credential.id}
-      </div>
-
-      {/* 5. Logos row */}
-      <div
-        className="flex items-center justify-around px-5 py-3"
-        style={{
-          background: 'rgba(255,255,255,0.97)',
-          borderTop: '1px solid rgba(0,0,0,0.06)',
-          borderBottom: '1px solid rgba(0,0,0,0.06)',
-        }}
-      >
-        <img src={IpfLogo} alt="IPF" className="w-[50px] h-[50px] object-contain" />
-        <img src={FederationLogo || Federation} alt="Federation" className="w-20 h-[50px]" />
-        <img src={conadeLogo} alt="CONADE" className="w-[50px] h-[50px] object-contain" />
-      </div>
-
-      {/* 6. State band */}
-      <div
-        className="font-bebas text-center py-2 px-3.5 text-base text-white"
-        style={{
-          background: 'linear-gradient(90deg, #1a5c2a, #236b33, #1a5c2a)',
-          letterSpacing: '6px',
-        }}
-      >
-        {credential.state_affiliation || 'N/A'}
-      </div>
-
-      {/* 7. QR section */}
-      <div className="bg-white flex flex-col items-center gap-3 px-5 pt-4 pb-3">
-        <div className="flex flex-col items-center gap-2">
-          <div className="p-2 bg-white border-2 border-[#e0e0e0] rounded-lg shadow-md">
-            {credential.qr_code_url ? (
-              <img
-                src={getFullImageUrl(credential.qr_code_url)}
-                alt="QR Code"
-                className="block w-[250px] h-[250px]"
-              />
-            ) : (
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${credential.verification_code}&margin=4&color=000000&bgcolor=ffffff`}
-                alt="QR Code"
-                className="block w-[250px] h-[250px]"
-              />
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* 8. NRTP band */}
-      <div
-        className="font-bebas text-center py-2.5 px-3.5 text-[18px] text-white"
-        style={{
-          background: 'linear-gradient(90deg,#1b5e20,#2e7d32,#1b5e20)',
-          letterSpacing: '5px',
-        }}
-      >
-        NRTP: {credential.nrtp_level || 'Level 3'}
-      </div>
-
-      {/* 9. Flag footer */}
-      <div
-        className="bg-white flex items-center justify-center gap-2 px-3.5 py-2.5"
-        style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}
-      >
-        <img src={MXFlag} alt="México" style={{ height: 32, width: 'auto' }} />
-      </div>
-
-      <div className="card-bottombar" />
-    </div>
-  );
-}
-
 /* ─── Shared panel wrapper ──────────────────────────────────── */
 function Panel({
   delay = 'd1',
@@ -468,7 +226,7 @@ function BItem({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
 /* ─── Main Page ─────────────────────────────────────────────── */
 export default function CoachCredentialsPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { myCredential, myCredentialLoading, myCredentialError } = useSelector(
+  const { myCredential, myCredentialError } = useSelector(
     (state: RootState) => state.coachDashboard,
   );
   const [isRenewing, setIsRenewing] = useState(false);
@@ -676,7 +434,7 @@ export default function CoachCredentialsPage() {
         <div className="grid gap-8 items-start" style={{ gridTemplateColumns: '340px 1fr' }}>
           {/* LEFT */}
           <div className="flex flex-col gap-4">
-            <HoloCard credential={myCredential} />
+            <CredentialHoloCard credential={myCredential} />
 
             {/* Vigencia */}
             <Panel delay="d1">

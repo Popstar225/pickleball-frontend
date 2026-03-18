@@ -130,8 +130,15 @@ export default function StorePage() {
       <header className="sticky top-0 z-50 bg-[#080810]/96 backdrop-blur-xl border-b border-white/[0.06]">
         <div className="max-w-[1400px] mx-auto px-6 h-[58px] flex items-center justify-between gap-6">
 
-          {/* Logo */}
+          {/* Logo + back link */}
           <div className="flex items-center gap-3 flex-shrink-0">
+            <button
+              onClick={() => navigate('/')}
+              className="flex items-center gap-1 text-white/40 hover:text-white text-[12px] font-medium transition-colors pr-3 border-r border-white/[0.08]"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Inicio</span>
+            </button>
             <div className="w-7 h-7 rounded-lg bg-[#C8FF00] flex items-center justify-center">
               <ShoppingBag className="w-3.5 h-3.5 text-black" strokeWidth={2.5} />
             </div>

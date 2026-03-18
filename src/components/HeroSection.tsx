@@ -15,7 +15,7 @@ const HeroSection = () => {
 
   const handleJoin = () => navigate('/register');
 
-  const handleLearnMore = () => navigate('/about/benefts');
+  const handleLearnMore = () => navigate('/about/benefits');
 
   const handleToggleMute = () => {
     setIsMuted(!isMuted);

@@ -118,7 +118,7 @@ const SingleEliminationBracket: React.FC<SingleEliminationBracketProps> = ({
             <Trophy className="h-5 w-5 text-yellow-500" />
             Single Elimination Bracket
           </CardTitle>
-          <CardDescription className="text-slate-400">{eventName}</CardDescription>
+          <CardDescription className="text-slate-200">{eventName}</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -138,9 +138,9 @@ const SingleEliminationBracket: React.FC<SingleEliminationBracketProps> = ({
 
               return (
                 <div key={roundNumber} className="min-w-max">
-                  <h3 className="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wide">
+                  <h3 className="text-sm font-semibold text-slate-200 mb-3 uppercase tracking-wide">
                     {roundName}
-                    <span className="text-slate-600 ml-2">
+                    <span className="text-slate-300 ml-2">
                       ({roundMatches.length} match{roundMatches.length !== 1 ? 'es' : ''})
                     </span>
                   </h3>
@@ -157,14 +157,14 @@ const SingleEliminationBracket: React.FC<SingleEliminationBracketProps> = ({
                       >
                         {/* Match Header */}
                         <div className="flex items-center justify-between mb-3">
-                          <span className="text-xs text-slate-500">Match {match.matchNumber}</span>
+                          <span className="text-xs text-slate-300">Match {match.matchNumber}</span>
                           <span
                             className={`text-xs px-2 py-1 rounded-full ${
                               match.status === 'played'
                                 ? 'bg-green-500/20 text-green-400'
                                 : match.status === 'walkover'
                                   ? 'bg-amber-500/20 text-amber-400'
-                                  : 'bg-slate-700/50 text-slate-400'
+                                  : 'bg-slate-700/50 text-slate-200'
                             }`}
                           >
                             {match.status === 'played'
@@ -186,7 +186,7 @@ const SingleEliminationBracket: React.FC<SingleEliminationBracketProps> = ({
                               }`}
                             >
                               <div className="flex items-center gap-2">
-                                <span className="text-xs text-slate-500">
+                                <span className="text-xs text-slate-300">
                                   #{match.player1.seed}
                                 </span>
                                 <span
@@ -221,14 +221,14 @@ const SingleEliminationBracket: React.FC<SingleEliminationBracketProps> = ({
                             </div>
                           </div>
                         ) : (
-                          <div className="mb-2 p-2 bg-slate-700/20 rounded text-xs text-slate-500 italic">
+                          <div className="mb-2 p-2 bg-slate-700/20 rounded text-xs text-slate-300 italic">
                             TBD / Bye
                           </div>
                         )}
 
                         {/* vs */}
                         <div className="text-center my-1">
-                          <span className="text-xs text-slate-600">vs</span>
+                          <span className="text-xs text-slate-300">vs</span>
                         </div>
 
                         {/* Player 2 */}
@@ -242,7 +242,7 @@ const SingleEliminationBracket: React.FC<SingleEliminationBracketProps> = ({
                               }`}
                             >
                               <div className="flex items-center gap-2">
-                                <span className="text-xs text-slate-500">
+                                <span className="text-xs text-slate-300">
                                   #{match.player2.seed}
                                 </span>
                                 <span
@@ -277,14 +277,14 @@ const SingleEliminationBracket: React.FC<SingleEliminationBracketProps> = ({
                             </div>
                           </div>
                         ) : (
-                          <div className="mb-3 p-2 bg-slate-700/20 rounded text-xs text-slate-500 italic">
+                          <div className="mb-3 p-2 bg-slate-700/20 rounded text-xs text-slate-300 italic">
                             TBD / Bye
                           </div>
                         )}
 
                         {/* Score Display */}
                         {match.status === 'played' && match.score && (
-                          <div className="text-xs text-slate-400 p-2 bg-slate-700/20 rounded">
+                          <div className="text-xs text-slate-200 p-2 bg-slate-700/20 rounded">
                             Score: {match.score}
                           </div>
                         )}
@@ -297,13 +297,13 @@ const SingleEliminationBracket: React.FC<SingleEliminationBracketProps> = ({
           </div>
 
           {/* Legend */}
-          <div className="mt-8 pt-6 border-t border-slate-700 space-y-2 text-xs text-slate-500">
+          <div className="mt-8 pt-6 border-t border-slate-700 space-y-2 text-xs text-slate-300">
             <p>
               <span className="inline-block w-3 h-3 bg-green-500/20 border border-green-500 rounded mr-2"></span>
               Bye: Player automatically advances (receives free pass)
             </p>
             <p>
-              <span className="text-slate-600">👤</span>
+              <span className="text-slate-300">👤</span>
               TBD: Match not yet determined (depends on previous round)
             </p>
             <p>

@@ -13,7 +13,7 @@ import { fetchMyDigitalCredential } from '@/store/slices/digitalCredentialsSlice
 import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
 import { getFullImageUrl } from '@/common/tools';
 import {
-  User, Activity, Shield, Mail, Phone, Calendar, MapPin,
+  User, Activity, Shield, Mail, Phone, Calendar, MapPin, Globe,
   Edit, Save, X, Trash2, Camera, Upload, Trophy, Star,
   Swords, Bell, Loader2, AlertTriangle, Check, ChevronDown,
 } from 'lucide-react';
@@ -44,7 +44,7 @@ const inputCls =
 const selectCls =
   `${inputCls} appearance-none pr-8 cursor-pointer`;
 
-const labelCls = 'block text-[10px] font-bold uppercase tracking-widest text-white/60 mb-1.5';
+const labelCls = 'block text-[10px] font-bold uppercase tracking-widest text-white mb-1.5';
 
 // ─── Atoms ────────────────────────────────────────────────────────────────────
 function SectionHeading({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) {
@@ -53,7 +53,7 @@ function SectionHeading({ icon: Icon, children }: { icon: React.ElementType; chi
       <div className="w-6 h-6 rounded-md bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center flex-shrink-0">
         <Icon className="w-3 h-3 text-[#ace600]" />
       </div>
-      <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/60">{children}</span>
+      <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-white">{children}</span>
       <div className="flex-1 h-px bg-white/[0.05]" />
     </div>
   );
@@ -71,8 +71,8 @@ function InfoRow({ icon: Icon, label, value, editing, type = 'text', onChange, d
           onChange={e => onChange?.(e.target.value)} disabled={disabled} />
       ) : (
         <div className="flex items-center gap-2.5 h-10 px-0">
-          <Icon className="w-3.5 h-3.5 text-white/88 flex-shrink-0" />
-          <span className="text-sm text-white/65">{value || <span className="text-white/50 italic">—</span>}</span>
+          <Icon className="w-3.5 h-3.5 text-white flex-shrink-0" />
+          <span className="text-sm text-white">{value || <span className="text-white italic">—</span>}</span>
         </div>
       )}
     </div>
@@ -84,8 +84,8 @@ function Toggle({ label, desc, defaultChecked }: { label: string; desc: string; 
   return (
     <div className="flex items-center justify-between py-3.5 border-b border-white/[0.04] last:border-0">
       <div>
-        <p className="text-sm font-medium text-white/88">{label}</p>
-        <p className="text-[11px] text-white/60 mt-0.5">{desc}</p>
+        <p className="text-sm font-medium text-white">{label}</p>
+        <p className="text-[11px] text-white mt-0.5">{desc}</p>
       </div>
       <button onClick={() => setOn(v => !v)} type="button"
         className="relative shrink-0 rounded-full transition-all duration-200 focus:outline-none"
@@ -115,9 +115,9 @@ export default function PlayerAccountPage() {
   const [form, setForm] = useState({
     id: '', fullName: '', dateOfBirth: '', age: 0, gender: '', state: '',
     curp: '', ineOrPassport: '', nrtpLevel: 'Intermedio', email: '', phone: '',
-    profilePhoto: '', username: '', membershipStatus: '', city: '', bio: '',
-    emergencyContact: '', medicalInfo: '', joinedDate: '', lastActive: '',
-    totalTournaments: 0, ranking: null as any, currentClub: null as any,
+    profilePhoto: '', username: '', membershipStatus: '', city: '', address: '',
+    website: '', bio: '', emergencyContact: '', medicalInfo: '', joinedDate: '',
+    lastActive: '', totalTournaments: 0, ranking: null as any, currentClub: null as any,
   });
 
   useEffect(() => { dispatch(fetchPlayerProfile()); }, [dispatch]);
@@ -133,6 +133,7 @@ export default function PlayerAccountPage() {
         email: profile.email || '', phone: profile.phone || '',
         profilePhoto: profile.profilePhoto || '', username: profile.username || '',
         membershipStatus: profile.membershipStatus || '', city: profile.city || '',
+        address: profile.address || '', website: profile.website || '',
         bio: profile.bio || '', emergencyContact: profile.emergencyContact || '',
         medicalInfo: profile.medicalInfo || '', joinedDate: profile.joinedDate || '',
         lastActive: profile.lastActive || '', totalTournaments: profile.totalTournaments || 0,
@@ -152,7 +153,8 @@ export default function PlayerAccountPage() {
         age: form.age, gender: form.gender, state: form.state, curp: form.curp,
         ine_passport_file: form.ineOrPassport, skill_level: form.nrtpLevel,
         email: form.email, phone: form.phone, username: form.username,
-        city: form.city, bio: form.bio, emergency_contact: form.emergencyContact,
+        city: form.city, address: form.address, website: form.website,
+        bio: form.bio, emergency_contact: form.emergencyContact,
         medical_info: form.medicalInfo,
       };
       Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') fd.append(k, v as any); });
@@ -176,7 +178,8 @@ export default function PlayerAccountPage() {
         ineOrPassport: profile.ineOrPassport || '', nrtpLevel: profile.nrtpLevel || 'Intermedio',
         email: profile.email || '', phone: profile.phone || '', profilePhoto: profile.profilePhoto || '',
         username: profile.username || '', membershipStatus: profile.membershipStatus || '',
-        city: profile.city || '', bio: profile.bio || '', emergencyContact: profile.emergencyContact || '',
+        city: profile.city || '', address: profile.address || '', website: profile.website || '',
+        bio: profile.bio || '', emergencyContact: profile.emergencyContact || '',
         medicalInfo: profile.medicalInfo || '', joinedDate: profile.joinedDate || '',
         lastActive: profile.lastActive || '', totalTournaments: profile.totalTournaments || 0,
         ranking: profile.ranking || null, currentClub: profile.currentClub || null,
@@ -224,7 +227,7 @@ export default function PlayerAccountPage() {
     return (
       <div className="flex flex-col items-center justify-center h-96 gap-3">
         <Loader2 className="w-6 h-6 text-[#ace600] animate-spin" />
-        <p className="text-xs text-white/88">Cargando perfil…</p>
+        <p className="text-xs text-white">Cargando perfil…</p>
       </div>
     );
   }
@@ -263,7 +266,7 @@ export default function PlayerAccountPage() {
                 }
               </div>
               <button onClick={() => fileRef.current?.click()}
-                className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-[#0d1117] border border-white/[0.1] flex items-center justify-center text-white/65 hover:text-[#ace600] transition-colors">
+                className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-[#0d1117] border border-white/[0.1] flex items-center justify-center text-white hover:text-[#ace600] transition-colors">
                 {selectedFile ? <Upload className="w-3 h-3" /> : <Camera className="w-3 h-3" />}
               </button>
               {selectedFile && (
@@ -283,13 +286,13 @@ export default function PlayerAccountPage() {
                   {form.membershipStatus || 'Activo'}
                 </span>
               </div>
-              <p className="text-xs text-white/60 mb-2">@{form.username || '—'}</p>
+              <p className="text-xs text-white mb-2">@{form.username || '—'}</p>
               <div className="flex flex-wrap gap-1.5">
                 <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#ace600]/10 border border-[#ace600]/20 text-[#ace600]">
                   <Star className="w-2.5 h-2.5" /> {skillLabel(form.nrtpLevel)}
                 </span>
                 {form.joinedDate && (
-                  <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.07] text-white/60">
+                  <span className="inline-flex items-center gap-1.5 text-[11px] px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.07] text-white">
                     <Calendar className="w-2.5 h-2.5" /> Desde {new Date(form.joinedDate).getFullYear()}
                   </span>
                 )}
@@ -301,18 +304,21 @@ export default function PlayerAccountPage() {
           <div className="flex gap-2 pb-0.5">
             {!isEditing ? (
               <button onClick={() => setIsEditing(true)}
-                className="flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/50 hover:text-white text-xs font-semibold transition-all">
+                className="flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white hover:text-white text-xs font-semibold transition-all">
                 <Edit className="w-3.5 h-3.5" /> Editar Perfil
               </button>
             ) : (
               <>
                 <button onClick={handleSave} disabled={profileLoading}
                   className="flex items-center gap-1.5 h-8 px-4 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black text-xs font-bold transition-all disabled:opacity-50 shadow-[0_0_14px_rgba(172,230,0,0.2)]">
-                  {profileLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-                  {profileLoading ? 'Guardando…' : 'Guardar'}
+                  {profileLoading
+                    ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    : <Check className="w-3.5 h-3.5" />
+                  }
+                  <span>{profileLoading ? 'Guardando…' : 'Guardar'}</span>
                 </button>
                 <button onClick={handleCancel} disabled={profileLoading}
-                  className="flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-white/[0.08] text-white/65 hover:text-white text-xs font-semibold transition-all">
+                  className="flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-white/[0.08] text-white hover:text-white text-xs font-semibold transition-all">
                   <X className="w-3.5 h-3.5" /> Cancelar
                 </button>
               </>
@@ -333,7 +339,7 @@ export default function PlayerAccountPage() {
             { label: 'Último Login', value: form.lastActive ? new Date(form.lastActive).toLocaleDateString('es-MX') : '—' },
           ].map(({ label, value }) => (
             <div key={label} className="px-5 py-3.5">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/88 mb-1">{label}</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white mb-1">{label}</p>
               <p className="text-sm font-bold text-[#ace600] truncate">{value}</p>
             </div>
           ))}
@@ -347,7 +353,7 @@ export default function PlayerAccountPage() {
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
               activeTab === id
                 ? 'bg-[#ace600] text-black'
-                : 'text-white/65 hover:text-white hover:bg-white/[0.04]'
+                : 'text-white hover:text-white hover:bg-white/[0.04]'
             }`}>
             <Icon className="w-3.5 h-3.5" />
             {label}
@@ -369,8 +375,8 @@ export default function PlayerAccountPage() {
                 ? <textarea className={`${inputCls} h-auto py-2.5 resize-none`} rows={4}
                     value={form.bio} onChange={e => set('bio', e.target.value)}
                     placeholder="Cuéntanos sobre ti…" disabled={profileLoading} />
-                : <p className="text-sm text-white/50 leading-relaxed">
-                    {form.bio || <span className="text-white/50 italic">Sin biografía aún.</span>}
+                : <p className="text-sm text-white leading-relaxed">
+                    {form.bio || <span className="text-white italic">Sin biografía aún.</span>}
                   </p>
               }
             </div>
@@ -413,7 +419,7 @@ export default function PlayerAccountPage() {
                       <option key={value} value={value} className="bg-[#0d1117] text-white">{label}</option>
                     ))}
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/88 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white pointer-events-none" />
                 </div>
               </div>
 
@@ -426,9 +432,8 @@ export default function PlayerAccountPage() {
                     <option value="">Seleccionar…</option>
                     <option value="male">Masculino</option>
                     <option value="female">Femenino</option>
-                    <option value="other">Otro</option>
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/88 pointer-events-none" />
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white pointer-events-none" />
                 </div>
               </div>
 
@@ -441,13 +446,37 @@ export default function PlayerAccountPage() {
                   placeholder="Selecciona estado…"
                 />
               </div>
+
+              <div>
+                <label className={labelCls}>Municipio o Alcaldía</label>
+                <input className={inputCls} type="text" value={form.city}
+                  onChange={e => set('city', e.target.value)}
+                  disabled={!isEditing || profileLoading} placeholder="Tu municipio o alcaldía" />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className={labelCls}>Dirección</label>
+                <input className={inputCls} type="text" value={form.address}
+                  onChange={e => set('address', e.target.value)}
+                  disabled={!isEditing || profileLoading} placeholder="Calle, número, colonia…" />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className={labelCls}>Sitio Web</label>
+                <div className="relative">
+                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white pointer-events-none" />
+                  <input className={`${inputCls} pl-8`} type="url" value={form.website}
+                    onChange={e => set('website', e.target.value)}
+                    disabled={!isEditing || profileLoading} placeholder="https://…" />
+                </div>
+              </div>
             </div>
 
             <div className="h-px bg-white/[0.05]" />
 
             {/* Emergency section */}
             <div className="space-y-4">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/88">Información de Emergencia</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white">Información de Emergencia</p>
 
               <div>
                 <label className={labelCls}>CURP</label>
@@ -506,7 +535,7 @@ export default function PlayerAccountPage() {
                 <div className="w-7 h-7 rounded-lg bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center mb-3">
                   <Icon className="w-3.5 h-3.5 text-[#ace600]" />
                 </div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-white/88 mb-1">{label}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white mb-1">{label}</p>
                 <p className="text-lg font-bold text-[#ace600]">{value}</p>
               </div>
             ))}
@@ -515,8 +544,8 @@ export default function PlayerAccountPage() {
           <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
             <div className="px-5 py-4 border-b border-white/[0.05]">
               <div className="flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-white/88" />
-                <span className="text-sm font-semibold text-white/60">Detalles de Membresía</span>
+                <Trophy className="w-4 h-4 text-white" />
+                <span className="text-sm font-semibold text-white">Detalles de Membresía</span>
               </div>
             </div>
             <div className="divide-y divide-white/[0.04]">
@@ -528,10 +557,10 @@ export default function PlayerAccountPage() {
                 { label: 'Torneos Totales',     value: String(form.totalTournaments), badge: false },
               ].map(({ label, value, badge }) => (
                 <div key={label} className="flex items-center justify-between px-5 py-3.5">
-                  <span className="text-sm text-white/65">{label}</span>
+                  <span className="text-sm text-white">{label}</span>
                   {badge
                     ? <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#ace600]/10 border border-[#ace600]/20 text-[#ace600]">{value}</span>
-                    : <span className="text-sm font-semibold text-white/85">{value}</span>
+                    : <span className="text-sm font-semibold text-white">{value}</span>
                   }
                 </div>
               ))}
@@ -557,7 +586,7 @@ export default function PlayerAccountPage() {
                     <option key={value} value={value} className="bg-[#0d1117] text-white">{label}</option>
                   ))}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/88 pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white pointer-events-none" />
               </div>
             </div>
 
@@ -567,13 +596,13 @@ export default function PlayerAccountPage() {
                 <select className={`${selectCls} opacity-40 cursor-not-allowed`} disabled>
                   {['Ambas', 'Derecha', 'Izquierda'].map(g => <option key={g}>{g}</option>)}
                 </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/88 pointer-events-none" />
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white pointer-events-none" />
               </div>
-              <p className="mt-1 text-[10px] text-white/50">Próximamente disponible</p>
+              <p className="mt-1 text-[10px] text-white">Próximamente disponible</p>
             </div>
 
             {!isEditing && (
-              <p className="text-[11px] text-white/88">Haz clic en "Editar Perfil" para modificar estas preferencias.</p>
+              <p className="text-[11px] text-white">Haz clic en "Editar Perfil" para modificar estas preferencias.</p>
             )}
           </div>
 
@@ -610,13 +639,13 @@ export default function PlayerAccountPage() {
                 <Trash2 className="w-5 h-5 text-red-400" />
               </div>
               <h2 className="text-base font-bold text-white mb-1">¿Eliminar cuenta?</h2>
-              <p className="text-sm text-white/65 leading-relaxed">
+              <p className="text-sm text-white leading-relaxed">
                 Esta acción no se puede deshacer. Se eliminarán permanentemente tu cuenta y todos los datos asociados.
               </p>
             </div>
             <div className="flex gap-2.5 px-6 pb-6">
               <button onClick={() => setShowDelete(false)}
-                className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 hover:text-white text-sm font-semibold transition-all">
+                className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white hover:text-white text-sm font-semibold transition-all">
                 Cancelar
               </button>
               <button onClick={handleDeleteAccount}

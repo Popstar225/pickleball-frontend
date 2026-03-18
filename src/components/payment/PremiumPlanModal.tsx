@@ -133,7 +133,7 @@ export const PremiumPlanModal = ({
           <div className="space-y-4">
             <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="font-semibold">Plan Premium - ${fee.toLocaleString()} MXN/año</p>
-              <p className="text-sm text-gray-600">Gestión de Canchas + Creación de Torneos</p>
+              <p className="text-sm text-gray-300">Gestión de Canchas + Creación de Torneos</p>
             </div>
             <Elements
               stripe={stripePromise}
@@ -166,7 +166,7 @@ export const PremiumPlanModal = ({
               </Badge>
               <div className="flex items-baseline justify-center gap-1">
                 <span className="text-4xl font-bold">${fee.toLocaleString()}</span>
-                <span className="text-gray-500">MXN/año</span>
+                <span className="text-gray-300">MXN/año</span>
               </div>
             </div>
 
@@ -180,7 +180,7 @@ export const PremiumPlanModal = ({
                   </div>
                   <div>
                     <p className="font-medium">{feature.title}</p>
-                    <p className="text-sm text-gray-600">{feature.description}</p>
+                    <p className="text-sm text-gray-300">{feature.description}</p>
                   </div>
                   <Check className="w-4 h-4 text-green-600 mt-1 ml-auto flex-shrink-0" />
                 </div>

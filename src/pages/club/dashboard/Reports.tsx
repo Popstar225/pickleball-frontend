@@ -394,9 +394,9 @@ const Reports: React.FC = () => {
       'members': <Users className="h-5 w-5 text-purple-500" />,
       'tournaments': <Calendar className="h-5 w-5 text-orange-500" />,
       'invoices': <FileText className="h-5 w-5 text-red-500" />,
-      'custom': <Settings className="h-5 w-5 text-gray-500" />
+      'custom': <Settings className="h-5 w-5 text-gray-300" />
     };
-    return icons[type] || <BarChart3 className="h-5 w-5 text-gray-500" />;
+    return icons[type] || <BarChart3 className="h-5 w-5 text-gray-300" />;
   };
 
   const getReportDescription = (type: string) => {
@@ -421,19 +421,19 @@ const Reports: React.FC = () => {
               <BarChart3 className="h-6 w-6 text-purple-500" />
               <span>Reports & Analytics</span>
             </h2>
-            <p className="text-gray-600 mt-1">Generate comprehensive business reports and analytics</p>
+            <p className="text-gray-300 mt-1">Generate comprehensive business reports and analytics</p>
           </div>
           
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <CalendarDays className="h-4 w-4 text-gray-500" />
+              <CalendarDays className="h-4 w-4 text-gray-300" />
               <input
                 type="date"
                 value={dateRange.startDate}
                 onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
                 className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <span className="text-gray-500">to</span>
+              <span className="text-gray-300">to</span>
               <input
                 type="date"
                 value={dateRange.endDate}
@@ -453,7 +453,7 @@ const Reports: React.FC = () => {
                   endDate: endDate.toISOString().split('T')[0]
                 });
               }}
-              className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 flex items-center space-x-1"
+              className="px-3 py-2 text-sm text-gray-300 hover:text-gray-800 flex items-center space-x-1"
             >
               <RefreshCw className="h-4 w-4" />
               <span>Reset</span>
@@ -473,7 +473,7 @@ const Reports: React.FC = () => {
             </h4>
           </div>
           <div className="px-4 py-4">
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-300 mb-4">
               {getReportDescription('court-usage')}
             </p>
             <button 
@@ -500,7 +500,7 @@ const Reports: React.FC = () => {
             </h4>
           </div>
           <div className="px-4 py-4">
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-300 mb-4">
               {getReportDescription('financial')}
             </p>
             <button 
@@ -527,7 +527,7 @@ const Reports: React.FC = () => {
             </h4>
           </div>
           <div className="px-4 py-4">
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-300 mb-4">
               {getReportDescription('members')}
             </p>
             <button 
@@ -554,7 +554,7 @@ const Reports: React.FC = () => {
             </h4>
           </div>
           <div className="px-4 py-4">
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-300 mb-4">
               {getReportDescription('tournaments')}
             </p>
             <button 
@@ -581,7 +581,7 @@ const Reports: React.FC = () => {
             </h4>
           </div>
           <div className="px-4 py-4">
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-300 mb-4">
               {getReportDescription('invoices')}
             </p>
             <button 
@@ -608,7 +608,7 @@ const Reports: React.FC = () => {
             </h4>
           </div>
           <div className="px-4 py-4">
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-gray-300 mb-4">
               {getReportDescription('custom')}
             </p>
             <button 
@@ -642,11 +642,11 @@ const Reports: React.FC = () => {
                       <Download className="h-4 w-4" />
                     </button>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-300">
                     Generated on {new Date().toLocaleDateString()}
                   </p>
                   {data && (
-                    <div className="mt-2 text-xs text-gray-500">
+                    <div className="mt-2 text-xs text-gray-300">
                       {type === 'court-usage' && data.court_stats && (
                         <span>{data.court_stats.length} courts analyzed</span>
                       )}

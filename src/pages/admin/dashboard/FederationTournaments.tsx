@@ -249,7 +249,7 @@ export default function FederationTournamentManagementPage() {
           <Button
             size="sm"
             disabled
-            className="h-9 rounded-xl bg-slate-600 text-slate-400 font-bold cursor-not-allowed"
+            className="h-9 rounded-xl bg-slate-600 text-slate-200 font-bold cursor-not-allowed"
           >
             <Plus className="w-3.5 h-3.5 mr-1.5" /> Nuevo Torneo
           </Button>

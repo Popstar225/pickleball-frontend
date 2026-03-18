@@ -156,10 +156,10 @@ const ShowcaseDetail = () => {
           </Link>
           <div className="flex gap-1.5 sm:gap-2">
             <button className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
-              <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
+              <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-200" />
             </button>
             <button className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
-              <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400" />
+              <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-200" />
             </button>
           </div>
         </div>
@@ -457,7 +457,7 @@ const ShowcaseDetail = () => {
                   <div className="relative z-10 flex flex-col gap-6 sm:gap-8">
                     {/* Top section - info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5 sm:gap-2 text-slate-400 mb-3 sm:mb-4">
+                      <div className="flex items-center gap-1.5 sm:gap-2 text-slate-200 mb-3 sm:mb-4">
                         <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#a3ff47]" />
                         <span className="text-xs sm:text-sm font-medium">
                           {formatDate(player.publishedAt)}
@@ -569,10 +569,10 @@ const ShowcaseDetail = () => {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-white/25 text-xs">Compartir:</span>
                   <button className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-white/5 border border-white/8 flex items-center justify-center hover:bg-white/10 hover:border-[#a3ff47]/25 transition-colors">
-                    <Share2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400" />
+                    <Share2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-200" />
                   </button>
                   <button className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-white/5 border border-white/8 flex items-center justify-center hover:bg-white/10 hover:border-[#a3ff47]/25 transition-colors">
-                    <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400" />
+                    <Heart className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-200" />
                   </button>
                   <span className="text-white/20 text-xs ml-2 hidden sm:inline">
                     {formatDate(player.publishedAt)}

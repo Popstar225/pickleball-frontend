@@ -120,7 +120,7 @@ const BoardOfDirectors = () => {
               {socialIcons.slice(0, screenWidth < 640 ? 4 : 8).map(({ Icon, color, title }) => (
                 <button
                   key={title}
-                  className={`rounded-lg bg-slate-800/50 backdrop-blur-sm border border-slate-700 ${isHovered ? 'border-primary/50 scale-105' : ''} flex items-center justify-center text-slate-400 transition-all duration-300 hover:scale-110 active:scale-95 w-8 h-8 sm:w-9 sm:h-9`}
+                  className={`rounded-lg bg-slate-800/50 backdrop-blur-sm border border-slate-700 ${isHovered ? 'border-primary/50 scale-105' : ''} flex items-center justify-center text-slate-200 transition-all duration-300 hover:scale-110 active:scale-95 w-8 h-8 sm:w-9 sm:h-9`}
                   title={title}
                   aria-label={title}
                 >
@@ -128,7 +128,7 @@ const BoardOfDirectors = () => {
                 </button>
               ))}
               {screenWidth < 640 && isHovered && (
-                <button className="rounded-lg bg-slate-800/50 backdrop-blur-sm border border-slate-700 flex items-center justify-center text-slate-400 transition-all duration-300 w-8 h-8">
+                <button className="rounded-lg bg-slate-800/50 backdrop-blur-sm border border-slate-700 flex items-center justify-center text-slate-200 transition-all duration-300 w-8 h-8">
                   <span className="text-xs">+4</span>
                 </button>
               )}
@@ -285,7 +285,7 @@ const BoardOfDirectors = () => {
                     Únete a Nuestra Comunidad
                   </h3>
                   <p
-                    className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl 
+                    className="text-slate-200 text-sm sm:text-base md:text-lg lg:text-xl 
                     mb-6 sm:mb-8"
                   >
                     Conviértete en parte de la comunidad de Pickleball de más rápido crecimiento en

@@ -225,22 +225,22 @@ export const TournamentPaymentModal = ({
             <Card className="p-4 bg-gray-50">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-gray-600 text-sm">Location</p>
+                  <p className="text-gray-300 text-sm">Location</p>
                   <p className="font-semibold">{tournament.location}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600 text-sm">Division</p>
+                  <p className="text-gray-300 text-sm">Division</p>
                   <p className="font-semibold">{tournament.division}</p>
                 </div>
                 <div>
-                  <p className="text-gray-600 text-sm">Dates</p>
+                  <p className="text-gray-300 text-sm">Dates</p>
                   <p className="font-semibold">
                     {new Date(tournament.startDate).toLocaleDateString()} -{' '}
                     {new Date(tournament.endDate).toLocaleDateString()}
                   </p>
                 </div>
                 <div>
-                  <p className="text-gray-600 text-sm">Available Spots</p>
+                  <p className="text-gray-300 text-sm">Available Spots</p>
                   <p className="font-semibold">
                     {spotsAvailable > 0 ? (
                       <span className="text-green-600">
@@ -268,7 +268,7 @@ export const TournamentPaymentModal = ({
 
                   <TabsContent value="individual" className="space-y-4">
                     <Card className="p-4">
-                      <p className="text-sm text-gray-600 mb-3">
+                      <p className="text-sm text-gray-300 mb-3">
                         How many players are registering?
                       </p>
                       <Select value={numberOfParticipants} onValueChange={setNumberOfParticipants}>
@@ -290,11 +290,11 @@ export const TournamentPaymentModal = ({
                     <Card className="p-4">
                       <div className="flex items-center space-x-2 mb-3">
                         <Users className="w-4 h-4" />
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-300">
                           Team size: {tournament.teamSize} players
                         </p>
                       </div>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-300">
                         One registration fee covers your entire team
                       </p>
                     </Card>
@@ -305,13 +305,13 @@ export const TournamentPaymentModal = ({
                 <Card className="p-4 border-primary/20 bg-primary/5">
                   <div className="space-y-3">
                     <div className="flex justify-between">
-                      <span className="text-gray-600">
+                      <span className="text-gray-300">
                         {registrationType === 'team' ? 'Team Fee' : `Per Player × ${numberOfParticipants}`}
                       </span>
                       <span className="font-semibold">
                         ${(tournament.entryFee / 100).toFixed(2)}
                         {registrationType === 'individual' && numberOfParticipants !== '1' && (
-                          <span className="text-gray-500 text-sm ml-1">
+                          <span className="text-gray-300 text-sm ml-1">
                             × {numberOfParticipants}
                           </span>
                         )}

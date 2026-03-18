@@ -186,9 +186,9 @@ const Overview: React.FC<OverviewProps> = ({ clubStats: initialClubStats, courtS
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Club Overview</h2>
-          <p className="text-gray-600">Monitor your club's performance and status</p>
+          <p className="text-gray-300">Monitor your club's performance and status</p>
           {lastUpdated && (
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-300 mt-1">
               Last updated: {lastUpdated.toLocaleTimeString()} ({lastUpdated.toLocaleDateString()})
             </p>
           )}
@@ -221,9 +221,9 @@ const Overview: React.FC<OverviewProps> = ({ clubStats: initialClubStats, courtS
         <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Members</p>
+              <p className="text-sm font-medium text-gray-300">Total Members</p>
               <p className="text-3xl font-bold text-gray-900">{stats.totalMembers}</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-300">
                 {stats.totalMembers > 0 ? formatPercentage((stats.activeMembers / stats.totalMembers) * 100) : '0%'} active
               </p>
             </div>
@@ -237,9 +237,9 @@ const Overview: React.FC<OverviewProps> = ({ clubStats: initialClubStats, courtS
         <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Total Courts</p>
+              <p className="text-sm font-medium text-gray-300">Total Courts</p>
               <p className="text-3xl font-bold text-gray-900">{stats.totalCourts}</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-300">
                 {stats.availableCourts} available now
               </p>
             </div>
@@ -253,7 +253,7 @@ const Overview: React.FC<OverviewProps> = ({ clubStats: initialClubStats, courtS
         <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Monthly Revenue</p>
+              <p className="text-sm font-medium text-gray-300">Monthly Revenue</p>
               <p className="text-3xl font-bold text-gray-900">{formatCurrency(stats.monthlyRevenue)}</p>
               <p className="text-sm text-green-600 flex items-center">
                 <TrendingUp className="h-4 w-4 mr-1" />
@@ -270,9 +270,9 @@ const Overview: React.FC<OverviewProps> = ({ clubStats: initialClubStats, courtS
         <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Average Rating</p>
+              <p className="text-sm font-medium text-gray-300">Average Rating</p>
               <p className="text-3xl font-bold text-gray-900">{stats.averageRating}</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-300">
                 {stats.totalReviews} reviews
               </p>
             </div>
@@ -311,14 +311,14 @@ const Overview: React.FC<OverviewProps> = ({ clubStats: initialClubStats, courtS
                         <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(court.status)}`}>
                           {court.status}
                         </span>
-                        <p className="text-xs text-gray-600 mt-2">{court.currentTime}</p>
-                        <p className="text-xs text-gray-500">Next: {court.nextBooking}</p>
+                        <p className="text-xs text-gray-300 mt-2">{court.currentTime}</p>
+                        <p className="text-xs text-gray-300">Next: {court.nextBooking}</p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <div className="col-span-full text-center py-8 text-gray-500">
-                    <Activity className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                  <div className="col-span-full text-center py-8 text-gray-300">
+                    <Activity className="h-12 w-12 mx-auto mb-4 text-gray-200" />
                     <p>No court status information available</p>
                   </div>
                 )}
@@ -345,8 +345,8 @@ const Overview: React.FC<OverviewProps> = ({ clubStats: initialClubStats, courtS
                   </div>
                 ))
               ) : (
-                <div className="text-center py-4 text-gray-500">
-                  <Clock className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                <div className="text-center py-4 text-gray-300">
+                  <Clock className="h-8 w-8 mx-auto mb-2 text-gray-200" />
                   <p>No recent activities</p>
                 </div>
               )}
@@ -409,7 +409,7 @@ const Overview: React.FC<OverviewProps> = ({ clubStats: initialClubStats, courtS
           <div className="p-6">
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Active Members</span>
+                <span className="text-sm text-gray-300">Active Members</span>
                 <span className="text-lg font-semibold text-green-600">{stats.activeMembers}</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
@@ -418,7 +418,7 @@ const Overview: React.FC<OverviewProps> = ({ clubStats: initialClubStats, courtS
                   style={{ width: `${stats.totalMembers > 0 ? (stats.activeMembers / stats.totalMembers) * 100 : 0}%` }}
                 ></div>
               </div>
-              <div className="flex justify-between text-sm text-gray-500">
+              <div className="flex justify-between text-sm text-gray-300">
                 <span>Total: {stats.totalMembers}</span>
                 <span>{stats.totalMembers > 0 ? formatPercentage((stats.activeMembers / stats.totalMembers) * 100) : '0%'}</span>
               </div>
@@ -437,7 +437,7 @@ const Overview: React.FC<OverviewProps> = ({ clubStats: initialClubStats, courtS
           <div className="p-6">
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Available Courts</span>
+                <span className="text-sm text-gray-300">Available Courts</span>
                 <span className="text-lg font-semibold text-green-600">{stats.availableCourts}</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
@@ -446,7 +446,7 @@ const Overview: React.FC<OverviewProps> = ({ clubStats: initialClubStats, courtS
                   style={{ width: `${stats.totalCourts > 0 ? (stats.availableCourts / stats.totalCourts) * 100 : 0}%` }}
                 ></div>
               </div>
-              <div className="flex justify-between text-sm text-gray-500">
+              <div className="flex justify-between text-sm text-gray-300">
                 <span>Total: {stats.totalCourts}</span>
                 <span>{stats.totalCourts > 0 ? formatPercentage((stats.availableCourts / stats.totalCourts) * 100) : '0%'}</span>
               </div>

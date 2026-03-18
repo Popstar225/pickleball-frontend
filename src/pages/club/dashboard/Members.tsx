@@ -327,11 +327,11 @@ const Members: React.FC<MembersProps> = ({ members: initialMembers }) => {
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active': return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'inactive': return <XCircle className="h-4 w-4 text-gray-600" />;
+      case 'inactive': return <XCircle className="h-4 w-4 text-gray-300" />;
       case 'suspended': return <AlertTriangle className="h-4 w-4 text-red-600" />;
       case 'pending': return <Clock className="h-4 w-4 text-yellow-600" />;
       case 'expired': return <AlertTriangle className="h-4 w-4 text-orange-600" />;
-      default: return <Clock className="h-4 w-4 text-gray-600" />;
+      default: return <Clock className="h-4 w-4 text-gray-300" />;
     }
   };
 
@@ -381,7 +381,7 @@ const Members: React.FC<MembersProps> = ({ members: initialMembers }) => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Member Management</h2>
-          <p className="text-gray-600">Manage club members, memberships, and access</p>
+          <p className="text-gray-300">Manage club members, memberships, and access</p>
         </div>
         <div className="flex space-x-3">
           <button
@@ -421,7 +421,7 @@ const Members: React.FC<MembersProps> = ({ members: initialMembers }) => {
               <Users className="h-8 w-8 text-blue-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Total Members</p>
+              <p className="text-sm font-medium text-gray-300">Total Members</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
             </div>
           </div>
@@ -433,7 +433,7 @@ const Members: React.FC<MembersProps> = ({ members: initialMembers }) => {
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Active Members</p>
+              <p className="text-sm font-medium text-gray-300">Active Members</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.active}</p>
             </div>
           </div>
@@ -445,7 +445,7 @@ const Members: React.FC<MembersProps> = ({ members: initialMembers }) => {
               <Star className="h-8 w-8 text-blue-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">Premium Members</p>
+              <p className="text-sm font-medium text-gray-300">Premium Members</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.premium}</p>
             </div>
           </div>
@@ -457,7 +457,7 @@ const Members: React.FC<MembersProps> = ({ members: initialMembers }) => {
               <Shield className="h-8 w-8 text-purple-600" />
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-500">VIP Members</p>
+              <p className="text-sm font-medium text-gray-300">VIP Members</p>
               <p className="text-2xl font-semibold text-gray-900">{stats.vip}</p>
             </div>
           </div>
@@ -469,7 +469,7 @@ const Members: React.FC<MembersProps> = ({ members: initialMembers }) => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <Filter className="h-4 w-4 text-gray-500" />
+              <Filter className="h-4 w-4 text-gray-300" />
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
@@ -499,7 +499,7 @@ const Members: React.FC<MembersProps> = ({ members: initialMembers }) => {
           </div>
           
           <div className="flex items-center space-x-2">
-            <Search className="h-4 w-4 text-gray-500" />
+            <Search className="h-4 w-4 text-gray-300" />
             <input
               type="text"
               placeholder="Search members..."
@@ -521,18 +521,18 @@ const Members: React.FC<MembersProps> = ({ members: initialMembers }) => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Skill Level</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Join Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Member</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Skill Level</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Join Date</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredMembers.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-4 text-center text-gray-300">
                     {loading ? 'Loading members...' : 'No members found'}
                   </td>
                 </tr>
@@ -554,9 +554,9 @@ const Members: React.FC<MembersProps> = ({ members: initialMembers }) => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900">{member.full_name}</div>
-                          <div className="text-sm text-gray-500">{member.username}</div>
+                          <div className="text-sm text-gray-300">{member.username}</div>
                           {member.email && (
-                            <div className="text-sm text-gray-500 flex items-center">
+                            <div className="text-sm text-gray-300 flex items-center">
                               <Mail className="h-3 w-3 mr-1" />
                               {member.email}
                             </div>
@@ -878,7 +878,7 @@ const Members: React.FC<MembersProps> = ({ members: initialMembers }) => {
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">Remove Member</h3>
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-300 mb-4">
                 Are you sure you want to remove <strong>{selectedMember.full_name}</strong> from the club? 
                 This action cannot be undone.
               </p>

@@ -432,7 +432,7 @@ export default function ClubsManagement() {
               <span className="text-xs font-medium text-green-400">En vivo</span>
             </div>
           </div>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-200 text-sm mt-1">
             Administra y supervisa todos los clubes del sistema
           </p>
         </div>
@@ -483,19 +483,19 @@ export default function ClubsManagement() {
         <CardContent className="p-6 space-y-4">
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300" />
             <Input
               placeholder="Buscar por nombre, contacto, email o estado..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="pl-12 pr-10 h-12 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-500 focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="pl-12 pr-10 h-12 bg-slate-800/50 border-slate-700 text-white placeholder:text-slate-300 focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
             {search && (
               <button
                 onClick={() => setSearch('')}
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-700 rounded-lg transition-colors"
               >
-                <X className="h-4 w-4 text-slate-400" />
+                <X className="h-4 w-4 text-slate-200" />
               </button>
             )}
           </div>
@@ -505,7 +505,7 @@ export default function ClubsManagement() {
             <Select value={stateFilter} onValueChange={setStateFilter}>
               <SelectTrigger className="bg-slate-800/50 border-slate-700 text-slate-300">
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-slate-500" />
+                  <MapPin className="h-4 w-4 text-slate-300" />
                   <SelectValue placeholder="Todos los estados" />
                 </div>
               </SelectTrigger>
@@ -522,7 +522,7 @@ export default function ClubsManagement() {
             <Select value={verifiedFilter} onValueChange={setVerifiedFilter}>
               <SelectTrigger className="bg-slate-800/50 border-slate-700 text-slate-300">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-slate-500" />
+                  <ShieldCheck className="h-4 w-4 text-slate-300" />
                   <SelectValue placeholder="Todos" />
                 </div>
               </SelectTrigger>
@@ -536,7 +536,7 @@ export default function ClubsManagement() {
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="bg-slate-800/50 border-slate-700 text-slate-300">
                 <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-slate-500" />
+                  <Filter className="h-4 w-4 text-slate-300" />
                   <SelectValue placeholder="Todos" />
                 </div>
               </SelectTrigger>
@@ -550,7 +550,7 @@ export default function ClubsManagement() {
             <Select value={membershipFilter} onValueChange={setMembershipFilter}>
               <SelectTrigger className="bg-slate-800/50 border-slate-700 text-slate-300">
                 <div className="flex items-center gap-2">
-                  <Award className="h-4 w-4 text-slate-500" />
+                  <Award className="h-4 w-4 text-slate-300" />
                   <SelectValue placeholder="Todas" />
                 </div>
               </SelectTrigger>
@@ -566,7 +566,7 @@ export default function ClubsManagement() {
           {/* Active Filters Display */}
           {hasActiveFilters && (
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-700">
-              <span className="text-xs text-slate-400 font-medium">Filtros activos:</span>
+              <span className="text-xs text-slate-200 font-medium">Filtros activos:</span>
               {search && (
                 <Badge
                   variant="secondary"
@@ -632,7 +632,7 @@ export default function ClubsManagement() {
                 variant="ghost"
                 size="sm"
                 onClick={clearFilters}
-                className="h-7 text-xs text-slate-400 hover:text-white"
+                className="h-7 text-xs text-slate-200 hover:text-white"
               >
                 Limpiar todo
               </Button>
@@ -643,7 +643,7 @@ export default function ClubsManagement() {
 
       {/* Results Summary */}
       <div className="flex items-center justify-between text-sm">
-        <p className="text-slate-400">
+        <p className="text-slate-200">
           Mostrando{' '}
           <span className="text-white font-medium">
             {(pagination.page - 1) * pagination.limit + 1}
@@ -655,7 +655,7 @@ export default function ClubsManagement() {
           de <span className="text-white font-medium">{pagination.total}</span> clubes
         </p>
         <div className="flex items-center gap-2">
-          <span className="text-slate-400">Mostrar:</span>
+          <span className="text-slate-200">Mostrar:</span>
           <Select
             value={pagination.limit.toString()}
             onValueChange={(v) => setPagination((prev) => ({ ...prev, limit: Number(v), page: 1 }))}
@@ -681,7 +681,7 @@ export default function ClubsManagement() {
             <Table>
               <TableHeader>
                 <TableRow className="border-slate-700 hover:bg-transparent">
-                  <TableHead className="text-slate-400">
+                  <TableHead className="text-slate-200">
                     <button
                       onClick={() => handleSort('name')}
                       className="flex items-center gap-2 hover:text-white transition-colors"
@@ -690,8 +690,8 @@ export default function ClubsManagement() {
                       {getSortIcon('name')}
                     </button>
                   </TableHead>
-                  <TableHead className="text-slate-400">Contacto</TableHead>
-                  <TableHead className="text-slate-400">
+                  <TableHead className="text-slate-200">Contacto</TableHead>
+                  <TableHead className="text-slate-200">
                     <button
                       onClick={() => handleSort('contact_email')}
                       className="flex items-center gap-2 hover:text-white transition-colors"
@@ -700,7 +700,7 @@ export default function ClubsManagement() {
                       {getSortIcon('contact_email')}
                     </button>
                   </TableHead>
-                  <TableHead className="text-slate-400">
+                  <TableHead className="text-slate-200">
                     <button
                       onClick={() => handleSort('state')}
                       className="flex items-center gap-2 hover:text-white transition-colors"
@@ -709,9 +709,9 @@ export default function ClubsManagement() {
                       {getSortIcon('state')}
                     </button>
                   </TableHead>
-                  <TableHead className="text-slate-400">Membresía</TableHead>
-                  <TableHead className="text-slate-400">Estado</TableHead>
-                  <TableHead className="text-slate-400">
+                  <TableHead className="text-slate-200">Membresía</TableHead>
+                  <TableHead className="text-slate-200">Estado</TableHead>
+                  <TableHead className="text-slate-200">
                     <button
                       onClick={() => handleSort('createdAt')}
                       className="flex items-center gap-2 hover:text-white transition-colors"
@@ -720,7 +720,7 @@ export default function ClubsManagement() {
                       {getSortIcon('createdAt')}
                     </button>
                   </TableHead>
-                  <TableHead className="text-slate-400 w-12"></TableHead>
+                  <TableHead className="text-slate-200 w-12"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -729,7 +729,7 @@ export default function ClubsManagement() {
                     <TableCell colSpan={8} className="h-64">
                       <div className="flex flex-col items-center justify-center gap-3">
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                        <p className="text-slate-400 text-sm">Cargando clubes...</p>
+                        <p className="text-slate-200 text-sm">Cargando clubes...</p>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -737,12 +737,12 @@ export default function ClubsManagement() {
                   <TableRow>
                     <TableCell colSpan={8} className="h-64">
                       <div className="flex flex-col items-center justify-center gap-3">
-                        <Building2 className="h-12 w-12 text-slate-600" />
+                        <Building2 className="h-12 w-12 text-slate-300" />
                         <div className="text-center">
                           <p className="text-slate-300 font-medium mb-1">
                             No se encontraron clubes
                           </p>
-                          <p className="text-slate-500 text-sm">
+                          <p className="text-slate-300 text-sm">
                             Intenta ajustar los filtros de búsqueda
                           </p>
                         </div>
@@ -784,7 +784,7 @@ export default function ClubsManagement() {
                           </div>
                           <div>
                             <p className="text-sm font-medium text-white">{club.name}</p>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-slate-300">
                               {club.city && `${club.city}, `}
                               {club.state}
                             </p>
@@ -795,7 +795,7 @@ export default function ClubsManagement() {
                         <div className="text-sm">
                           <p className="text-slate-300">{club.contact_person || '-'}</p>
                           {club.contact_phone && (
-                            <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+                            <p className="text-xs text-slate-300 flex items-center gap-1 mt-0.5">
                               <Phone className="h-3 w-3" />
                               {club.contact_phone}
                             </p>
@@ -804,13 +804,13 @@ export default function ClubsManagement() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <Mail className="h-4 w-4 text-slate-500" />
+                          <Mail className="h-4 w-4 text-slate-300" />
                           <span className="text-sm text-slate-300">{club.contact_email}</span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4 text-slate-500" />
+                          <MapPin className="h-4 w-4 text-slate-300" />
                           <span className="text-sm text-slate-300">{club.state || '-'}</span>
                         </div>
                       </TableCell>
@@ -842,7 +842,7 @@ export default function ClubsManagement() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm text-slate-400">
+                        <span className="text-sm text-slate-200">
                           {formatDate(club.createdAt)}
                         </span>
                       </TableCell>
@@ -852,7 +852,7 @@ export default function ClubsManagement() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-slate-400 hover:text-white hover:bg-slate-800"
+                              className="h-8 w-8 text-slate-200 hover:text-white hover:bg-slate-800"
                             >
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
@@ -861,7 +861,7 @@ export default function ClubsManagement() {
                             align="end"
                             className="bg-slate-800 border-slate-700"
                           >
-                            <DropdownMenuLabel className="text-slate-400">
+                            <DropdownMenuLabel className="text-slate-200">
                               Acciones
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-slate-700" />
@@ -932,7 +932,7 @@ export default function ClubsManagement() {
       {/* Pagination */}
       {pagination.pages > 1 && !reduxLoading && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-200">
             Página <span className="text-white font-medium">{pagination.page}</span> de{' '}
             <span className="text-white font-medium">{pagination.pages}</span>
           </p>

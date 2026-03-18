@@ -38,7 +38,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   shipped: { label: 'Enviado', color: 'bg-purple-500/20 text-purple-400 border-purple-600' },
   delivered: { label: 'Entregado', color: 'bg-green-500/20 text-green-400 border-green-600' },
   cancelled: { label: 'Cancelado', color: 'bg-red-500/20 text-red-400 border-red-600' },
-  refunded: { label: 'Reembolsado', color: 'bg-slate-500/20 text-slate-400 border-slate-600' },
+  refunded: { label: 'Reembolsado', color: 'bg-slate-500/20 text-slate-200 border-slate-600' },
 };
 
 const STATUSES: { value: OrderStatus; label: string }[] = [
@@ -112,7 +112,7 @@ export default function StoreOrdersManagement() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-white">Tienda — Pedidos</h1>
-        <p className="text-slate-400 text-sm">Gestiona todos los pedidos de la tienda</p>
+        <p className="text-slate-200 text-sm">Gestiona todos los pedidos de la tienda</p>
       </div>
 
       {/* Stats */}
@@ -129,7 +129,7 @@ export default function StoreOrdersManagement() {
       <Card className="bg-slate-800 border-slate-700">
         <CardContent className="p-4 flex flex-wrap gap-3">
           <div className="flex-1 min-w-48 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-200" />
             <Input
               placeholder="Buscar por número de pedido..."
               value={search}
@@ -157,7 +157,7 @@ export default function StoreOrdersManagement() {
           {loading ? (
             <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-green-400" /></div>
           ) : orders.length === 0 ? (
-            <div className="text-center py-12 text-slate-400">
+            <div className="text-center py-12 text-slate-200">
               <Package className="h-10 w-10 mx-auto mb-2 opacity-40" />
               <p>No hay pedidos</p>
             </div>
@@ -165,13 +165,13 @@ export default function StoreOrdersManagement() {
             <Table>
               <TableHeader>
                 <TableRow className="border-slate-700">
-                  <TableHead className="text-slate-400">Pedido</TableHead>
-                  <TableHead className="text-slate-400">Cliente</TableHead>
-                  <TableHead className="text-slate-400">Artículos</TableHead>
-                  <TableHead className="text-slate-400">Total</TableHead>
-                  <TableHead className="text-slate-400">Estado</TableHead>
-                  <TableHead className="text-slate-400">Fecha</TableHead>
-                  <TableHead className="text-slate-400 text-right">Acciones</TableHead>
+                  <TableHead className="text-slate-200">Pedido</TableHead>
+                  <TableHead className="text-slate-200">Cliente</TableHead>
+                  <TableHead className="text-slate-200">Artículos</TableHead>
+                  <TableHead className="text-slate-200">Total</TableHead>
+                  <TableHead className="text-slate-200">Estado</TableHead>
+                  <TableHead className="text-slate-200">Fecha</TableHead>
+                  <TableHead className="text-slate-200 text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -182,7 +182,7 @@ export default function StoreOrdersManagement() {
                       <TableCell className="font-medium text-white text-sm">{order.order_number}</TableCell>
                       <TableCell className="text-slate-300 text-sm">
                         {order.user ? `${order.user.first_name} ${order.user.last_name}` : '—'}
-                        {order.user?.email && <p className="text-xs text-slate-500">{order.user.email}</p>}
+                        {order.user?.email && <p className="text-xs text-slate-300">{order.user.email}</p>}
                       </TableCell>
                       <TableCell className="text-slate-300 text-sm">{order.items?.length ?? 0}</TableCell>
                       <TableCell className="text-green-400 font-semibold text-sm">
@@ -193,7 +193,7 @@ export default function StoreOrdersManagement() {
                           {statusConf.label}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-slate-400 text-xs">
+                      <TableCell className="text-slate-200 text-xs">
                         {new Date(order.created_at).toLocaleDateString('es-MX')}
                       </TableCell>
                       <TableCell className="text-right">
@@ -215,7 +215,7 @@ export default function StoreOrdersManagement() {
           {pagination && pagination.pages > 1 && (
             <div className="flex justify-center items-center gap-3 py-4 border-t border-slate-700">
               <Button variant="outline" size="sm" disabled={page === 1} onClick={() => { setPage(p => p - 1); load(page - 1); }} className="border-slate-600 text-slate-300">Anterior</Button>
-              <span className="text-slate-400 text-sm">Página {page} / {pagination.pages}</span>
+              <span className="text-slate-200 text-sm">Página {page} / {pagination.pages}</span>
               <Button variant="outline" size="sm" disabled={page === pagination.pages} onClick={() => { setPage(p => p + 1); load(page + 1); }} className="border-slate-600 text-slate-300">Siguiente</Button>
             </div>
           )}
@@ -232,9 +232,9 @@ export default function StoreOrdersManagement() {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <div>
-                  <p className="text-xs text-slate-400">Cliente</p>
+                  <p className="text-xs text-slate-200">Cliente</p>
                   <p className="text-white font-semibold">{viewOrder.user ? `${viewOrder.user.first_name} ${viewOrder.user.last_name}` : '—'}</p>
-                  {viewOrder.user?.email && <p className="text-slate-400 text-sm">{viewOrder.user.email}</p>}
+                  {viewOrder.user?.email && <p className="text-slate-200 text-sm">{viewOrder.user.email}</p>}
                 </div>
                 <Badge variant="outline" className={STATUS_CONFIG[viewOrder.status]?.color || ''}>
                   {STATUS_CONFIG[viewOrder.status]?.label || viewOrder.status}
@@ -243,12 +243,12 @@ export default function StoreOrdersManagement() {
 
               {/* Items */}
               <div className="space-y-2">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Artículos</p>
+                <p className="text-xs font-semibold text-slate-200 uppercase tracking-wide">Artículos</p>
                 {viewOrder.items?.map(item => (
                   <div key={item.id} className="flex justify-between text-sm bg-slate-800 rounded-lg p-2">
                     <div>
                       <p className="text-white">{item.product_snapshot?.name || 'Producto'}</p>
-                      <p className="text-slate-400 text-xs">Cantidad: {item.quantity}</p>
+                      <p className="text-slate-200 text-xs">Cantidad: {item.quantity}</p>
                     </div>
                     <p className="text-green-400 font-semibold">${Number(item.total_price).toLocaleString()}</p>
                   </div>
@@ -257,7 +257,7 @@ export default function StoreOrdersManagement() {
 
               {/* Address */}
               <div className="bg-slate-800 rounded-lg p-3">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Dirección de envío</p>
+                <p className="text-xs font-semibold text-slate-200 uppercase tracking-wide mb-1">Dirección de envío</p>
                 <p className="text-white text-sm">{viewOrder.shipping_address?.full_name}</p>
                 <p className="text-slate-300 text-sm">{viewOrder.shipping_address?.address_line1}</p>
                 <p className="text-slate-300 text-sm">{viewOrder.shipping_address?.city}, {viewOrder.shipping_address?.state} {viewOrder.shipping_address?.postal_code}</p>
@@ -265,8 +265,8 @@ export default function StoreOrdersManagement() {
 
               {/* Totals */}
               <div className="space-y-1 border-t border-slate-700 pt-3">
-                <div className="flex justify-between text-sm"><span className="text-slate-400">Subtotal</span><span>${Number(viewOrder.subtotal).toLocaleString()}</span></div>
-                <div className="flex justify-between text-sm"><span className="text-slate-400">Envío</span><span className="text-green-400">Gratis</span></div>
+                <div className="flex justify-between text-sm"><span className="text-slate-200">Subtotal</span><span>${Number(viewOrder.subtotal).toLocaleString()}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-slate-200">Envío</span><span className="text-green-400">Gratis</span></div>
                 <div className="flex justify-between font-bold"><span>Total</span><span className="text-green-400">${Number(viewOrder.total).toLocaleString()} MXN</span></div>
               </div>
 
@@ -274,7 +274,7 @@ export default function StoreOrdersManagement() {
                 <p className="text-sm text-slate-300">Rastreo: <span className="font-semibold text-white">{viewOrder.tracking_number}</span></p>
               )}
               {viewOrder.admin_notes && (
-                <p className="text-sm text-slate-400">Notas: {viewOrder.admin_notes}</p>
+                <p className="text-sm text-slate-200">Notas: {viewOrder.admin_notes}</p>
               )}
             </div>
           </DialogContent>
@@ -332,7 +332,7 @@ function StatCard({ label, value, icon: Icon, color = 'text-white' }: {
           <Icon className={`h-5 w-5 ${color}`} />
         </div>
         <div>
-          <p className="text-xs text-slate-400">{label}</p>
+          <p className="text-xs text-slate-200">{label}</p>
           <p className={`font-bold text-lg ${color}`}>{value}</p>
         </div>
       </CardContent>

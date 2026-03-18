@@ -193,7 +193,7 @@ export default function PlayerRegistrationForm({
         <CardContent className="space-y-4">
           <div className="bg-white rounded-lg p-4 space-y-2">
             <div>
-              <p className="text-sm text-gray-600">Event</p>
+              <p className="text-sm text-gray-300">Event</p>
               <p className="font-semibold text-lg">
                 {selectedEvent?.skill_block} {selectedEvent?.gender} {selectedEvent?.modality}
               </p>
@@ -201,7 +201,7 @@ export default function PlayerRegistrationForm({
 
             {selectedEvent?.modality !== 'Singles' && selectedPartnerId && (
               <div>
-                <p className="text-sm text-gray-600">Partner</p>
+                <p className="text-sm text-gray-300">Partner</p>
                 <p className="font-semibold">
                   {availablePartners.find((p) => p.id === selectedPartnerId)?.full_name ||
                     selectedPartnerId}
@@ -210,12 +210,12 @@ export default function PlayerRegistrationForm({
             )}
 
             <div>
-              <p className="text-sm text-gray-600">Registration ID</p>
+              <p className="text-sm text-gray-300">Registration ID</p>
               <p className="font-mono text-sm break-all">{registrationResponse?.id}</p>
             </div>
 
             <div>
-              <p className="text-sm text-gray-600">Status</p>
+              <p className="text-sm text-gray-300">Status</p>
               <Badge className="mt-1 bg-green-600">Confirmed</Badge>
             </div>
           </div>
@@ -276,9 +276,9 @@ export default function PlayerRegistrationForm({
           <CardContent className="space-y-4">
             {/* Player info */}
             <div className="bg-blue-50 rounded-lg p-4">
-              <p className="text-sm text-gray-600">Registered as</p>
+              <p className="text-sm text-gray-300">Registered as</p>
               <p className="font-semibold text-lg">{userName}</p>
-              <p className="text-sm text-gray-500 mt-1">Skill Level: {skillLevel}</p>
+              <p className="text-sm text-gray-300 mt-1">Skill Level: {skillLevel}</p>
             </div>
 
             {loading ? (
@@ -308,7 +308,7 @@ export default function PlayerRegistrationForm({
                           </h3>
                           <Badge variant="outline">{event.registration_status || 'open'}</Badge>
                         </div>
-                        <div className="grid grid-cols-2 gap-3 text-sm text-gray-600">
+                        <div className="grid grid-cols-2 gap-3 text-sm text-gray-300">
                           <div className="flex items-center gap-1">
                             <Users className="h-4 w-4" />
                             {event.current_participants}/{event.max_participants} registered
@@ -382,18 +382,18 @@ export default function PlayerRegistrationForm({
                 {eligibilityResult.playerInfo && (
                   <div className="bg-gray-50 rounded-lg p-3 space-y-2 text-sm">
                     <div>
-                      <p className="text-gray-600 font-medium">Skill Block</p>
+                      <p className="text-gray-300 font-medium">Skill Block</p>
                       <p className="text-gray-900">{eligibilityResult.playerInfo.skill_block}</p>
                     </div>
                     <div>
-                      <p className="text-gray-600 font-medium">Membership</p>
+                      <p className="text-gray-300 font-medium">Membership</p>
                       <p className="text-gray-900">
                         {eligibilityResult.playerInfo.membership_status || 'Active'}
                       </p>
                     </div>
                     {eligibilityResult.warnings && eligibilityResult.warnings.length > 0 && (
                       <div>
-                        <p className="text-gray-600 font-medium">Warnings</p>
+                        <p className="text-gray-300 font-medium">Warnings</p>
                         <p className="text-gray-900">{eligibilityResult.warnings.join(', ')}</p>
                       </div>
                     )}
@@ -467,12 +467,12 @@ export default function PlayerRegistrationForm({
 
                 {selectedPartnerId && (
                   <div className="bg-blue-50 rounded-lg p-4">
-                    <p className="text-sm text-gray-600 mb-2">Partner Details</p>
+                    <p className="text-sm text-gray-300 mb-2">Partner Details</p>
                     <div className="space-y-1">
                       <p className="font-semibold">
                         {availablePartners.find((p) => p.id === selectedPartnerId)?.full_name}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-gray-300">
                         Skill Level:{' '}
                         {availablePartners.find((p) => p.id === selectedPartnerId)?.skill_level}
                       </p>
@@ -511,14 +511,14 @@ export default function PlayerRegistrationForm({
           <CardContent className="space-y-4">
             <div className="bg-gray-50 rounded-lg p-4 space-y-3">
               <div>
-                <p className="text-sm text-gray-600 mb-1">Event</p>
+                <p className="text-sm text-gray-300 mb-1">Event</p>
                 <p className="font-semibold text-lg">
                   {selectedEvent.skill_block} {selectedEvent.gender} {selectedEvent.modality}
                 </p>
               </div>
 
               <div>
-                <p className="text-sm text-gray-600 mb-1">Format</p>
+                <p className="text-sm text-gray-300 mb-1">Format</p>
                 <p className="text-sm">
                   {selectedEvent.format === 'hybrid'
                     ? 'Group Play + Bracket'
@@ -530,13 +530,13 @@ export default function PlayerRegistrationForm({
               </div>
 
               <div>
-                <p className="text-sm text-gray-600 mb-1">Player</p>
+                <p className="text-sm text-gray-300 mb-1">Player</p>
                 <p className="text-sm">{userName}</p>
               </div>
 
               {selectedEvent.modality !== 'Singles' && selectedPartnerId && (
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Partner</p>
+                  <p className="text-sm text-gray-300 mb-1">Partner</p>
                   <p className="text-sm">
                     {availablePartners.find((p) => p.id === selectedPartnerId)?.full_name}
                   </p>
@@ -544,7 +544,7 @@ export default function PlayerRegistrationForm({
               )}
 
               <div>
-                <p className="text-sm text-gray-600 mb-1">Registration Status</p>
+                <p className="text-sm text-gray-300 mb-1">Registration Status</p>
                 <Badge className="mt-1 bg-blue-600">Pending Confirmation</Badge>
               </div>
             </div>

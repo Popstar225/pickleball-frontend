@@ -170,7 +170,7 @@ export default function DashboardLayoutBase({
               <div>
                 <span className="block text-base font-bold text-white">{brandTitle}</span>
                 {brandSubtitle && (
-                  <span className="block text-xs text-slate-400">{brandSubtitle}</span>
+                  <span className="block text-xs text-slate-200">{brandSubtitle}</span>
                 )}
               </div>
             </div>
@@ -187,7 +187,7 @@ export default function DashboardLayoutBase({
               setCollapsed(!collapsed);
               setMobileOpen(false);
             }}
-            className="hidden lg:flex hover:bg-slate-800 text-slate-400 hover:text-white"
+            className="hidden lg:flex hover:bg-slate-800 text-slate-200 hover:text-white"
           >
             <ChevronLeft
               className={cn('h-4 w-4 transition-transform', collapsed && 'rotate-180')}
@@ -233,7 +233,7 @@ export default function DashboardLayoutBase({
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-white truncate">{user.name}</p>
-                  <p className="text-xs text-slate-400 truncate">{user.role}</p>
+                  <p className="text-xs text-slate-200 truncate">{user.role}</p>
                 </div>
               </div>
               <button
@@ -276,7 +276,7 @@ export default function DashboardLayoutBase({
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden hover:bg-slate-800 text-slate-400 hover:text-white"
+              className="lg:hidden hover:bg-slate-800 text-slate-200 hover:text-white"
               onClick={() => setMobileOpen(true)}
             >
               <Menu className="h-5 w-5" />
@@ -285,7 +285,7 @@ export default function DashboardLayoutBase({
               <h1 className="text-xl font-bold text-white">
                 {navItems.find((item) => isActive(item.url))?.title || 'Dashboard'}
               </h1>
-              <p className="text-sm text-slate-400 hidden sm:block">
+              <p className="text-sm text-slate-200 hidden sm:block">
                 {navItems.find((item) => isActive(item.url))?.description || 'Vista general'}
               </p>
             </div>
@@ -325,7 +325,7 @@ export default function DashboardLayoutBase({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="hover:bg-slate-800 text-slate-400 hover:text-white"
+                  className="hover:bg-slate-800 text-slate-200 hover:text-white"
                   onClick={() => setSearchOpen(true)}
                 >
                   <Search className="h-5 w-5" />
@@ -333,11 +333,11 @@ export default function DashboardLayoutBase({
               ) : (
                 <div className="flex items-center gap-2">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-200" />
                     <input
                       type="text"
                       placeholder="Buscar..."
-                      className="h-9 w-64 rounded-lg border border-slate-700 bg-slate-800 pl-9 pr-3 text-sm text-white placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                      className="h-9 w-64 rounded-lg border border-slate-700 bg-slate-800 pl-9 pr-3 text-sm text-white placeholder:text-slate-200 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                       autoFocus
                       onBlur={() => setSearchOpen(false)}
                     />
@@ -350,7 +350,7 @@ export default function DashboardLayoutBase({
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative hover:bg-slate-800 text-slate-400 hover:text-white"
+                className="relative hover:bg-slate-800 text-slate-200 hover:text-white"
                 onClick={() => setNotifOpen(!notifOpen)}
               >
                 <Bell className="h-5 w-5" />
@@ -376,7 +376,7 @@ export default function DashboardLayoutBase({
 
                     <div className="max-h-96 overflow-y-auto">
                       {unreadConvs.length === 0 && unreadAnns.length === 0 ? (
-                        <div className="flex flex-col items-center gap-2 py-8 text-slate-400">
+                        <div className="flex flex-col items-center gap-2 py-8 text-slate-200">
                           <Bell className="h-8 w-8 opacity-40" />
                           <p className="text-sm">Sin notificaciones nuevas</p>
                         </div>
@@ -385,8 +385,8 @@ export default function DashboardLayoutBase({
                           {unreadConvs.length > 0 && (
                             <div>
                               <div className="flex items-center gap-2 px-4 py-2">
-                                <MessageSquare className="h-3.5 w-3.5 text-slate-400" />
-                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                <MessageSquare className="h-3.5 w-3.5 text-slate-200" />
+                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-200">
                                   Mensajes
                                 </span>
                               </div>
@@ -414,7 +414,7 @@ export default function DashboardLayoutBase({
                                           </span>
                                         )}
                                       </div>
-                                      <p className="text-xs text-slate-400 truncate">{conv.last_message}</p>
+                                      <p className="text-xs text-slate-200 truncate">{conv.last_message}</p>
                                     </div>
                                   </div>
                                 </button>
@@ -426,7 +426,7 @@ export default function DashboardLayoutBase({
                             <div className={unreadConvs.length > 0 ? 'border-t border-slate-700' : ''}>
                               <div className="flex items-center gap-2 px-4 py-2">
                                 <Megaphone className="h-3.5 w-3.5 text-amber-400" />
-                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                                <span className="text-xs font-semibold uppercase tracking-wide text-slate-200">
                                   Anuncios
                                 </span>
                               </div>
@@ -445,7 +445,7 @@ export default function DashboardLayoutBase({
                                     </div>
                                     <div className="min-w-0 flex-1">
                                       <p className="text-sm font-medium text-white truncate">{ann.subject}</p>
-                                      <p className="text-xs text-slate-400 truncate">{ann.sender_name}</p>
+                                      <p className="text-xs text-slate-200 truncate">{ann.sender_name}</p>
                                     </div>
                                   </div>
                                 </button>
@@ -494,7 +494,7 @@ export default function DashboardLayoutBase({
                 </span>
                 <ChevronDown
                   className={cn(
-                    'h-4 w-4 text-slate-400 transition-transform',
+                    'h-4 w-4 text-slate-200 transition-transform',
                     userMenuOpen && 'rotate-180',
                   )}
                 />
@@ -519,7 +519,7 @@ export default function DashboardLayoutBase({
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-semibold text-white truncate">{user.name}</p>
-                          <p className="text-xs text-slate-400 truncate">{user.email}</p>
+                          <p className="text-xs text-slate-200 truncate">{user.email}</p>
                         </div>
                       </div>
                     </div>
@@ -563,7 +563,7 @@ export default function DashboardLayoutBase({
         </header>
 
         <main className="flex-1 overflow-y-auto bg-slate-950 p-4 lg:p-6">
-          <div className="mb-6 flex items-center gap-2 text-sm text-slate-400">
+          <div className="mb-6 flex items-center gap-2 text-sm text-slate-200">
             <Link to={basePath} className="hover:text-white transition-colors">
               Dashboard
             </Link>

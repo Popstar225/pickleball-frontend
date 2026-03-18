@@ -140,14 +140,14 @@ const Ranking = () => {
     const num = parseInt(change);
     if (num > 0) return <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-400" />;
     if (num < 0) return <TrendingDown className="w-3 h-3 sm:w-4 sm:h-4 text-red-400" />;
-    return <Minus className="w-3 h-3 sm:w-4 sm:h-4 text-slate-500" />;
+    return <Minus className="w-3 h-3 sm:w-4 sm:h-4 text-slate-300" />;
   };
 
   const getRankChangeClass = (change: string) => {
     const num = parseInt(change);
     if (num > 0) return 'text-green-400 bg-green-400/10 border-green-400/20';
     if (num < 0) return 'text-red-400 bg-red-400/10 border-red-400/20';
-    return 'text-slate-500 bg-slate-800/30 border-slate-700/30';
+    return 'text-slate-300 bg-slate-800/30 border-slate-700/30';
   };
 
   const getTopIcon = (index: number) => {
@@ -360,20 +360,20 @@ const Ranking = () => {
 
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
                   <div className="relative w-full sm:w-56">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-200" />
                     <Input
                       type="text"
                       placeholder={t('pages.ranking.search_placeholder')}
                       value={searchQuery}
                       onChange={handleSearch}
-                      className="pl-10 bg-slate-900/50 backdrop-blur-sm border-slate-700/50 text-white placeholder:text-slate-500 focus:border-primary/50 transition-all"
+                      className="pl-10 bg-slate-900/50 backdrop-blur-sm border-slate-700/50 text-white placeholder:text-slate-300 focus:border-primary/50 transition-all"
                     />
                   </div>
 
                   {/* Skill Level filter */}
                   <Select value={selectedSkillLevel} onValueChange={handleSkillLevelChange}>
                     <SelectTrigger className="w-full sm:w-36 bg-slate-900/50 backdrop-blur-sm border-slate-700/50 text-slate-300 hover:text-white transition-all">
-                      <Target className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+                      <Target className="w-3.5 h-3.5 mr-1.5 text-slate-200" />
                       <SelectValue placeholder="Level" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-900 border-slate-700">
@@ -390,7 +390,7 @@ const Ranking = () => {
                   {/* State filter */}
                   <Select value={selectedState} onValueChange={handleStateChange}>
                     <SelectTrigger className="w-full sm:w-44 bg-slate-900/50 backdrop-blur-sm border-slate-700/50 text-slate-300 hover:text-white transition-all">
-                      <Swords className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+                      <Swords className="w-3.5 h-3.5 mr-1.5 text-slate-200" />
                       <SelectValue placeholder="State" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-900 border-slate-700 max-h-64">
@@ -477,7 +477,7 @@ const Ranking = () => {
                       <span className="text-white text-xs font-medium">"{debouncedSearch}"</span>
                       <button
                         onClick={() => { setSearchQuery(''); setDebouncedSearch(''); }}
-                        className="text-slate-400 hover:text-white text-xs ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-slate-700"
+                        className="text-slate-200 hover:text-white text-xs ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-slate-700"
                       >✕</button>
                     </div>
                   )}
@@ -508,7 +508,7 @@ const Ranking = () => {
                       setSelectedSkillLevel('all');
                       setSelectedState('all');
                     }}
-                    className="text-slate-500 hover:text-slate-300 text-xs underline underline-offset-2"
+                    className="text-slate-300 hover:text-slate-300 text-xs underline underline-offset-2"
                   >
                     Clear all
                   </button>
@@ -617,13 +617,13 @@ const Ranking = () => {
                             {ranking.user.full_name.split(' ')[0]}
                             <span className="hidden sm:inline"> {ranking.user.full_name.split(' ')[1]}</span>
                           </h3>
-                          <p className="text-slate-400 text-xs sm:text-sm mb-1">
+                          <p className="text-slate-200 text-xs sm:text-sm mb-1">
                             {ranking.user.city && ranking.user.state
                               ? `${ranking.user.city}, ${ranking.user.state}`
                               : ranking.user.state || ''}
                           </p>
                           {ranking.user.bio && (
-                            <p className="text-slate-500 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 group-hover:text-slate-400 transition-colors duration-500">
+                            <p className="text-slate-300 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2 group-hover:text-slate-200 transition-colors duration-500">
                               {ranking.user.bio}
                             </p>
                           )}
@@ -668,19 +668,19 @@ const Ranking = () => {
                                 }`}>
                                   {ranking.win_percentage.toFixed(0)}%
                                 </p>
-                                <p className="text-xs text-slate-500">Win Rate</p>
+                                <p className="text-xs text-slate-300">Win Rate</p>
                               </div>
                             )}
                             {ranking.tournaments_played != null && (
                               <div className="text-center">
                                 <p className="text-sm font-bold text-slate-300">{ranking.tournaments_played}</p>
-                                <p className="text-xs text-slate-500">Tournaments</p>
+                                <p className="text-xs text-slate-300">Tournaments</p>
                               </div>
                             )}
                             {ranking.user.skill_level && (
                               <div className="text-center">
                                 <p className="text-sm font-bold text-primary">{ranking.user.skill_level}</p>
-                                <p className="text-xs text-slate-500">Level</p>
+                                <p className="text-xs text-slate-300">Level</p>
                               </div>
                             )}
                           </div>
@@ -703,7 +703,7 @@ const Ranking = () => {
                       </h2>
 
                       {!loading && (
-                        <div className="flex items-center gap-2 text-sm text-slate-400">
+                        <div className="flex items-center gap-2 text-sm text-slate-200">
                           <span>
                             {t('pages.ranking.showing', { 
                               from: startIndex + 1, 
@@ -719,7 +719,7 @@ const Ranking = () => {
                   {loading && (
                     <div className="relative z-10 p-12 flex flex-col items-center justify-center gap-4">
                       <Loader className="w-8 h-8 text-primary animate-spin" />
-                      <p className="text-slate-400">{t('common.loading')}</p>
+                      <p className="text-slate-200">{t('common.loading')}</p>
                     </div>
                   )}
 
@@ -731,7 +731,7 @@ const Ranking = () => {
 
                   {!loading && filteredPlayers.length === 0 ? (
                     <div className="relative z-10 p-12 text-center">
-                      <p className="text-slate-400">{t('pages.ranking.no_results')}</p>
+                      <p className="text-slate-200">{t('pages.ranking.no_results')}</p>
                     </div>
                   ) : (
                     <div className="relative z-10 overflow-x-auto -mx-2 sm:mx-0">
@@ -739,22 +739,22 @@ const Ranking = () => {
                         <table className="w-full">
                           <thead>
                             <tr className="border-b border-slate-700/50 bg-slate-900/50">
-                              <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
+                              <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-200">
                                 {t('pages.ranking.col_pos')}
                               </th>
-                              <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
+                              <th className="text-left py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-200">
                                 {t('pages.ranking.col_player')}
                               </th>
-                              <th className="text-right py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
+                              <th className="text-right py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-200">
                                 {t('pages.ranking.col_points')}
                               </th>
-                              <th className="hidden sm:table-cell text-center py-3 sm:py-4 px-3 sm:px-4 font-bold text-xs uppercase tracking-wider text-slate-400">
+                              <th className="hidden sm:table-cell text-center py-3 sm:py-4 px-3 sm:px-4 font-bold text-xs uppercase tracking-wider text-slate-200">
                                 Win %
                               </th>
-                              <th className="hidden md:table-cell text-center py-3 sm:py-4 px-3 sm:px-4 font-bold text-xs uppercase tracking-wider text-slate-400">
+                              <th className="hidden md:table-cell text-center py-3 sm:py-4 px-3 sm:px-4 font-bold text-xs uppercase tracking-wider text-slate-200">
                                 Tournaments
                               </th>
-                              <th className="text-center py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-400">
+                              <th className="text-center py-3 sm:py-4 px-3 sm:px-6 font-bold text-xs uppercase tracking-wider text-slate-200">
                                 {t('pages.ranking.col_level')}
                               </th>
                             </tr>
@@ -800,7 +800,7 @@ const Ranking = () => {
                                       <p className="font-bold text-white text-sm sm:text-base group-hover/row:text-primary transition-colors truncate">
                                         {ranking.user.full_name}
                                       </p>
-                                      <p className="text-xs sm:text-sm text-slate-500 font-medium truncate">
+                                      <p className="text-xs sm:text-sm text-slate-300 font-medium truncate">
                                         {ranking.user.city && ranking.user.state
                                           ? `${ranking.user.city}, ${ranking.user.state}`
                                           : ranking.user.state || 'N/A'}
@@ -810,7 +810,7 @@ const Ranking = () => {
                                 </td>
                                 <td className="py-3 sm:py-4 px-3 sm:px-6 text-right">
                                   <div className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 rounded-lg bg-slate-800/50 border border-slate-700 group-hover/row:border-primary/30 group-hover/row:bg-slate-700/50 transition-all">
-                                    <Trophy className="w-3 h-3 sm:w-4 sm:h-4 text-slate-500 group-hover/row:text-primary transition-colors" />
+                                    <Trophy className="w-3 h-3 sm:w-4 sm:h-4 text-slate-300 group-hover/row:text-primary transition-colors" />
                                     <span className="font-bold text-base sm:text-lg text-white">
                                       {ranking.points.toLocaleString()}
                                     </span>
@@ -875,7 +875,7 @@ const Ranking = () => {
                         <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
                           {t('pages.ranking.not_top100')}
                         </h3>
-                        <p className="text-slate-400 text-sm sm:text-base">
+                        <p className="text-slate-200 text-sm sm:text-base">
                           {t('pages.ranking.registered_count', { count: totalPlayers })}
                         </p>
                       </div>
@@ -884,7 +884,7 @@ const Ranking = () => {
                         <Input
                           type="email"
                           placeholder={t('pages.ranking.email_placeholder')}
-                          className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50 text-white placeholder:text-slate-500 focus:border-primary/50 transition-all sm:w-64"
+                          className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50 text-white placeholder:text-slate-300 focus:border-primary/50 transition-all sm:w-64"
                         />
                         <Button className="bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-bold px-6 py-6 sm:py-2 hover:shadow-lg hover:shadow-primary/50 transition-all whitespace-nowrap">
                           {t('pages.ranking.subscribe')}
@@ -898,25 +898,25 @@ const Ranking = () => {
                           <div className="text-xl sm:text-2xl font-bold text-primary">
                             {Math.floor(totalPlayers * 0.35).toLocaleString('es-MX')}
                           </div>
-                          <div className="text-xs sm:text-sm text-slate-400">{t('pages.ranking.men')}</div>
+                          <div className="text-xs sm:text-sm text-slate-200">{t('pages.ranking.men')}</div>
                         </div>
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
                             {Math.floor(totalPlayers * 0.35).toLocaleString('es-MX')}
                           </div>
-                          <div className="text-xs sm:text-sm text-slate-400">{t('pages.ranking.women')}</div>
+                          <div className="text-xs sm:text-sm text-slate-200">{t('pages.ranking.women')}</div>
                         </div>
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
                             {Math.floor(totalPlayers * 0.2).toLocaleString('es-MX')}
                           </div>
-                          <div className="text-xs sm:text-sm text-slate-400">{t('pages.ranking.juniors')}</div>
+                          <div className="text-xs sm:text-sm text-slate-200">{t('pages.ranking.juniors')}</div>
                         </div>
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
                             {Math.floor(totalPlayers * 0.1).toLocaleString('es-MX')}
                           </div>
-                          <div className="text-xs sm:text-sm text-slate-400">{t('pages.ranking.professionals')}</div>
+                          <div className="text-xs sm:text-sm text-slate-200">{t('pages.ranking.professionals')}</div>
                         </div>
                       </div>
                     </div>

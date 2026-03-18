@@ -106,7 +106,7 @@ const PressReleases = () => {
         return {
           bg: 'bg-slate-400/20',
           border: 'border-slate-400/30',
-          text: 'text-slate-400',
+          text: 'text-slate-200',
         };
     }
   };
@@ -196,10 +196,10 @@ const PressReleases = () => {
                       <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                         <Newspaper className="w-20 h-20 sm:w-24 sm:h-24 text-primary" />
                       </div>
-                      <p className="text-slate-400 text-center font-semibold text-lg">
+                      <p className="text-slate-200 text-center font-semibold text-lg">
                         Noticias Oficiales
                       </p>
-                      <p className="text-slate-600 text-sm text-center max-w-xs leading-relaxed">
+                      <p className="text-slate-300 text-sm text-center max-w-xs leading-relaxed">
                         Comunicados y actualizaciones de la Federación Mexicana de Pickleball
                       </p>
                     </div>
@@ -248,7 +248,7 @@ const PressReleases = () => {
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent mb-6">
                   Comunicados de Prensa
                 </h2>
-                <p className="text-slate-400 text-base sm:text-lg leading-relaxed">
+                <p className="text-slate-200 text-base sm:text-lg leading-relaxed">
                   Mantente al día con las últimas novedades y acontecimientos oficiales
                 </p>
                 <div className="flex items-center justify-center gap-3 mt-8">
@@ -303,7 +303,7 @@ const PressReleases = () => {
                           {/* Content */}
                           <div className="lg:col-span-3 p-6 sm:p-8 lg:p-10 flex flex-col justify-center">
                             {/* Meta info */}
-                            <div className="flex flex-wrap items-center gap-4 mb-5 text-sm text-slate-400">
+                            <div className="flex flex-wrap items-center gap-4 mb-5 text-sm text-slate-200">
                               <div className="flex items-center gap-2">
                                 <Calendar className="w-4 h-4 text-primary" />
                                 {formatDate(featured.date)}
@@ -318,7 +318,7 @@ const PressReleases = () => {
                               {featured.title}
                             </h2>
 
-                            <p className="text-slate-400 text-base sm:text-lg mb-6 leading-relaxed">
+                            <p className="text-slate-200 text-base sm:text-lg mb-6 leading-relaxed">
                               {featured.excerpt}
                             </p>
 
@@ -384,7 +384,7 @@ const PressReleases = () => {
                           {/* Content */}
                           <div className="relative p-4 sm:p-6 flex-1 flex flex-col">
                             {/* Meta info */}
-                            <div className="flex flex-wrap items-center gap-3 mb-4 text-xs text-slate-400">
+                            <div className="flex flex-wrap items-center gap-3 mb-4 text-xs text-slate-200">
                               <div className="flex items-center gap-1.5">
                                 <Calendar className="w-3.5 h-3.5 text-primary" />
                                 {formatDate(article.date)}
@@ -399,7 +399,7 @@ const PressReleases = () => {
                               {article.title}
                             </h3>
 
-                            <p className="text-slate-400 text-sm leading-relaxed mb-4 line-clamp-3 flex-1">
+                            <p className="text-slate-200 text-sm leading-relaxed mb-4 line-clamp-3 flex-1">
                               {article.excerpt}
                             </p>
 
@@ -450,7 +450,7 @@ const PressReleases = () => {
                       Suscríbete a Nuestro Boletín
                     </h3>
 
-                    <p className="text-slate-400 text-base sm:text-lg leading-relaxed mb-10 max-w-2xl mx-auto">
+                    <p className="text-slate-200 text-base sm:text-lg leading-relaxed mb-10 max-w-2xl mx-auto">
                       Recibe las últimas noticias, comunicados y actualizaciones directamente en tu
                       correo electrónico. Mantente al tanto de todo lo que sucede en el mundo del
                       pickleball mexicano.
@@ -469,7 +469,7 @@ const PressReleases = () => {
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-center gap-8 text-slate-500 text-sm flex-wrap">
+                    <div className="flex items-center justify-center gap-8 text-slate-300 text-sm flex-wrap">
                       {['Noticias Semanales', 'Comunicados Oficiales', 'Eventos Especiales'].map(
                         (label, i) => (
                           <div key={label} className="flex items-center gap-2">
@@ -527,7 +527,7 @@ const PressReleases = () => {
                   {/* close */}
                   <button
                     onClick={() => setSelectedArticle(null)}
-                    className="absolute top-4 right-4 z-[9999] w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:border-primary transition-colors"
+                    className="absolute top-4 right-4 z-[9999] w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-200 hover:text-white hover:border-primary transition-colors"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -556,7 +556,7 @@ const PressReleases = () => {
                     {/* Article Content */}
                     <div className="p-4 sm:p-6 lg:p-12">
                       {/* Meta info */}
-                      <div className="flex flex-wrap items-center gap-6 mb-6 text-sm text-slate-400">
+                      <div className="flex flex-wrap items-center gap-6 mb-6 text-sm text-slate-200">
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-primary" />
                           {formatDate(selectedArticle.date)}
@@ -602,11 +602,11 @@ const PressReleases = () => {
                       {/* Share section */}
                       <div className="mt-12 pt-8 border-t border-slate-700/50">
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-                          <div className="text-slate-400 text-sm">
+                          <div className="text-slate-200 text-sm">
                             ¿Te gustó este comunicado? Compártelo con tu comunidad
                           </div>
                           <div className="flex gap-3">
-                            <button className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 hover:border-primary/50 flex items-center justify-center text-slate-400 hover:text-primary transition-colors">
+                            <button className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 hover:border-primary/50 flex items-center justify-center text-slate-200 hover:text-primary transition-colors">
                               <Share2 className="w-4 h-4" />
                             </button>
                             <button className="flex items-center gap-2 bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-bold px-6 py-2.5 rounded-xl hover:shadow-lg hover:shadow-primary/30 transition-all">

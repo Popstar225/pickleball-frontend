@@ -14,6 +14,7 @@ import {
   Sparkles,
   Shield,
   ChevronRight,
+  Lock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -26,9 +27,14 @@ import clubImage from '@/assets/images/courts.jpg';
 import partnerImage from '@/assets/images/_DSC8895.png';
 import stateImage from '@/assets/images/blogs/Image9-1.png';
 
+const STATE_ACCESS_CODE = '888';
+
+
 const SelectUserTypePage = () => {
   const { t } = useTranslation();
   const [selectedType, setSelectedType] = useState<string>('');
+  const [stateCode, setStateCode] = useState<string>('');
+  const [stateCodeError, setStateCodeError] = useState<boolean>(false);
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
@@ -61,10 +67,23 @@ const SelectUserTypePage = () => {
     }
   }, [isAuthenticated, user, navigate]);
 
+  const codeIsValid = selectedType === 'state' ? stateCode === STATE_ACCESS_CODE : true;
+
   const handleContinue = () => {
-    if (selectedType) {
-      localStorage.setItem('registration_user_type', selectedType);
-      navigate('/register/required-fields');
+    if (!selectedType) return;
+    if (selectedType === 'state' && !codeIsValid) {
+      setStateCodeError(true);
+      return;
+    }
+    localStorage.setItem('registration_user_type', selectedType);
+    navigate('/register/required-fields');
+  };
+
+  const handleTypeSelect = (type: string) => {
+    setSelectedType(type);
+    if (type !== 'state') {
+      setStateCode('');
+      setStateCodeError(false);
     }
   };
 
@@ -154,7 +173,7 @@ const SelectUserTypePage = () => {
             </div>
             <div>
               <h3 className="text-white font-bold text-lg">{t('auth.selectType.federation_name')}</h3>
-              <p className="text-slate-400 text-sm">{t('auth.selectType.official_reg')}</p>
+              <p className="text-slate-200 text-sm">{t('auth.selectType.official_reg')}</p>
             </div>
           </div>
 
@@ -175,7 +194,7 @@ const SelectUserTypePage = () => {
                   <h2 className="text-4xl xl:text-5xl font-bold text-white leading-tight mb-4">
                     {selectedUserType && t(`userTypes.${selectedUserType.type}.description`)}
                   </h2>
-                  <p className="text-lg text-slate-400">
+                  <p className="text-lg text-slate-200">
                     {t('auth.selectType.designed_for')}
                   </p>
                 </div>
@@ -207,7 +226,7 @@ const SelectUserTypePage = () => {
                       {t('auth.selectType.join_community')}
                     </span>
                   </h2>
-                  <p className="text-xl text-slate-400 leading-relaxed">
+                  <p className="text-xl text-slate-200 leading-relaxed">
                     {t('auth.selectType.select_details')}
                   </p>
                 </div>
@@ -220,21 +239,21 @@ const SelectUserTypePage = () => {
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="text-slate-300 text-sm font-medium">{t('auth.selectType.platform')}</p>
-                        <p className="text-slate-500 text-xs">{t('auth.selectType.platform_desc')}</p>
+                        <p className="text-slate-300 text-xs">{t('auth.selectType.platform_desc')}</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="text-slate-300 text-sm font-medium">{t('auth.selectType.community')}</p>
-                        <p className="text-slate-500 text-xs">{t('auth.selectType.community_desc')}</p>
+                        <p className="text-slate-300 text-xs">{t('auth.selectType.community_desc')}</p>
                       </div>
                     </div>
                     <div className="flex items-start gap-3">
                       <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="text-slate-300 text-sm font-medium">{t('auth.selectType.secure')}</p>
-                        <p className="text-slate-500 text-xs">{t('auth.selectType.secure_desc')}</p>
+                        <p className="text-slate-300 text-xs">{t('auth.selectType.secure_desc')}</p>
                       </div>
                     </div>
                   </div>
@@ -247,15 +266,15 @@ const SelectUserTypePage = () => {
           <div className="grid grid-cols-3 gap-6 pt-8 border-t border-white/10">
             <div className="text-center">
               <div className="text-3xl font-bold text-primary mb-1">50K+</div>
-              <div className="text-sm text-slate-500">{t('auth.selectType.members')}</div>
+              <div className="text-sm text-slate-300">{t('auth.selectType.members')}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-lime-500 mb-1">1000+</div>
-              <div className="text-sm text-slate-500">{t('auth.selectType.events')}</div>
+              <div className="text-sm text-slate-300">{t('auth.selectType.events')}</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-primary mb-1">150+</div>
-              <div className="text-sm text-slate-500">{t('auth.selectType.clubs')}</div>
+              <div className="text-sm text-slate-300">{t('auth.selectType.clubs')}</div>
             </div>
           </div>
         </div>
@@ -280,7 +299,7 @@ const SelectUserTypePage = () => {
               </div>
               <div>
                 <h3 className="text-white font-bold text-lg">{t('auth.selectType.federation_name')}</h3>
-                <p className="text-slate-400 text-sm">{t('auth.selectType.official_reg')}</p>
+                <p className="text-slate-200 text-sm">{t('auth.selectType.official_reg')}</p>
               </div>
             </div>
 
@@ -295,7 +314,7 @@ const SelectUserTypePage = () => {
 
               {/* Title */}
               <h1 className="text-3xl font-bold text-white">{t('auth.selectType.title')}</h1>
-              <p className="text-slate-400">{t('auth.selectType.subtitle')}</p>
+              <p className="text-slate-200">{t('auth.selectType.subtitle')}</p>
             </div>
           </div>
 
@@ -307,7 +326,7 @@ const SelectUserTypePage = () => {
               return (
                 <button
                   key={userType.type}
-                  onClick={() => setSelectedType(userType.type)}
+                  onClick={() => handleTypeSelect(userType.type)}
                   className={`group w-full text-left transition-all duration-300 ${
                     isSelected ? 'scale-[1.02]' : ''
                   }`}
@@ -333,7 +352,7 @@ const SelectUserTypePage = () => {
                           className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
                             isSelected
                               ? 'bg-transparent text-primary shadow-md shadow-primary/30'
-                              : 'bg-transparent text-slate-400 group-hover:text-slate-300 group-hover:scale-105'
+                              : 'bg-transparent text-slate-200 group-hover:text-slate-300 group-hover:scale-105'
                           }`}
                         >
                           <div className="w-6 h-6">{getIcon(userType.type)}</div>
@@ -367,7 +386,7 @@ const SelectUserTypePage = () => {
                               className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-colors duration-300 ${
                                 isSelected
                                   ? 'bg-primary/20 text-primary'
-                                  : 'bg-white/5 text-slate-500'
+                                  : 'bg-white/5 text-slate-300'
                               }`}
                             >
                               <CheckCircle2 className="w-3 h-3" />
@@ -391,9 +410,49 @@ const SelectUserTypePage = () => {
 
           {/* Footer - CTA */}
           <div className="p-8 pt-6 border-t border-white/10 space-y-4">
+
+            {/* State Committee access code gate */}
+            {selectedType === 'state' && (
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-3">
+                <div className="flex items-center gap-2 text-amber-400">
+                  <Lock className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-sm font-semibold">Código de acceso requerido</span>
+                </div>
+                <p className="text-xs text-slate-200 leading-relaxed">
+                  Ingresa el código de autorización. Contáctanos si no lo tienes.
+                </p>
+
+                <input
+                  type="text"
+                  value={stateCode}
+                  onChange={(e) => {
+                    setStateCode(e.target.value);
+                    setStateCodeError(false);
+                  }}
+                  placeholder="Ingresa el código"
+                  maxLength={20}
+                  className={`w-full h-11 px-4 rounded-lg bg-slate-800 border text-white text-sm placeholder-slate-500 outline-none focus:ring-2 transition-all duration-200 ${
+                    stateCodeError
+                      ? 'border-red-500/70 focus:ring-red-500/40'
+                      : codeIsValid
+                      ? 'border-primary/60 focus:ring-primary/40'
+                      : 'border-slate-600 focus:ring-primary/40'
+                  }`}
+                />
+                {stateCodeError && (
+                  <p className="text-xs text-red-400 font-medium">Código incorrecto. Inténtalo de nuevo.</p>
+                )}
+                {codeIsValid && (
+                  <p className="text-xs text-primary font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Código válido
+                  </p>
+                )}
+              </div>
+            )}
+
             <Button
               onClick={handleContinue}
-              disabled={!selectedType}
+              disabled={!selectedType || !codeIsValid}
               className="group/btn w-full h-14 px-6 bg-gradient-to-r from-primary to-lime-500 hover:from-primary/90 hover:to-lime-400 text-slate-900 font-bold text-base rounded-xl shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none relative overflow-hidden"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
@@ -412,7 +471,7 @@ const SelectUserTypePage = () => {
             </Button>
 
             {/* Security Note */}
-            <div className="flex items-center justify-center gap-2 text-slate-500 text-xs">
+            <div className="flex items-center justify-center gap-2 text-slate-300 text-xs">
               <Shield className="w-3.5 h-3.5" />
               <span>{t('auth.selectType.secure_reg')}</span>
             </div>

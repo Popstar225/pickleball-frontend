@@ -308,7 +308,7 @@
 //           {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((day, i) => (
 //             <div
 //               key={i}
-//               className="px-2 py-3 text-center text-xs font-semibold text-slate-400 uppercase tracking-wide border-r border-slate-700/50 last:border-r-0"
+//               className="px-2 py-3 text-center text-xs font-semibold text-slate-200 uppercase tracking-wide border-r border-slate-700/50 last:border-r-0"
 //             >
 //               {day}
 //             </div>
@@ -357,7 +357,7 @@
 //                     );
 //                   })}
 //                   {dayTournaments.length > 2 && (
-//                     <div className="text-xs text-slate-400 px-2 font-medium">
+//                     <div className="text-xs text-slate-200 px-2 font-medium">
 //                       +{dayTournaments.length - 2} más
 //                     </div>
 //                   )}
@@ -386,7 +386,7 @@
 //                   key={i}
 //                   className={`bg-slate-800/50 p-3 text-center border-r border-b border-slate-700/50 last:border-r-0 sticky top-0 z-10 ${isTodayDate ? 'bg-primary/10' : ''}`}
 //                 >
-//                   <div className="text-xs text-slate-400 uppercase">
+//                   <div className="text-xs text-slate-200 uppercase">
 //                     {format(date, 'EEE', { locale: es })}
 //                   </div>
 //                   <div
@@ -401,7 +401,7 @@
 //             })}
 
 //             {/* All day events row */}
-//             <div className="bg-slate-800/30 px-3 py-3 text-xs text-slate-400 text-right border-r border-b border-slate-700/50 font-medium">
+//             <div className="bg-slate-800/30 px-3 py-3 text-xs text-slate-200 text-right border-r border-b border-slate-700/50 font-medium">
 //               Todo el día
 //             </div>
 //             {weekDays.map((date, i) => {
@@ -422,7 +422,7 @@
 //                         <div className={`font-semibold truncate ${statusStyle.text}`}>
 //                           {tournament.name}
 //                         </div>
-//                         <div className="text-slate-400 text-[10px] truncate">
+//                         <div className="text-slate-200 text-[10px] truncate">
 //                           {tournament.location}
 //                         </div>
 //                       </div>
@@ -445,11 +445,11 @@
 //         {/* Day Header */}
 //         <div className="bg-slate-800/50 p-6 border-b border-slate-700/50 flex-shrink-0">
 //           <div className="text-center">
-//             <div className="text-sm text-slate-400 uppercase tracking-wide">
+//             <div className="text-sm text-slate-200 uppercase tracking-wide">
 //               {format(currentDate, 'EEEE', { locale: es })}
 //             </div>
 //             <div className="text-4xl font-bold text-white mt-1">{currentDate.getDate()}</div>
-//             <div className="text-sm text-slate-400 mt-1">
+//             <div className="text-sm text-slate-200 mt-1">
 //               {format(currentDate, 'MMMM yyyy', { locale: es })}
 //             </div>
 //           </div>
@@ -482,7 +482,7 @@
 //                           >
 //                             {statusStyle.label}
 //                           </span>
-//                           <span className="text-xs text-slate-400 flex items-center gap-1">
+//                           <span className="text-xs text-slate-200 flex items-center gap-1">
 //                             <creatorInfo.icon className="w-3 h-3" />
 //                             {creatorInfo.label}
 //                           </span>
@@ -490,7 +490,7 @@
 //                         <h4 className={`font-semibold text-lg mb-2 ${statusStyle.text}`}>
 //                           {tournament.name}
 //                         </h4>
-//                         <div className="flex flex-wrap gap-3 text-xs text-slate-400 mb-3">
+//                         <div className="flex flex-wrap gap-3 text-xs text-slate-200 mb-3">
 //                           <span className="flex items-center gap-1">
 //                             <Clock className="w-3 h-3" />
 //                             {format(parseISO(tournament.startDate), 'MMM d')} -{' '}
@@ -523,9 +523,9 @@
 //           ) : (
 //             <div className="text-center py-12">
 //               <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4">
-//                 <CalendarIcon className="w-8 h-8 text-slate-600" />
+//                 <CalendarIcon className="w-8 h-8 text-slate-300" />
 //               </div>
-//               <p className="text-slate-400">No hay torneos programados para este día</p>
+//               <p className="text-slate-200">No hay torneos programados para este día</p>
 //             </div>
 //           )}
 //         </div>
@@ -572,7 +572,7 @@
 //                       >
 //                         {statusStyle.label}
 //                       </span>
-//                       <span className="text-xs text-slate-400 flex items-center gap-1">
+//                       <span className="text-xs text-slate-200 flex items-center gap-1">
 //                         <creatorInfo.icon className="w-3 h-3" />
 //                         {creatorInfo.label}
 //                       </span>
@@ -587,7 +587,7 @@
 //                       {tournament.name}
 //                     </h3>
 
-//                     <div className="flex flex-wrap gap-4 text-sm text-slate-400">
+//                     <div className="flex flex-wrap gap-4 text-sm text-slate-200">
 //                       <span className="flex items-center gap-1.5">
 //                         <Clock className="w-4 h-4 text-primary" />
 //                         {format(parseISO(tournament.startDate), 'MMM d')} -{' '}
@@ -603,7 +603,7 @@
 //                       </span>
 //                     </div>
 
-//                     <p className="text-sm text-slate-500 mt-2 line-clamp-2">
+//                     <p className="text-sm text-slate-300 mt-2 line-clamp-2">
 //                       {tournament.description}
 //                     </p>
 //                   </div>
@@ -627,7 +627,7 @@
 //         <main className="flex-1 flex items-center justify-center">
 //           <div className="text-center">
 //             <Loader2 className="w-12 h-12 text-primary animate-spin mx-auto mb-4" />
-//             <p className="text-slate-400">Cargando torneos...</p>
+//             <p className="text-slate-200">Cargando torneos...</p>
 //           </div>
 //         </main>
 //       </div>
@@ -728,10 +728,10 @@
 //                       <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center">
 //                         <Trophy className="w-20 h-20 sm:w-24 sm:h-24 text-primary" />
 //                       </div>
-//                       <p className="text-slate-400 text-center font-semibold text-lg">
+//                       <p className="text-slate-200 text-center font-semibold text-lg">
 //                         Competencias Oficiales
 //                       </p>
-//                       <p className="text-slate-600 text-sm text-center max-w-xs leading-relaxed">
+//                       <p className="text-slate-300 text-sm text-center max-w-xs leading-relaxed">
 //                         Eventos validados y certificados por la Federación Mexicana
 //                       </p>
 //                     </div>
@@ -769,7 +769,7 @@
 //                 <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent mb-6">
 //                   Próximos Torneos
 //                 </h2>
-//                 <p className="text-slate-400 text-base sm:text-lg">
+//                 <p className="text-slate-200 text-base sm:text-lg">
 //                   Explora todos los torneos programados y encuentra tu próxima competencia
 //                 </p>
 //               </div>
@@ -781,7 +781,7 @@
 //                   <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
 //                     {/* State filter */}
 //                     <div className="relative flex-1">
-//                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+//                       <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
 //                       <select
 //                         value={stateFilter}
 //                         onChange={(e) => setStateFilter(e.target.value)}
@@ -798,7 +798,7 @@
 
 //                     {/* Status filter */}
 //                     <div className="relative flex-1">
-//                       <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+//                       <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
 //                       <select
 //                         value={statusFilter}
 //                         onChange={(e) => setStatusFilter(e.target.value)}
@@ -814,7 +814,7 @@
 //                     {hasActiveFilter && (
 //                       <button
 //                         onClick={clearFilters}
-//                         className="px-4 py-3 bg-slate-950/50 border border-slate-700 rounded-xl text-slate-400 hover:text-primary hover:border-primary/50 transition-colors flex items-center gap-2 w-full md:w-auto"
+//                         className="px-4 py-3 bg-slate-950/50 border border-slate-700 rounded-xl text-slate-200 hover:text-primary hover:border-primary/50 transition-colors flex items-center gap-2 w-full md:w-auto"
 //                       >
 //                         <X className="w-4 h-4" />
 //                         Limpiar
@@ -836,7 +836,7 @@
 //                           onClick={handlePrevious}
 //                           className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 hover:border-primary/50 transition-colors flex items-center justify-center"
 //                         >
-//                           <ChevronLeft className="w-5 h-5 text-slate-400" />
+//                           <ChevronLeft className="w-5 h-5 text-slate-200" />
 //                         </button>
 //                         <div className="min-w-[160px] sm:min-w-[220px] text-center">
 //                           <h3 className="font-semibold text-lg text-white">
@@ -851,11 +851,11 @@
 //                           onClick={handleNext}
 //                           className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 hover:border-primary/50 transition-colors flex items-center justify-center"
 //                         >
-//                           <ChevronRight className="w-5 h-5 text-slate-400" />
+//                           <ChevronRight className="w-5 h-5 text-slate-200" />
 //                         </button>
 //                         <button
 //                           onClick={handleToday}
-//                           className="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 hover:border-primary/50 transition-colors text-slate-400 hover:text-white text-sm font-medium"
+//                           className="px-4 py-2 rounded-xl bg-slate-800 border border-slate-700 hover:border-primary/50 transition-colors text-slate-200 hover:text-white text-sm font-medium"
 //                         >
 //                           Hoy
 //                         </button>
@@ -868,7 +868,7 @@
 //                           className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
 //                             currentView === 'month'
 //                               ? 'bg-primary text-primary-foreground'
-//                               : 'bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:border-primary/50'
+//                               : 'bg-slate-800 border border-slate-700 text-slate-200 hover:text-white hover:border-primary/50'
 //                           }`}
 //                         >
 //                           Mes
@@ -878,7 +878,7 @@
 //                           className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
 //                             currentView === 'week'
 //                               ? 'bg-primary text-primary-foreground'
-//                               : 'bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:border-primary/50'
+//                               : 'bg-slate-800 border border-slate-700 text-slate-200 hover:text-white hover:border-primary/50'
 //                           }`}
 //                         >
 //                           Semana
@@ -888,7 +888,7 @@
 //                           className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
 //                             currentView === 'day'
 //                               ? 'bg-primary text-primary-foreground'
-//                               : 'bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:border-primary/50'
+//                               : 'bg-slate-800 border border-slate-700 text-slate-200 hover:text-white hover:border-primary/50'
 //                           }`}
 //                         >
 //                           Día
@@ -898,7 +898,7 @@
 //                           className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
 //                             currentView === 'list'
 //                               ? 'bg-primary text-primary-foreground'
-//                               : 'bg-slate-800 border border-slate-700 text-slate-400 hover:text-white hover:border-primary/50'
+//                               : 'bg-slate-800 border border-slate-700 text-slate-200 hover:text-white hover:border-primary/50'
 //                           }`}
 //                         >
 //                           Lista
@@ -957,11 +957,11 @@
 //                                     {tournament.name}
 //                                   </h4>
 //                                   <div className="space-y-1">
-//                                     <div className="flex items-center gap-1.5 text-xs text-slate-400">
+//                                     <div className="flex items-center gap-1.5 text-xs text-slate-200">
 //                                       <MapPin className="w-3 h-3 text-primary" />
 //                                       <span className="truncate">{tournament.location}</span>
 //                                     </div>
-//                                     <div className="flex items-center gap-1.5 text-xs text-slate-400">
+//                                     <div className="flex items-center gap-1.5 text-xs text-slate-200">
 //                                       <Users className="w-3 h-3 text-primary" />
 //                                       {tournament.currentParticipants}/{tournament.maxParticipants}
 //                                     </div>
@@ -976,9 +976,9 @@
 //                       {filtered.length === 0 && (
 //                         <div className="text-center py-12">
 //                           <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-4">
-//                             <Filter className="w-8 h-8 text-slate-600" />
+//                             <Filter className="w-8 h-8 text-slate-300" />
 //                           </div>
-//                           <p className="text-slate-400 text-sm">No se encontraron torneos</p>
+//                           <p className="text-slate-200 text-sm">No se encontraron torneos</p>
 //                           <button
 //                             onClick={clearFilters}
 //                             className="mt-4 text-sm text-primary hover:underline"
@@ -1023,7 +1023,7 @@
 //                   {/* close */}
 //                   <button
 //                     onClick={() => setSelectedTournament(null)}
-//                     className="absolute top-4 right-4 z-[9999] w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:border-primary transition-colors"
+//                     className="absolute top-4 right-4 z-[9999] w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-200 hover:text-white hover:border-primary transition-colors"
 //                   >
 //                     <X className="w-4 h-4" />
 //                   </button>
@@ -1067,7 +1067,7 @@
 //                         <h2 className="text-3xl font-bold text-white mb-3">
 //                           {selectedTournament.name}
 //                         </h2>
-//                         <p className="text-slate-400 leading-relaxed">
+//                         <p className="text-slate-200 leading-relaxed">
 //                           {selectedTournament.description}
 //                         </p>
 //                       </div>
@@ -1107,7 +1107,7 @@
 //                               <item.Icon className="w-4 h-4 text-primary" />
 //                             </div>
 //                             <div>
-//                               <div className="text-xs text-slate-500 mb-1">{item.label}</div>
+//                               <div className="text-xs text-slate-300 mb-1">{item.label}</div>
 //                               <div className="text-sm text-white font-medium break-words">
 //                                 {item.value}
 //                               </div>
@@ -1123,7 +1123,7 @@
 //                             <Trophy className="w-6 h-6 text-amber-400" />
 //                           </div>
 //                           <div>
-//                             <div className="text-xs text-slate-400 mb-1">Bolsa de Premios</div>
+//                             <div className="text-xs text-slate-200 mb-1">Bolsa de Premios</div>
 //                             <div className="text-2xl font-bold text-amber-400">
 //                               {selectedTournament.prizePool}
 //                             </div>
@@ -1152,13 +1152,13 @@
 //                       {/* Format & Fee */}
 //                       <div className="grid grid-cols-2 gap-4 mb-6 pt-6 border-t border-slate-700/50">
 //                         <div>
-//                           <div className="text-xs text-slate-500 mb-1">Formato</div>
+//                           <div className="text-xs text-slate-300 mb-1">Formato</div>
 //                           <div className="text-sm text-white font-medium">
 //                             {selectedTournament.format}
 //                           </div>
 //                         </div>
 //                         <div>
-//                           <div className="text-xs text-slate-500 mb-1">Cuota de Inscripción</div>
+//                           <div className="text-xs text-slate-300 mb-1">Cuota de Inscripción</div>
 //                           <div className="text-sm text-white font-medium">
 //                             {selectedTournament.entryFee}
 //                           </div>

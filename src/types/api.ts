@@ -678,6 +678,8 @@ export interface CreateTournamentRequest {
   contact_phone?: string;
   registration_requirements?: object;
   registration_notes?: string;
+  tournament_type_name?: string;
+  tier?: number;
 }
 
 export interface TournamentRegistrationRequest {

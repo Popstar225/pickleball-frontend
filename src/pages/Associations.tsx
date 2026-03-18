@@ -96,7 +96,7 @@ const Associations = () => {
                 <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl border border-slate-700/50 p-6">
                   <div className="flex items-center gap-4">
                     <div className="relative flex-1">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-200" />
                       <input
                         type="text"
                         placeholder={t('pages.associations.search_placeholder')}
@@ -105,7 +105,7 @@ const Associations = () => {
                         className="w-full bg-slate-950/50 border border-slate-700 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
-                    <div className="hidden md:flex items-center gap-2 text-sm text-slate-400">
+                    <div className="hidden md:flex items-center gap-2 text-sm text-slate-200">
                       <span>{filteredAssociations.length}</span>
                       <span>{t('pages.associations.results')}</span>
                     </div>
@@ -174,7 +174,7 @@ const Associations = () => {
 
                             {/* Coming Soon Badge */}
                             <div className="absolute top-3 right-3">
-                              <div className="flex items-center gap-2 bg-slate-700/90 backdrop-blur-sm text-slate-400 text-xs font-medium px-3 py-1.5 rounded-full border border-slate-600">
+                              <div className="flex items-center gap-2 bg-slate-700/90 backdrop-blur-sm text-slate-200 text-xs font-medium px-3 py-1.5 rounded-full border border-slate-600">
                                 <span>{t('pages.associations.coming_soon')}</span>
                               </div>
                             </div>
@@ -189,13 +189,13 @@ const Associations = () => {
                             className={`font-bold text-xl mb-3 ${
                               association.hasProfile
                                 ? 'text-white group-hover:text-primary'
-                                : 'text-slate-400'
+                                : 'text-slate-200'
                             } transition-colors duration-500 line-clamp-2`}
                           >
                             {association.name}
                           </h3>
 
-                          <div className="flex items-center gap-2 text-sm text-slate-400 mb-4">
+                          <div className="flex items-center gap-2 text-sm text-slate-200 mb-4">
                             <MapPin className="w-4 h-4 text-primary" />
                             <span className="truncate">{association.state}</span>
                           </div>
@@ -212,7 +212,7 @@ const Associations = () => {
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-200%] group-hover/link:translate-x-[200%] transition-transform duration-1000" />
                           </Link>
                         ) : (
-                          <div className="inline-flex items-center justify-center gap-2 text-sm text-slate-600 italic bg-slate-800/50 px-4 py-3 rounded-xl border border-slate-700/30 w-full">
+                          <div className="inline-flex items-center justify-center gap-2 text-sm text-slate-300 italic bg-slate-800/50 px-4 py-3 rounded-xl border border-slate-700/30 w-full">
                             <span>{t('pages.associations.microsite_dev')}</span>
                           </div>
                         )}
@@ -231,12 +231,12 @@ const Associations = () => {
               {filteredAssociations.length === 0 && (
                 <div className="text-center py-20">
                   <div className="w-20 h-20 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-6">
-                    <Search className="w-10 h-10 text-slate-600" />
+                    <Search className="w-10 h-10 text-slate-300" />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-2">
                     {t('pages.associations.no_results')}
                   </h3>
-                  <p className="text-slate-400">{t('pages.associations.no_results_hint')}</p>
+                  <p className="text-slate-200">{t('pages.associations.no_results_hint')}</p>
                 </div>
               )}
             </div>
@@ -266,7 +266,7 @@ const Associations = () => {
                   <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
                     {t('pages.associations.cta_title')}
                   </h3>
-                  <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+                  <p className="text-slate-200 text-lg max-w-2xl mx-auto">
                     {t('pages.associations.cta_subtitle')}
                   </p>
                   <Link

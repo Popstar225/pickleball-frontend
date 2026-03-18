@@ -164,7 +164,7 @@ const Messaging: React.FC<MessagingProps> = ({ messages: propMessages }) => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 animate-on-scroll">System Messaging</h2>
-          <p className="text-gray-600 animate-on-scroll">Manage system-wide communications and announcements</p>
+          <p className="text-gray-300 animate-on-scroll">Manage system-wide communications and announcements</p>
         </div>
         <div className="flex space-x-3">
           <button 
@@ -198,7 +198,7 @@ const Messaging: React.FC<MessagingProps> = ({ messages: propMessages }) => {
             </svg>
           </div>
           <div className="text-2xl font-bold text-blue-600">{displayStats.total}</div>
-          <p className="text-xs text-gray-600">all messages</p>
+          <p className="text-xs text-gray-300">all messages</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 animate-on-scroll">
@@ -209,7 +209,7 @@ const Messaging: React.FC<MessagingProps> = ({ messages: propMessages }) => {
             </svg>
           </div>
           <div className="text-2xl font-bold text-green-600">{displayStats.sent}</div>
-          <p className="text-xs text-gray-600">successfully sent</p>
+          <p className="text-xs text-gray-300">successfully sent</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 animate-on-scroll">
@@ -220,7 +220,7 @@ const Messaging: React.FC<MessagingProps> = ({ messages: propMessages }) => {
             </svg>
           </div>
           <div className="text-2xl font-bold text-yellow-600">{displayStats.draft}</div>
-          <p className="text-xs text-gray-600">draft messages</p>
+          <p className="text-xs text-gray-300">draft messages</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 animate-on-scroll">
@@ -231,7 +231,7 @@ const Messaging: React.FC<MessagingProps> = ({ messages: propMessages }) => {
             </svg>
           </div>
           <div className="text-2xl font-bold text-blue-600">{displayStats.scheduled}</div>
-          <p className="text-xs text-gray-600">scheduled messages</p>
+          <p className="text-xs text-gray-300">scheduled messages</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 animate-on-scroll">
@@ -242,7 +242,7 @@ const Messaging: React.FC<MessagingProps> = ({ messages: propMessages }) => {
             </svg>
           </div>
           <div className="text-2xl font-bold text-red-600">{displayStats.cancelled}</div>
-          <p className="text-xs text-gray-600">cancelled messages</p>
+          <p className="text-xs text-gray-300">cancelled messages</p>
         </div>
       </div>
 
@@ -252,7 +252,7 @@ const Messaging: React.FC<MessagingProps> = ({ messages: propMessages }) => {
           <div>
             <label htmlFor="search" className="block text-sm font-medium text-gray-700">Search Messages</label>
             <div className="relative">
-              <svg className="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute left-3 top-3 h-4 w-4 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <input
@@ -324,14 +324,14 @@ const Messaging: React.FC<MessagingProps> = ({ messages: propMessages }) => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sender</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Recipients</th>
-                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sent At</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Title</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Sender</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Priority</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Recipients</th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Sent At</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
@@ -377,7 +377,7 @@ const Messaging: React.FC<MessagingProps> = ({ messages: propMessages }) => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <div className="flex items-center space-x-1">
-                      <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                       </svg>
                       <span>{message.total_recipients || 0}</span>
@@ -437,11 +437,11 @@ const Messaging: React.FC<MessagingProps> = ({ messages: propMessages }) => {
 
           {filteredMessages.length === 0 && (
             <div className="text-center py-8">
-              <svg className="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-12 w-12 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
               <h3 className="text-lg font-medium text-gray-900 mb-2">No messages found</h3>
-              <p className="text-gray-600">Try adjusting your search criteria or filters.</p>
+              <p className="text-gray-300">Try adjusting your search criteria or filters.</p>
             </div>
           )}
         </div>
@@ -453,7 +453,7 @@ const Messaging: React.FC<MessagingProps> = ({ messages: propMessages }) => {
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto animate-on-scroll">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Message Details</h3>
-              <button onClick={() => dispatch(clearSelectedMessage())} className="text-gray-500 hover:text-gray-700 focus:outline-none">
+              <button onClick={() => dispatch(clearSelectedMessage())} className="text-gray-300 hover:text-gray-700 focus:outline-none">
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -579,7 +579,7 @@ const Messaging: React.FC<MessagingProps> = ({ messages: propMessages }) => {
           <div className="bg-white rounded-lg p-6 w-full max-w-3xl mx-4 max-h-[90vh] overflow-y-auto animate-on-scroll">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold">Compose System Message</h3>
-              <button onClick={() => dispatch(setShowCompose(false))} className="text-gray-500 hover:text-gray-700 focus:outline-none">
+              <button onClick={() => dispatch(setShowCompose(false))} className="text-gray-300 hover:text-gray-700 focus:outline-none">
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>

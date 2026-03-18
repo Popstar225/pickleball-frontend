@@ -94,6 +94,21 @@ export async function fetchTopPlayers(params?: {
 }
 
 /**
+ * Fetch rankings for a specific user (by userId)
+ */
+export async function fetchUserRankings(
+  userId: string,
+  params?: { category?: string; skill_level?: string },
+): Promise<RankingResponse> {
+  const queryParams = new URLSearchParams();
+  if (params?.category) queryParams.append('category', params.category);
+  if (params?.skill_level) queryParams.append('skill_level', params.skill_level);
+  const queryString = queryParams.toString();
+  const url = `/api/v1/rankings/user/${userId}${queryString ? `?${queryString}` : ''}`;
+  return get<RankingResponse>(url);
+}
+
+/**
  * Fetch state rankings
  */
 export async function fetchStateRankings(

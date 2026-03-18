@@ -116,7 +116,7 @@ const ClubProfile = () => {
         <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="animate-on-scroll text-3xl font-bold text-gray-900 mb-2">Club Profile</h1>
-            <p className="animate-on-scroll text-gray-600">Manage your club information and settings</p>
+            <p className="animate-on-scroll text-gray-300">Manage your club information and settings</p>
           </div>
           <div className="flex space-x-3">
             {!isEditing ? (
@@ -387,7 +387,7 @@ const ClubProfile = () => {
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <h4 className="font-medium text-gray-900">{facility.name}</h4>
-                          <p className="text-sm text-gray-600">{facility.type} • {facility.surface}</p>
+                          <p className="text-sm text-gray-300">{facility.type} • {facility.surface}</p>
                         </div>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           facility.status === 'Available' 
@@ -399,11 +399,11 @@ const ClubProfile = () => {
                       </div>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <span className="text-gray-500">Surface:</span>
+                          <span className="text-gray-300">Surface:</span>
                           <p className="font-medium">{facility.surface}</p>
                         </div>
                         <div>
-                          <span className="text-gray-500">Lighting:</span>
+                          <span className="text-gray-300">Lighting:</span>
                           <p className="font-medium">{facility.lighting}</p>
                         </div>
                       </div>
@@ -453,26 +453,26 @@ const ClubProfile = () => {
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="animate-on-scroll text-2xl font-bold text-blue-600">{clubStats.totalMembers}</div>
-                    <div className="animate-on-scroll text-sm text-gray-600">Total Members</div>
+                    <div className="animate-on-scroll text-sm text-gray-300">Total Members</div>
                   </div>
                   <div>
                     <div className="animate-on-scroll text-2xl font-bold text-green-600">{clubStats.totalCourts}</div>
-                    <div className="animate-on-scroll text-sm text-gray-600">Total Courts</div>
+                    <div className="animate-on-scroll text-sm text-gray-300">Total Courts</div>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <div className="animate-on-scroll text-2xl font-bold text-purple-600">{clubStats.averageRating}</div>
-                    <div className="animate-on-scroll text-sm text-gray-600">Average Rating</div>
+                    <div className="animate-on-scroll text-sm text-gray-300">Average Rating</div>
                   </div>
                   <div>
                     <div className="animate-on-scroll text-2xl font-bold text-orange-600">{clubStats.yearsEstablished}</div>
-                    <div className="animate-on-scroll text-sm text-gray-600">Years Established</div>
+                    <div className="animate-on-scroll text-sm text-gray-300">Years Established</div>
                   </div>
                 </div>
                 <div className="pt-4 border-t">
                   <div className="text-center">
-                    <div className="animate-on-scroll text-sm text-gray-600">Monthly Revenue</div>
+                    <div className="animate-on-scroll text-sm text-gray-300">Monthly Revenue</div>
                     <div className="animate-on-scroll font-medium">${clubStats.monthlyRevenue.toLocaleString()}</div>
                   </div>
                 </div>

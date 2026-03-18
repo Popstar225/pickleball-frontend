@@ -115,7 +115,7 @@ export default function CourtsViewer({ venue, onBack }: CourtListProps) {
                   className={
                     court.is_active
                       ? 'bg-green-500/20 text-green-400'
-                      : 'bg-gray-500/20 text-gray-400'
+                      : 'bg-gray-500/20 text-gray-200'
                   }
                 >
                   {court.is_active ? 'Active' : 'Inactive'}

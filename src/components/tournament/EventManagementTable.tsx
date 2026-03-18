@@ -90,7 +90,7 @@ export function EventManagementTable({ events, onAction, sortBy = 'name', sortDi
         <TableBody>
           {sortedEvents.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+              <TableCell colSpan={7} className="text-center py-8 text-gray-300">
                 No events available
               </TableCell>
             </TableRow>
@@ -122,7 +122,7 @@ export function EventManagementTable({ events, onAction, sortBy = 'name', sortDi
                           style={{ width: `${Math.min(fillPercent, 100)}%` }}
                         ></div>
                       </div>
-                      <div className="text-xs text-gray-500 mt-1">{fillPercent}% full</div>
+                      <div className="text-xs text-gray-300 mt-1">{fillPercent}% full</div>
                     </div>
                   </TableCell>
                   <TableCell>{getStatusBadge(event)}</TableCell>

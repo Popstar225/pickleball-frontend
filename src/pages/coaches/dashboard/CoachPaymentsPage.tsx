@@ -115,7 +115,7 @@ export default function CoachPaymentsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-white">Pagos y Facturación</h1>
-        <p className="text-slate-400 mt-1">Gestiona tu membresía anual y licencias de entrenador</p>
+        <p className="text-slate-200 mt-1">Gestiona tu membresía anual y licencias de entrenador</p>
       </div>
 
       {error && (
@@ -134,7 +134,7 @@ export default function CoachPaymentsPage() {
               <Star className="h-5 w-5 text-primary" />
               Membresía Anual
             </CardTitle>
-            <CardDescription className="text-slate-400">Cuota anual obligatoria para entrenadores</CardDescription>
+            <CardDescription className="text-slate-200">Cuota anual obligatoria para entrenadores</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <Badge className={isActive ? 'bg-green-600' : 'bg-red-600'}>
@@ -142,7 +142,7 @@ export default function CoachPaymentsPage() {
             </Badge>
             <p className="text-2xl font-bold text-white">${(membership?.annual_fee || 800).toLocaleString()} MXN/año</p>
             {isActive && membership?.membership_expires_at && (
-              <p className="text-sm text-slate-400">Vence: {new Date(membership.membership_expires_at).toLocaleDateString('es-MX')}</p>
+              <p className="text-sm text-slate-200">Vence: {new Date(membership.membership_expires_at).toLocaleDateString('es-MX')}</p>
             )}
             <Button className="w-full" variant={isActive ? 'outline' : 'default'} onClick={() => setShowMembershipModal(true)}>
               <CreditCard className="h-4 w-4 mr-2" />
@@ -158,7 +158,7 @@ export default function CoachPaymentsPage() {
               <Award className="h-5 w-5 text-yellow-500" />
               Licencias de Entrenador
             </CardTitle>
-            <CardDescription className="text-slate-400">Adquiere certificaciones a través de la plataforma</CardDescription>
+            <CardDescription className="text-slate-200">Adquiere certificaciones a través de la plataforma</CardDescription>
           </CardHeader>
           <CardContent>
             {licensePaymentData ? (
@@ -192,7 +192,7 @@ export default function CoachPaymentsPage() {
                     </div>
                   </div>
                 ))}
-                {!isActive && <p className="text-xs text-slate-500 mt-2">Se requiere membresía anual activa</p>}
+                {!isActive && <p className="text-xs text-slate-300 mt-2">Se requiere membresía anual activa</p>}
               </div>
             )}
           </CardContent>
@@ -203,34 +203,34 @@ export default function CoachPaymentsPage() {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Total Pagado</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-200">Total Pagado</CardTitle>
             <DollarSign className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">${stats.totalPaid.toLocaleString()}</div>
-            <p className="text-xs text-slate-400">MXN este año</p>
+            <p className="text-xs text-slate-200">MXN este año</p>
           </CardContent>
         </Card>
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Pagos Pendientes</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-200">Pagos Pendientes</CardTitle>
             <Clock className="h-4 w-4 text-yellow-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">{stats.pendingPayments}</div>
-            <p className="text-xs text-slate-400">Por procesar</p>
+            <p className="text-xs text-slate-200">Por procesar</p>
           </CardContent>
         </Card>
         <Card className="bg-slate-900 border-slate-800">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-400">Próxima Renovación</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-200">Próxima Renovación</CardTitle>
             <Calendar className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
               {stats.nextRenewal ? new Date(stats.nextRenewal).toLocaleDateString('es-MX') : '—'}
             </div>
-            <p className="text-xs text-slate-400">Membresía anual</p>
+            <p className="text-xs text-slate-200">Membresía anual</p>
           </CardContent>
         </Card>
       </div>
@@ -239,28 +239,28 @@ export default function CoachPaymentsPage() {
       <Card className="bg-slate-900 border-slate-800">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2"><Receipt className="h-5 w-5" />Historial de Pagos</CardTitle>
-          <CardDescription className="text-slate-400">Todos tus pagos y transacciones</CardDescription>
+          <CardDescription className="text-slate-200">Todos tus pagos y transacciones</CardDescription>
         </CardHeader>
         <CardContent>
           {payments.length === 0 ? (
-            <div className="text-center py-10 text-slate-500">No hay pagos registrados</div>
+            <div className="text-center py-10 text-slate-300">No hay pagos registrados</div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow className="border-slate-700">
-                  <TableHead className="text-slate-400">Descripción</TableHead>
-                  <TableHead className="text-slate-400">Tipo</TableHead>
-                  <TableHead className="text-slate-400">Monto</TableHead>
-                  <TableHead className="text-slate-400">Estado</TableHead>
-                  <TableHead className="text-slate-400">Fecha</TableHead>
-                  <TableHead className="text-slate-400">Recibo</TableHead>
+                  <TableHead className="text-slate-200">Descripción</TableHead>
+                  <TableHead className="text-slate-200">Tipo</TableHead>
+                  <TableHead className="text-slate-200">Monto</TableHead>
+                  <TableHead className="text-slate-200">Estado</TableHead>
+                  <TableHead className="text-slate-200">Fecha</TableHead>
+                  <TableHead className="text-slate-200">Recibo</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {payments.map((payment) => (
                   <TableRow key={payment.id} className="border-slate-700">
                     <TableCell className="text-white font-medium">{payment.description || getTypeLabel(payment.payment_type)}</TableCell>
-                    <TableCell className="text-slate-400">{getTypeLabel(payment.payment_type)}</TableCell>
+                    <TableCell className="text-slate-200">{getTypeLabel(payment.payment_type)}</TableCell>
                     <TableCell className="text-white font-medium">${Number(payment.amount).toLocaleString()} {payment.currency?.toUpperCase() || 'MXN'}</TableCell>
                     <TableCell>{getStatusBadge(payment.status)}</TableCell>
                     <TableCell className="text-white">{new Date(payment.created_at).toLocaleDateString('es-MX')}</TableCell>

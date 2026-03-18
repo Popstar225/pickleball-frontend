@@ -42,7 +42,7 @@ const CERT_STYLES = {
   1: {
     bg: 'bg-slate-400/20',
     border: 'border-slate-400/30',
-    text: 'text-slate-400',
+    text: 'text-slate-200',
     dotBg: 'bg-slate-400',
     glow: 'shadow-slate-400/50',
     gradFrom: 'from-slate-400',
@@ -67,7 +67,7 @@ const DetailRow = ({
   className?: string;
 }) => (
   <div
-    className={`flex items-center gap-3 text-sm text-slate-400 group-hover:text-slate-300 transition-colors ${className}`}
+    className={`flex items-center gap-3 text-sm text-slate-200 group-hover:text-slate-300 transition-colors ${className}`}
   >
     <div className="w-8 h-8 rounded-lg bg-slate-800/80 border border-slate-700/50 flex items-center justify-center flex-shrink-0">
       <Icon className="w-4 h-4 text-primary" />
@@ -181,10 +181,10 @@ const Referees = () => {
                       <div className="w-40 h-40 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                         <Shield className="w-24 h-24 text-primary" />
                       </div>
-                      <p className="text-slate-400 text-center font-semibold text-lg">
+                      <p className="text-slate-200 text-center font-semibold text-lg">
                         Equipo Oficial de Árbitros
                       </p>
-                      <p className="text-slate-600 text-sm text-center max-w-xs leading-relaxed">
+                      <p className="text-slate-300 text-sm text-center max-w-xs leading-relaxed">
                         Profesionales certificados que garantizan la integridad de cada partido
                       </p>
                     </div>
@@ -239,7 +239,7 @@ const Referees = () => {
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent mb-3 sm:mb-4 md:mb-6 leading-tight">
                   Todo el equipo
                 </h2>
-                <p className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed px-2">
+                <p className="text-slate-200 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed px-2">
                   Busca y conoce a los árbitros y entrenadores certificados disponibles en todo
                   México
                 </p>
@@ -257,7 +257,7 @@ const Referees = () => {
                   <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
                     {/* search */}
                     <div className="relative flex-1">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
                       <input
                         type="text"
                         placeholder="Buscar por nombre o estado..."
@@ -269,7 +269,7 @@ const Referees = () => {
 
                     {/* state */}
                     <div className="relative flex-1 md:flex-auto">
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
                       <div className="w-full md:w-40">
                         <StateAutocomplete
                           value={stateFilter}
@@ -282,7 +282,7 @@ const Referees = () => {
 
                     {/* certification */}
                     <div className="relative flex-1 md:flex-auto">
-                      <Award className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+                      <Award className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
                       <select
                         value={certFilter}
                         onChange={(e) => setCertFilter(e.target.value)}
@@ -302,13 +302,13 @@ const Referees = () => {
 
               {/* result count + clear */}
               <div className="flex items-center justify-between">
-                <p className="text-slate-500 text-sm">
+                <p className="text-slate-300 text-sm">
                   Mostrando <span className="text-white font-bold">{filtered.length}</span> árbitros
                 </p>
                 {hasActiveFilter && (
                   <button
                     onClick={clearFilters}
-                    className="text-sm text-slate-500 hover:text-primary transition-colors flex items-center gap-1.5"
+                    className="text-sm text-slate-300 hover:text-primary transition-colors flex items-center gap-1.5"
                   >
                     <X className="w-3.5 h-3.5" /> Limpiar filtros
                   </button>
@@ -382,7 +382,7 @@ const Referees = () => {
                           </div>
 
                           {/* ── bio snippet ── */}
-                          <p className="text-slate-500 text-sm leading-relaxed mt-5 line-clamp-2 group-hover:text-slate-400 transition-colors">
+                          <p className="text-slate-300 text-sm leading-relaxed mt-5 line-clamp-2 group-hover:text-slate-200 transition-colors">
                             {referee.bio}
                           </p>
 
@@ -410,10 +410,10 @@ const Referees = () => {
               {filtered.length === 0 && (
                 <div className="text-center py-24">
                   <div className="w-24 h-24 rounded-3xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-6">
-                    <Filter className="w-12 h-12 text-slate-600" />
+                    <Filter className="w-12 h-12 text-slate-300" />
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-3">No se encontraron árbitros</h3>
-                  <p className="text-slate-400 mb-6">Intenta ajustar tus filtros de búsqueda</p>
+                  <p className="text-slate-200 mb-6">Intenta ajustar tus filtros de búsqueda</p>
                   <button
                     onClick={clearFilters}
                     className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-lime-500 text-slate-900 font-bold px-6 py-3 rounded-xl hover:shadow-lg hover:shadow-primary/30 transition-all duration-500"
@@ -457,7 +457,7 @@ const Referees = () => {
                     <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold bg-gradient-to-r from-white via-slate-200 to-white bg-clip-text text-transparent mb-4 sm:mb-6 leading-tight">
                       ¿Quieres ser árbitro o entrenador oficial?
                     </h3>
-                    <p className="text-slate-400 text-base sm:text-lg md:text-xl leading-relaxed mb-6 md:mb-10 max-w-lg md:max-w-2xl mx-auto whitespace-normal">
+                    <p className="text-slate-200 text-base sm:text-lg md:text-xl leading-relaxed mb-6 md:mb-10 max-w-lg md:max-w-2xl mx-auto whitespace-normal">
                       Únete a nuestro equipo de árbitros y entrenadores oficiales. Completa el
                       programa de certificación y ayuda a mantener la integridad de las
                       competiciones de pickleball en México.
@@ -482,7 +482,7 @@ const Referees = () => {
                       </a>
                     </div>
 
-                    <div className="mt-12 flex items-center justify-center gap-8 text-slate-500 text-sm flex-wrap">
+                    <div className="mt-12 flex items-center justify-center gap-8 text-slate-300 text-sm flex-wrap">
                       {[
                         'Certificación Oficial',
                         'Entrenamiento Profesional',
@@ -540,7 +540,7 @@ const Referees = () => {
                   {/* close */}
                   <button
                     onClick={() => setSelected(null)}
-                    className="absolute top-4 right-4 z-[9999] w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white hover:border-primary transition-colors"
+                    className="absolute top-4 right-4 z-[9999] w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-200 hover:text-white hover:border-primary transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -568,7 +568,7 @@ const Referees = () => {
                     </div>
 
                     {/* bio */}
-                    <p className="text-slate-400 leading-relaxed mb-6">{selected.bio}</p>
+                    <p className="text-slate-200 leading-relaxed mb-6">{selected.bio}</p>
 
                     {/* stats */}
                     <div className="grid grid-cols-2 gap-4 mb-6">
@@ -581,7 +581,7 @@ const Referees = () => {
                           className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-5 text-center"
                         >
                           <p className="text-3xl font-bold text-primary">{s.value}</p>
-                          <p className="text-sm text-slate-500 mt-1">{s.label}</p>
+                          <p className="text-sm text-slate-300 mt-1">{s.label}</p>
                         </div>
                       ))}
                     </div>

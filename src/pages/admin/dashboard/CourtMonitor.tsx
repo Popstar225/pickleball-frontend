@@ -107,7 +107,7 @@ const CourtMonitor: React.FC<CourtMonitorProps> = ({ courtPerformance }) => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 animate-on-scroll">Court Monitoring</h2>
-          <p className="text-gray-600 animate-on-scroll">Monitor court performance and system health across all locations</p>
+          <p className="text-gray-300 animate-on-scroll">Monitor court performance and system health across all locations</p>
         </div>
         <div className="flex space-x-3">
           <button 
@@ -127,9 +127,9 @@ const CourtMonitor: React.FC<CourtMonitorProps> = ({ courtPerformance }) => {
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Total Courts</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Total Courts</p>
               <div className="text-2xl font-bold text-blue-600 animate-on-scroll">{stats.total}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">monitored courts</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">monitored courts</p>
             </div>
             <div className="p-2 rounded-full bg-blue-100 text-blue-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,9 +143,9 @@ const CourtMonitor: React.FC<CourtMonitorProps> = ({ courtPerformance }) => {
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Operational</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Operational</p>
               <div className="text-2xl font-bold text-green-600 animate-on-scroll">{stats.operational}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">fully operational</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">fully operational</p>
             </div>
             <div className="p-2 rounded-full bg-green-100 text-green-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,9 +158,9 @@ const CourtMonitor: React.FC<CourtMonitorProps> = ({ courtPerformance }) => {
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Maintenance</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Maintenance</p>
               <div className="text-2xl font-bold text-yellow-600 animate-on-scroll">{stats.maintenance}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">under maintenance</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">under maintenance</p>
             </div>
             <div className="p-2 rounded-full bg-yellow-100 text-yellow-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -173,9 +173,9 @@ const CourtMonitor: React.FC<CourtMonitorProps> = ({ courtPerformance }) => {
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Offline</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Offline</p>
               <div className="text-2xl font-bold text-red-600 animate-on-scroll">{stats.offline}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">currently offline</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">currently offline</p>
             </div>
             <div className="p-2 rounded-full bg-red-100 text-red-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,9 +188,9 @@ const CourtMonitor: React.FC<CourtMonitorProps> = ({ courtPerformance }) => {
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Avg. Uptime</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Avg. Uptime</p>
               <div className="text-2xl font-bold text-purple-600 animate-on-scroll">{stats.averageUptime.toFixed(1)}%</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">system reliability</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">system reliability</p>
             </div>
             <div className="p-2 rounded-full bg-purple-100 text-purple-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -203,9 +203,9 @@ const CourtMonitor: React.FC<CourtMonitorProps> = ({ courtPerformance }) => {
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Total Bookings</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Total Bookings</p>
               <div className="text-2xl font-bold text-green-600 animate-on-scroll">{stats.totalBookings}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">today</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">today</p>
             </div>
             <div className="p-2 rounded-full bg-green-100 text-green-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,7 +223,7 @@ const CourtMonitor: React.FC<CourtMonitorProps> = ({ courtPerformance }) => {
             <div>
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">Search Courts</label>
               <div className="relative">
-                <svg className="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="absolute left-3 top-3 h-4 w-4 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
@@ -382,12 +382,12 @@ const CourtMonitor: React.FC<CourtMonitorProps> = ({ courtPerformance }) => {
 
           {filteredCourts.length === 0 && (
             <div className="text-center py-8 animate-on-scroll">
-              <svg className="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-12 w-12 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <h3 className="text-lg font-medium text-gray-900 mb-2 animate-on-scroll">No courts found</h3>
-              <p className="text-gray-600 animate-on-scroll">Try adjusting your search criteria or filters.</p>
+              <p className="text-gray-300 animate-on-scroll">Try adjusting your search criteria or filters.</p>
             </div>
           )}
         </div>
@@ -412,18 +412,18 @@ const CourtMonitor: React.FC<CourtMonitorProps> = ({ courtPerformance }) => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Court Name</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Court Name</label>
                   <p className="font-medium animate-on-scroll">{selectedCourt.name}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Location</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Location</label>
                   <p className="animate-on-scroll">{selectedCourt.location}</p>
                 </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Status</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Status</label>
                   <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(selectedCourt.status)} animate-on-scroll`}>
                     <div className="flex items-center space-x-1">
                       {getStatusIcon(selectedCourt.status)}
@@ -432,21 +432,21 @@ const CourtMonitor: React.FC<CourtMonitorProps> = ({ courtPerformance }) => {
                   </span>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Uptime</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Uptime</label>
                   <p className="font-medium animate-on-scroll">{selectedCourt.uptime}%</p>
                 </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Response Time</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Response Time</label>
                   <p className={selectedCourt.responseTime < 100 ? 'text-green-600' : 
                               selectedCourt.responseTime < 200 ? 'text-yellow-600' : 'text-red-600'}>
                     {selectedCourt.responseTime}ms
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Utilization</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Utilization</label>
                   <p className={`font-medium ${getUtilizationColor(selectedCourt.utilization)} animate-on-scroll`}>
                     {selectedCourt.utilization}%
                   </p>
@@ -455,23 +455,23 @@ const CourtMonitor: React.FC<CourtMonitorProps> = ({ courtPerformance }) => {
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Bookings Today</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Bookings Today</label>
                   <p className="animate-on-scroll">{selectedCourt.bookingsToday}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Last Maintenance</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Last Maintenance</label>
                   <p className="animate-on-scroll">{selectedCourt.lastMaintenance}</p>
                 </div>
               </div>
               
               <div>
-                <label className="text-sm font-medium text-gray-500 animate-on-scroll">Next Maintenance</label>
+                <label className="text-sm font-medium text-gray-300 animate-on-scroll">Next Maintenance</label>
                 <p className="animate-on-scroll">{selectedCourt.nextMaintenance}</p>
               </div>
               
               {selectedCourt.issues.length > 0 && (
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Current Issues</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Current Issues</label>
                   <div className="mt-1 space-y-1">
                     {selectedCourt.issues.map((issue, index) => (
                       <div key={index} className="flex items-center space-x-2 text-sm text-red-600 animate-on-scroll">

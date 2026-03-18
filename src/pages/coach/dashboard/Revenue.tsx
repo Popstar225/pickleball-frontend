@@ -59,7 +59,7 @@ const Revenue: React.FC<RevenueProps> = ({ revenueData, coachStats }) => {
               </div>
               <div>
                 <div className="text-2xl font-bold text-green-600">${revenueData.thisMonth}</div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-300">
                   {revenueData.thisMonth > revenueData.lastMonth ? (
                     <span className="text-green-600">↗ +${revenueData.thisMonth - revenueData.lastMonth}</span>
                   ) : (
@@ -75,7 +75,7 @@ const Revenue: React.FC<RevenueProps> = ({ revenueData, coachStats }) => {
               </div>
               <div>
                 <div className="text-2xl font-bold text-blue-600">${revenueData.thisYear}</div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-300">
                   {revenueData.thisYear > revenueData.lastYear ? (
                     <span className="text-green-600">↗ +${revenueData.thisYear - revenueData.lastYear}</span>
                   ) : (
@@ -91,7 +91,7 @@ const Revenue: React.FC<RevenueProps> = ({ revenueData, coachStats }) => {
               </div>
               <div>
                 <div className="text-2xl font-bold text-purple-600">{coachStats.totalStudents}</div>
-                <div className="text-sm text-gray-600">active students</div>
+                <div className="text-sm text-gray-300">active students</div>
               </div>
             </div>
 
@@ -101,7 +101,7 @@ const Revenue: React.FC<RevenueProps> = ({ revenueData, coachStats }) => {
               </div>
               <div>
                 <div className="text-2xl font-bold text-yellow-600">{coachStats.averageRating}</div>
-                <div className="text-sm text-gray-600">{coachStats.totalReviews} reviews</div>
+                <div className="text-sm text-gray-300">{coachStats.totalReviews} reviews</div>
               </div>
             </div>
           </div>
@@ -116,7 +116,7 @@ const Revenue: React.FC<RevenueProps> = ({ revenueData, coachStats }) => {
                 <div className="space-y-3">
                   {Object.entries(revenueData.sessionTypes).map(([type, percentage]) => (
                     <div key={type} className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">{type}</span>
+                      <span className="text-sm text-gray-300">{type}</span>
                       <div className="flex items-center space-x-2">
                         <div className="w-20 bg-gray-200 rounded-full h-2">
                           <div 
@@ -140,7 +140,7 @@ const Revenue: React.FC<RevenueProps> = ({ revenueData, coachStats }) => {
                 <div className="space-y-3">
                   {revenueData.monthlyBreakdown.map((month) => (
                     <div key={month.month} className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">{month.month}</span>
+                      <span className="text-sm text-gray-300">{month.month}</span>
                       <div className="flex items-center space-x-2">
                         <div className="w-20 bg-gray-200 rounded-full h-2">
                           <div 

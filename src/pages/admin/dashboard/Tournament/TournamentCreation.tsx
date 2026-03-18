@@ -21,12 +21,32 @@ import {
   Phone,
   Mail,
   ScrollText,
+  TrendingUp,
 } from 'lucide-react';
 
 import { AppDispatch, RootState } from '@/store';
 import { createTournament } from '@/store/slices/tournamentsSlice';
 import type { CreateTournamentRequest, TournamentOrganizerPermissions } from '@/types/api';
 import { Mexico } from '@/constants/constants';
+
+const TOURNAMENT_TYPE_NAMES = [
+  { name: 'Campeonato Nacional', tier: 3 },
+  { name: 'Abierto Mexicano', tier: 3 },
+  { name: 'Campeonato Estatal', tier: 2 },
+  { name: 'Abierto Estatal', tier: 2 },
+  { name: 'Copa Estatal', tier: 2 },
+  { name: 'Campeonato Municipal', tier: 1 },
+  { name: 'Abierto Municipal', tier: 1 },
+  { name: 'Copa Municipal', tier: 1 },
+  { name: 'Torneos Locales', tier: 1 },
+  { name: 'Clínicas y Exhibiciones', tier: 1 },
+];
+
+const TIER_LABELS: Record<number, string> = {
+  3: 'Tier 3 — Nacional (todos los resultados)',
+  2: 'Tier 2 — Estatal (todos los resultados)',
+  1: 'Tier 1 — Local (mejores N resultados)',
+};
 
 interface TournamentCreationProps {
   onTournamentCreated?: (tournamentId: string) => void;
@@ -50,6 +70,8 @@ const EMPTY_FORM: CreateTournamentRequest = {
   rules: '',
   contact_email: '',
   contact_phone: '',
+  tournament_type_name: '',
+  tier: undefined,
 };
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */

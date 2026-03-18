@@ -109,7 +109,7 @@ export const PaymentForm = ({
           <CheckCircle2 className="w-6 h-6" />
           <p className="text-lg font-semibold">Payment Successful!</p>
         </div>
-        <p className="text-center text-gray-600 mt-2">
+        <p className="text-center text-gray-300 mt-2">
           {currency.toUpperCase()} {(amount / 100).toFixed(2)}
         </p>
       </Card>
@@ -120,7 +120,7 @@ export const PaymentForm = ({
     <Card className="p-6">
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-2">Payment Details</h3>
-        <p className="text-gray-600 mb-1">{description}</p>
+        <p className="text-gray-300 mb-1">{description}</p>
         <p className="text-2xl font-bold">
           {currency.toUpperCase()} {(amount / 100).toFixed(2)}
         </p>

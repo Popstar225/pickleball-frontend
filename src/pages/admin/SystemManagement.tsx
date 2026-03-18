@@ -109,7 +109,7 @@ const SystemManagement = () => {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-4 animate-on-scroll">System Management</h1>
-          <p className="text-gray-600 mb-6 animate-on-scroll">
+          <p className="text-gray-300 mb-6 animate-on-scroll">
             Monitor and configure system settings, performance, and health
           </p>
           <div className="flex space-x-3">
@@ -161,7 +161,7 @@ const SystemManagement = () => {
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 animate-on-scroll">Status</p>
+                  <p className="text-sm font-medium text-gray-300 animate-on-scroll">Status</p>
                   <p className="text-2xl font-bold text-gray-900 animate-on-scroll">{systemHealth.status}</p>
                 </div>
                 <div className={`p-2 rounded-full ${getStatusColor(systemHealth.status)} animate-on-scroll`}>
@@ -175,7 +175,7 @@ const SystemManagement = () => {
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 animate-on-scroll">Uptime</p>
+                  <p className="text-sm font-medium text-gray-300 animate-on-scroll">Uptime</p>
                   <p className="text-2xl font-bold text-gray-900 animate-on-scroll">{systemHealth.uptime}</p>
                 </div>
                 <div className="p-2 rounded-full bg-blue-100 text-blue-600 animate-on-scroll">
@@ -189,7 +189,7 @@ const SystemManagement = () => {
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 animate-on-scroll">Response Time</p>
+                  <p className="text-sm font-medium text-gray-300 animate-on-scroll">Response Time</p>
                   <p className="text-2xl font-bold text-gray-900 animate-on-scroll">{systemHealth.responseTime}</p>
                 </div>
                 <div className="p-2 rounded-full bg-green-100 text-green-600 animate-on-scroll">
@@ -203,7 +203,7 @@ const SystemManagement = () => {
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 animate-on-scroll">Active Users</p>
+                  <p className="text-sm font-medium text-gray-300 animate-on-scroll">Active Users</p>
                   <p className="text-2xl font-bold text-gray-900 animate-on-scroll">{systemHealth.activeUsers}</p>
                 </div>
                 <div className="p-2 rounded-full bg-purple-100 text-purple-600 animate-on-scroll">
@@ -223,13 +223,13 @@ const SystemManagement = () => {
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">CPU Usage</h3>
-                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                 </svg>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 animate-on-scroll">Current</span>
+                  <span className="text-gray-300 animate-on-scroll">Current</span>
                   <span className={`font-medium ${getUsageColor(systemHealth.cpuUsage)} animate-on-scroll`}>
                     {systemHealth.cpuUsage}
                   </span>
@@ -249,13 +249,13 @@ const SystemManagement = () => {
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">Memory Usage</h3>
-                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 animate-on-scroll">Current</span>
+                  <span className="text-gray-300 animate-on-scroll">Current</span>
                   <span className={`font-medium ${getUsageColor(systemHealth.memoryUsage)} animate-on-scroll`}>
                     {systemHealth.memoryUsage}
                   </span>
@@ -275,13 +275,13 @@ const SystemManagement = () => {
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">Disk Usage</h3>
-                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
                 </svg>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 animate-on-scroll">Current</span>
+                  <span className="text-gray-300 animate-on-scroll">Current</span>
                   <span className={`font-medium ${getUsageColor(systemHealth.diskUsage)} animate-on-scroll`}>
                     {systemHealth.diskUsage}
                   </span>
@@ -321,7 +321,7 @@ const SystemManagement = () => {
                       general: { ...prev.general, systemName: e.target.value }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   />
                 </div>
                 <div>
@@ -336,7 +336,7 @@ const SystemManagement = () => {
                       general: { ...prev.general, version: e.target.value }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   />
                 </div>
                 <div>
@@ -350,7 +350,7 @@ const SystemManagement = () => {
                       general: { ...prev.general, environment: e.target.value }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   >
                     <option value="development">Development</option>
                     <option value="staging">Staging</option>
@@ -368,7 +368,7 @@ const SystemManagement = () => {
                       general: { ...prev.general, timezone: e.target.value }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   >
                     <option value="UTC">UTC</option>
                     <option value="America/New_York">Eastern Time</option>
@@ -429,7 +429,7 @@ const SystemManagement = () => {
                       security: { ...prev.security, sessionTimeout: parseInt(e.target.value) }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   />
                 </div>
                 <div>
@@ -444,7 +444,7 @@ const SystemManagement = () => {
                       security: { ...prev.security, maxLoginAttempts: parseInt(e.target.value) }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   />
                 </div>
                 <div>
@@ -459,7 +459,7 @@ const SystemManagement = () => {
                       security: { ...prev.security, passwordMinLength: parseInt(e.target.value) }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   />
                 </div>
                 <div>
@@ -474,7 +474,7 @@ const SystemManagement = () => {
                       security: { ...prev.security, rateLimitRequests: parseInt(e.target.value) }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   />
                 </div>
               </div>
@@ -542,7 +542,7 @@ const SystemManagement = () => {
                       database: { ...prev.database, host: e.target.value }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   />
                 </div>
                 <div>
@@ -557,7 +557,7 @@ const SystemManagement = () => {
                       database: { ...prev.database, port: parseInt(e.target.value) }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   />
                 </div>
                 <div>
@@ -572,7 +572,7 @@ const SystemManagement = () => {
                       database: { ...prev.database, name: e.target.value }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   />
                 </div>
                 <div>
@@ -587,7 +587,7 @@ const SystemManagement = () => {
                       database: { ...prev.database, maxConnections: parseInt(e.target.value) }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   />
                 </div>
               </div>
@@ -617,7 +617,7 @@ const SystemManagement = () => {
                       database: { ...prev.database, backupFrequency: e.target.value }
                     }))}
                     disabled={!isEditing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-500 animate-on-scroll"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   >
                     <option value="hourly">Hourly</option>
                     <option value="daily">Daily</option>
@@ -628,7 +628,7 @@ const SystemManagement = () => {
               </div>
 
               <div className="mt-4 p-4 bg-gray-50 rounded-md animate-on-scroll">
-                <p className="text-sm text-gray-600 animate-on-scroll">
+                <p className="text-sm text-gray-300 animate-on-scroll">
                   <span className="font-medium">Last Backup:</span> {editedConfig.database.lastBackup}
                 </p>
               </div>

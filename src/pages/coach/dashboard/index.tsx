@@ -80,7 +80,7 @@ const CoachDashboard = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome back, Coach {user?.username || 'Coach'}!
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-300">
             Here's your coaching overview and upcoming sessions.
           </p>
         </div>
@@ -96,7 +96,7 @@ const CoachDashboard = () => {
                 className={`px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                   activeTab === 'overview'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                    : 'bg-white text-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Overview
@@ -106,7 +106,7 @@ const CoachDashboard = () => {
                 className={`px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                   activeTab === 'sessions'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                    : 'bg-white text-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Sessions
@@ -116,7 +116,7 @@ const CoachDashboard = () => {
                 className={`px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                   activeTab === 'students'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                    : 'bg-white text-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Students
@@ -126,7 +126,7 @@ const CoachDashboard = () => {
                 className={`px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                   activeTab === 'training'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                    : 'bg-white text-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Training Plans
@@ -136,7 +136,7 @@ const CoachDashboard = () => {
                 className={`px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                   activeTab === 'credentials'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                    : 'bg-white text-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Credentials
@@ -146,7 +146,7 @@ const CoachDashboard = () => {
                 className={`px-4 py-3 text-sm font-medium transition-colors duration-200 ${
                   activeTab === 'revenue'
                     ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
+                    : 'bg-white text-gray-300 hover:bg-gray-50'
                 }`}
               >
                 Revenue
@@ -164,7 +164,7 @@ const CoachDashboard = () => {
                     />
                   ) : (
                     <div className="text-center py-8">
-                      <p className="text-gray-600">No coach statistics available</p>
+                      <p className="text-gray-300">No coach statistics available</p>
                     </div>
                   )}
                 </div>
@@ -205,7 +205,7 @@ const CoachDashboard = () => {
                     <Revenue revenueData={revenueData} coachStats={coachStats} />
                   ) : (
                     <div className="text-center py-8">
-                      <p className="text-gray-600">No revenue data available</p>
+                      <p className="text-gray-300">No revenue data available</p>
                     </div>
                   )}
                 </div>

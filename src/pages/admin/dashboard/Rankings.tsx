@@ -134,7 +134,7 @@ const Rankings: React.FC<RankingsProps> = ({ rankingIssues: propRankingIssues })
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 animate-on-scroll">Rankings Management</h2>
-          <p className="text-gray-600 animate-on-scroll">Manage player ranking requests and adjustments</p>
+          <p className="text-gray-300 animate-on-scroll">Manage player ranking requests and adjustments</p>
         </div>
         <div className="flex space-x-3">
           <button 
@@ -154,9 +154,9 @@ const Rankings: React.FC<RankingsProps> = ({ rankingIssues: propRankingIssues })
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Total Requests</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Total Requests</p>
               <div className="text-2xl font-bold text-blue-600 animate-on-scroll">{stats.total}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">ranking requests</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">ranking requests</p>
             </div>
             <div className="p-2 rounded-full bg-blue-100 text-blue-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,9 +169,9 @@ const Rankings: React.FC<RankingsProps> = ({ rankingIssues: propRankingIssues })
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Pending Review</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Pending Review</p>
               <div className="text-2xl font-bold text-yellow-600 animate-on-scroll">{stats.pending}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">awaiting decision</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">awaiting decision</p>
             </div>
             <div className="p-2 rounded-full bg-yellow-100 text-yellow-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,9 +184,9 @@ const Rankings: React.FC<RankingsProps> = ({ rankingIssues: propRankingIssues })
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Approved</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Approved</p>
               <div className="text-2xl font-bold text-green-600 animate-on-scroll">{stats.approved}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">rankings updated</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">rankings updated</p>
             </div>
             <div className="p-2 rounded-full bg-green-100 text-green-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,9 +199,9 @@ const Rankings: React.FC<RankingsProps> = ({ rankingIssues: propRankingIssues })
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600 animate-on-scroll">Rejected</p>
+              <p className="text-sm font-medium text-gray-300 animate-on-scroll">Rejected</p>
               <div className="text-2xl font-bold text-red-600 animate-on-scroll">{stats.rejected}</div>
-              <p className="text-xs text-gray-600 animate-on-scroll">requests denied</p>
+              <p className="text-xs text-gray-300 animate-on-scroll">requests denied</p>
             </div>
             <div className="p-2 rounded-full bg-red-100 text-red-600 animate-on-scroll">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -219,7 +219,7 @@ const Rankings: React.FC<RankingsProps> = ({ rankingIssues: propRankingIssues })
             <div>
               <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">Search Requests</label>
               <div className="relative">
-                <svg className="absolute left-3 top-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="absolute left-3 top-3 h-4 w-4 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
@@ -342,11 +342,11 @@ const Rankings: React.FC<RankingsProps> = ({ rankingIssues: propRankingIssues })
 
           {filteredIssues.length === 0 && (
             <div className="text-center py-8 animate-on-scroll">
-              <svg className="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-12 w-12 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
               </svg>
               <h3 className="text-lg font-medium text-gray-900 mb-2 animate-on-scroll">No ranking requests found</h3>
-              <p className="text-gray-600 animate-on-scroll">Try adjusting your search criteria or filters.</p>
+              <p className="text-gray-300 animate-on-scroll">Try adjusting your search criteria or filters.</p>
             </div>
           )}
         </div>
@@ -371,33 +371,33 @@ const Rankings: React.FC<RankingsProps> = ({ rankingIssues: propRankingIssues })
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Player</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Player</label>
                   <p className="font-medium animate-on-scroll">{selectedIssue.player_name}</p>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Submitted</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Submitted</label>
                   <p className="animate-on-scroll">{selectedIssue.submitted_at}</p>
                 </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Current Rank</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Current Rank</label>
                   <span className="inline-block px-3 py-1 text-lg bg-gray-100 text-gray-800 border border-gray-300 rounded-md animate-on-scroll">#{selectedIssue.current_rank}</span>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-500 animate-on-scroll">Requested Rank</label>
+                  <label className="text-sm font-medium text-gray-300 animate-on-scroll">Requested Rank</label>
                   <span className="inline-block px-3 py-1 text-lg bg-gray-100 text-gray-800 border border-gray-300 rounded-md animate-on-scroll">#{selectedIssue.requested_rank}</span>
                 </div>
               </div>
               
               <div>
-                <label className="text-sm font-medium text-gray-500 animate-on-scroll">Reason for Change</label>
+                <label className="text-sm font-medium text-gray-300 animate-on-scroll">Reason for Change</label>
                 <p className="mt-1 p-3 bg-gray-50 rounded-lg animate-on-scroll">{selectedIssue.reason}</p>
               </div>
               
               <div>
-                <label className="text-sm font-medium text-gray-500 animate-on-scroll">Status</label>
+                <label className="text-sm font-medium text-gray-300 animate-on-scroll">Status</label>
                 <span className={`inline-block mt-1 px-2 py-1 text-sm font-medium rounded-full ${getStatusColor(selectedIssue.status)} animate-on-scroll`}>
                   <div className="flex items-center space-x-1">
                     {getStatusIcon(selectedIssue.status)}

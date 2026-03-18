@@ -29,6 +29,8 @@ import {
   AlertCircle,
   Building2,
   Briefcase,
+  ChevronRight,
+  ExternalLink,
 } from 'lucide-react';
 
 const OptionalFieldsPage = () => {
@@ -53,7 +55,6 @@ const OptionalFieldsPage = () => {
 
   const [files, setFiles] = useState({
     profile_photo: null as File | null,
-    verification_document: null as File | null,
   });
   const [userType, setUserType] = useState<string>('');
   const [requiredFields, setRequiredFields] = useState<any>({});
@@ -63,6 +64,7 @@ const OptionalFieldsPage = () => {
   const [showMembershipModal, setShowMembershipModal] = useState(false);
   const [pendingPayment, setPendingPayment] = useState(false);
   const [registeredUserType, setRegisteredUserType] = useState<string>('');
+  const [showLevelsModal, setShowLevelsModal] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -205,7 +207,7 @@ const OptionalFieldsPage = () => {
           name: 'gender',
           label: t('auth.optionalFields.field_gender'),
           type: 'select',
-          options: ['masculino', 'femenino', 'otro', 'prefiero_no_decir'],
+          options: ['masculino', 'femenino'],
           icon: User,
         },
         {
@@ -254,10 +256,6 @@ const OptionalFieldsPage = () => {
       if (userType === 'player' || userType === 'coach') {
         if (!files.profile_photo) {
           toast.error(t('auth.optionalFields.validate_photo'));
-          return;
-        }
-        if (!files.verification_document) {
-          toast.error(t('auth.optionalFields.validate_doc'));
           return;
         }
       }
@@ -321,9 +319,6 @@ const OptionalFieldsPage = () => {
 
       if (files.profile_photo) {
         formDataToSend.append('profile_photo', files.profile_photo);
-      }
-      if (files.verification_document) {
-        formDataToSend.append('verification_document', files.verification_document);
       }
 
       // Set pending payment flag before dispatch so the isAuthenticated effect doesn't navigate
@@ -440,24 +435,35 @@ const OptionalFieldsPage = () => {
 
     return (
       <div key={field.name} className="group/field">
-        <label htmlFor={field.name} className="block text-sm font-semibold text-slate-300 mb-2.5">
-          {field.label}
-          {!field.optional && <span className="text-red-400 ml-1">*</span>}
-          {field.optional && <span className="text-xs text-slate-500 ml-2">(opcional)</span>}
+        <label htmlFor={field.name} className="flex items-center gap-2 text-sm font-semibold text-slate-300 mb-2.5">
+          <span>
+            {field.label}
+            {!field.optional && <span className="text-red-400 ml-1">*</span>}
+            {field.optional && <span className="text-xs text-slate-300 ml-2">(opcional)</span>}
+          </span>
+          {field.name === 'skill_level' && (
+            <button
+              type="button"
+              onClick={() => setShowLevelsModal(true)}
+              className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:text-lime-400 bg-primary/10 hover:bg-primary/20 border border-primary/30 px-2 py-0.5 rounded-full transition-all duration-200 shrink-0"
+            >
+              Ver más <ChevronRight className="w-3 h-3" />
+            </button>
+          )}
         </label>
 
         <div className="relative">
           {!field.type.includes('select') &&
             !field.type.includes('textarea') &&
             !field.type.includes('autocomplete') && (
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/field:text-primary transition-colors duration-300">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/field:text-primary transition-colors duration-300">
                 <Icon className="w-5 h-5" />
               </div>
             )}
 
           {field.type === 'autocomplete' ? (
             <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within/field:text-primary transition-colors duration-300 pointer-events-none">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within/field:text-primary transition-colors duration-300 pointer-events-none">
                 <Icon className="w-5 h-5" />
               </div>
               <StateAutocomplete
@@ -499,10 +505,10 @@ const OptionalFieldsPage = () => {
                   );
                 })}
               </select>
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none">
                 <Icon className="w-5 h-5" />
               </div>
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none">
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300 pointer-events-none">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path
                     strokeLinecap="round"
@@ -576,7 +582,7 @@ const OptionalFieldsPage = () => {
               </span>
             </h1>
 
-            <p className="text-slate-400 text-lg max-w-2xl mx-auto">
+            <p className="text-slate-200 text-lg max-w-2xl mx-auto">
               {t('auth.optionalFields.subtitle', { role: getUserTypeLabel() })}
             </p>
           </div>
@@ -597,7 +603,7 @@ const OptionalFieldsPage = () => {
                       </div>
                       {t('auth.optionalFields.docs_title')}
                     </h2>
-                    <p className="text-slate-400 mt-2 ml-13">
+                    <p className="text-slate-200 mt-2 ml-13">
                       {t('auth.optionalFields.docs_sub')}
                     </p>
                   </div>
@@ -622,7 +628,7 @@ const OptionalFieldsPage = () => {
                     <label className="block text-sm font-semibold text-slate-300">
                       {t('auth.optionalFields.photo_label')}
                       <span className="text-primary ml-1">*</span>
-                      <span className="text-xs text-slate-500 ml-2">({t('auth.optionalFields.photo_optional')})</span>
+                      <span className="text-xs text-slate-300 ml-2">({t('auth.optionalFields.photo_optional')})</span>
                     </label>
 
                     <div
@@ -670,8 +676,11 @@ const OptionalFieldsPage = () => {
                             <p className="text-slate-300 font-medium">
                               {t('auth.optionalFields.photo_drag')}
                             </p>
-                            <p className="text-xs text-slate-500">{t('auth.optionalFields.photo_formats')}</p>
+                            <p className="text-xs text-slate-300">{t('auth.optionalFields.photo_formats')}</p>
                           </div>
+                          <p className="text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 leading-relaxed">
+                            Tiene que ser una foto donde se ve tu cara despejada y de frente.
+                          </p>
                           <input
                             id="profile_photo"
                             type="file"
@@ -693,85 +702,16 @@ const OptionalFieldsPage = () => {
                         </div>
                       )}
                     </div>
-                  </div>
 
-                  {/* Verification Document Upload */}
-                  <div className="space-y-3">
-                    <label className="block text-sm font-semibold text-slate-300">
-                      {t('auth.optionalFields.doc_label')}
-                      <span className="text-primary ml-1">*</span>
-                      <span className="text-xs text-slate-500 ml-2">{t('auth.optionalFields.doc_hint')}</span>
-                    </label>
-
-                    <div
-                      onDragEnter={(e) => handleDrag(e, 'document')}
-                      onDragLeave={(e) => handleDrag(e, 'document')}
-                      onDragOver={(e) => handleDrag(e, 'document')}
-                      onDrop={(e) => handleDrop(e, 'verification_document', 'document')}
-                      className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 
-                      ${
-                        dragActive.document
-                          ? 'border-primary bg-primary/5 scale-[1.02]'
-                          : 'border-slate-700/50 hover:border-primary/50 hover:bg-slate-800/30'
-                      }`}
-                    >
-                      {files.verification_document ? (
-                        <div className="space-y-4">
-                          <div className="relative w-20 h-24 mx-auto">
-                            <div className="w-full h-full bg-slate-700/50 rounded-lg border-4 border-primary/30 flex items-center justify-center">
-                              <FileText className="w-10 h-10 text-primary" />
-                            </div>
-                            <div className="absolute -top-2 -right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                              <CheckCircle2 className="w-5 h-5 text-slate-900" />
-                            </div>
-                          </div>
-                          <p className="text-sm text-slate-300 font-medium truncate px-4">
-                            {files.verification_document.name}
-                          </p>
-                          <button
-                            onClick={() => handleFileChange('verification_document', null)}
-                            className="group/btn inline-flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-700 
-                            text-slate-300 rounded-lg transition-all duration-300 text-sm font-medium"
-                          >
-                            <X className="w-4 h-4" />
-                            {t('auth.optionalFields.doc_remove')}
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          <div className="w-16 h-16 mx-auto rounded-xl bg-lime-500/20 border-2 border-lime-500/30 flex items-center justify-center">
-                            <FileText className="w-8 h-8 text-lime-500" />
-                          </div>
-                          <div className="space-y-2">
-                            <p className="text-slate-300 font-medium">
-                              {t('auth.optionalFields.doc_drag')}
-                            </p>
-                            <p className="text-xs text-slate-500">{t('auth.optionalFields.doc_formats')}</p>
-                          </div>
-                          <input
-                            id="verification_document"
-                            type="file"
-                            accept=".pdf,.png,.jpg,.jpeg"
-                            onChange={(e) =>
-                              handleFileChange('verification_document', e.target.files?.[0] || null)
-                            }
-                            className="hidden"
-                          />
-                          <button
-                            onClick={() =>
-                              document.getElementById('verification_document')?.click()
-                            }
-                            className="group/btn inline-flex items-center gap-2 px-6 py-3 bg-lime-500/20 hover:bg-lime-500 
-                            text-lime-500 hover:text-slate-900 border border-lime-500/30 rounded-xl 
-                            transition-all duration-300 font-semibold"
-                          >
-                            <Upload className="w-5 h-5" />
-                            {t('auth.optionalFields.doc_btn')}
-                          </button>
-                        </div>
-                      )}
+                    {/* WhatsApp compression tip */}
+                    <div className="flex gap-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
+                      <span className="text-emerald-400 text-lg leading-none shrink-0">💡</span>
+                      <p className="text-xs text-emerald-300/90 leading-relaxed">
+                        <span className="font-semibold">Tip:</span> Te recomendamos que la imagen que quieras cargar, se la envíes a alguien por WhatsApp, y luego la descargues en esa misma conversación. WhatsApp compacta el peso de las imágenes de forma automática.
+                      </p>
                     </div>
                   </div>
+
                 </div>
               </div>
             </div>
@@ -793,7 +733,7 @@ const OptionalFieldsPage = () => {
                       </div>
                       {t('auth.optionalFields.personal_info')}
                     </h2>
-                    <p className="text-slate-400 mt-2 ml-13">{t('auth.optionalFields.personal_info_sub')}</p>
+                    <p className="text-slate-200 mt-2 ml-13">{t('auth.optionalFields.personal_info_sub')}</p>
                   </div>
                 </div>
 
@@ -819,7 +759,7 @@ const OptionalFieldsPage = () => {
                       </div>
                       {t('auth.optionalFields.additional_details')}
                     </h2>
-                    <p className="text-slate-400 mt-2 ml-13">
+                    <p className="text-slate-200 mt-2 ml-13">
                       {t('auth.optionalFields.additional_details_sub')}
                     </p>
                   </div>
@@ -899,6 +839,149 @@ const OptionalFieldsPage = () => {
           onCropComplete={handlePhotoCropComplete}
           onCancel={handleCropCancel}
         />
+      )}
+
+      {/* ── Levels Info Modal (bottom-sheet on mobile) ─────────────────── */}
+      {showLevelsModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center"
+          onClick={() => setShowLevelsModal(false)}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+
+          {/* Sheet */}
+          <div
+            className="relative w-full sm:max-w-2xl bg-slate-900 border border-slate-700/50 rounded-t-3xl sm:rounded-3xl overflow-hidden max-h-[88vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Handle bar (mobile) */}
+            <div className="flex justify-center pt-3 pb-1 sm:hidden">
+              <div className="w-10 h-1 bg-slate-600 rounded-full" />
+            </div>
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/50 shrink-0">
+              <div>
+                <h3 className="text-base font-bold text-white">Niveles de Juego (NRTP)</h3>
+                <p className="text-xs text-slate-200 mt-0.5">Elige el nivel que mejor te describe</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://pickleball-frontend-ten.vercel.app/players/categories"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:text-lime-400 transition-colors"
+                >
+                  Ver completo <ExternalLink className="w-3 h-3" />
+                </a>
+                <button
+                  onClick={() => setShowLevelsModal(false)}
+                  className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors ml-2"
+                >
+                  <X className="w-4 h-4 text-slate-300" />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="overflow-y-auto px-6 py-4 space-y-3">
+              {[
+                {
+                  level: '2.0',
+                  name: 'Principiante',
+                  color: 'text-green-400',
+                  bg: 'bg-green-500/10 border-green-500/20',
+                  dot: 'bg-green-400',
+                  description: 'Jugador nuevo que está aprendiendo las reglas básicas y la técnica fundamental.',
+                  traits: ['Conoce las reglas básicas', 'Puede mantener rallies cortos', 'Desarrollando técnica de servicio'],
+                },
+                {
+                  level: '2.5',
+                  name: 'Principiante Avanzado',
+                  color: 'text-emerald-400',
+                  bg: 'bg-emerald-500/10 border-emerald-500/20',
+                  dot: 'bg-emerald-400',
+                  description: 'Fundamentos sólidos, busca mejorar consistencia.',
+                  traits: ['Servicio más consistente', 'Rallies más largos', 'Entiende estrategia básica de dobles'],
+                },
+                {
+                  level: '3.0',
+                  name: 'Intermedio',
+                  color: 'text-sky-400',
+                  bg: 'bg-sky-500/10 border-sky-500/20',
+                  dot: 'bg-sky-400',
+                  description: 'Técnica desarrollada y comprensión táctica del juego.',
+                  traits: ['Golpes consistentes desde línea de fondo', 'Dinks con control', 'Servicio con dirección intencional'],
+                },
+                {
+                  level: '3.5',
+                  name: 'Intermedio Alto',
+                  color: 'text-blue-400',
+                  bg: 'bg-blue-500/10 border-blue-500/20',
+                  dot: 'bg-blue-400',
+                  description: 'Variedad de golpes y pensamiento estratégico avanzado.',
+                  traits: ['Volleys consistentes', 'Drops del tercer golpe', 'Reconoce oportunidades de ataque'],
+                },
+                {
+                  level: '4.0',
+                  name: 'Avanzado',
+                  color: 'text-violet-400',
+                  bg: 'bg-violet-500/10 border-violet-500/20',
+                  dot: 'bg-violet-400',
+                  description: 'Jugador competitivo con arsenal técnico completo.',
+                  traits: ['Drops del tercer golpe consistentes', 'Buen control de ritmo', 'Estrategia de dobles desarrollada'],
+                },
+                {
+                  level: '4.5',
+                  name: 'Avanzado Alto',
+                  color: 'text-purple-400',
+                  bg: 'bg-purple-500/10 border-purple-500/20',
+                  dot: 'bg-purple-400',
+                  description: 'Altamente competitivo, cerca del nivel profesional.',
+                  traits: ['Potencia y control en todos los golpes', 'Excelente anticipación', 'Varía velocidad y spin efectivamente'],
+                },
+                {
+                  level: '5.0+',
+                  name: 'Open / Elite',
+                  color: 'text-primary',
+                  bg: 'bg-primary/10 border-primary/20',
+                  dot: 'bg-primary',
+                  description: 'Jugador profesional o de nivel competitivo más alto.',
+                  traits: ['Dominio completo del juego', 'Competidor en torneos profesionales', 'Adaptación táctica inmediata'],
+                },
+              ].map((cat) => (
+                <div key={cat.level} className={`flex gap-3 p-3 rounded-xl border ${cat.bg}`}>
+                  <div className="shrink-0 pt-0.5">
+                    <div className={`w-2 h-2 rounded-full mt-1.5 ${cat.dot}`} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className={`text-sm font-bold ${cat.color}`}>{cat.level}</span>
+                      <span className="text-sm font-semibold text-white">{cat.name}</span>
+                    </div>
+                    <p className="text-xs text-slate-200 mb-1.5">{cat.description}</p>
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                      {cat.traits.map((t) => (
+                        <span key={t} className="text-[10px] text-slate-300">• {t}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-slate-700/50 shrink-0">
+              <button
+                onClick={() => setShowLevelsModal(false)}
+                className="w-full py-3 bg-primary hover:bg-lime-500 text-slate-900 font-bold rounded-xl transition-colors text-sm"
+              >
+                Entendido, ya sé mi nivel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

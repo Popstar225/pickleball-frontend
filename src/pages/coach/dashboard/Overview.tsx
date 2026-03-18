@@ -37,7 +37,7 @@ const Overview: React.FC<OverviewProps> = ({ coachStats }) => {
           </div>
           <div className="pt-2">
             <div className="text-2xl font-bold text-blue-600">{coachStats.totalStudents}</div>
-            <p className="text-xs text-gray-600">{coachStats.activeStudents} active</p>
+            <p className="text-xs text-gray-300">{coachStats.activeStudents} active</p>
           </div>
         </div>
 
@@ -48,7 +48,7 @@ const Overview: React.FC<OverviewProps> = ({ coachStats }) => {
           </div>
           <div className="pt-2">
             <div className="text-2xl font-bold text-green-600">{coachStats.trainingSessions}</div>
-            <p className="text-xs text-gray-600">{coachStats.sessionsThisMonth} this month</p>
+            <p className="text-xs text-gray-300">{coachStats.sessionsThisMonth} this month</p>
           </div>
         </div>
 
@@ -59,7 +59,7 @@ const Overview: React.FC<OverviewProps> = ({ coachStats }) => {
           </div>
           <div className="pt-2">
             <div className="text-2xl font-bold text-yellow-600">{coachStats.averageRating}</div>
-            <p className="text-xs text-gray-600">{coachStats.totalReviews} reviews</p>
+            <p className="text-xs text-gray-300">{coachStats.totalReviews} reviews</p>
           </div>
         </div>
 
@@ -70,7 +70,7 @@ const Overview: React.FC<OverviewProps> = ({ coachStats }) => {
           </div>
           <div className="pt-2">
             <div className="text-2xl font-bold text-purple-600">{coachStats.certifications}</div>
-            <p className="text-xs text-gray-600">active certifications</p>
+            <p className="text-xs text-gray-300">active certifications</p>
           </div>
         </div>
       </div>
@@ -91,7 +91,7 @@ const Overview: React.FC<OverviewProps> = ({ coachStats }) => {
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   {coachStats.nextSession}
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-300 mb-4">
                   {new Date(coachStats.nextSessionDate).toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
@@ -102,7 +102,7 @@ const Overview: React.FC<OverviewProps> = ({ coachStats }) => {
                 <div className="flex justify-center space-x-4 mb-6">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">{coachStats.upcomingSessions}</div>
-                    <div className="text-sm text-gray-600">Upcoming Sessions</div>
+                    <div className="text-sm text-gray-300">Upcoming Sessions</div>
                   </div>
                 </div>
                 <button className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors duration-200 hover:shadow-lg">

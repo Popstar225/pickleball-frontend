@@ -250,7 +250,7 @@ const Certifications = () => {
         <div className="mb-8 flex justify-between items-center animate-on-scroll">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">My Certifications</h1>
-            <p className="text-gray-600">Manage your professional certifications and continuing education</p>
+            <p className="text-gray-300">Manage your professional certifications and continuing education</p>
           </div>
           <button 
             onClick={() => setIsAddingCertification(true)} 
@@ -270,7 +270,7 @@ const Certifications = () => {
             </div>
             <div className="pt-2">
               <div className="text-2xl font-bold text-blue-600">{certificationStats.total}</div>
-              <p className="text-xs text-gray-600">certifications</p>
+              <p className="text-xs text-gray-300">certifications</p>
             </div>
           </div>
 
@@ -281,7 +281,7 @@ const Certifications = () => {
             </div>
             <div className="pt-2">
               <div className="text-2xl font-bold text-green-600">{certificationStats.active}</div>
-              <p className="text-xs text-gray-600">currently valid</p>
+              <p className="text-xs text-gray-300">currently valid</p>
             </div>
           </div>
 
@@ -292,7 +292,7 @@ const Certifications = () => {
             </div>
             <div className="pt-2">
               <div className="text-2xl font-bold text-purple-600">{certificationStats.verified}</div>
-              <p className="text-xs text-gray-600">officially verified</p>
+              <p className="text-xs text-gray-300">officially verified</p>
             </div>
           </div>
 
@@ -303,7 +303,7 @@ const Certifications = () => {
             </div>
             <div className="pt-2">
               <div className="text-2xl font-bold text-orange-600">{certificationStats.expiringSoon}</div>
-              <p className="text-xs text-gray-600">within 30 days</p>
+              <p className="text-xs text-gray-300">within 30 days</p>
             </div>
           </div>
         </div>
@@ -496,20 +496,20 @@ const Certifications = () => {
                       <Award className="h-5 w-5 text-blue-500" />
                       <span>{certification.name}</span>
                     </h3>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-300 mt-1">
                       {certification.issuingOrganization} • {certification.credentialNumber}
                     </p>
                   </div>
                   <div className="flex space-x-2">
                     <button
                       onClick={() => setEditingCertification(editingCertification === certification.id ? null : certification.id)}
-                      className="p-2 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 transition-colors duration-200"
+                      className="p-2 border border-gray-300 rounded-md text-gray-300 hover:bg-gray-50 transition-colors duration-200"
                     >
                       <Edit3 className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => handleDeleteCertification(certification.id)}
-                      className="p-2 border border-gray-300 rounded-md text-gray-600 hover:bg-gray-50 transition-colors duration-200"
+                      className="p-2 border border-gray-300 rounded-md text-gray-300 hover:bg-gray-50 transition-colors duration-200"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -519,25 +519,25 @@ const Certifications = () => {
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Status</label>
+                    <label className="text-sm font-medium text-gray-300">Status</label>
                     <span className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(certification.status)}`}>
                       {certification.status}
                     </span>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Category</label>
+                    <label className="text-sm font-medium text-gray-300">Category</label>
                     <span className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full ${getCategoryColor(certification.category)}`}>
                       {certification.category}
                     </span>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Verification</label>
+                    <label className="text-sm font-medium text-gray-300">Verification</label>
                     <span className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full ${getVerificationColor(certification.isVerified)}`}>
                       {certification.isVerified ? 'Verified' : 'Pending'}
                     </span>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Hours</label>
+                    <label className="text-sm font-medium text-gray-300">Hours</label>
                     <p className="text-lg font-semibold text-blue-600">
                       {certification.hoursCompleted}/{certification.hoursRequired}
                     </p>
@@ -547,14 +547,14 @@ const Certifications = () => {
                 {/* Description */}
                 {certification.description && (
                   <div className="mb-4">
-                    <label className="text-sm font-medium text-gray-500">Description</label>
+                    <label className="text-sm font-medium text-gray-300">Description</label>
                     <p className="text-gray-700 mt-1">{certification.description}</p>
                   </div>
                 )}
 
                 {/* Requirements */}
                 <div className="mb-4">
-                  <label className="text-sm font-medium text-gray-500">Requirements</label>
+                  <label className="text-sm font-medium text-gray-300">Requirements</label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
                     {certification.requirements.map((req, index) => (
                       <div key={index} className="flex items-center space-x-2 text-sm">
@@ -568,11 +568,11 @@ const Certifications = () => {
                 {/* Dates and Details */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Issue Date</label>
+                    <label className="text-sm font-medium text-gray-300">Issue Date</label>
                     <p className="font-medium">{certification.issueDate}</p>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Expiry Date</label>
+                    <label className="text-sm font-medium text-gray-300">Expiry Date</label>
                     <div className="flex items-center space-x-2">
                       <p className={`font-medium ${isExpired(certification.expiryDate) ? 'text-red-600' : isExpiringSoon(certification.expiryDate) ? 'text-yellow-600' : 'text-gray-900'}`}>
                         {certification.expiryDate}
@@ -582,7 +582,7 @@ const Certifications = () => {
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium text-gray-500">Continuing Education</label>
+                    <label className="text-sm font-medium text-gray-300">Continuing Education</label>
                     <p className="font-medium">
                       {certification.continuingEducationCompleted}/{certification.continuingEducationRequired} hours
                     </p>

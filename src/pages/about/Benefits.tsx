@@ -126,7 +126,7 @@ const Benefits = () => {
                 <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white">
                   {t('pages.benefits.exclusive_title')}
                 </h2>
-                <p className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto px-4">
+                <p className="text-slate-200 text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto px-4">
                   {t('pages.benefits.exclusive_desc')}
                 </p>
               </div>
@@ -230,7 +230,7 @@ const Benefits = () => {
                     <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white">
                       {t('pages.benefits.cta_sub')}
                     </h3>
-                    <p className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto">
+                    <p className="text-slate-200 text-sm sm:text-base md:text-lg lg:text-xl max-w-2xl mx-auto">
                       {t('pages.benefits.affiliate_btn')}
                     </p>
                   </div>
@@ -267,7 +267,7 @@ const Benefits = () => {
                   </div>
 
                   {/* Features */}
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-slate-500 text-xs sm:text-sm">
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-slate-300 text-xs sm:text-sm">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
                       <span>{t('pages.benefits.official')}</span>

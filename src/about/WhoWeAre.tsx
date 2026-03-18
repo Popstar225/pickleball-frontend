@@ -313,7 +313,7 @@ const WhoWeAre = () => {
 
                     {/* Description */}
                     <p
-                      className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed 
+                      className="text-slate-200 text-sm sm:text-base md:text-lg leading-relaxed 
                       group-hover:text-slate-300 transition-colors duration-500 flex-1"
                     >
                       Promover, desarrollar y regular el pickleball en todo México, creando
@@ -390,7 +390,7 @@ const WhoWeAre = () => {
 
                     {/* Description */}
                     <p
-                      className="text-slate-400 text-sm sm:text-base md:text-lg leading-relaxed 
+                      className="text-slate-200 text-sm sm:text-base md:text-lg leading-relaxed 
                       group-hover:text-slate-300 transition-colors duration-500 flex-1"
                     >
                       Establecer a México como una nación líder en pickleball, con atletas de clase
@@ -493,7 +493,7 @@ const WhoWeAre = () => {
 
                     {/* Description */}
                     <p
-                      className="text-slate-400 text-xs sm:text-sm leading-relaxed 
+                      className="text-slate-200 text-xs sm:text-sm leading-relaxed 
                       flex-1 line-clamp-3"
                     >
                       {value.desc}
@@ -539,7 +539,7 @@ const WhoWeAre = () => {
 
                   {/* Description */}
                   <p
-                    className="text-slate-400 text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 
+                    className="text-slate-200 text-sm sm:text-base md:text-lg lg:text-xl mb-6 sm:mb-8 
                     max-w-2xl mx-auto px-2"
                   >
                     Sé parte de la comunidad de Pickleball de más rápido crecimiento de México
