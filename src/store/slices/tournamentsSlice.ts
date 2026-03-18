@@ -153,7 +153,12 @@ export const fetchTournament = createAsyncThunk(
 export const createTournament = createAsyncThunk(
   'tournaments/createTournament',
   async (tournamentData: CreateTournamentRequest) => {
-    return await api.post('/tournaments', tournamentData);
+    // Strip fields the DB doesn't have (tier) and empty optional strings
+    const { tournament_type_name, ...rest } = tournamentData as any;
+    const payload: any = { ...rest };
+    if (tournament_type_name) payload.tournament_type_name = tournament_type_name;
+    delete payload.tier; // column does not exist in DB
+    return await api.post('/tournaments', payload);
   },
 );
 

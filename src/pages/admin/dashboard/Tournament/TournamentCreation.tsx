@@ -21,7 +21,6 @@ import {
   Phone,
   Mail,
   ScrollText,
-  TrendingUp,
 } from 'lucide-react';
 
 import { AppDispatch, RootState } from '@/store';
@@ -29,17 +28,31 @@ import { createTournament } from '@/store/slices/tournamentsSlice';
 import type { CreateTournamentRequest, TournamentOrganizerPermissions } from '@/types/api';
 import { Mexico } from '@/constants/constants';
 
-const TOURNAMENT_TYPE_NAMES = [
-  { name: 'Campeonato Nacional', tier: 3 },
-  { name: 'Abierto Mexicano', tier: 3 },
-  { name: 'Campeonato Estatal', tier: 2 },
-  { name: 'Abierto Estatal', tier: 2 },
-  { name: 'Copa Estatal', tier: 2 },
-  { name: 'Campeonato Municipal', tier: 1 },
-  { name: 'Abierto Municipal', tier: 1 },
-  { name: 'Copa Municipal', tier: 1 },
-  { name: 'Torneos Locales', tier: 1 },
-  { name: 'Clínicas y Exhibiciones', tier: 1 },
+// Tournament names with their tier (for UI display) and corresponding tournament_type for the API.
+// Tier 3 → national, Tier 2 → state, Tier 1 → local
+const TOURNAMENT_TYPE_NAMES: {
+  name: string;
+  tier: 1 | 2 | 3;
+  tournament_type: 'local' | 'state' | 'national';
+}[] = [
+  // Tier 3 — Nacional
+  { name: 'Campeonato Nacional',  tier: 3, tournament_type: 'national' },
+  { name: 'Abierto Mexicano',     tier: 3, tournament_type: 'national' },
+  { name: 'Tour Nacional',        tier: 3, tournament_type: 'national' },
+  { name: 'Liga Nacional',        tier: 3, tournament_type: 'national' },
+  { name: 'Torneos Nacionales',   tier: 3, tournament_type: 'national' },
+  // Tier 2 — Estatal
+  { name: 'Campeonato Estatal',   tier: 2, tournament_type: 'state' },
+  { name: 'Liga Estatal',         tier: 2, tournament_type: 'state' },
+  { name: 'Torneo Estatal',       tier: 2, tournament_type: 'state' },
+  { name: 'Abierto Estatal',      tier: 2, tournament_type: 'state' },
+  { name: 'Copa Estatal',         tier: 2, tournament_type: 'state' },
+  // Tier 1 — Local / Municipal
+  { name: 'Campeonato Municipal', tier: 1, tournament_type: 'local' },
+  { name: 'Abierto Municipal',    tier: 1, tournament_type: 'local' },
+  { name: 'Copa Municipal',       tier: 1, tournament_type: 'local' },
+  { name: 'Torneos Locales',      tier: 1, tournament_type: 'local' },
+  { name: 'Clínicas y Exhibiciones', tier: 1, tournament_type: 'local' },
 ];
 
 const TIER_LABELS: Record<number, string> = {
@@ -71,7 +84,6 @@ const EMPTY_FORM: CreateTournamentRequest = {
   contact_email: '',
   contact_phone: '',
   tournament_type_name: '',
-  tier: undefined,
 };
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
@@ -188,8 +200,8 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
     setForm((prev) => ({ ...prev, [field]: value }));
 
   async function handleSubmit() {
-    if (!form.name || !form.venue_name || !form.state) {
-      alert('Please fill in all required fields.');
+    if (!form.name || !form.tournament_type_name || !form.venue_name || !form.state) {
+      alert('Please fill in all required fields (name, tournament type, venue, state).');
       return;
     }
     if (new Date(form.start_date) >= new Date(form.end_date)) {
@@ -360,27 +372,45 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
                 </Field>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Tournament Type" required>
+                  <Field label="Tournament Name" required hint={
+                    form.tournament_type_name
+                      ? TIER_LABELS[TOURNAMENT_TYPE_NAMES.find(t => t.name === form.tournament_type_name)?.tier ?? 0] ?? ''
+                      : ''
+                  }>
                     <Select
-                      value={form.tournament_type}
-                      onValueChange={(v) => set('tournament_type', v)}
+                      value={form.tournament_type_name || ''}
+                      onValueChange={(v) => {
+                        const entry = TOURNAMENT_TYPE_NAMES.find(t => t.name === v);
+                        setForm(prev => ({
+                          ...prev,
+                          tournament_type_name: v,
+                          tournament_type: entry?.tournament_type ?? prev.tournament_type,
+                        }));
+                      }}
                     >
                       <SelectTrigger className={selectTrigger}>
-                        <SelectValue />
+                        <SelectValue placeholder="Select tournament name..." />
                       </SelectTrigger>
                       <SelectContent className="bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl">
-                        {permissions?.allowed_tournament_types.map((t) => (
-                          <SelectItem
-                            key={t}
-                            value={t}
-                            className="text-white/80 focus:bg-white/[0.06] focus:text-white rounded-lg"
-                          >
-                            <div className="py-0.5">
-                              <div className="font-semibold capitalize text-sm text-white">{t}</div>
-                              <div className="text-[10px] text-white/35 mt-0.5">{typeDesc[t]}</div>
-                            </div>
-                          </SelectItem>
-                        ))}
+                        {[3, 2, 1].map((tier) => {
+                          const items = TOURNAMENT_TYPE_NAMES.filter(t => t.tier === tier);
+                          return (
+                            <React.Fragment key={tier}>
+                              <div className="px-3 py-1.5 text-[9px] font-bold uppercase tracking-widest text-white/25">
+                                {TIER_LABELS[tier]}
+                              </div>
+                              {items.map(t => (
+                                <SelectItem
+                                  key={t.name}
+                                  value={t.name}
+                                  className="text-white/80 focus:bg-white/[0.06] focus:text-white rounded-lg"
+                                >
+                                  {t.name}
+                                </SelectItem>
+                              ))}
+                            </React.Fragment>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                   </Field>

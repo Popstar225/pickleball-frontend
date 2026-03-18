@@ -30,7 +30,7 @@ interface DigitalCredentialPaymentModalProps {
   planName: string;
   amount: number;
   userType: 'player' | 'coach';
-  onSuccess?: () => void;
+  onSuccess?: (credential?: any) => void;
 }
 
 const PLAN_META: Record<PlanType, {
@@ -105,8 +105,9 @@ export const DigitalCredentialPaymentModal = ({
   const handlePaymentSuccess = async (paymentIntentId: string) => {
     if (!paymentData) return;
     try {
-      await PaymentService.confirmDigitalCredentialPayment(paymentData.paymentId, paymentIntentId);
-      onSuccess?.();
+      const result = await PaymentService.confirmDigitalCredentialPayment(paymentData.paymentId, paymentIntentId);
+      const credential = result?.data?.credential ?? null;
+      onSuccess?.(credential);
       handleClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al confirmar el pago');

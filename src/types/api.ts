@@ -679,7 +679,6 @@ export interface CreateTournamentRequest {
   registration_requirements?: object;
   registration_notes?: string;
   tournament_type_name?: string;
-  tier?: number;
 }
 
 export interface TournamentRegistrationRequest {

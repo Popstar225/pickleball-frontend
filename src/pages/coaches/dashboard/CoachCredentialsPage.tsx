@@ -1,224 +1,82 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import { fetchMyCoachCredential } from '@/store/slices/coachDashboardSlice';
+import { fetchMyCoachCredential, setMyCredential } from '@/store/slices/coachDashboardSlice';
 import { DigitalCredentialPaymentModal } from '@/components/payment/DigitalCredentialPaymentModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import {
-  Download,
-  QrCode,
-  Shield,
-  TrendingUp,
-  CreditCard,
-  CheckCircle2,
-  Trophy,
-  Star,
-  Calendar,
-  User,
-  Zap,
-  RefreshCcw,
-  Sparkles,
-  AlertCircle,
+  Download, QrCode, Shield, TrendingUp, CreditCard, CheckCircle2,
+  Trophy, Star, Calendar, User, Zap, RefreshCcw, Sparkles, AlertCircle, Loader2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-
 import { cn } from '@/lib/utils';
 import { CredentialHoloCard } from '@/components/credentials/CredentialHoloCard';
 
-/* ─── Keyframe-only styles (cannot be done in Tailwind) ─────── */
-const KEYFRAMES = `
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+function getExpiryDate(credential: any): Date {
+  if (credential.expiry_date) return new Date(credential.expiry_date);
+  const d = new Date(credential.issued_date || credential.created_at);
+  d.setFullYear(d.getFullYear() + 1);
+  return d;
+}
 
-  @keyframes blobDrift {
-    from { transform: translate(0,0) scale(1); }
-    to   { transform: translate(28px,20px) scale(1.06); }
-  }
-  @keyframes cardIn {
-    from { opacity:0; transform: translateY(36px) rotateX(8deg); }
-    to   { opacity:1; transform: translateY(0) rotateX(0); }
-  }
-  @keyframes shimmerSweep {
-    0%   { background-position: 160% 160%; }
-    100% { background-position: -60% -60%; }
-  }
-  @keyframes barFlow {
-    0%   { background-position: 0% 0%; }
-    100% { background-position: 300% 0%; }
-  }
-  @keyframes statusPulse {
-    0%,100% { opacity:1; transform:scale(1); }
-    50%      { opacity:0.6; transform:scale(0.75); }
-  }
-  @keyframes ntprGrow { to { transform: scaleX(1); } }
-  @keyframes fadeUp {
-    from { opacity:0; transform:translateY(20px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-  }
-
-  /* Font assignments */
-  .font-bebas  { font-family: 'Inter', sans-serif; }
-  .font-outfit { font-family: 'Outfit', sans-serif; }
-  .font-jetbrains { font-family: 'JetBrains Mono', monospace; }
-
-  /* Complex animated gradients */
-  .card-topbar {
-    height: 5px;
-    background: linear-gradient(90deg, #00b248, #00e676, #69f0ae, #00e676, #00b248);
-    background-size: 300% 100%;
-    animation: barFlow 3.5s linear infinite;
-  }
-  .card-bottombar {
-    height: 4px;
-    background: linear-gradient(90deg, #00b248, #69f0ae, #00b248);
-    background-size: 300%;
-    animation: barFlow 3.5s linear infinite;
-  }
-  .holo-shimmer {
-    position: absolute; inset: 0; z-index: 20; pointer-events: none; border-radius: 22px;
-    background: linear-gradient(
-      115deg, transparent 22%,
-      rgba(0,255,140,0.04) 36%, rgba(100,255,190,0.09) 50%,
-      rgba(0,255,140,0.04) 64%, transparent 78%
-    );
-    background-size: 260% 260%;
-    animation: shimmerSweep 5s linear infinite;
-  }
-  .holo-card {
-    animation: cardIn 0.9s cubic-bezier(0.16,1,0.3,1) both;
-    transform-style: preserve-3d;
-  }
-  .holo-card:hover {
-    box-shadow:
-      0 0 0 1px rgba(0,230,118,0.22),
-      0 36px 90px rgba(0,0,0,0.85),
-      0 0 90px rgba(0,230,118,0.12);
-  }
-  .status-dot { animation: statusPulse 2s ease infinite; }
-
-  /* Bars */
-  .ntpr-bar {
-    transform-origin: left; transform: scaleX(0);
-    animation: ntprGrow 1.3s cubic-bezier(0.16,1,0.3,1) 0.4s both;
-  }
-  .vig-bar {
-    transform-origin: left; transform: scaleX(0);
-    animation: ntprGrow 1.3s cubic-bezier(0.16,1,0.3,1) 0.5s both;
-  }
-
-  /* Panel stagger */
-  .panel-d1 { animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.08s both; }
-  .panel-d2 { animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.16s both; }
-  .panel-d3 { animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.24s both; }
-  .panel-d4 { animation: fadeUp 0.65s cubic-bezier(0.16,1,0.3,1) 0.32s both; }
-
-  /* Blobs */
-  .blob-1 { animation: blobDrift 14s ease-in-out infinite alternate; }
-  .blob-2 { animation: blobDrift 18s ease-in-out infinite alternate-reverse; }
-
-  /* Diagonal hatching on fed header */
-  .fed-header-hatch::before {
-    content: '';
-    position: absolute; inset: 0;
-    background: repeating-linear-gradient(
-      -45deg, transparent, transparent 8px,
-      rgba(0,0,0,0.05) 8px, rgba(0,0,0,0.05) 9px
-    );
-  }
-
-  /* Renewing spin */
-  .spin { animation: spin 1s linear infinite; }
-`;
-
-/* ─── Shared panel wrapper ──────────────────────────────────── */
+/* ─── Panel card ─────────────────────────────────────────────── */
 function Panel({
-  delay = 'd1',
+  icon: Icon,
+  title,
+  action,
   children,
-  className = '',
+  className,
 }: {
-  delay?: 'd1' | 'd2' | 'd3' | 'd4';
+  icon: LucideIcon;
+  title: string;
+  action?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 }) {
   return (
-    <div
-      className={`panel-${delay} rounded-2xl overflow-hidden ${className}`}
-      style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(0,230,118,0.12)' }}
-    >
-      {children}
-    </div>
-  );
-}
-
-/* ─── Panel header ──────────────────────────────────────────── */
-function PanelHeader({
-  icon,
-  title,
-  right,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  right?: React.ReactNode;
-}) {
-  return (
-    <div
-      className="flex items-center gap-2.5 px-5 pt-4 pb-3"
-      style={{
-        borderBottom: '1px solid rgba(0,230,118,0.08)',
-        justifyContent: right ? 'space-between' : undefined,
-      }}
-    >
-      <div className="flex items-center gap-2.5">
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-          style={{ background: 'rgba(0,230,118,0.1)', border: '1px solid rgba(0,230,118,0.18)' }}
-        >
-          {icon}
+    <Card className={cn('bg-white/[0.025] border border-[#C8FF00]/[0.1] rounded-2xl overflow-hidden', className)}>
+      <CardHeader className="px-5 py-3.5 border-b border-[#C8FF00]/[0.07] flex flex-row items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5">
+          <div className="w-[30px] h-[30px] rounded-[8px] bg-[#C8FF00]/[0.08] border border-[#C8FF00]/[0.15] flex items-center justify-center flex-shrink-0">
+            <Icon className="w-3.5 h-3.5 text-[#C8FF00]" />
+          </div>
+          <span className="font-sans text-[11px] font-bold tracking-[1.5px] uppercase text-white/95">
+            {title}
+          </span>
         </div>
-        <span
-          className="font-outfit text-xs font-bold uppercase text-white/80"
-          style={{ letterSpacing: '1.5px' }}
-        >
-          {title}
-        </span>
-      </div>
-      {right}
+        {action}
+      </CardHeader>
+      <CardContent className="px-5 py-3.5">{children}</CardContent>
+    </Card>
+  );
+}
+
+/* ─── InfoRow ────────────────────────────────────────────────── */
+function InfoRow({ label, value, mono = false }: { label: string; value: React.ReactNode; mono?: boolean }) {
+  return (
+    <div className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-none text-[13px]">
+      <span className="text-white/65">{label}</span>
+      <span className={cn(
+        'font-medium text-white/85',
+        mono && 'font-["JetBrains_Mono",monospace] text-[11px] text-[#C8FF00]',
+      )}>
+        {value}
+      </span>
     </div>
   );
 }
 
-/* ─── Info row ──────────────────────────────────────────────── */
-function IRow({ label, children }: { label: string; children: React.ReactNode }) {
+/* ─── BenefitRow ─────────────────────────────────────────────── */
+function BenefitRow({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
   return (
-    <div
-      className="flex justify-between items-center py-[9px] text-[13px]"
-      style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-    >
-      <span className="text-white/40">{label}</span>
-      {children}
-    </div>
-  );
-}
-
-/* ─── Benefit row ───────────────────────────────────────────── */
-function BItem({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
-  return (
-    <div
-      className="flex items-center gap-2.5 py-2 text-[13px] text-white/[0.78]"
-      style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-    >
-      <div
-        className="w-[26px] h-[26px] rounded-[7px] flex items-center justify-center flex-shrink-0"
-        style={{ background: 'rgba(0,230,118,0.1)', border: '1px solid rgba(0,230,118,0.18)' }}
-      >
-        <Icon size={12} color="#00e676" />
+    <div className="flex items-center gap-2.5 py-1.5 border-b border-white/[0.04] last:border-none text-[12px] text-white/85">
+      <div className="w-6 h-6 rounded-md bg-[#C8FF00]/[0.08] border border-[#C8FF00]/[0.15] flex items-center justify-center flex-shrink-0">
+        <Icon className="w-3 h-3 text-[#C8FF00]" />
       </div>
-      <span className="text-xs leading-[1.35]">{text}</span>
+      {text}
     </div>
   );
 }
@@ -226,7 +84,7 @@ function BItem({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
 /* ─── Main Page ─────────────────────────────────────────────── */
 export default function CoachCredentialsPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { myCredential, myCredentialError } = useSelector(
+  const { myCredential, myCredentialLoading, myCredentialError } = useSelector(
     (state: RootState) => state.coachDashboard,
   );
   const [isRenewing, setIsRenewing] = useState(false);
@@ -238,14 +96,6 @@ export default function CoachCredentialsPage() {
   } | null>(null);
 
   useEffect(() => {
-    if (document.getElementById('cp-keyframes')) return;
-    const s = document.createElement('style');
-    s.id = 'cp-keyframes';
-    s.textContent = KEYFRAMES;
-    document.head.appendChild(s);
-  }, []);
-
-  useEffect(() => {
     dispatch(fetchMyCoachCredential());
   }, [dispatch]);
 
@@ -255,6 +105,7 @@ export default function CoachCredentialsPage() {
       name: 'Certificación Básica',
       price: 150,
       duration: '1 Año',
+      popular: false,
       features: ['Credencial Digital NRTP', 'Verificación por QR', 'Acceso a torneos locales'],
     },
     {
@@ -276,6 +127,7 @@ export default function CoachCredentialsPage() {
       name: 'Licencia Elite',
       price: 600,
       duration: '1 Año',
+      popular: false,
       features: [
         'Todo lo incluido en Profesional',
         'Seminarios exclusivos FMXPKL',
@@ -285,7 +137,6 @@ export default function CoachCredentialsPage() {
     },
   ];
 
-  // Coach plan IDs → backend plan_type mapping
   const COACH_PLAN_TYPE_MAP: Record<string, 'basic' | 'membership' | 'premium'> = {
     basic: 'basic',
     professional: 'membership',
@@ -303,9 +154,13 @@ export default function CoachCredentialsPage() {
     });
   };
 
-  const handlePaymentSuccess = () => {
+  const handlePaymentSuccess = (credential?: any) => {
     setPaymentModal(null);
-    dispatch(fetchMyCoachCredential());
+    if (credential) {
+      dispatch(setMyCredential(credential));
+    } else {
+      dispatch(fetchMyCoachCredential());
+    }
   };
 
   const handleRenew = () => {
@@ -313,550 +168,358 @@ export default function CoachCredentialsPage() {
     setTimeout(() => setIsRenewing(false), 2000);
   };
 
-  const paymentHistory = [
-    {
-      id: 'PAY-301',
-      date: new Date(myCredential?.issued_date || '2024-01-15').toISOString(),
-      amount: 350,
-      method: 'Stripe',
-      description: 'Licencia Profesional de Entrenador',
-    },
-  ];
-
-  const benefits: [LucideIcon, string][] = [
-    [Trophy, 'Entrenamiento en torneos oficiales'],
-    [TrendingUp, 'Acceso a rankings de entrenadores'],
-    [CreditCard, 'Descuentos en afiliación a clubes'],
-    [Shield, 'Licencia digital verificable por QR'],
-    [Star, 'Acceso a seminarios exclusivos'],
-    [Zap, 'Soporte prioritario 24/7'],
-  ];
+  const paymentHistory = [{
+    id: 'PAY-301',
+    date: new Date(myCredential?.issued_date || '2024-01-15').toISOString(),
+    amount: 350,
+    method: 'Stripe',
+    description: 'Licencia Profesional de Entrenador',
+  }];
 
   const nrtpLevelMap: Record<string, number> = {
-    'Level 1': 1,
-    'Level 2': 2,
-    'Level 3': 3,
-    'Level 4': 4,
-    Pro: 5,
+    'Level 1': 1, 'Level 2': 2, 'Level 3': 3, 'Level 4': 4, Pro: 5,
   };
   const nrtpPct = myCredential ? ((nrtpLevelMap[myCredential.nrtp_level] || 3) / 5) * 100 : 0;
 
-  /* ── Shared page shell ── */
-  const Shell = ({ children }: { children: React.ReactNode }) => (
-    <div
-      className="font-outfit relative min-h-screen overflow-hidden px-6 pt-8 pb-16"
-      style={{ background: '#050f0a' }}
-    >
-      {/* Blobs */}
-      <div
-        className="blob-1 fixed pointer-events-none rounded-full"
-        style={{
-          top: '-15%',
-          left: '-10%',
-          width: 650,
-          height: 650,
-          zIndex: 0,
-          background: 'radial-gradient(circle, rgba(0,230,118,0.07) 0%, transparent 65%)',
-        }}
-      />
-      <div
-        className="blob-2 fixed pointer-events-none rounded-full"
-        style={{
-          bottom: '-15%',
-          right: '-8%',
-          width: 550,
-          height: 550,
-          zIndex: 0,
-          background: 'radial-gradient(circle, rgba(0,180,83,0.05) 0%, transparent 65%)',
-        }}
-      />
-      <div className="relative z-10 max-w-[1200px] mx-auto">{children}</div>
-    </div>
-  );
+  const benefits: [LucideIcon, string][] = [
+    [Trophy,     'Entrenamiento en torneos oficiales'],
+    [TrendingUp, 'Acceso a rankings de entrenadores'],
+    [CreditCard, 'Descuentos en afiliación a clubes'],
+    [Shield,     'Licencia digital verificable por QR'],
+    [Star,       'Acceso a seminarios exclusivos'],
+    [Zap,        'Soporte prioritario 24/7'],
+  ];
 
-  /* ══ CREDENTIAL EXISTS ══════════════════════════════════════ */
+  /* Loading */
+  if (myCredentialLoading) {
+    return (
+      <div className="min-h-screen bg-[#06080E] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-7 h-7 text-[#C8FF00] animate-spin" />
+          <span className="text-white/60 text-sm font-['DM_Sans',sans-serif]">Cargando credencial…</span>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── HAS CREDENTIAL ─────────────────────────────────────────── */
   if (myCredential) {
     return (
-      <Shell>
-        {/* ── Page Header ── */}
-        <div className="flex flex-wrap items-start justify-between gap-4 mb-12">
-          <div>
-            <div
-              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 mb-2.5 text-[9px] font-bold uppercase text-[#00e676]"
-              style={{
-                background: 'rgba(0,230,118,0.08)',
-                border: '1px solid rgba(0,230,118,0.18)',
-                letterSpacing: '2.5px',
-              }}
-            >
-              <Sparkles size={10} /> Licencia Verificada
-            </div>
-            <h1
-              className="font-bebas text-white leading-none"
-              style={{ fontSize: 'clamp(38px,5.5vw,60px)', letterSpacing: '3px' }}
-            >
-              CREDENCIAL <span className="text-[#00e676]">ENTRENADOR</span>
-            </h1>
-            <p
-              className="text-[11px] font-semibold uppercase mt-1.5"
-              style={{ color: 'rgba(0,230,118,0.6)', letterSpacing: '3px' }}
-            >
-              Federación Mexicana de Pickleball · CDMX
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2.5 items-center">
-            <Button
-              variant="outline"
-              onClick={() => alert('Descargando credencial...')}
-              className="font-outfit rounded-[10px] text-[13px] gap-1.5 px-3.5 py-2 h-auto"
-              style={{
-                background: 'transparent',
-                border: '1px solid rgba(0,230,118,0.22)',
-                color: '#e8f5e9',
-              }}
-            >
-              <Download size={14} /> Descargar
-            </Button>
-            <Button
-              onClick={() => alert('QR Verificado ✓')}
-              className="font-outfit font-bold rounded-[10px] text-[13px] gap-1.5 px-3.5 py-2 h-auto text-black"
-              style={{
-                background: '#00e676',
-                boxShadow: '0 4px 18px rgba(0,230,118,0.3)',
-              }}
-            >
-              <QrCode size={14} /> Verificar QR
-            </Button>
-          </div>
-        </div>
+      <div className="min-h-screen bg-[#06080E] text-[#F0F0FF] font-['DM_Sans',sans-serif] relative overflow-hidden">
+        {/* Ambient */}
+        <div className="fixed pointer-events-none rounded-full -top-1/4 -left-1/4 w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(200,255,0,0.04)_0%,transparent_65%)]" />
+        <div className="fixed pointer-events-none rounded-full -bottom-1/4 -right-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(100,180,0,0.03)_0%,transparent_65%)]" />
 
-        {/* ── Main Grid ── */}
-        <div className="grid gap-8 items-start" style={{ gridTemplateColumns: '340px 1fr' }}>
-          {/* LEFT */}
-          <div className="flex flex-col gap-4">
-            <CredentialHoloCard credential={myCredential} />
+        <div className="relative z-10 max-w-[1200px] mx-auto px-6 py-8 pb-16">
 
-            {/* Vigencia */}
-            <Panel delay="d1">
-              <PanelHeader
-                icon={<Calendar size={14} color="#00e676" />}
-                title="Vigencia de Licencia"
-              />
-              <div className="px-5 py-3.5">
-                <div className="flex justify-between text-[12px] text-white/45 mb-2">
-                  <span>
-                    Emitida:{' '}
-                    <span className="text-white/75">
-                      {new Date(myCredential?.created_at)?.toLocaleDateString('es-MX')}
-                    </span>
-                  </span>
-                  <span>
-                    Expira:{' '}
-                    <span className="text-white/75">
-                      {myCredential?.expiry_date
-                        ? new Date(myCredential.expiry_date).toLocaleDateString('es-MX')
-                        : 'N/A'}
-                    </span>
-                  </span>
-                </div>
-                {/* Vig bar */}
-                <div
-                  className="h-1 rounded-full overflow-hidden"
-                  style={{ background: 'rgba(255,255,255,0.06)' }}
-                >
-                  <div
-                    className="vig-bar h-full rounded-full w-[95%]"
-                    style={{ background: 'linear-gradient(90deg, #00b248, #00e676)' }}
-                  />
-                </div>
-                <div
-                  className="flex justify-between text-[10px] mt-1.5"
-                  style={{ color: 'rgba(76,175,120,0.45)' }}
-                >
-                  <span>Ene 2024</span>
-                  <span className="text-[#00e676]">95% transcurrido</span>
-                  <span>Dic 2024</span>
-                </div>
+          {/* Header */}
+          <div className="flex items-start justify-between flex-wrap gap-4 mb-10">
+            <div>
+              <div className="inline-flex items-center gap-1.5 bg-[#C8FF00]/[0.07] border border-[#C8FF00]/[0.15] rounded-full px-3 py-1 mb-2.5 font-sans text-[10px] font-bold tracking-[2px] text-[#C8FF00] uppercase">
+                <Sparkles className="w-2.5 h-2.5" /> Licencia Verificada
               </div>
-            </Panel>
+              <h1 className="font-sans font-extrabold leading-none tracking-tight text-[clamp(28px,4vw,44px)]">
+                CREDENCIAL <span className="text-[#C8FF00]">ENTRENADOR</span>
+              </h1>
+              <p className="text-[#8CAF00] text-[11px] tracking-[2.5px] uppercase font-bold mt-2">
+                FEDMEX Pickleball
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                onClick={() => alert('Descargando...')}
+                className="bg-transparent border-[#C8FF00]/[0.22] text-white/95 hover:text-white hover:bg-[#C8FF00]/[0.07] hover:border-[#C8FF00]/40 rounded-xl gap-2 text-[13px]"
+              >
+                <Download className="w-3.5 h-3.5" /> Descargar
+              </Button>
+              <Button
+                onClick={() => alert('QR Verificado ✓')}
+                className="bg-[#C8FF00] text-black font-sans font-extrabold rounded-xl gap-2 text-[13px] hover:bg-[#d6ff26] shadow-[0_4px_20px_rgba(200,255,0,0.25)]"
+              >
+                <QrCode className="w-3.5 h-3.5" /> Verificar QR
+              </Button>
+            </div>
           </div>
 
-          {/* RIGHT */}
-          <div className="flex flex-col gap-5">
-            {/* Certification Level */}
-            <Panel delay="d1">
-              <PanelHeader
-                icon={<TrendingUp size={14} color="#00e676" />}
-                title="Nivel de Certificación"
-              />
-              <div className="px-5 py-3.5">
-                <div className="flex items-end gap-4 mb-4">
-                  <div
-                    className="font-bebas leading-none text-[#00e676]"
-                    style={{
-                      fontSize: 72,
-                      letterSpacing: 2,
-                      textShadow: '0 0 30px rgba(0,230,118,0.35)',
-                    }}
-                  >
-                    {myCredential?.nrtp_level || 'Level 3'}
-                  </div>
-                  <div className="pb-2">
-                    <div
-                      className="text-[11px] uppercase mb-1.5"
-                      style={{ color: 'rgba(76,175,120,0.6)', letterSpacing: 2 }}
-                    >
-                      de Level 5 (Pro)
+          {/* Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-7 items-start">
+
+            {/* Left */}
+            <div className="flex flex-col gap-4">
+              <CredentialHoloCard credential={myCredential} />
+
+              {(() => {
+                const start = new Date(myCredential?.issued_date || myCredential?.created_at);
+                const end = getExpiryDate(myCredential);
+                const now = new Date();
+                const total = end.getTime() - start.getTime();
+                const elapsed = Math.min(Math.max(now.getTime() - start.getTime(), 0), total);
+                const pct = total > 0 ? Math.round((elapsed / total) * 100) : 0;
+                const fmt = (d: Date) => d.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' });
+                return (
+                  <Panel icon={Calendar} title="Vigencia de Licencia">
+                    <div className="flex justify-between text-[12px] text-white/65 mb-2">
+                      <span>
+                        Emitida:{' '}
+                        <span className="text-white/88">{start.toLocaleDateString('es-MX')}</span>
+                      </span>
+                      <span>
+                        Expira:{' '}
+                        <span className="text-white/88">{end.toLocaleDateString('es-MX')}</span>
+                      </span>
                     </div>
-                    <Badge
-                      className="font-outfit text-[11px] font-bold"
-                      style={{
-                        background: 'rgba(0,230,118,0.1)',
-                        border: '1px solid rgba(0,230,118,0.22)',
-                        color: '#00e676',
-                        letterSpacing: 1,
-                      }}
-                    >
+                    <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-[#7CAF00] to-[#C8FF00]"
+                        style={{ width: `${pct}%` }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-[10px] text-[#C8FF00]/40 mt-1.5">
+                      <span>{fmt(start)}</span>
+                      <span className="text-[#C8FF00]">{pct}% transcurrido</span>
+                      <span>{fmt(end)}</span>
+                    </div>
+                  </Panel>
+                );
+              })()}
+            </div>
+
+            {/* Right */}
+            <div className="flex flex-col gap-4">
+
+              {/* NRTP */}
+              <Panel icon={TrendingUp} title="Nivel de Certificación">
+                <div className="flex items-end gap-5 mb-4">
+                  <span className="font-sans font-extrabold text-[64px] leading-none tracking-tight text-[#C8FF00] drop-shadow-[0_0_30px_rgba(200,255,0,0.35)]">
+                    {myCredential?.nrtp_level || 'Level 3'}
+                  </span>
+                  <div className="pb-2 flex flex-col gap-2">
+                    <span className="text-[11px] text-[#C8FF00]/50 tracking-[2px] uppercase">de Level 5 (Pro)</span>
+                    <Badge className="bg-[#C8FF00]/[0.1] border border-[#C8FF00]/[0.22] text-[#C8FF00] text-[11px] font-bold font-sans w-fit">
                       NRTP {myCredential?.nrtp_level || 'Level 3'}
                     </Badge>
                   </div>
                 </div>
-                {/* NRTP bar */}
-                <div
-                  className="h-[5px] rounded-full overflow-hidden mt-1.5"
-                  style={{ background: 'rgba(255,255,255,0.06)' }}
-                >
+                <div className="h-[5px] bg-white/[0.06] rounded-full overflow-hidden">
                   <div
-                    className="ntpr-bar h-full rounded-full"
-                    style={{
-                      width: `${nrtpPct}%`,
-                      background: 'linear-gradient(90deg, #00b248, #00e676, #69f0ae)',
-                    }}
+                    className="h-full rounded-full bg-gradient-to-r from-[#7CAF00] via-[#C8FF00] to-[#E8FF80]"
+                    style={{ width: `${nrtpPct}%` }}
                   />
                 </div>
-                <div
-                  className="flex justify-between text-[9px] mt-1.5"
-                  style={{ color: 'rgba(76,175,120,0.4)', letterSpacing: 1 }}
-                >
-                  {['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Pro'].map((v) => (
-                    <span key={v}>{v}</span>
-                  ))}
+                <div className="flex justify-between text-[9px] text-[#C8FF00]/30 tracking-[1px] mt-1.5">
+                  {['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Pro'].map(v => <span key={v}>{v}</span>)}
                 </div>
-
-                <Separator className="my-3.5" style={{ background: 'rgba(0,230,118,0.08)' }} />
-
-                <div className="last:border-none">
-                  <IRow label="Club">
-                    <span className="text-white/85 font-medium text-[13px]">
-                      {myCredential?.club_name || 'Independiente'}
-                    </span>
-                  </IRow>
-                  <IRow label="Estado">
-                    <span className="text-white/85 font-medium text-[13px]">
-                      {myCredential?.state_affiliation || 'N/A'}
-                    </span>
-                  </IRow>
-                  <IRow label="Afiliación">
-                    <span
-                      className="font-medium text-[13px] capitalize"
-                      style={{
-                        color:
-                          myCredential?.affiliation_status === 'active' ? '#00e676' : '#ff6b6b',
-                      }}
-                    >
+                <Separator className="bg-[#C8FF00]/[0.08] my-3" />
+                <InfoRow label="Club" value={myCredential?.club_name || 'Independiente'} />
+                <InfoRow label="Estado" value={myCredential?.state_affiliation || 'N/A'} />
+                <InfoRow
+                  label="Afiliación"
+                  value={
+                    <span className={cn(
+                      'capitalize font-semibold',
+                      myCredential?.affiliation_status === 'active' ? 'text-[#C8FF00]' : 'text-[#ff6b6b]',
+                    )}>
                       {myCredential?.affiliation_status}
                     </span>
-                  </IRow>
-                </div>
-              </div>
-            </Panel>
-
-            {/* 2-col: Coach details + Benefits */}
-            <div className="grid grid-cols-2 gap-5">
-              <Panel delay="d2">
-                <PanelHeader
-                  icon={<User size={13} color="#00e676" />}
-                  title="Datos del Entrenador"
+                  }
                 />
-                <div className="px-5 py-3.5 [&>*:last-child]:border-b-0">
-                  <IRow label="Número">
-                    <span
-                      className="font-jetbrains text-[11px] text-[#00e676]"
-                      style={{ letterSpacing: 1 }}
-                    >
-                      {myCredential?.credential_number}
-                    </span>
-                  </IRow>
-                  <IRow label="Código">
-                    <span
-                      className="font-jetbrains text-[11px] text-[#00e676]"
-                      style={{ letterSpacing: 1 }}
-                    >
-                      {myCredential?.verification_code}
-                    </span>
-                  </IRow>
-                  <IRow label="Estado">
-                    <span
-                      className="flex items-center gap-1.5 text-[13px] font-semibold"
-                      style={{
-                        color:
-                          myCredential?.affiliation_status === 'active' ? '#00e676' : '#ff6b6b',
-                      }}
-                    >
-                      <span
-                        className="status-dot inline-block w-1.5 h-1.5 rounded-full"
-                        style={{
-                          background:
-                            myCredential?.affiliation_status === 'active' ? '#00e676' : '#ff6b6b',
-                          boxShadow:
-                            myCredential?.affiliation_status === 'active'
-                              ? '0 0 6px #00e676'
-                              : '0 0 6px #ff6b6b',
-                        }}
-                      />
-                      {myCredential?.affiliation_status === 'active' ? 'Certificado' : 'Inactivo'}
-                    </span>
-                  </IRow>
-                  <IRow label="Emitida">
-                    <span className="text-white/85 font-medium text-[13px]">
-                      {myCredential?.issued_date
-                        ? new Date(myCredential.issued_date).toLocaleDateString('es-MX')
-                        : 'Sin datos'}
-                    </span>
-                  </IRow>
-                  <IRow label="Expira">
-                    <span className="text-white/85 font-medium text-[13px]">
-                      {myCredential?.expiry_date
-                        ? new Date(myCredential.expiry_date).toLocaleDateString('es-MX')
-                        : 'Sin expiración'}
-                    </span>
-                  </IRow>
-                </div>
               </Panel>
 
-              <Panel delay="d3">
-                <PanelHeader icon={<CheckCircle2 size={13} color="#00e676" />} title="Beneficios" />
-                <div className="px-5 py-3.5 [&>*:last-child]:border-b-0">
+              {/* 2-col */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Panel icon={User} title="Datos del Entrenador">
+                  <InfoRow label="Número" value={myCredential?.credential_number} mono />
+                  <InfoRow label="Código" value={myCredential?.verification_code} mono />
+                  {(myCredential as any)?.user?.date_of_birth && (
+                    <InfoRow
+                      label="Fecha de Nacimiento"
+                      value={new Date((myCredential as any).user.date_of_birth).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
+                    />
+                  )}
+                  <InfoRow
+                    label="Estado"
+                    value={
+                      <span className={cn(
+                        'flex items-center gap-1.5 font-semibold text-[13px]',
+                        myCredential?.affiliation_status === 'active' ? 'text-[#C8FF00]' : 'text-[#ff6b6b]',
+                      )}>
+                        <span className={cn(
+                          'w-1.5 h-1.5 rounded-full inline-block',
+                          myCredential?.affiliation_status === 'active'
+                            ? 'bg-[#C8FF00] shadow-[0_0_6px_#C8FF00]'
+                            : 'bg-[#ff6b6b] shadow-[0_0_6px_#ff6b6b]',
+                        )} />
+                        {myCredential?.affiliation_status === 'active' ? 'Certificado' : 'Inactivo'}
+                      </span>
+                    }
+                  />
+                  <InfoRow
+                    label="Emitida"
+                    value={myCredential?.issued_date
+                      ? new Date(myCredential.issued_date).toLocaleDateString('es-MX')
+                      : 'Sin datos'}
+                  />
+                  <InfoRow
+                    label="Expira"
+                    value={getExpiryDate(myCredential).toLocaleDateString('es-MX')}
+                  />
+                </Panel>
+
+                <Panel icon={CheckCircle2} title="Beneficios">
                   {benefits.map(([Icon, text], i) => (
-                    <BItem key={i} icon={Icon} text={text} />
+                    <BenefitRow key={i} icon={Icon} text={text} />
                   ))}
-                </div>
-              </Panel>
-            </div>
+                </Panel>
+              </div>
 
-            {/* Payment History */}
-            <Panel delay="d4">
-              <PanelHeader
-                icon={<CreditCard size={14} color="#00e676" />}
+              {/* Payment history */}
+              <Panel
+                icon={CreditCard}
                 title="Historial de Pagos"
-                right={
+                action={
                   <Button
                     onClick={handleRenew}
                     disabled={isRenewing}
-                    className="font-outfit font-bold rounded-[9px] text-[12px] gap-1.5 h-[34px] px-3.5"
-                    style={{
-                      background: isRenewing ? 'rgba(0,230,118,0.12)' : '#00e676',
-                      color: isRenewing ? '#00e676' : '#000',
-                      border: isRenewing ? '1px solid rgba(0,230,118,0.3)' : 'none',
-                      boxShadow: isRenewing ? 'none' : '0 3px 14px rgba(0,230,118,0.28)',
-                      transition: 'all 0.2s',
-                    }}
+                    size="sm"
+                    className={cn(
+                      'rounded-[9px] text-[12px] font-extrabold font-sans gap-1.5 h-8 px-3.5',
+                      isRenewing
+                        ? 'bg-[#C8FF00]/[0.1] text-[#C8FF00] border border-[#C8FF00]/[0.25] shadow-none hover:bg-[#C8FF00]/[0.1]'
+                        : 'bg-[#C8FF00] text-black shadow-[0_3px_14px_rgba(200,255,0,0.28)] hover:bg-[#d6ff26]',
+                    )}
                   >
-                    <RefreshCcw size={13} className={isRenewing ? 'spin' : ''} />
+                    <RefreshCcw className={cn('w-3 h-3', isRenewing && 'animate-spin')} />
                     {isRenewing ? 'Procesando...' : 'Renovar $350 USD'}
                   </Button>
                 }
-              />
-              <div className="px-5 py-3.5">
-                {paymentHistory.map((p) => (
-                  <div
-                    key={p.id}
-                    className="flex items-center justify-between py-3"
-                    style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-                  >
+              >
+                {paymentHistory.map(p => (
+                  <div key={p.id} className="flex items-center justify-between py-3 border-b border-white/[0.04] last:border-none">
                     <div className="flex items-center gap-3">
-                      <div
-                        className="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center flex-shrink-0"
-                        style={{
-                          background: 'rgba(0,230,118,0.07)',
-                          border: '1px solid rgba(0,230,118,0.14)',
-                        }}
-                      >
-                        <CheckCircle2 size={17} color="#00e676" />
+                      <div className="w-9 h-9 rounded-[10px] bg-[#C8FF00]/[0.07] border border-[#C8FF00]/[0.12] flex items-center justify-center flex-shrink-0">
+                        <CheckCircle2 className="w-[17px] h-[17px] text-[#C8FF00]" />
                       </div>
                       <div>
-                        <div className="text-[13px] font-semibold text-white/85">
-                          {p.description}
-                        </div>
-                        <div className="text-[11px] text-white/35 mt-0.5">
+                        <p className="text-[13px] font-medium text-white/85">{p.description}</p>
+                        <p className="text-[11px] text-white/60 mt-0.5">
                           {new Date(p.date).toLocaleDateString('es-MX')} · {p.method} · {p.id}
-                        </div>
+                        </p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div
-                        className="font-bebas text-[22px] text-[#00e676]"
-                        style={{ letterSpacing: 1 }}
-                      >
+                    <div className="text-right flex-shrink-0">
+                      <p className="font-sans font-extrabold text-[20px] leading-none text-[#C8FF00]">
                         ${p.amount}{' '}
-                        <span className="text-[13px]" style={{ letterSpacing: 0 }}>
-                          USD
-                        </span>
-                      </div>
-                      <div
-                        className="inline-block text-[8px] font-bold uppercase text-[#00e676] rounded px-1.5 py-0.5 mt-0.5"
-                        style={{
-                          background: 'rgba(0,230,118,0.1)',
-                          border: '1px solid rgba(0,230,118,0.2)',
-                          letterSpacing: '1.5px',
-                        }}
-                      >
+                        <span className="text-[13px] font-normal text-white/60">USD</span>
+                      </p>
+                      <Badge className="mt-1 bg-[#C8FF00]/[0.08] border border-[#C8FF00]/[0.18] text-[#C8FF00] text-[8px] font-bold tracking-[1.5px] uppercase font-sans">
                         Completado
-                      </div>
+                      </Badge>
                     </div>
                   </div>
                 ))}
-              </div>
-            </Panel>
+              </Panel>
+            </div>
           </div>
         </div>
-      </Shell>
+      </div>
     );
   }
 
-  /* ══ NO CREDENTIAL — show plans ════════════════════════════ */
+  /* ── NO CREDENTIAL ──────────────────────────────────────────── */
   return (
-    <Shell>
-      {/* Page Header */}
-      <div className="text-center mb-12">
-        <div
-          className="inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-1 mb-4 text-[9px] font-bold uppercase text-[#00e676]"
-          style={{
-            background: 'rgba(0,230,118,0.08)',
-            border: '1px solid rgba(0,230,118,0.18)',
-            letterSpacing: '2.5px',
-          }}
-        >
-          <AlertCircle size={12} /> Sin Licencia Activa
-        </div>
-        <h1
-          className="font-bebas text-white leading-none"
-          style={{ fontSize: 'clamp(38px,5.5vw,60px)', letterSpacing: '3px' }}
-        >
-          OBTENER LICENCIA <span className="text-[#00e676]">DE ENTRENADOR</span>
-        </h1>
-        <p
-          className="text-[11px] font-semibold uppercase mt-1.5"
-          style={{ color: 'rgba(0,230,118,0.6)', letterSpacing: '3px' }}
-        >
-          Elige un plan y obtén tu licencia oficial de entrenador
-        </p>
-      </div>
+    <div className="min-h-screen bg-[#06080E] text-[#F0F0FF] font-['DM_Sans',sans-serif] relative overflow-hidden">
+      <div className="fixed pointer-events-none rounded-full -top-1/4 -left-1/4 w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(200,255,0,0.04)_0%,transparent_65%)]" />
+      <div className="fixed pointer-events-none rounded-full -bottom-1/4 -right-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(100,180,0,0.03)_0%,transparent_65%)]" />
 
-      {/* Error */}
-      {myCredentialError && (
-        <div
-          className="rounded-xl p-4 mb-8 text-[#ff6b6b] text-[14px]"
-          style={{
-            background: 'rgba(244,67,54,0.1)',
-            border: '1px solid rgba(244,67,54,0.3)',
-          }}
-        >
-          {myCredentialError}
-        </div>
-      )}
+      <div className="relative z-10 max-w-[1200px] mx-auto px-6 py-8 pb-16">
 
-      {/* Payment Plans */}
-      <div
-        className="grid gap-6 mb-12"
-        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px,1fr))' }}
-      >
-        {paymentPlans.map((plan) => (
-          <div
-            key={plan.id}
-            className="relative rounded-2xl px-6 py-7 overflow-hidden"
-            style={{
-              background: plan.popular
-                ? 'linear-gradient(135deg, rgba(0,230,118,0.15) 0%, rgba(0,180,83,0.08) 100%)'
-                : 'rgba(255,255,255,0.02)',
-              border: plan.popular
-                ? '2px solid rgba(0,230,118,0.4)'
-                : '1px solid rgba(0,230,118,0.12)',
-            }}
-          >
-            {plan.popular && (
-              <div
-                className="absolute top-3 -right-10 text-black text-[11px] font-bold px-12 py-1 rotate-45"
-                style={{ background: '#00e676', letterSpacing: 1 }}
-              >
-                POPULAR
-              </div>
-            )}
-            <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
-            <div className="flex items-baseline gap-2 mb-3">
-              <span className="font-bebas text-[40px] text-[#00e676]" style={{ letterSpacing: 1 }}>
-                ${plan.price}
-              </span>
-              <span className="text-[13px] text-white/45">USD / {plan.duration}</span>
-            </div>
-            <Separator className="my-4" style={{ background: 'rgba(0,230,118,0.08)' }} />
-            <ul className="mb-6 space-y-2.5">
-              {plan.features.map((f, i) => (
-                <li key={i} className="flex items-center gap-2.5 text-[13px] text-white/70">
-                  <CheckCircle2 size={14} color="#00e676" className="flex-shrink-0" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Button
-              onClick={() => handleCreateCredential(plan.id)}
-              disabled={false}
-              className="w-full font-bold rounded-[10px] text-[13px] py-3 h-auto"
-              style={{
-                background: plan.popular ? '#00e676' : 'rgba(0,230,118,0.1)',
-                color: plan.popular ? '#000' : '#00e676',
-                border: plan.popular ? 'none' : '1px solid rgba(0,230,118,0.2)',
-                boxShadow: plan.popular ? '0 4px 16px rgba(0,230,118,0.3)' : 'none',
-              }}
-            >
-              Seleccionar Plan
-            </Button>
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center gap-1.5 bg-[#ff6b6b]/[0.07] border border-[#ff6b6b]/[0.2] rounded-full px-3 py-1 mb-3 font-sans text-[10px] font-bold tracking-[2px] text-[#ff6b6b] uppercase">
+            <AlertCircle className="w-2.5 h-2.5" /> Sin Licencia Activa
           </div>
-        ))}
-      </div>
+          <h1 className="font-sans font-extrabold leading-none tracking-tight text-[clamp(28px,4vw,44px)]">
+            OBTENER LICENCIA <span className="text-[#C8FF00]">DE ENTRENADOR</span>
+          </h1>
+          <p className="text-[#8CAF00] text-[11px] tracking-[2.5px] uppercase font-bold mt-3">
+            Elige un plan y obtén tu licencia oficial de entrenador
+          </p>
+        </div>
 
-      {/* Benefits */}
-      <Panel>
-        <PanelHeader
-          icon={<Sparkles size={14} color="#00e676" />}
-          title="¿Qué incluye tu licencia de entrenador?"
-        />
-        <div className="px-5 py-3.5">
-          <div
-            className="grid gap-4"
-            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px,1fr))' }}
-          >
-            {benefits.map(([Icon, text], i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 py-3"
-                style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-              >
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{
-                    background: 'rgba(0,230,118,0.1)',
-                    border: '1px solid rgba(0,230,118,0.18)',
-                  }}
-                >
-                  <Icon size={14} color="#00e676" />
+        {/* Error */}
+        {myCredentialError && (
+          <div className="bg-[#ff6b6b]/[0.1] border border-[#ff6b6b]/[0.3] rounded-xl px-4 py-3.5 mb-8 text-[#ff6b6b] text-[14px]">
+            {myCredentialError}
+          </div>
+        )}
+
+        {/* Plans */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
+          {paymentPlans.map(plan => (
+            <Card
+              key={plan.id}
+              className={cn(
+                'relative overflow-hidden rounded-2xl',
+                plan.popular
+                  ? 'bg-[#C8FF00]/[0.06] border-2 border-[#C8FF00]/[0.35]'
+                  : 'bg-white/[0.02] border border-[#C8FF00]/[0.1]',
+              )}
+            >
+              {plan.popular && (
+                <div className="absolute top-3 right-[-38px] bg-[#C8FF00] text-black px-12 py-1 rotate-45 font-sans text-[9px] font-extrabold tracking-[1px]">
+                  POPULAR
                 </div>
-                <span className="text-[13px] text-white/70">{text}</span>
-              </div>
+              )}
+              <CardContent className="p-6">
+                <h3 className="font-sans font-extrabold text-[17px] text-white mb-1.5">
+                  {plan.name}
+                </h3>
+                <div className="flex items-baseline gap-2 mb-0.5">
+                  <span className="font-sans font-extrabold text-[38px] leading-none text-[#C8FF00] tracking-tight">
+                    ${plan.price}
+                  </span>
+                  <span className="text-[12px] text-white/65">USD</span>
+                </div>
+                <p className="text-[12px] text-white/65 mb-4">/ {plan.duration}</p>
+
+                <Separator className="bg-[#C8FF00]/[0.08] mb-4" />
+
+                <ul className="flex flex-col gap-2.5 mb-6">
+                  {plan.features.map((feat, i) => (
+                    <li key={i} className="flex items-center gap-2 text-[12px] text-white/85">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#C8FF00] flex-shrink-0" />
+                      {feat}
+                    </li>
+                  ))}
+                </ul>
+
+                <Button
+                  onClick={() => handleCreateCredential(plan.id)}
+                  className={cn(
+                    'w-full rounded-xl font-extrabold font-sans text-[13px]',
+                    plan.popular
+                      ? 'bg-[#C8FF00] text-black hover:bg-[#d6ff26] shadow-[0_4px_18px_rgba(200,255,0,0.28)]'
+                      : 'bg-[#C8FF00]/[0.08] text-[#C8FF00] border border-[#C8FF00]/[0.2] hover:bg-[#C8FF00]/[0.15]',
+                  )}
+                >
+                  Seleccionar Plan
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Benefits */}
+        <Panel icon={Sparkles} title="¿Qué incluye tu licencia de entrenador?">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
+            {benefits.map(([Icon, text], i) => (
+              <BenefitRow key={i} icon={Icon} text={text} />
             ))}
           </div>
-        </div>
-      </Panel>
+        </Panel>
+      </div>
+
       {paymentModal && (
         <DigitalCredentialPaymentModal
           isOpen={paymentModal.open}
@@ -868,6 +531,6 @@ export default function CoachCredentialsPage() {
           onSuccess={handlePaymentSuccess}
         />
       )}
-    </Shell>
+    </div>
   );
 }

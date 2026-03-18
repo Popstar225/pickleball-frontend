@@ -38,6 +38,15 @@ interface TournamentCreationProps {
   onTournamentCreated?: (tournamentId: string) => void;
 }
 
+// Local tournament type names (Tier 1) available to clubs
+const LOCAL_TOURNAMENT_NAMES = [
+  'Campeonato Municipal',
+  'Abierto Municipal',
+  'Copa Municipal',
+  'Torneos Locales',
+  'Clínicas y Exhibiciones',
+];
+
 const EMPTY_FORM: CreateTournamentRequest = {
   name: '',
   tournament_type: 'local',
@@ -56,6 +65,7 @@ const EMPTY_FORM: CreateTournamentRequest = {
   rules: '',
   contact_email: '',
   contact_phone: '',
+  tournament_type_name: '',
 };
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
@@ -413,6 +423,28 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
                     onChange={(e) => set('name', e.target.value)}
                     placeholder="e.g. Summer Open 2025"
                   />
+                </Field>
+
+                <Field label="Tournament Type Name" required hint="Tier 1 — Local (mejores N resultados)">
+                  <Select
+                    value={form.tournament_type_name || ''}
+                    onValueChange={(v) => set('tournament_type_name', v)}
+                  >
+                    <SelectTrigger className={selectTrigger}>
+                      <SelectValue placeholder="Select tournament type..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl">
+                      {LOCAL_TOURNAMENT_NAMES.map((n) => (
+                        <SelectItem
+                          key={n}
+                          value={n}
+                          className="text-white/80 focus:bg-white/[0.06] focus:text-white rounded-lg"
+                        >
+                          {n}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <div className="grid grid-cols-2 gap-3">

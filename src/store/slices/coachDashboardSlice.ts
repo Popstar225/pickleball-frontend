@@ -541,9 +541,17 @@ export const fetchMyCoachCredential = createAsyncThunk(
   'coachDashboard/fetchMyCredential',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/coaches/credentials', {});
-      return response as any;
+      const response = await api.get('/coaches/credentials', {}) as any;
+      // Extract the actual credential object from the response body
+      const credential =
+        response?.data?.credential ??
+        response?.credential ??
+        (response?.data?.credentials?.[0]) ??
+        null;
+      return credential;
     } catch (error: any) {
+      // 404 = no credential yet, treat as null instead of error
+      if (error.response?.status === 404) return null;
       return rejectWithValue(
         error.response?.data?.message || error.message || 'Failed to fetch credential',
       );
@@ -735,6 +743,11 @@ const coachDashboardSlice = createSlice({
       state.studentsError = null;
       state.messagesError = null;
       state.paymentsError = null;
+    },
+    setMyCredential: (state, action) => {
+      state.myCredential = action.payload;
+      state.myCredentialLoading = false;
+      state.myCredentialError = null;
     },
   },
   extraReducers: (builder) => {
@@ -1051,5 +1064,5 @@ const coachDashboardSlice = createSlice({
   },
 });
 
-export const { clearError } = coachDashboardSlice.actions;
+export const { clearError, setMyCredential } = coachDashboardSlice.actions;
 export default coachDashboardSlice.reducer;

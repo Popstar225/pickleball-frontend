@@ -38,6 +38,21 @@ interface StateTournamentCreationProps {
   onTournamentCreated?: (tournamentId: string) => void;
 }
 
+// Tournament type names available to state organizers (Tier 2 + Tier 1)
+const STATE_TOURNAMENT_NAMES: { name: string; tournament_type: 'state' | 'local' }[] = [
+  // Tier 2 — Estatal
+  { name: 'Campeonato Estatal',   tournament_type: 'state' },
+  { name: 'Liga Estatal',         tournament_type: 'state' },
+  { name: 'Torneo Estatal',       tournament_type: 'state' },
+  { name: 'Abierto Estatal',      tournament_type: 'state' },
+  { name: 'Copa Estatal',         tournament_type: 'state' },
+  // Tier 1 — Local
+  { name: 'Campeonato Municipal', tournament_type: 'local' },
+  { name: 'Abierto Municipal',    tournament_type: 'local' },
+  { name: 'Copa Municipal',       tournament_type: 'local' },
+  { name: 'Torneos Locales',      tournament_type: 'local' },
+];
+
 const EMPTY_FORM: CreateTournamentRequest = {
   name: '',
   tournament_type: 'state',
@@ -56,6 +71,7 @@ const EMPTY_FORM: CreateTournamentRequest = {
   rules: '',
   contact_email: '',
   contact_phone: '',
+  tournament_type_name: '',
 };
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
@@ -415,6 +431,35 @@ const StateTournamentCreation: React.FC<StateTournamentCreationProps> = ({
                     onChange={(e) => set('name', e.target.value)}
                     placeholder="e.g. State Championship 2025"
                   />
+                </Field>
+
+                <Field label="Tournament Type Name" required>
+                  <Select
+                    value={form.tournament_type_name || ''}
+                    onValueChange={(v) => {
+                      const entry = STATE_TOURNAMENT_NAMES.find(t => t.name === v);
+                      setForm(prev => ({
+                        ...prev,
+                        tournament_type_name: v,
+                        tournament_type: entry?.tournament_type ?? prev.tournament_type,
+                      }));
+                    }}
+                  >
+                    <SelectTrigger className={selectTrigger}>
+                      <SelectValue placeholder="Select tournament type..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl">
+                      {STATE_TOURNAMENT_NAMES.map((t) => (
+                        <SelectItem
+                          key={t.name}
+                          value={t.name}
+                          className="text-white/80 focus:bg-white/[0.06] focus:text-white rounded-lg"
+                        >
+                          {t.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <div className="grid grid-cols-2 gap-3">
