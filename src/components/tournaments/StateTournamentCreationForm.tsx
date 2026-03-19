@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
+import { toast } from 'sonner';
 import { AppDispatch, RootState } from '@/store';
 import {
   fetchValidTournamentEvents,
@@ -186,6 +187,9 @@ export const StateTournamentCreationForm: React.FC<Props> = ({
   useEffect(() => {
     if (success && createdTournament) onSuccess?.(createdTournament);
   }, [success]);
+  useEffect(() => {
+    if (error) toast.error(error);
+  }, [error]);
 
   const err = (e: any) => e?.message ?? (typeof e === 'string' ? e : null);
 
@@ -415,7 +419,17 @@ export const StateTournamentCreationForm: React.FC<Props> = ({
                   <Input
                     className={inputCls}
                     type="datetime-local"
-                    {...register('start_date', { required: 'La fecha de inicio es requerida' })}
+                    min={new Date().toISOString().slice(0, 16)}
+                    {...register('start_date', {
+                      required: 'La fecha de inicio es requerida',
+                      validate: (val) =>
+                        !val || val >= new Date().toISOString().slice(0, 16) || 'La fecha de inicio debe ser posterior a hoy',
+                      onChange: (e) => {
+                        const start = e.target.value;
+                        const end = watch('end_date');
+                        if (start && end && start > end) setValue('end_date', start, { shouldValidate: true });
+                      },
+                    })}
                   />
                   <FieldError msg={err(errors.start_date)} />
                 </div>
@@ -424,7 +438,14 @@ export const StateTournamentCreationForm: React.FC<Props> = ({
                   <Input
                     className={inputCls}
                     type="datetime-local"
-                    {...register('end_date', { required: 'La fecha de fin es requerida' })}
+                    {...register('end_date', {
+                      required: 'La fecha de fin es requerida',
+                      onChange: (e) => {
+                        const end = e.target.value;
+                        const start = watch('start_date');
+                        if (start && end && end < start) setValue('start_date', end, { shouldValidate: true });
+                      },
+                    })}
                   />
                   <FieldError msg={err(errors.end_date)} />
                 </div>
@@ -433,7 +454,17 @@ export const StateTournamentCreationForm: React.FC<Props> = ({
                   <Input
                     className={inputCls}
                     type="datetime-local"
-                    {...register('registration_start', { required: 'Fecha requerida' })}
+                    min={new Date().toISOString().slice(0, 16)}
+                    {...register('registration_start', {
+                      required: 'Fecha requerida',
+                      validate: (val) =>
+                        !val || val >= new Date().toISOString().slice(0, 16) || 'Debe ser posterior a hoy',
+                      onChange: (e) => {
+                        const start = e.target.value;
+                        const end = watch('registration_end');
+                        if (start && end && start > end) setValue('registration_end', start, { shouldValidate: true });
+                      },
+                    })}
                   />
                   <FieldError msg={err(errors.registration_start)} />
                 </div>
@@ -442,7 +473,14 @@ export const StateTournamentCreationForm: React.FC<Props> = ({
                   <Input
                     className={inputCls}
                     type="datetime-local"
-                    {...register('registration_end', { required: 'Fecha requerida' })}
+                    {...register('registration_end', {
+                      required: 'Fecha requerida',
+                      onChange: (e) => {
+                        const end = e.target.value;
+                        const start = watch('registration_start');
+                        if (start && end && end < start) setValue('registration_start', end, { shouldValidate: true });
+                      },
+                    })}
                   />
                   <FieldError msg={err(errors.registration_end)} />
                 </div>
@@ -578,7 +616,7 @@ export const StateTournamentCreationForm: React.FC<Props> = ({
               )}
 
               <div className="space-y-2">
-                {validEvents.map((event) => {
+                {validEvents.filter((event) => event.gender !== 'MIXED').map((event) => {
                   const checked = selectedEvents.some((e: any) => e?.key === event.key);
                   return (
                     <Controller

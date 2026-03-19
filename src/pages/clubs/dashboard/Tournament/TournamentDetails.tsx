@@ -181,7 +181,7 @@ const TournamentDetails: React.FC<TournamentDetailsProps> = ({ tournamentId }) =
     if (!t) return;
     try {
       await dispatch(deleteTournament(t.id)).unwrap();
-      navigate('/dashboard/tournaments');
+      navigate('/clubs/dashboard/tournaments');
     } catch (err) {
       console.error('Delete failed', err);
     }
@@ -211,7 +211,7 @@ const TournamentDetails: React.FC<TournamentDetailsProps> = ({ tournamentId }) =
           This tournament may have been removed or the ID is incorrect.
         </p>
         <button
-          onClick={() => navigate('/tournaments')}
+          onClick={() => navigate('/clubs/dashboard/tournaments')}
           className="flex items-center gap-2 text-xs font-semibold text-white/40 hover:text-white/70 transition-colors"
         >
           <ChevronLeft className="w-3.5 h-3.5" /> Back to tournaments

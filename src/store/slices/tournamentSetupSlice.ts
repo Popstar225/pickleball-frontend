@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import type { SerializedError } from '@reduxjs/toolkit';
 import { api } from '../../lib/api';
 
 interface TournamentEvent {
@@ -59,7 +60,7 @@ export const fetchValidTournamentEvents = createAsyncThunk(
 
 export const createTournamentWithSetup = createAsyncThunk(
   'tournamentSetup/createTournamentWithSetup',
-  async (tournamentData: TournamentSetupData) => {
+  async (tournamentData: TournamentSetupData, { rejectWithValue }) => {
     // Map user role to tournament type
     const tournamentTypeMap: Record<string, string> = {
       club: 'local',
@@ -91,7 +92,15 @@ export const createTournamentWithSetup = createAsyncThunk(
     delete (payload as any).format;
     delete (payload as any).format_config;
 
-    return await api.post('/tournaments/setup', payload);
+    try {
+      return await api.post('/tournaments/setup', payload);
+    } catch (err: any) {
+      const data = err?.response?.data;
+      const message = data?.errors?.length
+        ? data.errors.join(' · ')
+        : data?.message || err?.message || 'Failed to create tournament';
+      return rejectWithValue(message);
+    }
   },
 );
 
@@ -142,7 +151,7 @@ const tournamentSetupSlice = createSlice({
       })
       .addCase(createTournamentWithSetup.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to create tournament';
+        state.error = (action.payload as string) || action.error.message || 'Failed to create tournament';
         state.success = false;
       });
   },
