@@ -192,7 +192,7 @@ export default function ClubDashboardHome() {
                       </p>
                       <p className="text-[11px] text-white/25">
                         {member.joinDate
-                          ? new Date(member.joinDate).toLocaleDateString('es-MX')
+                          ? new Date(member.joinDate).toLocaleDateString('en-US')
                           : '—'}
                       </p>
                     </div>
@@ -242,7 +242,7 @@ export default function ClubDashboardHome() {
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-white/75 truncate">{event.title}</p>
                       <p className="text-[11px] text-white/25">
-                        {event.date ? new Date(event.date).toLocaleDateString('es-MX') : '—'}
+                        {event.date ? new Date(event.date).toLocaleDateString('en-US') : '—'}
                         {event.type ? ` · ${event.type}` : ''}
                       </p>
                     </div>

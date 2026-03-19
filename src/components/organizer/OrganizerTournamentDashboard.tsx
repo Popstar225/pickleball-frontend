@@ -583,14 +583,14 @@ export function OrganizerTournamentDashboard({
                       {t.venue_name && <MetaChip icon={MapPin}>{t.venue_name}</MetaChip>}
                       {t.start_date && (
                         <MetaChip icon={Calendar}>
-                          {new Date(t.start_date).toLocaleDateString('es-MX', {
+                          {new Date(t.start_date).toLocaleDateString('en-US', {
                             day: 'numeric',
                             month: 'short',
                             year: 'numeric',
                           })}
                           {t.end_date &&
                             t.end_date !== t.start_date &&
-                            ` – ${new Date(t.end_date).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}`}
+                            ` – ${new Date(t.end_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}`}
                         </MetaChip>
                       )}
                       {t.current_participants !== undefined && (
@@ -700,7 +700,7 @@ export function OrganizerTournamentDashboard({
                   {toPublish.start_date && (
                     <p className="flex items-center gap-2">
                       <Calendar className="w-3.5 h-3.5 text-white/20" />
-                      {new Date(toPublish.start_date).toLocaleDateString('es-MX')}
+                      {new Date(toPublish.start_date).toLocaleDateString('en-US')}
                     </p>
                   )}
                   {toPublish.venue_name && (
@@ -713,7 +713,7 @@ export function OrganizerTournamentDashboard({
                     <p className="flex items-center gap-2">
                       <Clock className="w-3.5 h-3.5 text-white/20" />
                       Límite:{' '}
-                      {new Date(toPublish.registration_deadline).toLocaleDateString('es-MX')}
+                      {new Date(toPublish.registration_deadline).toLocaleDateString('en-US')}
                     </p>
                   )}
                   {toPublish.max_participants && (

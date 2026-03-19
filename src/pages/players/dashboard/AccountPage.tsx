@@ -336,7 +336,7 @@ export default function PlayerAccountPage() {
             { label: 'Categoría', value: skillLabel(form.nrtpLevel) || '—' },
             { label: 'Membresía', value: form.membershipStatus || 'Basic' },
             { label: 'Torneos', value: form.totalTournaments },
-            { label: 'Último Login', value: form.lastActive ? new Date(form.lastActive).toLocaleDateString('es-MX') : '—' },
+            { label: 'Último Login', value: form.lastActive ? new Date(form.lastActive).toLocaleDateString('en-US') : '—' },
           ].map(({ label, value }) => (
             <div key={label} className="px-5 py-3.5">
               <p className="text-[10px] font-bold uppercase tracking-widest text-white mb-1">{label}</p>
@@ -552,7 +552,7 @@ export default function PlayerAccountPage() {
               {[
                 { label: 'Estado de Membresía', value: form.membershipStatus || 'Basic', badge: true },
                 { label: 'Verificado',          value: profile?.is_verified ? 'Sí' : 'No', badge: false },
-                { label: 'Último Login',        value: form.lastActive ? new Date(form.lastActive).toLocaleDateString('es-MX') : 'Nunca', badge: false },
+                { label: 'Último Login',        value: form.lastActive ? new Date(form.lastActive).toLocaleDateString('en-US') : 'Nunca', badge: false },
                 { label: 'Tipo de Usuario',     value: profile?.user_type || 'player', badge: false },
                 { label: 'Torneos Totales',     value: String(form.totalTournaments), badge: false },
               ].map(({ label, value, badge }) => (

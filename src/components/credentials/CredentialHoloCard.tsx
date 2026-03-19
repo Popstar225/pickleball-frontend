@@ -111,7 +111,7 @@ console.log('xxxxxxxx', credential)
           </p>
           {credential?.user?.date_of_birth && (
             <p className="font-sans text-[12px] text-[#C8FF00]/80 tracking-[1px] mt-1">
-              {new Date(credential.user.date_of_birth).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
+              {new Date(credential.user.date_of_birth).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
             </p>
           )}
         </div>

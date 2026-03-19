@@ -256,17 +256,17 @@ export default function CoachCredentialsPage() {
                 const total = end.getTime() - start.getTime();
                 const elapsed = Math.min(Math.max(now.getTime() - start.getTime(), 0), total);
                 const pct = total > 0 ? Math.round((elapsed / total) * 100) : 0;
-                const fmt = (d: Date) => d.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' });
+                const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
                 return (
                   <Panel icon={Calendar} title="Vigencia de Licencia">
                     <div className="flex justify-between text-[12px] text-white/65 mb-2">
                       <span>
                         Emitida:{' '}
-                        <span className="text-white/88">{start.toLocaleDateString('es-MX')}</span>
+                        <span className="text-white/88">{start.toLocaleDateString('en-US')}</span>
                       </span>
                       <span>
                         Expira:{' '}
-                        <span className="text-white/88">{end.toLocaleDateString('es-MX')}</span>
+                        <span className="text-white/88">{end.toLocaleDateString('en-US')}</span>
                       </span>
                     </div>
                     <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
@@ -334,7 +334,7 @@ export default function CoachCredentialsPage() {
                   {(myCredential as any)?.user?.date_of_birth && (
                     <InfoRow
                       label="Fecha de Nacimiento"
-                      value={new Date((myCredential as any).user.date_of_birth).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
+                      value={new Date((myCredential as any).user.date_of_birth).toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' })}
                     />
                   )}
                   <InfoRow
@@ -357,12 +357,12 @@ export default function CoachCredentialsPage() {
                   <InfoRow
                     label="Emitida"
                     value={myCredential?.issued_date
-                      ? new Date(myCredential.issued_date).toLocaleDateString('es-MX')
+                      ? new Date(myCredential.issued_date).toLocaleDateString('en-US')
                       : 'Sin datos'}
                   />
                   <InfoRow
                     label="Expira"
-                    value={getExpiryDate(myCredential).toLocaleDateString('es-MX')}
+                    value={getExpiryDate(myCredential).toLocaleDateString('en-US')}
                   />
                 </Panel>
 
@@ -403,7 +403,7 @@ export default function CoachCredentialsPage() {
                       <div>
                         <p className="text-[13px] font-medium text-white/85">{p.description}</p>
                         <p className="text-[11px] text-white/60 mt-0.5">
-                          {new Date(p.date).toLocaleDateString('es-MX')} · {p.method} · {p.id}
+                          {new Date(p.date).toLocaleDateString('en-US')} · {p.method} · {p.id}
                         </p>
                       </div>
                     </div>

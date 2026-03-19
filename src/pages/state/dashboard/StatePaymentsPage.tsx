@@ -108,7 +108,7 @@ export default function StatePaymentsPage() {
               </Badge>
               <p className="text-3xl font-bold text-white">$15,000 MXN<span className="text-lg text-slate-200 font-normal">/año</span></p>
               {isActive && membership?.membership_expires_at && (
-                <p className="text-sm text-slate-200">Vence: {new Date(membership.membership_expires_at).toLocaleDateString('es-MX')}</p>
+                <p className="text-sm text-slate-200">Vence: {new Date(membership.membership_expires_at).toLocaleDateString('en-US')}</p>
               )}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm mt-2">
                 {[
@@ -175,7 +175,7 @@ export default function StatePaymentsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
-              {stats.nextRenewal ? new Date(stats.nextRenewal).toLocaleDateString('es-MX') : '—'}
+              {stats.nextRenewal ? new Date(stats.nextRenewal).toLocaleDateString('en-US') : '—'}
             </div>
             <p className="text-xs text-slate-200">Afiliación estatal</p>
           </CardContent>
@@ -206,7 +206,7 @@ export default function StatePaymentsPage() {
               <TableBody>
                 {payments.map((payment) => (
                   <TableRow key={payment.id} className="border-slate-800">
-                    <TableCell className="text-white">{new Date(payment.created_at).toLocaleDateString('es-MX')}</TableCell>
+                    <TableCell className="text-white">{new Date(payment.created_at).toLocaleDateString('en-US')}</TableCell>
                     <TableCell className="text-white font-medium">{payment.description || getTypeLabel(payment.payment_type)}</TableCell>
                     <TableCell className="text-slate-200">{getTypeLabel(payment.payment_type)}</TableCell>
                     <TableCell className="text-white font-medium">${Number(payment.amount).toLocaleString()} {payment.currency?.toUpperCase() || 'MXN'}</TableCell>

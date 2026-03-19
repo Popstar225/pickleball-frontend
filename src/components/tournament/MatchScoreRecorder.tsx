@@ -5,8 +5,8 @@
  * Features: Score validation, special status handling, winner auto-calculation
  */
 
-import React, { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle2, Loader } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { AlertCircle, CheckCircle2, Loader, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface MatchScoreRecorderProps {
@@ -48,6 +48,16 @@ const MatchScoreRecorder: React.FC<MatchScoreRecorderProps> = ({
   onCancel,
   isLoading = false,
 }) => {
+  const [statusOpen, setStatusOpen] = useState(false);
+  const statusRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (statusRef.current && !statusRef.current.contains(e.target as Node)) setStatusOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
   const [set1, setSet1] = useState<SetScore>({ player1: 0, player2: 0 });
   const [set2, setSet2] = useState<SetScore>({ player1: 0, player2: 0 });
   const [set3, setSet3] = useState<SetScore>({ player1: 0, player2: 0 });
@@ -224,17 +234,35 @@ const MatchScoreRecorder: React.FC<MatchScoreRecorderProps> = ({
         <label className="block text-xs font-bold uppercase tracking-wider text-white/40 mb-2">
           Resultado del Partido
         </label>
-        <select
-          value={specialStatus}
-          onChange={(e) => setSpecialStatus(e.target.value)}
-          className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white text-sm focus:border-[#ace600] focus:outline-none"
-        >
-          {SPECIAL_STATUSES.map((status) => (
-            <option key={status} value={status}>
-              {status === 'score' ? 'Completar por Marcador' : status.toUpperCase()}
-            </option>
-          ))}
-        </select>
+        <div ref={statusRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setStatusOpen(o => !o)}
+            className="w-full flex items-center justify-between px-3 py-2 bg-[#0d1117] border border-white/10 rounded-lg text-white text-sm hover:border-white/20 focus:border-[#ace600] focus:outline-none transition-colors"
+          >
+            <span>{specialStatus === 'score' ? 'Completar por Marcador' : specialStatus.toUpperCase()}</span>
+            <ChevronDown className={cn('w-4 h-4 text-white/40 transition-transform', statusOpen && 'rotate-180')} />
+          </button>
+          {statusOpen && (
+            <div className="absolute z-50 mt-1 w-full bg-[#0d1117] border border-white/10 rounded-lg overflow-hidden shadow-xl">
+              {SPECIAL_STATUSES.map(status => (
+                <button
+                  key={status}
+                  type="button"
+                  onClick={() => { setSpecialStatus(status); setStatusOpen(false); }}
+                  className={cn(
+                    'w-full text-left px-3 py-2 text-sm transition-colors',
+                    specialStatus === status
+                      ? 'bg-[#ace600]/10 text-[#ace600]'
+                      : 'text-white/70 hover:bg-white/[0.05] hover:text-white',
+                  )}
+                >
+                  {status === 'score' ? 'Completar por Marcador' : status.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Score Input Sections - Only show if status is "score" */}

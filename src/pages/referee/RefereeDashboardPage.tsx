@@ -107,8 +107,8 @@ function MatchRow({ match, canScore }: { match: RefereeMatch; canScore: boolean 
           </span>
           <div className={cn('flex items-center gap-1 justify-end text-xs', isPast && match.status !== 'completed' ? 'text-red-400' : 'text-white/40')}>
             <Clock className="w-3 h-3" />
-            {isToday ? 'Hoy ' : dt.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }) + ' '}
-            {dt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+            {isToday ? 'Hoy ' : dt.toLocaleDateString('en-US', { day: '2-digit', month: 'short' }) + ' '}
+            {dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
           </div>
           {canScore && (
             <div className="flex items-center gap-1 text-[10px] text-[#ace600] font-bold justify-end">

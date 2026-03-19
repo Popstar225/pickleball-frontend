@@ -194,7 +194,7 @@ export default function StoreOrdersManagement() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-slate-200 text-xs">
-                        {new Date(order.created_at).toLocaleDateString('es-MX')}
+                        {new Date(order.created_at).toLocaleDateString('en-US')}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">

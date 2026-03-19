@@ -62,10 +62,10 @@ export const formatDate = (
   timezone?: string
 ): string => {
   if (!date) return '';
-  
+
   const dateObj = parseDate(date);
   if (!dateObj) return '';
-  
+
   try {
     // Apply timezone if specified
     if (timezone && timezone !== TIME_ZONES.UTC) {
@@ -75,50 +75,50 @@ export const formatDate = (
         month: '2-digit',
         day: '2-digit'
       };
-      
+
       return new Intl.DateTimeFormat('en-US', options).format(dateObj);
     }
-    
+
     // Custom formatting
     switch (format) {
       case DATE_FORMATS.ISO:
         return dateObj.toISOString().split('T')[0];
-        
+
       case DATE_FORMATS.US:
         return new Intl.DateTimeFormat('en-US', {
           month: '2-digit',
           day: '2-digit',
           year: 'numeric'
         }).format(dateObj);
-        
+
       case DATE_FORMATS.EUROPEAN:
         return new Intl.DateTimeFormat('en-GB', {
           day: '2-digit',
           month: '2-digit',
           year: 'numeric'
         }).format(dateObj);
-        
+
       case DATE_FORMATS.FULL:
         return new Intl.DateTimeFormat('en-US', {
           month: 'long',
           day: 'numeric',
           year: 'numeric'
         }).format(dateObj);
-        
+
       case DATE_FORMATS.SHORT:
         return new Intl.DateTimeFormat('en-US', {
           month: 'short',
           day: 'numeric',
           year: 'numeric'
         }).format(dateObj);
-        
+
       case DATE_FORMATS.COMPACT:
         return new Intl.DateTimeFormat('en-US', {
           month: '2-digit',
           day: '2-digit',
           year: '2-digit'
         }).format(dateObj);
-        
+
       case DATE_FORMATS.TIME:
         return new Intl.DateTimeFormat('en-US', {
           hour: '2-digit',
@@ -126,10 +126,10 @@ export const formatDate = (
           second: '2-digit',
           hour12: false
         }).format(dateObj);
-        
+
       case DATE_FORMATS.DATETIME:
         return `${formatDate(dateObj, DATE_FORMATS.ISO)} ${formatDate(dateObj, DATE_FORMATS.TIME)}`;
-        
+
       case DATE_FORMATS.DATETIME_FULL:
         return new Intl.DateTimeFormat('en-US', {
           month: 'long',
@@ -139,16 +139,16 @@ export const formatDate = (
           minute: '2-digit',
           hour12: true
         }).format(dateObj);
-        
+
       case DATE_FORMATS.RELATIVE:
         return getRelativeTimeString(dateObj);
-        
+
       default:
-        return dateObj.toLocaleDateString();
+        return dateObj.toLocaleDateString('en-US');
     }
   } catch (error) {
     console.error('Error formatting date:', error);
-    return dateObj.toLocaleDateString();
+    return dateObj.toLocaleDateString('en-US');
   }
 };
 

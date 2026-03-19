@@ -48,8 +48,8 @@ const STATUS_FILTERS  = ['all', 'active', 'inactive', 'banned'] as const;
 const VERIFIED_FILTERS = ['all', 'verified', 'unverified'] as const;
 const LIMIT = 10;
 
-const fmtDate  = (d: string) => new Date(d).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
-const fmtShort = (d: string) => new Date(d).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+const fmtDate  = (d: string) => new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+const fmtShort = (d: string) => new Date(d).toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 
 // ─── Atoms ────────────────────────────────────────────────────────────────────
 function Pill({ label, textCls, bgCls, borderCls, dot, pulse }: {

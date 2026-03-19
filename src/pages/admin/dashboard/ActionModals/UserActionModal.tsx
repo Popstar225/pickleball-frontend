@@ -298,8 +298,8 @@ export default function UserActionModal({ isOpen, user, mode, onClose, onSaveSuc
                   {/* Timestamps */}
                   <div className="grid grid-cols-2 gap-3 mt-4">
                     {[
-                      { label: 'Creado',       value: new Date(user.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }) },
-                      { label: 'Actualizado',  value: new Date(user.updated_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }) },
+                      { label: 'Creado',       value: new Date(user.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) },
+                      { label: 'Actualizado',  value: new Date(user.updated_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) },
                     ].map(({ label, value }) => (
                       <div key={label} className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-3">
                         <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-1">{label}</p>

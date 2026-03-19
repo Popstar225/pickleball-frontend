@@ -896,25 +896,25 @@ const Ranking = () => {
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
-                            {Math.floor(totalPlayers * 0.35).toLocaleString('es-MX')}
+                            {Math.floor(totalPlayers * 0.35).toLocaleString('en-US')}
                           </div>
                           <div className="text-xs sm:text-sm text-slate-200">{t('pages.ranking.men')}</div>
                         </div>
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
-                            {Math.floor(totalPlayers * 0.35).toLocaleString('es-MX')}
+                            {Math.floor(totalPlayers * 0.35).toLocaleString('en-US')}
                           </div>
                           <div className="text-xs sm:text-sm text-slate-200">{t('pages.ranking.women')}</div>
                         </div>
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
-                            {Math.floor(totalPlayers * 0.2).toLocaleString('es-MX')}
+                            {Math.floor(totalPlayers * 0.2).toLocaleString('en-US')}
                           </div>
                           <div className="text-xs sm:text-sm text-slate-200">{t('pages.ranking.juniors')}</div>
                         </div>
                         <div>
                           <div className="text-xl sm:text-2xl font-bold text-primary">
-                            {Math.floor(totalPlayers * 0.1).toLocaleString('es-MX')}
+                            {Math.floor(totalPlayers * 0.1).toLocaleString('en-US')}
                           </div>
                           <div className="text-xs sm:text-sm text-slate-200">{t('pages.ranking.professionals')}</div>
                         </div>

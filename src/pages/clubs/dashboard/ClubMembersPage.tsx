@@ -58,7 +58,7 @@ const labelCls   = 'text-[11px] font-semibold uppercase tracking-widest text-whi
 /* ─── helpers ── */
 function formatDate(d?: string | null) {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' });
+  return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 function initials(m: ClubMember) {

@@ -380,14 +380,14 @@ export default function FederationTournamentManagementPage() {
                         <Calendar className="w-3 h-3 text-white/20 shrink-0" />
                         <div>
                           <p className="text-xs text-white/55">
-                            {new Date(t.start_date).toLocaleDateString('es-MX', {
+                            {new Date(t.start_date).toLocaleDateString('en-US', {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',
                             })}
                           </p>
                           <p className="text-[11px] text-white/25">
-                            {new Date(t.end_date).toLocaleDateString('es-MX', {
+                            {new Date(t.end_date).toLocaleDateString('en-US', {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',
@@ -503,7 +503,7 @@ export default function FederationTournamentManagementPage() {
                       },
                       {
                         icon: Calendar,
-                        val: `${new Date(selected.start_date).toLocaleDateString('es-MX')} – ${new Date(selected.end_date).toLocaleDateString('es-MX')}`,
+                        val: `${new Date(selected.start_date).toLocaleDateString('en-US')} – ${new Date(selected.end_date).toLocaleDateString('en-US')}`,
                       },
                       {
                         icon: Users,

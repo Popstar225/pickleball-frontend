@@ -294,7 +294,7 @@ export default function PartnerCourtsManagement() {
                       <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl px-3 py-2">
                         <p className="text-[9px] font-bold uppercase tracking-widest text-white/20 mb-0.5">Tarifa/Hora</p>
                         <p className="text-[11px] font-bold text-white/70">
-                          {court.hourly_rate ? `$${Number(court.hourly_rate).toLocaleString('es-MX')}` : '—'}
+                          {court.hourly_rate ? `$${Number(court.hourly_rate).toLocaleString('en-US')}` : '—'}
                         </p>
                       </div>
                       <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl px-3 py-2">

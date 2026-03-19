@@ -223,30 +223,31 @@ export default function CoachTournamentDashboard() {
   const [isSubmittingScore, setIsSubmittingScore] = useState(false);
   const [scoreError, setScoreError] = useState<string | null>(null);
   const [scoreSuccess, setScoreSuccess] = useState<string | null>(null);
+  const [tournamentComplete, setTournamentComplete] = useState<{ champion: string } | null>(null);
+
+  const loadDashboardData = async () => {
+    try {
+      setLoading(true);
+      const data = await api.get<any>('/coaches/me/tournament-dashboard');
+
+      if (data.success) {
+        setStats(data.data.stats);
+        setActionItems([
+          ...data.data.actionItems.critical,
+          ...data.data.actionItems.high,
+          ...data.data.actionItems.normal,
+        ]);
+        // Load pending matches (assignments for coaches)
+        setAssignments(data.data.pendingMatches || []);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error loading dashboard');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadDashboardData = async () => {
-      try {
-        setLoading(true);
-        const data = await api.get<any>('/coaches/me/tournament-dashboard');
-
-        if (data.success) {
-          setStats(data.data.stats);
-          setActionItems([
-            ...data.data.actionItems.critical,
-            ...data.data.actionItems.high,
-            ...data.data.actionItems.normal,
-          ]);
-          // Load pending matches (assignments for coaches)
-          setAssignments(data.data.pendingMatches || []);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error loading dashboard');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadDashboardData();
   }, []);
 
@@ -260,9 +261,10 @@ export default function CoachTournamentDashboard() {
       setScoreSuccess(null);
 
       // Call the appropriate API endpoint based on match outcome
+      let result: any;
       if (scoreData.winner_by === 'score') {
         // Normal score entry
-        await api.post(`/matches/${selectedMatch.id}/score`, {
+        result = await api.post(`/matches/${selectedMatch.id}/score`, {
           sets: [
             { player1_score: scoreData.set1.player1, player2_score: scoreData.set1.player2 },
             { player1_score: scoreData.set2.player1, player2_score: scoreData.set2.player2 },
@@ -273,7 +275,7 @@ export default function CoachTournamentDashboard() {
         });
       } else {
         // Special outcome
-        await api.post(`/matches/${selectedMatch.id}/special-outcome`, {
+        result = await api.post(`/matches/${selectedMatch.id}/special-outcome`, {
           outcome: scoreData.winner_by,
           reason: scoreData.reason_details,
           winner_id: scoreData.winnerId,
@@ -282,12 +284,16 @@ export default function CoachTournamentDashboard() {
 
       setScoreSuccess('¡Marcador registrado correctamente!');
 
-      // Close modal after short delay
+      // Check if tournament just finished
+      if (result?.workflow?.tournament_complete && result?.workflow?.champion) {
+        setTournamentComplete({ champion: result.workflow.champion.name });
+      }
+
+      // Close modal and refresh data
       setTimeout(() => {
         setIsScoringOpen(false);
         setSelectedMatch(null);
-        // Reload dashboard data
-        window.location.reload();
+        loadDashboardData();
       }, 1500);
     } catch (err) {
       setScoreError(err instanceof Error ? err.message : 'Error al registrar el marcador');
@@ -317,6 +323,25 @@ export default function CoachTournamentDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* TOURNAMENT COMPLETE BANNER */}
+      {tournamentComplete && (
+        <div className="bg-[#ace600]/10 border border-[#ace600]/40 rounded-xl px-6 py-5 flex items-center gap-4">
+          <Trophy className="w-10 h-10 text-[#ace600] shrink-0" />
+          <div className="flex-1">
+            <p className="text-[#ace600] font-bold text-lg">¡Torneo Finalizado!</p>
+            <p className="text-white/70 text-sm mt-0.5">
+              Campeón: <span className="text-white font-bold">{tournamentComplete.champion}</span>
+            </p>
+          </div>
+          <button
+            onClick={() => setTournamentComplete(null)}
+            className="text-white/40 hover:text-white text-xs px-3 py-1 rounded bg-white/5 hover:bg-white/10 transition-colors"
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
+
       {/* HEADER */}
       <div className="flex items-center justify-between">
         <div>

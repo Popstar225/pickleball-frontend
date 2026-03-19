@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/store';
 import {
   MapPin,
   Users,
@@ -9,15 +11,28 @@ import {
   ArrowLeft,
   Loader2,
   ChevronRight,
+  ChevronLeft,
   Check,
   X,
   Zap,
   Lock,
   AlertTriangle,
+  AlertCircle,
+  CheckCircle2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Elements } from '@stripe/react-stripe-js';
+import { stripePromise } from '@/components/payment/StripeProvider';
+import { PaymentForm } from '@/components/payment/PaymentForm';
+import PaymentService from '@/services/paymentService';
 import { api } from '@/lib/api';
 import type { ApiResponse } from '@/types/api';
 import { cn } from '@/lib/utils';
@@ -45,6 +60,7 @@ interface Tournament {
   end_date: string;
   tournament_level: string;
   events: TournamentEvent[];
+  entry_fee: number;
   image_url?: string;
   registrations_open: boolean;
 }
@@ -99,6 +115,225 @@ function CapacityBar({ current, max }: { current: number; max: number }) {
   );
 }
 
+// ─── EventPaymentDialog ───────────────────────────────────────────────────────
+interface EventPaymentDialogProps {
+  event: TournamentEvent;
+  tournamentName: string;
+  entry_fee: number;
+  onSuccess: () => void;
+  onClose: () => void;
+}
+
+const EventPaymentDialog: React.FC<EventPaymentDialogProps> = ({
+  event,
+  tournamentName,
+  entry_fee,
+  onSuccess,
+  onClose,
+}) => {
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentData, setPaymentData] = useState<{ paymentId: string; clientSecret: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // entry_fee is in MXN (e.g. 500 = $500 MXN)
+  const entryFee = entry_fee ?? 0;
+  const entryFeeFormatted = entryFee.toLocaleString('es-MX', { minimumFractionDigits: 2 });
+  const isFull = event.current_participants >= event.max_participants;
+
+  const handleInitiatePayment = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await PaymentService.createTournamentRegistrationPayment({
+        tournament_event_id: event.id,
+      });
+      if (!res.success || !res.data) throw new Error('No se pudo crear la solicitud de pago');
+      setPaymentData({ paymentId: res.data.payment_id, clientSecret: res.data.client_secret });
+      setShowPayment(true);
+    } catch (err: any) {
+      setError(err.message || 'Error al procesar el evento');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePaymentSuccess = async (paymentIntentId: string) => {
+    if (!paymentData) return;
+    try {
+      await PaymentService.confirmTournamentRegistrationPayment(paymentData.paymentId, paymentIntentId);
+      onSuccess();
+      handleClose();
+    } catch (err: any) {
+      setError(err.message || 'Error al confirmar la inscripción');
+    }
+  };
+
+  const handleClose = () => {
+    setShowPayment(false);
+    setPaymentData(null);
+    setError(null);
+    setLoading(false);
+    onClose();
+  };
+
+  return (
+    <Dialog open onOpenChange={handleClose}>
+      <DialogContent
+        className={cn(
+          'font-["DM_Sans",sans-serif] bg-[#06080E] border border-[#ace600]/[0.12]',
+          'rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.8),0_0_80px_rgba(172,230,0,0.04)]',
+          'max-w-md p-0 overflow-hidden',
+          '[&>button]:text-white/30 [&>button]:hover:text-white [&>button]:border-none',
+        )}
+      >
+        {/* Header */}
+        <div className="px-6 pt-6 pb-5 border-b border-[#ace600]/[0.07]">
+          <DialogHeader>
+            <div className="flex items-center gap-2.5 mb-1">
+              <div className="w-7 h-7 rounded-[8px] bg-[#ace600]/[0.08] border border-[#ace600]/[0.15] flex items-center justify-center flex-shrink-0">
+                <Trophy className="w-3.5 h-3.5 text-[#ace600]" />
+              </div>
+              <DialogTitle className="font-sans font-extrabold text-[18px] text-white tracking-tight">
+                Inscripción al Evento
+              </DialogTitle>
+            </div>
+            <DialogDescription className="text-white/35 text-[13px] ml-9">
+              {tournamentName}
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        <div className="px-6 py-5 space-y-5">
+          {/* Error */}
+          {error && (
+            <div className="flex items-center gap-3 p-3.5 bg-[#FF5A1F]/[0.08] border border-[#FF5A1F]/[0.25] rounded-xl">
+              <AlertCircle className="w-4 h-4 text-[#FF5A1F] flex-shrink-0" />
+              <p className="text-[13px] text-[#FF5A1F]">{error}</p>
+            </div>
+          )}
+
+          {/* ── Payment step ── */}
+          {showPayment && paymentData ? (
+            <div className="space-y-4">
+              {/* Horizontal summary strip */}
+              <div className="flex items-center justify-between p-4 bg-[#ace600]/[0.05] border border-[#ace600]/[0.15] rounded-xl">
+                <div>
+                  <p className="font-sans font-extrabold text-[14px] text-white">{event.event_name}</p>
+                  <p className="text-[12px] text-white/40 mt-0.5">{tournamentName}</p>
+                </div>
+                <div className="text-right flex-shrink-0 ml-4">
+                  <p className="font-sans font-extrabold text-[22px] leading-none text-[#ace600]">
+                    ${entryFeeFormatted}
+                  </p>
+                  <p className="text-[11px] text-white/30 mt-0.5">MXN / evento</p>
+                </div>
+              </div>
+
+              <Elements stripe={stripePromise} options={{ clientSecret: paymentData.clientSecret }}>
+                <PaymentForm
+                  paymentId={paymentData.paymentId}
+                  clientSecret={paymentData.clientSecret}
+                  amount={entryFee * 100}
+                  currency="mxn"
+                  description={`${event.event_name} — $${entryFeeFormatted} MXN`}
+                  onSuccess={handlePaymentSuccess}
+                  onError={(err) => { setError(err); setShowPayment(false); }}
+                />
+              </Elements>
+
+              <Button
+                onClick={() => setShowPayment(false)}
+                variant="ghost"
+                className="w-full text-white/40 hover:text-white hover:bg-white/[0.05] rounded-xl gap-2 text-[13px]"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" /> Volver al evento
+              </Button>
+            </div>
+          ) : (
+            /* ── Plan card ── */
+            <div className="relative rounded-2xl p-5 border bg-[#ace600]/[0.05] border-[#ace600]/[0.3] overflow-hidden">
+              {/* Ribbon */}
+              <div className="absolute top-3 right-[-34px] bg-[#ace600] text-black px-10 py-0.5 rotate-45 font-sans text-[9px] font-extrabold tracking-[1px]">
+                EVENT
+              </div>
+
+              {/* Icon + type label */}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-[9px] bg-[#ace600]/[0.08] border border-[#ace600]/[0.15] flex items-center justify-center flex-shrink-0">
+                  <Trophy className="w-4 h-4 text-[#ace600]" />
+                </div>
+                <span className="text-[10px] font-bold font-sans tracking-[1.5px] uppercase text-[#ace600]">
+                  Inscripción
+                </span>
+              </div>
+
+              {/* Event name + description */}
+              <h3 className="font-sans font-extrabold text-[16px] text-white mb-0.5">{event.event_name}</h3>
+              <p className="text-[12px] text-white/35 mb-4 leading-relaxed">
+                {isFull
+                  ? 'El evento está lleno — se te añadirá a la lista de espera'
+                  : `${event.max_participants - event.current_participants} lugares disponibles de ${event.max_participants}`}
+              </p>
+
+              {/* Price */}
+              <div className="flex items-baseline gap-1.5 mb-5">
+                <span className="font-sans font-extrabold text-[34px] leading-none tracking-tight text-[#ace600]">
+                  ${entryFeeFormatted}
+                </span>
+                <span className="text-[12px] text-white/30">MXN</span>
+                <span className="text-[12px] text-white/25">/ evento</span>
+              </div>
+
+              <div className="h-px bg-white/[0.06] mb-4" />
+
+              {/* Features */}
+              <ul className="space-y-2.5 mb-5">
+                {[
+                  `Categoría: ${event.skill_block}`,
+                  `Modalidad: ${event.modality}`,
+                  'Inscripción oficial al torneo',
+                  isFull ? 'Lugar en lista de espera' : 'Lugar confirmado al pagar',
+                ].map((feat) => (
+                  <li key={feat} className="flex items-start gap-2.5 text-[12px] text-white/60">
+                    <div className="w-4 h-4 rounded-full bg-[#ace600]/[0.1] border border-[#ace600]/[0.2] flex items-center justify-center flex-shrink-0 mt-px">
+                      <CheckCircle2 className="w-2.5 h-2.5 text-[#ace600]" />
+                    </div>
+                    {feat}
+                  </li>
+                ))}
+              </ul>
+
+              {/* CTA */}
+              <Button
+                onClick={handleInitiatePayment}
+                disabled={loading}
+                className="w-full rounded-xl font-sans font-extrabold text-[13px] gap-2 bg-[#ace600] text-black hover:bg-[#c0f000] shadow-[0_4px_18px_rgba(172,230,0,0.25)] disabled:opacity-60"
+              >
+                {loading ? (
+                  <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Procesando...</>
+                ) : (
+                  `Inscribirse · $${entryFeeFormatted} MXN`
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* Security note */}
+          {!showPayment && (
+            <div className="flex items-center justify-center gap-2 text-[11px] text-white/20">
+              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              Pagos procesados de forma segura con Stripe
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const modalityColor: Record<string, string> = {
   Singles: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
   Doubles: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
@@ -106,11 +341,23 @@ const modalityColor: Record<string, string> = {
 };
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
+const DASHBOARD_BY_ROLE: Record<string, string> = {
+  player: '/players/dashboard/tournaments',
+  coach: '/coach/dashboard',
+  club: '/clubs/dashboard/tournaments',
+  partner: '/partner/dashboard',
+  state: '/state/dashboard',
+  federation: '/state/dashboard',
+  admin: '/admin/dashboard',
+};
+
 const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
   const navigate = useNavigate();
+  const user = useSelector((state: RootState) => state.auth.user);
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<TournamentEvent | null>(null);
+  const [paymentEvent, setPaymentEvent] = useState<TournamentEvent | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -133,8 +380,7 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
   }, [tournamentId]);
 
   const handleRegister = () => {
-    // if (!tournament?.registrations_open) return;
-    navigate(`/tournaments/${tournament.id}/register`);
+    if (selected) setPaymentEvent(selected);
   };
 
   // ── Loading ──────────────────────────────────────────────────────────────────
@@ -177,16 +423,27 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
     ? (selected.max_participants ?? 0) - (selected.current_participants ?? 0)
     : 0;
 
-  console.log(';;;;;;;;;;;;;;;;;;;;;;;', selectedOpen, selected?.registration_status);
+    console.log('---------------------------', DASHBOARD_BY_ROLE[user?.user_type ?? '']);
 
   // ─────────────────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-[#080c10]">
+      {/* ── Payment dialog ──────────────────────────────────────────────────── */}
+      {paymentEvent && tournament && (
+        <EventPaymentDialog
+          event={paymentEvent}
+          entry_fee={tournament.entry_fee}
+          tournamentName={tournament.name}
+          onSuccess={() => setPaymentEvent(null)}
+          onClose={() => setPaymentEvent(null)}
+        />
+      )}
+
       {/* ── Sticky nav ──────────────────────────────────────────────────────── */}
       <div className="sticky top-0 z-20 border-b border-white/[0.06] bg-[#080c10]/90 backdrop-blur-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
           <button
-            onClick={() => navigate('/federation/tournaments')}
+            onClick={() => navigate(DASHBOARD_BY_ROLE[user?.user_type ?? ''] ?? '/tournaments')}
             className="flex items-center gap-2 text-white/40 hover:text-white text-xs font-semibold transition-colors group"
           >
             <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
@@ -255,7 +512,7 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
           <MetaChip
             icon={Calendar}
             label="Inicio"
-            value={new Date(tournament.start_date).toLocaleDateString('es-MX', {
+            value={new Date(tournament.start_date).toLocaleDateString('en-US', {
               day: 'numeric',
               month: 'short',
               year: 'numeric',
@@ -264,7 +521,7 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
           <MetaChip
             icon={Calendar}
             label="Fin"
-            value={new Date(tournament.end_date).toLocaleDateString('es-MX', {
+            value={new Date(tournament.end_date).toLocaleDateString('en-US', {
               day: 'numeric',
               month: 'short',
               year: 'numeric',
@@ -352,7 +609,7 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
                           icon: Users,
                           val: `${ev.current_participants ?? 0}/${ev.max_participants ?? 0} jugadores`,
                         },
-                        { icon: DollarSign, val: `$${ev.entry_fee ?? 0} MXN` },
+                        { icon: DollarSign, val: `$${tournament.entry_fee ?? 0} MXN` },
                       ].map(({ icon: Icon, val }, i) => (
                         <div key={i} className="flex items-center gap-1.5 text-xs text-white/30">
                           <Icon className="w-3 h-3 shrink-0 text-white/20" />
@@ -416,7 +673,7 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
                   {[
                     {
                       label: 'Inscripción',
-                      value: `$${selected.entry_fee ?? 0}`,
+                      value: `$${tournament.entry_fee ?? 0}`,
                       sub: 'MXN',
                       big: true,
                     },

@@ -98,7 +98,7 @@ const MatchScoringModal: React.FC<MatchScoringModalProps> = ({
                   {scheduledTime && (
                     <div className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {new Date(scheduledTime).toLocaleTimeString('es-MX', {
+                      {new Date(scheduledTime).toLocaleTimeString('en-US', {
                         hour: '2-digit',
                         minute: '2-digit',
                       })}

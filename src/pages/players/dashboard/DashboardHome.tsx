@@ -309,7 +309,7 @@ export default function PlayerDashboardHome() {
                     <div className="flex items-center justify-between gap-2 mb-0.5">
                       <p className="text-xs font-bold text-white/90 truncate">{m.senderName}</p>
                       <span className="text-[9px] text-white/50 shrink-0">
-                        {new Date(m.date).toLocaleDateString('es-MX', {
+                        {new Date(m.date).toLocaleDateString('en-US', {
                           day: 'numeric',
                           month: 'short',
                         })}

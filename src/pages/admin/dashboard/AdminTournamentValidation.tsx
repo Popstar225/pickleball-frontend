@@ -462,14 +462,14 @@ export default function AdminTournamentValidationPage() {
                         <Calendar className="w-3 h-3 text-white/15 shrink-0 mt-0.5" />
                         <div>
                           <p>
-                            {new Date(t.start_date).toLocaleDateString('es-MX', {
+                            {new Date(t.start_date).toLocaleDateString('en-US', {
                               day: 'numeric',
                               month: 'short',
                             })}
                           </p>
                           <p className="text-white/20">
                             →{' '}
-                            {new Date(t.end_date).toLocaleDateString('es-MX', {
+                            {new Date(t.end_date).toLocaleDateString('en-US', {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',

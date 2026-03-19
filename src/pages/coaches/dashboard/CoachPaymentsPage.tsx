@@ -142,7 +142,7 @@ export default function CoachPaymentsPage() {
             </Badge>
             <p className="text-2xl font-bold text-white">${(membership?.annual_fee || 800).toLocaleString()} MXN/año</p>
             {isActive && membership?.membership_expires_at && (
-              <p className="text-sm text-slate-200">Vence: {new Date(membership.membership_expires_at).toLocaleDateString('es-MX')}</p>
+              <p className="text-sm text-slate-200">Vence: {new Date(membership.membership_expires_at).toLocaleDateString('en-US')}</p>
             )}
             <Button className="w-full" variant={isActive ? 'outline' : 'default'} onClick={() => setShowMembershipModal(true)}>
               <CreditCard className="h-4 w-4 mr-2" />
@@ -228,7 +228,7 @@ export default function CoachPaymentsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
-              {stats.nextRenewal ? new Date(stats.nextRenewal).toLocaleDateString('es-MX') : '—'}
+              {stats.nextRenewal ? new Date(stats.nextRenewal).toLocaleDateString('en-US') : '—'}
             </div>
             <p className="text-xs text-slate-200">Membresía anual</p>
           </CardContent>
@@ -263,7 +263,7 @@ export default function CoachPaymentsPage() {
                     <TableCell className="text-slate-200">{getTypeLabel(payment.payment_type)}</TableCell>
                     <TableCell className="text-white font-medium">${Number(payment.amount).toLocaleString()} {payment.currency?.toUpperCase() || 'MXN'}</TableCell>
                     <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                    <TableCell className="text-white">{new Date(payment.created_at).toLocaleDateString('es-MX')}</TableCell>
+                    <TableCell className="text-white">{new Date(payment.created_at).toLocaleDateString('en-US')}</TableCell>
                     <TableCell>
                       {payment.receipt_url && (
                         <Button variant="ghost" size="sm" asChild className="text-blue-400 hover:text-blue-300">

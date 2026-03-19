@@ -35,6 +35,7 @@ import {
   Star,
   Clock,
   Hash,
+  Trash2,
 } from 'lucide-react';
 
 import { AppDispatch, RootState } from '@/store';
@@ -42,6 +43,7 @@ import {
   fetchTournamentEvents,
   fetchTournamentEvent,
   createTournamentEvent,
+  deleteTournamentEvent,
   generateGroups,
   fetchEventStandings,
   fetchEventRegistrations,
@@ -52,6 +54,10 @@ import {
   recordMatchResult,
   finalizeGroup,
   checkRegistrationEligibility,
+  clearTournamentEvents,
+  clearEventGroups,
+  clearEventMatches,
+  clearEventRegistrations,
 } from '@/store/slices/tournamentsSlice';
 import { fetchClubProfile } from '@/store/slices/clubDashboardSlice';
 
@@ -129,9 +135,9 @@ function GroupPill({ status }: { status: string }) {
 
 const TABS = [
   { id: 'events', label: 'Events', icon: Trophy },
-  { id: 'registrations', label: 'Registrations', icon: Users },
-  { id: 'groups', label: 'Groups', icon: BarChart3 },
-  { id: 'matches', label: 'Matches', icon: Swords },
+  // { id: 'registrations', label: 'Registrations', icon: Users },
+  // { id: 'groups', label: 'Groups', icon: BarChart3 },
+  // { id: 'matches', label: 'Matches', icon: Swords },
 ];
 
 /* ─── Select styles shared ── */
@@ -156,6 +162,9 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showRegisterDialog, setShowRegisterDialog] = useState(false);
   const [showMatchDialog, setShowMatchDialog] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<TournamentEvent | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [organizerPermissions, setOrganizerPermissions] = useState<
     TournamentOrganizerPermissions['data'] | null
   >(null);
@@ -182,6 +191,11 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
 
   useEffect(() => {
     if (tournamentId) {
+      setSelectedEvent(null);
+      dispatch(clearTournamentEvents());
+      dispatch(clearEventGroups());
+      dispatch(clearEventMatches());
+      dispatch(clearEventRegistrations());
       dispatch(fetchTournamentEvents({ tournamentId }));
       loadPermissions();
     }
@@ -323,6 +337,22 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
     if (!selectedEvent) return;
     await dispatch(finalizeGroup({ tournamentId, eventId: selectedEvent.id, groupId }));
     dispatch(fetchEventGroups({ tournamentId, eventId: selectedEvent.id }));
+  }
+
+  async function handleDeleteEvent() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await dispatch(deleteTournamentEvent({ tournamentId, eventId: deleteTarget.id })).unwrap();
+      if (selectedEvent?.id === deleteTarget.id) setSelectedEvent(null);
+      setDeleteTarget(null);
+      dispatch(fetchTournamentEvents({ tournamentId }));
+    } catch (err: any) {
+      setDeleteError(err?.message || 'Failed to delete event');
+    } finally {
+      setDeleting(false);
+    }
   }
 
   console.log('+++++++++++++++++++++++++++', eventGroups);
@@ -719,9 +749,22 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                       ) : (
                         <span className="text-[11px] text-white/20">Groups pending</span>
                       )}
-                      <ChevronRight
-                        className={`w-3.5 h-3.5 transition-all ${isSelected ? 'text-[#ace600]' : 'text-white/20 group-hover:text-white/40'}`}
-                      />
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteError(null);
+                            setDeleteTarget(event);
+                          }}
+                          className="p-1 rounded-md text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                          title="Delete event"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                        <ChevronRight
+                          className={`w-3.5 h-3.5 transition-all ${isSelected ? 'text-[#ace600]' : 'text-white/20 group-hover:text-white/40'}`}
+                        />
+                      </div>
                     </div>
                   </button>
                 );
@@ -1123,6 +1166,57 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
           <p className="text-xs text-red-400">{error}</p>
         </div>
       )}
+
+      {/* ── Delete confirm dialog ── */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) { setDeleteTarget(null); setDeleteError(null); } }}>
+        <DialogContent className="p-0 gap-0 bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-sm shadow-[0_32px_80px_rgba(0,0,0,0.6)] overflow-hidden">
+          <div className="px-6 pt-6 pb-5 border-b border-white/[0.06]">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+                <Trash2 className="w-4 h-4 text-red-400" />
+              </div>
+              <DialogTitle className="text-base font-bold text-white">Delete Event</DialogTitle>
+            </div>
+            <DialogDescription className="text-xs text-white/35 mt-1">
+              This action cannot be undone.
+            </DialogDescription>
+          </div>
+          <div className="px-6 py-5 space-y-4">
+            {deleteTarget && (
+              <p className="text-sm text-white/70">
+                Are you sure you want to delete{' '}
+                <span className="font-bold text-white capitalize">
+                  {deleteTarget.modality} — {deleteTarget.skill_block}
+                </span>
+                ? All related data will be removed.
+              </p>
+            )}
+            {deleteError && (
+              <div className="flex items-center gap-2 px-3 py-2.5 bg-red-500/[0.08] border border-red-500/20 rounded-lg">
+                <AlertTriangle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
+                <p className="text-xs text-red-400">{deleteError}</p>
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2.5 px-6 pb-6 pt-2 border-t border-white/[0.06]">
+            <button
+              onClick={() => { setDeleteTarget(null); setDeleteError(null); }}
+              disabled={deleting}
+              className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 text-sm font-semibold transition-all disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteEvent}
+              disabled={deleting}
+              className="flex-1 h-9 rounded-xl bg-red-500 hover:bg-red-400 text-white text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+              {deleting ? 'Deleting…' : 'Delete'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -27,6 +27,7 @@ import {
   CheckCircle,
   Target,
   AlertTriangle,
+  AlertCircle,
   ChevronRight,
   Loader2,
   Zap,
@@ -41,6 +42,7 @@ import {
   Filter,
   Search,
   CalendarDays,
+  Trash2,
 } from 'lucide-react';
 
 import { AppDispatch, RootState } from '@/store';
@@ -48,6 +50,7 @@ import {
   fetchTournamentEvents,
   fetchTournamentEvent,
   createTournamentEvent,
+  deleteTournamentEvent,
   generateGroups,
   fetchEventStandings,
   fetchEventRegistrations,
@@ -58,8 +61,16 @@ import {
   recordMatchResult,
   finalizeGroup,
   checkRegistrationEligibility,
+  clearTournamentEvents,
+  clearEventGroups,
+  clearEventMatches,
+  clearEventRegistrations,
 } from '@/store/slices/tournamentsSlice';
 import { fetchClubProfile } from '@/store/slices/clubDashboardSlice';
+import { Elements } from '@stripe/react-stripe-js';
+import { stripePromise } from '@/components/payment/StripeProvider';
+import { PaymentForm } from '@/components/payment/PaymentForm';
+import PaymentService from '@/services/paymentService';
 
 import type {
   TournamentEvent,
@@ -219,9 +230,9 @@ function EmptyState({
 
 const TABS = [
   { id: 'events', label: 'Events', icon: Trophy },
-  { id: 'registrations', label: 'Registrations', icon: Users },
-  { id: 'groups', label: 'Groups', icon: BarChart3 },
-  { id: 'matches', label: 'Matches', icon: Swords },
+  // { id: 'registrations', label: 'Registrations', icon: Users },
+  // { id: 'groups', label: 'Groups', icon: BarChart3 },
+  // { id: 'matches', label: 'Matches', icon: Swords },
 ];
 
 /* ─── Select styles shared ── */
@@ -247,6 +258,9 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showRegisterDialog, setShowRegisterDialog] = useState(false);
   const [showMatchDialog, setShowMatchDialog] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<TournamentEvent | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [organizerPermissions, setOrganizerPermissions] = useState<
     TournamentOrganizerPermissions['data'] | null
   >(null);
@@ -278,8 +292,22 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
   const [registrationFilter, setRegistrationFilter] = useState('all');
   const [searchRegistrations, setSearchRegistrations] = useState('');
 
+  // Payment step state for the Register Player dialog
+  const [registerStep, setRegisterStep] = useState<'form' | 'payment'>('form');
+  const [regPaymentData, setRegPaymentData] = useState<{
+    paymentId: string;
+    clientSecret: string;
+  } | null>(null);
+  const [regPaymentError, setRegPaymentError] = useState<string | null>(null);
+  const [isInitializingPayment, setIsInitializingPayment] = useState(false);
+
   useEffect(() => {
     if (tournamentId) {
+      setSelectedEvent(null);
+      dispatch(clearTournamentEvents());
+      dispatch(clearEventGroups());
+      dispatch(clearEventMatches());
+      dispatch(clearEventRegistrations());
       dispatch(fetchTournamentEvents({ tournamentId }));
       loadPermissions();
     }
@@ -346,18 +374,68 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
     dispatch(fetchEventGroups({ tournamentId, eventId: selectedEvent.id }));
   }
 
+  // Step 1: check eligibility then create Stripe payment intent
   async function handleRegister() {
     if (!selectedEvent) return;
+    setRegPaymentError(null);
+    setIsInitializingPayment(true);
     try {
       const elig = await dispatch(checkRegistrationEligibility(registrationData.user_id)).unwrap();
-      if ((elig as any)?.eligible) {
-        await dispatch(
-          registerForEvent({ tournamentId, eventId: selectedEvent.id, registrationData }),
-        ).unwrap();
-        setShowRegisterDialog(false);
-        dispatch(fetchEventRegistrations({ tournamentId, eventId: selectedEvent.id }));
+      if (!(elig as any)?.eligible) {
+        setRegPaymentError('Player is not eligible for this event.');
+        return;
       }
-    } catch {}
+      const res = await PaymentService.createPaymentIntent({
+        amount: 5000, // MXN $50.00 in cents — update when entry_fee is on TournamentEvent
+        payment_type: 'tournament_registration',
+        currency: 'mxn',
+        description: `${selectedEvent.skill_block} ${selectedEvent.gender}'s ${selectedEvent.modality} — Registration`,
+        metadata: {
+          tournament_id: tournamentId,
+          tournament_event_id: selectedEvent.id,
+          player_user_id: registrationData.user_id,
+        },
+      });
+      if (!res.success || !res.data) throw new Error('Failed to initialize payment');
+      setRegPaymentData({ paymentId: res.data.payment_id, clientSecret: res.data.client_secret });
+      setRegisterStep('payment');
+    } catch (err: any) {
+      setRegPaymentError(err.message || 'Failed to proceed to payment');
+    } finally {
+      setIsInitializingPayment(false);
+    }
+  }
+
+  // Step 2: after Stripe payment succeeds, complete the registration
+  async function handleRegisterAfterPayment(paymentIntentId: string) {
+    if (!selectedEvent) return;
+    try {
+      await dispatch(
+        registerForEvent({
+          tournamentId,
+          eventId: selectedEvent.id,
+          registrationData: { ...registrationData, stripe_payment_intent_id: paymentIntentId } as any,
+        }),
+      ).unwrap();
+      setShowRegisterDialog(false);
+      setRegisterStep('form');
+      setRegPaymentData(null);
+      setRegPaymentError(null);
+      setRegistrationData({ user_id: '' });
+      dispatch(fetchEventRegistrations({ tournamentId, eventId: selectedEvent.id }));
+    } catch (err: any) {
+      setRegPaymentError(err.message || 'Registration failed after payment');
+    }
+  }
+
+  // Reset payment state whenever the dialog is closed
+  function handleCloseRegisterDialog(open: boolean) {
+    if (!open) {
+      setRegisterStep('form');
+      setRegPaymentData(null);
+      setRegPaymentError(null);
+    }
+    setShowRegisterDialog(open);
   }
 
   async function handleCreateMatch() {
@@ -371,6 +449,22 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
     if (!selectedEvent) return;
     await dispatch(finalizeGroup({ tournamentId, eventId: selectedEvent.id, groupId }));
     dispatch(fetchEventGroups({ tournamentId, eventId: selectedEvent.id }));
+  }
+
+  async function handleDeleteEvent() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      await dispatch(deleteTournamentEvent({ tournamentId, eventId: deleteTarget.id })).unwrap();
+      if (selectedEvent?.id === deleteTarget.id) setSelectedEvent(null);
+      setDeleteTarget(null);
+      dispatch(fetchTournamentEvents({ tournamentId }));
+    } catch (err: any) {
+      setDeleteError(err?.message || 'Failed to delete event');
+    } finally {
+      setDeleting(false);
+    }
   }
 
   async function handleRecordMatchResult() {
@@ -818,9 +912,22 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                       ) : (
                         <span className="text-[11px] text-white/20">Groups pending</span>
                       )}
-                      <ChevronRight
-                        className={`w-3.5 h-3.5 transition-all ${isSelected ? 'text-[#ace600]' : 'text-white/20 group-hover:text-white/40'}`}
-                      />
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteError(null);
+                            setDeleteTarget(event);
+                          }}
+                          className="p-1 rounded-md text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
+                          title="Delete event"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                        <ChevronRight
+                          className={`w-3.5 h-3.5 transition-all ${isSelected ? 'text-[#ace600]' : 'text-white/20 group-hover:text-white/40'}`}
+                        />
+                      </div>
                     </div>
                   </button>
                 );
@@ -861,7 +968,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                     >
                       <Eye className="w-3.5 h-3.5" /> Details
                     </button>
-                    <Dialog open={showRegisterDialog} onOpenChange={setShowRegisterDialog}>
+                    <Dialog open={showRegisterDialog} onOpenChange={handleCloseRegisterDialog}>
                       <DialogTrigger asChild>
                         <button className="flex items-center gap-2 bg-[#ace600] hover:bg-[#c0f000] active:scale-95 text-black text-xs font-bold px-3.5 py-1.5 rounded-lg transition-all shadow-[0_0_12px_rgba(172,230,0,0.15)]">
                           <Plus className="w-3.5 h-3.5" /> Register Player
@@ -869,58 +976,134 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                       </DialogTrigger>
                       <DialogContent className="p-0 gap-0 bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-sm shadow-2xl overflow-hidden">
                         <div className="px-6 pt-6 pb-4 border-b border-white/[0.06]">
-                          <h2 className="text-base font-bold text-white">Register Player</h2>
-                          <p className="text-xs text-white/35 mt-1">Add a player to this event</p>
+                          <h2 className="text-base font-bold text-white">
+                            {registerStep === 'form' ? 'Register Player' : 'Complete Payment'}
+                          </h2>
+                          <p className="text-xs text-white/35 mt-1">
+                            {registerStep === 'form'
+                              ? 'Add a player to this event'
+                              : `${selectedEvent.skill_block} ${selectedEvent.gender}'s ${selectedEvent.modality}`}
+                          </p>
                         </div>
-                        <div className="px-6 py-5 space-y-3">
-                          <div>
-                            <label className={labelCls}>User ID</label>
-                            <Input
-                              value={registrationData.user_id}
-                              onChange={(e) =>
-                                setRegistrationData({
-                                  ...registrationData,
-                                  user_id: e.target.value,
-                                })
-                              }
-                              placeholder="Enter user ID"
-                              className={inputCls}
-                            />
-                          </div>
-                          {selectedEvent.modality !== 'Singles' && (
-                            <div>
-                              <label className={labelCls}>
-                                Partner User ID{' '}
-                                <span className="normal-case text-white/20">(optional)</span>
-                              </label>
-                              <Input
-                                value={(registrationData as any).partner_user_id || ''}
-                                onChange={(e) =>
-                                  setRegistrationData({
-                                    ...registrationData,
-                                    partner_user_id: e.target.value,
-                                  } as any)
-                                }
-                                placeholder="Enter partner ID"
-                                className={inputCls}
-                              />
+
+                        {registerStep === 'form' ? (
+                          <>
+                            <div className="px-6 py-5 space-y-3">
+                              {regPaymentError && (
+                                <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                                  <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                                  <p>{regPaymentError}</p>
+                                </div>
+                              )}
+                              <div>
+                                <label className={labelCls}>User ID</label>
+                                <Input
+                                  value={registrationData.user_id}
+                                  onChange={(e) =>
+                                    setRegistrationData({
+                                      ...registrationData,
+                                      user_id: e.target.value,
+                                    })
+                                  }
+                                  placeholder="Enter user ID"
+                                  className={inputCls}
+                                />
+                              </div>
+                              {selectedEvent.modality !== 'Singles' && (
+                                <div>
+                                  <label className={labelCls}>
+                                    Partner User ID{' '}
+                                    <span className="normal-case text-white/20">(optional)</span>
+                                  </label>
+                                  <Input
+                                    value={(registrationData as any).partner_user_id || ''}
+                                    onChange={(e) =>
+                                      setRegistrationData({
+                                        ...registrationData,
+                                        partner_user_id: e.target.value,
+                                      } as any)
+                                    }
+                                    placeholder="Enter partner ID"
+                                    className={inputCls}
+                                  />
+                                </div>
+                              )}
+                              {/* Entry fee preview */}
+                              <div className="flex justify-between items-center px-3 py-2.5 bg-white/[0.03] rounded-lg border border-white/[0.06]">
+                                <span className="text-xs text-white/50">Entry Fee</span>
+                                <span className="text-xs font-bold text-[#ace600]">MXN $50.00</span>
+                              </div>
                             </div>
-                          )}
-                        </div>
-                        <div className="flex gap-2.5 px-6 pb-6 pt-2 border-t border-white/[0.06]">
-                          <button
-                            onClick={() => setShowRegisterDialog(false)}
-                            className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 text-sm font-semibold transition-all"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={handleRegister}
-                            className="flex-1 h-9 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black text-sm font-bold transition-all"
-                          >
-                            Register
-                          </button>
-                        </div>
+                            <div className="flex gap-2.5 px-6 pb-6 pt-2 border-t border-white/[0.06]">
+                              <button
+                                onClick={() => handleCloseRegisterDialog(false)}
+                                className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 text-sm font-semibold transition-all"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                onClick={handleRegister}
+                                disabled={!registrationData.user_id.trim() || isInitializingPayment}
+                                className="flex-1 h-9 rounded-xl bg-[#ace600] hover:bg-[#c0f000] disabled:opacity-40 disabled:cursor-not-allowed text-black text-sm font-bold transition-all flex items-center justify-center gap-1.5"
+                              >
+                                {isInitializingPayment ? (
+                                  <>
+                                    <span className="w-3.5 h-3.5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                                    Verifying...
+                                  </>
+                                ) : (
+                                  'Continue to Payment'
+                                )}
+                              </button>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="px-6 py-5">
+                              {regPaymentError && (
+                                <div className="flex items-start gap-2 p-3 mb-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+                                  <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                                  <p>{regPaymentError}</p>
+                                </div>
+                              )}
+                              {regPaymentData ? (
+                                <Elements
+                                  stripe={stripePromise}
+                                  options={{
+                                    clientSecret: regPaymentData.clientSecret,
+                                    appearance: { theme: 'night' },
+                                  }}
+                                >
+                                  <PaymentForm
+                                    paymentId={regPaymentData.paymentId}
+                                    clientSecret={regPaymentData.clientSecret}
+                                    amount={5000}
+                                    currency="mxn"
+                                    description={`${selectedEvent.skill_block} ${selectedEvent.gender}'s ${selectedEvent.modality} — Registration`}
+                                    onSuccess={handleRegisterAfterPayment}
+                                    onError={(err) => setRegPaymentError(err)}
+                                  />
+                                </Elements>
+                              ) : (
+                                <p className="text-sm text-white/40 text-center py-6">
+                                  Preparing payment...
+                                </p>
+                              )}
+                            </div>
+                            <div className="px-6 pb-6 pt-2 border-t border-white/[0.06]">
+                              <button
+                                onClick={() => {
+                                  setRegisterStep('form');
+                                  setRegPaymentData(null);
+                                  setRegPaymentError(null);
+                                }}
+                                className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
+                              >
+                                ← Back to player form
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </DialogContent>
                     </Dialog>
                   </div>
@@ -1474,6 +1657,57 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
           </div>
         </div>
       )}
+
+      {/* ── Delete confirm dialog ── */}
+      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) { setDeleteTarget(null); setDeleteError(null); } }}>
+        <DialogContent className="p-0 gap-0 bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-sm shadow-[0_32px_80px_rgba(0,0,0,0.6)] overflow-hidden">
+          <div className="px-6 pt-6 pb-5 border-b border-white/[0.06]">
+            <div className="flex items-center gap-3 mb-1">
+              <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+                <Trash2 className="w-4 h-4 text-red-400" />
+              </div>
+              <DialogTitle className="text-base font-bold text-white">Delete Event</DialogTitle>
+            </div>
+            <DialogDescription className="text-xs text-white/35 mt-1">
+              This action cannot be undone.
+            </DialogDescription>
+          </div>
+          <div className="px-6 py-5 space-y-4">
+            {deleteTarget && (
+              <p className="text-sm text-white/70">
+                Are you sure you want to delete{' '}
+                <span className="font-bold text-white capitalize">
+                  {deleteTarget.modality} — {deleteTarget.skill_block}
+                </span>
+                ? All related data will be removed.
+              </p>
+            )}
+            {deleteError && (
+              <div className="flex items-center gap-2 px-3 py-2.5 bg-red-500/[0.08] border border-red-500/20 rounded-lg">
+                <AlertTriangle className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
+                <p className="text-xs text-red-400">{deleteError}</p>
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2.5 px-6 pb-6 pt-2 border-t border-white/[0.06]">
+            <button
+              onClick={() => { setDeleteTarget(null); setDeleteError(null); }}
+              disabled={deleting}
+              className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 text-sm font-semibold transition-all disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleDeleteEvent}
+              disabled={deleting}
+              className="flex-1 h-9 rounded-xl bg-red-500 hover:bg-red-400 text-white text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+              {deleting ? 'Deleting…' : 'Delete'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

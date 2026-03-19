@@ -441,7 +441,7 @@ export default function StateClubsManagement() {
                       {/* Date */}
                       <td className="py-3 px-4 text-[11px] text-white/25 whitespace-nowrap">
                         {club.createdAt
-                          ? new Date(club.createdAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })
+                          ? new Date(club.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
                           : '—'}
                       </td>
                       {/* Actions */}

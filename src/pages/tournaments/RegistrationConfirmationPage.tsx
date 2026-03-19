@@ -180,7 +180,7 @@ const RegistrationConfirmationPage: React.FC<Props> = ({ tournamentId, registrat
   }
 
   const tournamentDate = tournamentData
-    ? new Date(tournamentData.start_date).toLocaleDateString('es-MX', {
+    ? new Date(tournamentData.start_date).toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',

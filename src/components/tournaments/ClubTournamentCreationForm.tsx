@@ -832,7 +832,7 @@ export const ClubTournamentCreationForm: React.FC<Props> = ({ onSuccess, onCance
                     {
                       label: 'Inicio Torneo',
                       value: watch('start_date')
-                        ? new Date(watch('start_date')).toLocaleDateString('es-MX', {
+                        ? new Date(watch('start_date')).toLocaleDateString('en-US', {
                             day: 'numeric',
                             month: 'long',
                             year: 'numeric',
@@ -844,7 +844,7 @@ export const ClubTournamentCreationForm: React.FC<Props> = ({ onSuccess, onCance
                     {
                       label: 'Fin Torneo',
                       value: watch('end_date')
-                        ? new Date(watch('end_date')).toLocaleDateString('es-MX', {
+                        ? new Date(watch('end_date')).toLocaleDateString('en-US', {
                             day: 'numeric',
                             month: 'long',
                             year: 'numeric',
@@ -856,7 +856,7 @@ export const ClubTournamentCreationForm: React.FC<Props> = ({ onSuccess, onCance
                     {
                       label: 'Abre Inscripciones',
                       value: watch('registration_start')
-                        ? new Date(watch('registration_start')).toLocaleDateString('es-MX', {
+                        ? new Date(watch('registration_start')).toLocaleDateString('en-US', {
                             day: 'numeric',
                             month: 'short',
                             hour: '2-digit',
@@ -867,7 +867,7 @@ export const ClubTournamentCreationForm: React.FC<Props> = ({ onSuccess, onCance
                     {
                       label: 'Cierra Inscripciones',
                       value: watch('registration_end')
-                        ? new Date(watch('registration_end')).toLocaleDateString('es-MX', {
+                        ? new Date(watch('registration_end')).toLocaleDateString('en-US', {
                             day: 'numeric',
                             month: 'short',
                             hour: '2-digit',

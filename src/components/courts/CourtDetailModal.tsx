@@ -25,7 +25,7 @@ const DAY_LABEL: Record<string, string> = {
 const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
 const fmt = (v: number | string | undefined) =>
-  v !== undefined && v !== null && v !== '' ? `$${Number(v).toLocaleString('es-MX')}` : '—';
+  v !== undefined && v !== null && v !== '' ? `$${Number(v).toLocaleString('en-US')}` : '—';
 
 // ─── sub-components ───────────────────────────────────────────────────────────
 function SectionTitle({ children }: { children: React.ReactNode }) {
@@ -294,10 +294,10 @@ export default function CourtDetailModal({ court, open, onClose, onEdit }: Props
                 <div className="flex items-center gap-2 text-xs text-amber-400/50">
                   <Calendar className="w-3.5 h-3.5" />
                   {court.maintenance_start && (
-                    <span>Desde: {new Date(court.maintenance_start).toLocaleDateString('es-MX')}</span>
+                    <span>Desde: {new Date(court.maintenance_start).toLocaleDateString('en-US')}</span>
                   )}
                   {court.maintenance_end && (
-                    <span>Hasta: {new Date(court.maintenance_end).toLocaleDateString('es-MX')}</span>
+                    <span>Hasta: {new Date(court.maintenance_end).toLocaleDateString('en-US')}</span>
                   )}
                 </div>
               )}
@@ -334,10 +334,10 @@ export default function CourtDetailModal({ court, open, onClose, onEdit }: Props
           {/* ── meta ── */}
           <div className="pt-2 border-t border-white/[0.05] flex flex-wrap gap-4 text-[11px] text-white/20">
             {court.created_at && (
-              <span>Creado: {new Date(court.created_at).toLocaleDateString('es-MX')}</span>
+              <span>Creado: {new Date(court.created_at).toLocaleDateString('en-US')}</span>
             )}
             {court.updated_at && (
-              <span>Actualizado: {new Date(court.updated_at).toLocaleDateString('es-MX')}</span>
+              <span>Actualizado: {new Date(court.updated_at).toLocaleDateString('en-US')}</span>
             )}
             <span>ID: {court.id}</span>
           </div>

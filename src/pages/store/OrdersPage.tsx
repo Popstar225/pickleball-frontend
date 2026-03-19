@@ -91,7 +91,7 @@ export function OrdersPage() {
                     </div>
                     <p className="text-[#5A5A7A] text-sm">
                       {order.items?.length ?? 0} {(order.items?.length ?? 0) === 1 ? 'artículo' : 'artículos'} ·{' '}
-                      {new Date(order.created_at).toLocaleDateString('es-MX', {
+                      {new Date(order.created_at).toLocaleDateString('en-US', {
                         day: 'numeric', month: 'short', year: 'numeric',
                       })}
                     </p>

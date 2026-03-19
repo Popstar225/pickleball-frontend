@@ -282,7 +282,7 @@ export function EventRegistrationModal({
                             : {penalty.reason}
                             {penalty.expires_date && (
                               <div className="text-[10px] text-yellow-300/60 mt-1">
-                                Vence: {new Date(penalty.expires_date).toLocaleDateString('es-MX')}
+                                Vence: {new Date(penalty.expires_date).toLocaleDateString('en-US')}
                               </div>
                             )}
                           </li>
@@ -310,7 +310,7 @@ export function EventRegistrationModal({
                           <span className="text-white/70">
                             {new Date(
                               eligibilityResult.eventInfo.registration_deadline,
-                            ).toLocaleDateString('es-MX')}
+                            ).toLocaleDateString('en-US')}
                           </span>
                         </div>
                       )}

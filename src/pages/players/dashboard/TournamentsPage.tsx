@@ -227,6 +227,8 @@ const selectCls = cn(
   'h-9 rounded-xl text-xs bg-white/[0.04] border-white/[0.08] text-white/60 focus:ring-0 focus:border-[#ace600]/50 data-[state=open]:border-[#ace600]/50 transition-all',
 );
 
+console.log('---------------------------', );
+
 export default function PlayerTournamentsPage() {
   const navigate = useNavigate();
   const user = useSelector((s: RootState) => s.auth.user);
@@ -699,12 +701,12 @@ export default function PlayerTournamentsPage() {
                         )}
                         <div className="grid grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-1.5 mb-4">
                           <MetaItem icon={Calendar}>
-                            {new Date(t.start_date).toLocaleDateString('es-MX', {
+                            {new Date(t.start_date).toLocaleDateString('en-US', {
                               day: 'numeric',
                               month: 'short',
                             })}{' '}
                             –{' '}
-                            {new Date(t.end_date).toLocaleDateString('es-MX', {
+                            {new Date(t.end_date).toLocaleDateString('en-US', {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',
@@ -714,7 +716,7 @@ export default function PlayerTournamentsPage() {
                             {t.location || t.venue_name || 'Por determinar'}
                           </MetaItem>
                           <MetaItem icon={Trophy}>{t.tournament_type || '—'}</MetaItem>
-                          <MetaItem icon={Users}>{t.events?.length || 0} eventos</MetaItem>
+                          <MetaItem icon={Users}>{t.events_count ?? t.events?.length ?? 0} eventos</MetaItem>
                         </div>
                         {t.max_participants > 0 && (
                           <div className="mb-4">
@@ -815,7 +817,7 @@ export default function PlayerTournamentsPage() {
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
                   <MetaItem icon={Calendar}>
-                    {new Date(reg.registeredAt || '').toLocaleDateString('es-MX', {
+                    {new Date(reg.registeredAt || '').toLocaleDateString('en-US', {
                       day: 'numeric',
                       month: 'short',
                       year: 'numeric',

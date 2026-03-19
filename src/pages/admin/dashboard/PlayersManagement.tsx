@@ -248,7 +248,7 @@ export default function PlayersManagement() {
   };
 
   const formatDate = (d: string) =>
-    new Date(d).toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' });
+    new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
 
   const initials = (name: string) =>
     name

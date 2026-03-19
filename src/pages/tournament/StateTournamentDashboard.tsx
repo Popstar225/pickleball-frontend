@@ -28,6 +28,10 @@ import {
   fetchEventMatches,
   fetchEventRegistrations,
   generateGroups,
+  clearTournamentEvents,
+  clearEventGroups,
+  clearEventMatches,
+  clearEventRegistrations,
 } from '@/store/slices/tournamentsSlice';
 
 import GroupManagement from '@/components/tournament/GroupManagement';
@@ -229,9 +233,15 @@ const StateTournamentDashboard: React.FC = () => {
     );
   }
 
-  /* ── Load tournament and its events on mount ── */
+  /* ── Clear stale state and load fresh data when tournamentId changes ── */
   useEffect(() => {
     if (tournamentId) {
+      setSelectedEvent(null);
+      dispatch(clearTournamentEvents());
+      dispatch(clearEventGroups());
+      dispatch(clearEventMatches());
+      dispatch(clearEventRegistrations());
+
       dispatch(fetchTournament(tournamentId)).catch((err: any) =>
         console.error('Failed to load tournament:', err),
       );
@@ -246,15 +256,25 @@ const StateTournamentDashboard: React.FC = () => {
   }, [tournamentId, dispatch]);
 
   /* ── Auto-select event when only one exists ── */
+  /* Guard: only select events that belong to the current tournament */
   useEffect(() => {
-    if (!selectedEvent && tournamentEvents?.length === 1) {
+    if (
+      !selectedEvent &&
+      tournamentEvents?.length === 1 &&
+      tournamentEvents[0]?.tournament_id === tournamentId
+    ) {
       setSelectedEvent(tournamentEvents[0]);
     }
-  }, [tournamentEvents, selectedEvent]);
+  }, [tournamentEvents, selectedEvent, tournamentId]);
 
   /* ── Load groups, matches, and registrations when event is selected ── */
+  /* Guard: event.tournament_id must match current tournamentId before any fetch */
   useEffect(() => {
-    if (tournamentId && selectedEvent?.id) {
+    if (
+      tournamentId &&
+      selectedEvent?.id &&
+      selectedEvent?.tournament_id === tournamentId
+    ) {
       dispatch(fetchEventGroups({ tournamentId, eventId: selectedEvent.id } as any))
         .then(() => console.log('[State] ✓ Groups loaded'))
         .catch((err: any) => console.error('[State] ✗ Failed to load groups:', err));

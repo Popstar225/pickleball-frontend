@@ -308,7 +308,7 @@ export default function ClubsManagement() {
   };
 
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('es-MX', {
+    return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

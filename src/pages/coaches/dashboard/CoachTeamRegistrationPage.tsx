@@ -69,13 +69,13 @@ interface TournamentDetails extends AvailableTournament {
 }
 
 interface MyRegistration {
-  registration_id: string;
-  tournament_id: string;
+  registrationId: string;
+  tournamentId: string;
   tournamentName: string;
   eventName: string;
-  players: { id: string; name: string }[];
+  playerName: string;
   status: string;
-  payment_status: string;
+  paymentStatus: string;
   group?: { id: string; number: number };
   position?: number;
   qualified?: boolean;
@@ -379,7 +379,7 @@ function TournamentCard({
           <div className="flex items-center gap-3 mt-1.5 text-xs text-white/40 flex-wrap">
             <span className="flex items-center gap-1">
               <Calendar className="w-3 h-3" />
-              {startDt.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
+              {startDt.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
             </span>
             <span className="flex items-center gap-1">
               <MapPin className="w-3 h-3" />
@@ -493,24 +493,22 @@ function MyRegistrationsTab() {
   return (
     <div className="space-y-3">
       {registrations.map((reg) => (
-        <div key={reg.registration_id} className="bg-[#0d1117] border border-white/[0.07] rounded-xl px-4 py-3.5">
+        <div key={reg.registrationId} className="bg-[#0d1117] border border-white/[0.07] rounded-xl px-4 py-3.5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <p className="text-white font-bold text-sm">{reg.tournamentName}</p>
               <p className="text-white/50 text-xs mt-0.5">{reg.eventName}</p>
               <div className="flex flex-wrap gap-1.5 mt-2">
-                {reg.players.map((p) => (
-                  <span key={p.id} className="px-2 py-0.5 bg-white/5 rounded-full text-white/60 text-[10px] font-medium">
-                    {p.name}
-                  </span>
-                ))}
+                <span className="px-2 py-0.5 bg-white/5 rounded-full text-white/60 text-[10px] font-medium">
+                  {reg.playerName}
+                </span>
               </div>
             </div>
             <div className="shrink-0 text-right space-y-1">
               <p className={cn('text-xs font-bold', statusColor(reg.status))}>
                 {statusLabel(reg.status)}
               </p>
-              {reg.payment_status === 'pending' && (
+              {reg.paymentStatus === 'pending' && (
                 <p className="text-yellow-400/70 text-[10px]">Pago pendiente</p>
               )}
               {reg.group && (

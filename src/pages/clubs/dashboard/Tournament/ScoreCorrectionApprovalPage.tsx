@@ -113,7 +113,7 @@ function CorrectionCard({
             Solicitado por: {correction.requester_name || correction.requested_by}
             <span className="mx-1">·</span>
             <Clock className="w-3 h-3" />
-            {dt.toLocaleDateString('es-MX')} {dt.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+            {dt.toLocaleDateString('en-US')} {dt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
           </p>
         </div>
         <div className="shrink-0 mt-0.5">

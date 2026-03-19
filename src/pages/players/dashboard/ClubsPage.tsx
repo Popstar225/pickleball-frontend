@@ -389,7 +389,7 @@ function ClubDetailDialog({
               {club.founded_date && (
                 <p className="text-[11px] text-white/88">
                   Fundado:{' '}
-                  {new Date(club.founded_date).toLocaleDateString('es-MX', {
+                  {new Date(club.founded_date).toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                   })}
@@ -738,7 +738,7 @@ export default function PlayerClubsPage() {
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-[10px] text-white/50">
                         {club.joinedDate
-                          ? `Miembro desde ${new Date(club.joinedDate).toLocaleDateString('es-MX', {
+                          ? `Miembro desde ${new Date(club.joinedDate).toLocaleDateString('en-US', {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',

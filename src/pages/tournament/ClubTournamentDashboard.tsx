@@ -28,6 +28,10 @@ import {
   fetchEventMatches,
   fetchEventRegistrations,
   generateGroups,
+  clearTournamentEvents,
+  clearEventGroups,
+  clearEventMatches,
+  clearEventRegistrations,
 } from '@/store/slices/tournamentsSlice';
 
 import GroupManagement from '@/components/tournament/GroupManagement';
@@ -229,9 +233,17 @@ const ClubTournamentDashboard: React.FC = () => {
     );
   }
 
-  /* ── Load tournament and its events on mount ── */
+  /* ── Clear stale state and load fresh data when tournamentId changes ── */
   useEffect(() => {
     if (tournamentId) {
+      // Clear stale data from any previously viewed tournament to prevent
+      // auto-select picking up old event IDs and causing 404 on groups fetch
+      setSelectedEvent(null);
+      dispatch(clearTournamentEvents());
+      dispatch(clearEventGroups());
+      dispatch(clearEventMatches());
+      dispatch(clearEventRegistrations());
+
       dispatch(fetchTournament(tournamentId)).catch((err: any) =>
         console.error('Failed to load tournament:', err),
       );
@@ -245,16 +257,26 @@ const ClubTournamentDashboard: React.FC = () => {
     }
   }, [tournamentId, dispatch]);
 
-  /* ── Auto-select event when only one exists (prevents stale-state silent skips) ── */
+  /* ── Auto-select event when only one exists ── */
+  /* Guard: only select events that belong to the current tournament to avoid stale-state 404s */
   useEffect(() => {
-    if (!selectedEvent && tournamentEvents?.length === 1) {
+    if (
+      !selectedEvent &&
+      tournamentEvents?.length === 1 &&
+      tournamentEvents[0]?.tournament_id === tournamentId
+    ) {
       setSelectedEvent(tournamentEvents[0]);
     }
-  }, [tournamentEvents, selectedEvent]);
+  }, [tournamentEvents, selectedEvent, tournamentId]);
 
   /* ── Load groups, matches, and registrations when event is selected ── */
+  /* Guard: event.tournament_id must match current tournamentId before any fetch */
   useEffect(() => {
-    if (tournamentId && selectedEvent?.id) {
+    if (
+      tournamentId &&
+      selectedEvent?.id &&
+      selectedEvent?.tournament_id === tournamentId
+    ) {
       console.log('[Dashboard] Loading event data:', {
         tournamentId,
         eventId: selectedEvent.id,
@@ -631,8 +653,6 @@ const ClubTournamentDashboard: React.FC = () => {
     }
   };
 
-  console.log('--------------------------------------------------------', eventMatches);
-
   const groups = eventGroups || [];
   const regs = eventRegistrations || [];
   const events = tournamentEvents || [];
@@ -656,8 +676,8 @@ const ClubTournamentDashboard: React.FC = () => {
     const isCompleted = m.status === 'completed';
     return {
       id: m.id,
-      player1: { id: m.player1?.id || null, name: m.player1?.name || 'TBD' },
-      player2: { id: m.player2?.id || null, name: m.player2?.name || 'TBD' },
+      player1: { id: m.player1?.id || null, name: m.player1?.name || 'TBD', ranking: m.player1?.ranking ?? m.player1?.ranking_points ?? null },
+      player2: { id: m.player2?.id || null, name: m.player2?.name || 'TBD', ranking: m.player2?.ranking ?? m.player2?.ranking_points ?? null },
       status: isCompleted ? 'played' : m.status,
       winner: isCompleted && m.player1 && m.player2
         ? undefined // winner shown via score, not name
@@ -1008,8 +1028,8 @@ const ClubTournamentDashboard: React.FC = () => {
                 const isCompleted = m.status === 'completed';
                 return {
                   id: m.id,
-                  player1: { id: m.player1?.id || null, name: m.player1?.name || 'TBD' },
-                  player2: { id: m.player2?.id || null, name: m.player2?.name || 'TBD' },
+                  player1: { id: m.player1?.id || null, name: m.player1?.name || 'TBD', ranking: m.player1?.ranking ?? m.player1?.ranking_points ?? null },
+                  player2: { id: m.player2?.id || null, name: m.player2?.name || 'TBD', ranking: m.player2?.ranking ?? m.player2?.ranking_points ?? null },
                   status: isCompleted ? 'played' : m.status,
                   winner: undefined as any,
                   set1: scores[0] ? { p1: scores[0].player1, p2: scores[0].player2 } : undefined,

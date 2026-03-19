@@ -244,7 +244,7 @@ export default function PlayerPaymentsPage() {
                 {isActive && membership?.membership_expires_at ? (
                   <p className="text-[12px] text-white/65 mt-1.5 flex items-center gap-1.5">
                     <Calendar className="w-3 h-3" />
-                    Vence el {new Date(membership.membership_expires_at).toLocaleDateString('es-MX')}
+                    Vence el {new Date(membership.membership_expires_at).toLocaleDateString('en-US')}
                   </p>
                 ) : (
                   <p className="text-[12px] text-white/65 mt-1.5 max-w-sm">
@@ -446,7 +446,7 @@ export default function PlayerPaymentsPage() {
                         className="border-b border-white/[0.04] last:border-none hover:bg-white/[0.02] transition-colors"
                       >
                         <TableCell className="text-[13px] text-white/60 px-5 py-3.5">
-                          {new Date(payment.created_at).toLocaleDateString('es-MX')}
+                          {new Date(payment.created_at).toLocaleDateString('en-US')}
                         </TableCell>
                         <TableCell className="py-3.5">
                           <p className="text-[13px] font-medium text-white/85">

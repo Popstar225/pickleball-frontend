@@ -550,7 +550,7 @@ function DateTimeStep({
                   : 'bg-white/[0.08] text-white/60 hover:bg-white/[0.12]',
               )}
             >
-              {new Date(date).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric' })}
+              {new Date(date).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' })}
             </button>
           ))}
         </div>
@@ -621,7 +621,7 @@ function ReviewStep({
         <div className="flex justify-between items-center pb-3 border-b border-white/[0.07]">
           <span className="text-white/60 text-sm">Date</span>
           <span className="font-semibold text-white">
-            {new Date(date).toLocaleDateString('es-MX', {
+            {new Date(date).toLocaleDateString('en-US', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',

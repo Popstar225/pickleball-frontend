@@ -268,7 +268,7 @@ export default function PlayerSearchPage() {
                     <MetaChip icon={Trophy}>{player.tournamentsPlayed} torneos</MetaChip>
                     <MetaChip icon={Users}>{player.club}</MetaChip>
                     <MetaChip icon={Clock}>
-                      Activo {new Date(player.lastActive).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
+                      Activo {new Date(player.lastActive).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                     </MetaChip>
                   </div>
 

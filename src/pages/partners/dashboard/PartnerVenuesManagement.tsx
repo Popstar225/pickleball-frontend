@@ -138,7 +138,7 @@ function VenueDetailModal({
               { icon: MapPin,     label: 'Estado',      value: venue.state },
               { icon: LayoutGrid, label: 'Canchas',     value: `${venue.number_of_courts}` },
               { icon: Layers,     label: 'Tipo',        value: labelOf(venue.court_type) },
-              { icon: DollarSign, label: 'Precio/hora', value: `$${venue.base_price_per_hour.toLocaleString('es-MX')}` },
+              { icon: DollarSign, label: 'Precio/hora', value: `$${venue.base_price_per_hour.toLocaleString('en-US')}` },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.06] rounded-2xl px-4 py-3">
                 <Icon className="w-3.5 h-3.5 text-white/20 shrink-0" />
@@ -249,7 +249,7 @@ function VenueDetailModal({
 
           {/* meta */}
           <div className="pt-2 border-t border-white/[0.05] flex flex-wrap gap-4 text-[11px] text-white/20">
-            {venue.created_at && <span>Creado: {new Date(venue.created_at).toLocaleDateString('es-MX')}</span>}
+            {venue.created_at && <span>Creado: {new Date(venue.created_at).toLocaleDateString('en-US')}</span>}
             <span>ID: {venue.id}</span>
           </div>
         </div>

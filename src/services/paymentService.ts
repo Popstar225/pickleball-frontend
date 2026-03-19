@@ -507,6 +507,41 @@ class PaymentService {
   }
 
   /**
+   * Create payment intent for tournament event registration
+   */
+  static async createTournamentRegistrationPayment(data: {
+    tournament_event_id: string;
+    partner_id?: string;
+  }): Promise<{
+    success: boolean;
+    data: { payment_id: string; client_secret: string; amount: number; currency: string; tournament_event_id: string };
+  }> {
+    try {
+      const response = await apiClient.post('/payments/tournament-registration', data);
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
+   * Confirm tournament registration payment and create the registration record
+   */
+  static async confirmTournamentRegistrationPayment(
+    paymentId: string,
+    paymentIntentId: string,
+  ): Promise<{ success: boolean; data: { payment: Payment; registration: any } }> {
+    try {
+      const response = await apiClient.post(`/payments/tournament-registration/${paymentId}/confirm`, {
+        payment_intent_id: paymentIntentId,
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
    * Handle API errors
    */
   private static handleError(error: any): Error {

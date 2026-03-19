@@ -179,12 +179,12 @@ const EventsSection = () => {
 
   // Format date for display
   const formatDate = (date: Date): string => {
-    const locale = t('events.month') === 'Month' ? 'en-US' : 'es-MX';
+    const locale = t('events.month') === 'Month' ? 'en-US' : 'en-US';
     return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
   };
 
   const formatWeekRange = (startDate: Date): string => {
-    const locale = t('events.month') === 'Month' ? 'en-US' : 'es-MX';
+    const locale = t('events.month') === 'Month' ? 'en-US' : 'en-US';
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6);
     const startStr = startDate.toLocaleDateString(locale, { month: 'short', day: 'numeric' });

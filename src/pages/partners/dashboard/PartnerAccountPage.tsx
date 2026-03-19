@@ -449,7 +449,7 @@ export default function PartnerAccountPage() {
                   <Label className="text-slate-200">Fecha de Inicio</Label>
                   <p className="text-white font-medium">
                     {formData.partnershipStartDate
-                      ? new Date(formData.partnershipStartDate).toLocaleDateString('es-MX')
+                      ? new Date(formData.partnershipStartDate).toLocaleDateString('en-US')
                       : 'N/A'}
                   </p>
                 </div>
@@ -457,7 +457,7 @@ export default function PartnerAccountPage() {
                   <Label className="text-slate-200">Próxima Renovación</Label>
                   <p className="text-white font-medium">
                     {formData.nextRenewalDate
-                      ? new Date(formData.nextRenewalDate).toLocaleDateString('es-MX')
+                      ? new Date(formData.nextRenewalDate).toLocaleDateString('en-US')
                       : 'N/A'}
                   </p>
                 </div>
@@ -642,8 +642,8 @@ export default function PartnerAccountPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-white">
-                        {new Date(sponsorship.startDate).toLocaleDateString('es-MX')} -{' '}
-                        {new Date(sponsorship.endDate).toLocaleDateString('es-MX')}
+                        {new Date(sponsorship.startDate).toLocaleDateString('en-US')} -{' '}
+                        {new Date(sponsorship.endDate).toLocaleDateString('en-US')}
                       </TableCell>
                       <TableCell>
                         <Button

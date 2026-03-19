@@ -172,7 +172,7 @@ export default function StateDashboardHome() {
                       <p className="text-sm font-semibold text-white/75 truncate">{activity.title}</p>
                       <p className="text-xs text-white/30 mt-0.5 line-clamp-1">{activity.description}</p>
                       <p className="text-[10px] text-white/20 mt-1.5">
-                        {new Date(activity.date).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        {new Date(activity.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </p>
                     </div>
                     <StatusPill status={activity.status} />
@@ -210,7 +210,7 @@ export default function StateDashboardHome() {
                   <div className="flex flex-col gap-1.5">
                     <span className="inline-flex items-center gap-2 text-[11px] text-white/30">
                       <Calendar className="w-3 h-3 text-white/20 shrink-0" />
-                      {event.date ? new Date(event.date).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}
+                      {event.date ? new Date(event.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}
                     </span>
                     <span className="inline-flex items-center gap-2 text-[11px] text-white/30">
                       <MapPin className="w-3 h-3 text-white/20 shrink-0" />

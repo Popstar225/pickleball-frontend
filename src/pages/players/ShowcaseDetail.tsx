@@ -103,7 +103,7 @@ const ShowcaseDetail = () => {
   const player = playerShowcases.find((p) => p.slug === slug);
 
   const formatDate = (dateStr: string) =>
-    new Date(dateStr).toLocaleDateString('es-MX', {
+    new Date(dateStr).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',

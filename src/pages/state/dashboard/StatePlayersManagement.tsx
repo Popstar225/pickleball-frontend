@@ -45,7 +45,7 @@ const selItem = 'text-white/70 focus:bg-white/[0.06] focus:text-white';
 /* ─── helpers ── */
 function fmtDate(d?: string | null) {
   if (!d) return '—';
-  return new Date(d).toLocaleDateString('es-MX', {
+  return new Date(d).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

@@ -493,7 +493,7 @@ export default function StateAccountPage() {
           {profile?.foundationDate && (
             <Field
               label="Miembro Desde"
-              value={new Date(profile.foundationDate).toLocaleDateString('es-MX', {
+              value={new Date(profile.foundationDate).toLocaleDateString('en-US', {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',

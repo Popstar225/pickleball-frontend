@@ -212,7 +212,7 @@ export default function DashboardHome() {
                     <span className="inline-flex items-center gap-1 text-[10px] text-white/20">
                       <Clock className="w-2.5 h-2.5" />
                       {user.created_at
-                        ? new Date(user.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })
+                        ? new Date(user.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
                         : '—'}
                     </span>
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[9px] font-black uppercase tracking-wider bg-amber-500/10 border-amber-500/20 text-amber-400">

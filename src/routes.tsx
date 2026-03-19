@@ -165,17 +165,18 @@ import StatePaymentsPage from './pages/state/dashboard/StatePaymentsPage';
 // Wrapper components for routes with parameters
 const TournamentEventManagementWrapper: React.FC = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
-  return <TournamentEventManagement tournamentId={tournamentId || ''} />;
+  // key={tournamentId} forces full remount when navigating between tournaments
+  return <TournamentEventManagement key={tournamentId} tournamentId={tournamentId || ''} />;
 };
 
 const FederationTournamentEventManagementWrapper: React.FC = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
-  return <FederationTournamentEventManagement tournamentId={tournamentId || ''} />;
+  return <FederationTournamentEventManagement key={tournamentId} tournamentId={tournamentId || ''} />;
 };
 
 const StateTournamentEventManagementWrapper: React.FC = () => {
   const { tournamentId } = useParams<{ tournamentId: string }>();
-  return <StateTournamentEventManagement tournamentId={tournamentId || ''} />;
+  return <StateTournamentEventManagement key={tournamentId} tournamentId={tournamentId || ''} />;
 };
 
 const StateTournamentDetailsWrapper: React.FC = () => {
@@ -371,12 +372,6 @@ export const routes = [
   {
     key: 'credential-verify',
     path: '/credentials/verify/:code',
-    element: <CredentialVerifyPage />,
-    public: true,
-  },
-  {
-    key: 'credential-verify-alt',
-    path: '/verify-credential/:code',
     element: <CredentialVerifyPage />,
     public: true,
   },

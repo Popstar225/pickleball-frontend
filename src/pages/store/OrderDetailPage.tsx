@@ -115,7 +115,7 @@ export default function OrderDetailPage() {
                 </span>
               </div>
               <p className="text-[#3A3A5A] text-xs mt-2">
-                {new Date(order.created_at).toLocaleDateString('es-MX', {
+                {new Date(order.created_at).toLocaleDateString('en-US', {
                   weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
                 })}
               </p>

@@ -43,7 +43,7 @@ function StatusPill({ status }: { status: string }) {
 }
 
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' });
+  return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
 interface Tournament { id: string; name: string; status: string; start_date: string; events?: any[] }

@@ -112,7 +112,7 @@ export default function ClubPaymentsPage() {
             </Badge>
             <p className="text-2xl font-bold text-white">$2,000 MXN/año</p>
             {(isBasicActive || isPremiumActive) && membership?.membership_expires_at && (
-              <p className="text-sm text-slate-200">Vence: {new Date(membership.membership_expires_at).toLocaleDateString('es-MX')}</p>
+              <p className="text-sm text-slate-200">Vence: {new Date(membership.membership_expires_at).toLocaleDateString('en-US')}</p>
             )}
             <div className="space-y-1 text-sm text-slate-300">
               <p>✓ Perfil de club activo</p>
@@ -197,7 +197,7 @@ export default function ClubPaymentsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white">
-              {stats.nextRenewal ? new Date(stats.nextRenewal).toLocaleDateString('es-MX') : '—'}
+              {stats.nextRenewal ? new Date(stats.nextRenewal).toLocaleDateString('en-US') : '—'}
             </div>
             <p className="text-xs text-slate-200">Plan activo</p>
           </CardContent>
@@ -228,7 +228,7 @@ export default function ClubPaymentsPage() {
               <TableBody>
                 {payments.map((payment) => (
                   <TableRow key={payment.id} className="border-slate-800">
-                    <TableCell className="text-white">{new Date(payment.created_at).toLocaleDateString('es-MX')}</TableCell>
+                    <TableCell className="text-white">{new Date(payment.created_at).toLocaleDateString('en-US')}</TableCell>
                     <TableCell className="text-white font-medium">{payment.description || getTypeLabel(payment.payment_type)}</TableCell>
                     <TableCell className="text-slate-200">{getTypeLabel(payment.payment_type)}</TableCell>
                     <TableCell className="text-white font-medium">${Number(payment.amount).toLocaleString()} {payment.currency?.toUpperCase() || 'MXN'}</TableCell>

@@ -249,7 +249,7 @@ export default function RankingPage() {
                     'font-extrabold tabular-nums',
                     isMe ? 'text-[#ace600]' : 'text-white/85',
                   )}>
-                    {row.points?.toLocaleString('es-MX') ?? 0}
+                    {row.points?.toLocaleString('en-US') ?? 0}
                   </span>
                 </div>
 

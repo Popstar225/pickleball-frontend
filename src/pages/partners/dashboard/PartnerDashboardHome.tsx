@@ -85,7 +85,7 @@ export default function PartnerDashboardHome() {
                 <p className="text-slate-200">
                   Próxima renovación:{' '}
                   {profile?.sponsorshipEndDate
-                    ? new Date(profile.sponsorshipEndDate).toLocaleDateString('es-MX')
+                    ? new Date(profile.sponsorshipEndDate).toLocaleDateString('en-US')
                     : 'N/A'}
                 </p>
               </div>
@@ -177,8 +177,8 @@ export default function PartnerDashboardHome() {
                   <div className="flex-1">
                     <h4 className="font-medium text-white">Nivel: {sponsorship.level}</h4>
                     <p className="text-sm text-slate-200">
-                      {new Date(sponsorship.startDate).toLocaleDateString('es-MX')} -{' '}
-                      {new Date(sponsorship.endDate).toLocaleDateString('es-MX')}
+                      {new Date(sponsorship.startDate).toLocaleDateString('en-US')} -{' '}
+                      {new Date(sponsorship.endDate).toLocaleDateString('en-US')}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
@@ -242,7 +242,7 @@ export default function PartnerDashboardHome() {
                     <div className="flex-1">
                       <h4 className="font-medium text-white">{sponsorship.level} Sponsorship</h4>
                       <p className="text-sm text-slate-200">
-                        {new Date(sponsorship.endDate).toLocaleDateString('es-MX')}
+                        {new Date(sponsorship.endDate).toLocaleDateString('en-US')}
                       </p>
                     </div>
                     <Badge className="bg-blue-600 hover:bg-blue-700">{sponsorship.level}</Badge>

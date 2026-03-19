@@ -224,7 +224,7 @@ export default function FederationTournamentsPage() {
                       {
                         label: 'Creado',
                         value: tournament.created_at
-                          ? new Date(tournament.created_at).toLocaleDateString('es-MX')
+                          ? new Date(tournament.created_at).toLocaleDateString('en-US')
                           : 'N/A',
                       },
                     ].map(({ label, value }) => (

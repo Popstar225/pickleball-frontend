@@ -139,7 +139,7 @@ export default function CoachDashboardHome() {
     ? (profile.certifications[0] ?? 'Nivel 1')
     : (profile?.certifications ?? 'Nivel 1');
   const joinDate = profile?.joinedDate
-    ? new Date(profile.joinedDate).toLocaleDateString('es-MX', {
+    ? new Date(profile.joinedDate).toLocaleDateString('en-US', {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
@@ -318,7 +318,7 @@ export default function CoachDashboardHome() {
                       <div className="flex items-center justify-between gap-2 mb-1.5">
                         <p className="text-xs font-bold text-white/70 truncate">{fullName}</p>
                         <span className="text-[10px] text-white/25 shrink-0">
-                          {new Date(s.joinDate).toLocaleDateString('es-MX', {
+                          {new Date(s.joinDate).toLocaleDateString('en-US', {
                             day: 'numeric',
                             month: 'short',
                           })}
