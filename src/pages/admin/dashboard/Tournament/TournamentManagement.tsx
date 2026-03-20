@@ -52,45 +52,45 @@ import type { Tournament, TournamentsQueryParams } from '@/types/api';
 /* ─── status config ───────────────────────────────────────────────────────── */
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; text: string; bg: string }> = {
-  draft: { label: 'Draft', dot: 'bg-white/30', text: 'text-white/50', bg: 'bg-white/[0.06]' },
+  draft: { label: 'Borrador', dot: 'bg-white/30', text: 'text-white/50', bg: 'bg-white/[0.06]' },
   pending_validation: {
-    label: 'Awaiting Approval',
+    label: 'Pendiente de Aprobación',
     dot: 'bg-amber-400',
     text: 'text-amber-400',
     bg: 'bg-amber-500/[0.08]',
   },
   approved: {
-    label: 'Approved',
+    label: 'Aprobado',
     dot: 'bg-blue-400',
     text: 'text-blue-300',
     bg: 'bg-blue-500/[0.08]',
   },
   rejected: {
-    label: 'Rejected',
+    label: 'Rechazado',
     dot: 'bg-red-400',
     text: 'text-red-400',
     bg: 'bg-red-500/[0.08]',
   },
   published: {
-    label: 'Published',
+    label: 'Publicado',
     dot: 'bg-sky-400',
     text: 'text-sky-300',
     bg: 'bg-sky-500/[0.08]',
   },
   in_progress: {
-    label: 'In Progress',
+    label: 'En Progreso',
     dot: 'bg-[#ace600]',
     text: 'text-[#ace600]',
     bg: 'bg-[#ace600]/[0.08]',
   },
   completed: {
-    label: 'Completed',
+    label: 'Completado',
     dot: 'bg-emerald-400',
     text: 'text-emerald-400',
     bg: 'bg-emerald-500/[0.08]',
   },
   cancelled: {
-    label: 'Cancelled',
+    label: 'Cancelado',
     dot: 'bg-red-400',
     text: 'text-red-400',
     bg: 'bg-red-500/[0.08]',
@@ -99,8 +99,8 @@ const STATUS_CONFIG: Record<string, { label: string; dot: string; text: string; 
 
 const TYPE_CONFIG: Record<string, { label: string; color: string }> = {
   local: { label: 'Local', color: 'text-emerald-400 bg-emerald-500/[0.08] border-emerald-500/20' },
-  state: { label: 'State', color: 'text-sky-400 bg-sky-500/[0.08] border-sky-500/20' },
-  national: { label: 'National', color: 'text-[#ace600] bg-[#ace600]/[0.08] border-[#ace600]/20' },
+  state: { label: 'Estatal', color: 'text-sky-400 bg-sky-500/[0.08] border-sky-500/20' },
+  national: { label: 'Nacional', color: 'text-[#ace600] bg-[#ace600]/[0.08] border-[#ace600]/20' },
 };
 
 /* ─── helpers ─────────────────────────────────────────────────────────────── */
@@ -203,15 +203,15 @@ const TournamentManagement: React.FC = () => {
       {/* ── Header ────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Tournaments</h1>
-          <p className="text-sm text-white/35 mt-0.5">Create and manage your competitions</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">Torneos</h1>
+          <p className="text-sm text-white/35 mt-0.5">Crea y gestiona tus competiciones</p>
         </div>
 
         <Dialog open={showCreate} onOpenChange={setShowCreate}>
           <DialogTrigger asChild>
             <button className="flex items-center gap-2 bg-[#ace600] hover:bg-[#c0f000] active:scale-[0.98] text-black text-sm font-bold px-4 py-2.5 rounded-xl transition-all duration-150 shadow-[0_0_18px_rgba(172,230,0,0.18)] hover:shadow-[0_0_28px_rgba(172,230,0,0.32)]">
               <Plus className="w-4 h-4" strokeWidth={2.5} />
-              New Tournament
+              Nuevo Torneo
             </button>
           </DialogTrigger>
           <DialogContent
@@ -237,7 +237,7 @@ const TournamentManagement: React.FC = () => {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search tournaments, venues, cities…"
+            placeholder="Buscar torneos, negocios, ciudades…"
             className="w-full h-9 bg-white/[0.04] border border-white/[0.08] rounded-lg pl-8 pr-3 text-sm text-white placeholder:text-white/20 outline-none focus:border-white/20 transition-colors"
           />
         </div>
@@ -245,7 +245,7 @@ const TournamentManagement: React.FC = () => {
         {/* status */}
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className={selectTrigger}>
-            <SelectValue placeholder="All Status" />
+            <SelectValue placeholder="Todos los estados" />
           </SelectTrigger>
           <SelectContent className={selectContent}>
             {[
@@ -260,15 +260,15 @@ const TournamentManagement: React.FC = () => {
               'cancelled',
             ].map((s) => {
               const labels: Record<string, string> = {
-                all: 'All Status',
-                draft: 'Draft',
-                pending_validation: 'Awaiting Approval',
-                approved: 'Approved',
-                rejected: 'Rejected',
-                published: 'Published',
-                in_progress: 'In Progress',
-                completed: 'Completed',
-                cancelled: 'Cancelled',
+                all: 'Todos los estados',
+                draft: 'Borrador',
+                pending_validation: 'Pendiente de Aprobación',
+                approved: 'Aprobado',
+                rejected: 'Rechazado',
+                published: 'Publicado',
+                in_progress: 'En Progreso',
+                completed: 'Completado',
+                cancelled: 'Cancelado',
               };
               return (
                 <SelectItem
@@ -286,18 +286,25 @@ const TournamentManagement: React.FC = () => {
         {/* type */}
         <Select value={typeFilter} onValueChange={setTypeFilter}>
           <SelectTrigger className={selectTrigger}>
-            <SelectValue placeholder="All Types" />
+            <SelectValue placeholder="Todos los tipos" />
           </SelectTrigger>
           <SelectContent className={selectContent}>
-            {['all', 'local', 'state', 'national'].map((t) => (
+            {['all', 'local', 'state', 'national'].map((t) => {
+              const typeLabels: Record<string, string> = {
+                all: 'Todos los tipos',
+                local: 'Local',
+                state: 'Estatal',
+                national: 'Nacional',
+              };
+              return (
               <SelectItem
                 key={t}
                 value={t}
                 className="text-white/70 focus:bg-white/[0.06] focus:text-white capitalize"
               >
-                {t === 'all' ? 'All Types' : t.charAt(0).toUpperCase() + t.slice(1)}
+                {typeLabels[t]}
               </SelectItem>
-            ))}
+            )})}
           </SelectContent>
         </Select>
       </div>
@@ -308,11 +315,11 @@ const TournamentManagement: React.FC = () => {
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2">
             <Trophy className="w-4 h-4 text-white/30" />
-            <span className="text-sm font-semibold text-white/60">Your Tournaments</span>
+            <span className="text-sm font-semibold text-white/60">Tus Torneos</span>
           </div>
           {!loading && (
             <span className="text-[11px] font-semibold text-white/25 bg-white/[0.04] border border-white/[0.06] px-2.5 py-0.5 rounded-full">
-              {filtered.length} {filtered.length === 1 ? 'result' : 'results'}
+              {filtered.length} {filtered.length === 1 ? 'resultado' : 'resultados'}
             </span>
           )}
         </div>
@@ -321,7 +328,7 @@ const TournamentManagement: React.FC = () => {
         {loading && (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <Loader2 className="w-6 h-6 text-[#ace600] animate-spin" />
-            <p className="text-sm text-white/25">Loading tournaments…</p>
+            <p className="text-sm text-white/25">Cargando torneos…</p>
           </div>
         )}
 
@@ -331,11 +338,11 @@ const TournamentManagement: React.FC = () => {
             <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-center mb-4">
               <Trophy className="w-6 h-6 text-white/20" />
             </div>
-            <p className="text-white/50 font-semibold text-sm mb-1">No tournaments found</p>
+            <p className="text-white/50 font-semibold text-sm mb-1">No se encontraron torneos</p>
             <p className="text-white/20 text-xs max-w-xs">
               {search || statusFilter !== 'all' || typeFilter !== 'all'
-                ? 'Try adjusting your filters or search terms.'
-                : 'Create your first tournament to get started.'}
+                ? 'Intenta ajustar tus filtros o términos de búsqueda.'
+                : 'Crea tu primer torneo para comenzar.'}
             </p>
             {!search && statusFilter === 'all' && typeFilter === 'all' && (
               <button
@@ -343,7 +350,7 @@ const TournamentManagement: React.FC = () => {
                 className="mt-5 flex items-center gap-2 bg-[#ace600] hover:bg-[#c0f000] text-black text-xs font-bold px-4 py-2 rounded-lg transition-all"
               >
                 <Plus className="w-3.5 h-3.5" />
-                Create Tournament
+                Nuevo Torneo
               </button>
             )}
           </div>
@@ -355,7 +362,7 @@ const TournamentManagement: React.FC = () => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/[0.05]">
-                  {['Tournament', 'Type', 'Status', 'Dates', 'Venue', 'Participants', ''].map(
+                  {['Torneo', 'Tipo', 'Estado', 'Fechas', 'Negocio', 'Participantes', ''].map(
                     (h) => (
                       <th
                         key={h}
@@ -450,13 +457,13 @@ const TournamentManagement: React.FC = () => {
                             onClick={() => navigate(`/clubs/dashboard/tournaments/${t.id}`)}
                             className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
                           >
-                            <Eye className="w-3.5 h-3.5" /> View Details
+                            <Eye className="w-3.5 h-3.5" /> Ver Detalles
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => navigate(`/clubs/dashboard/tournaments/${t.id}/manage`)}
                             className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
                           >
-                            <Settings className="w-3.5 h-3.5" /> Manage Events
+                            <Settings className="w-3.5 h-3.5" /> Gestionar Eventos
                           </DropdownMenuItem>
 
                           {canManage(t) && (
@@ -468,7 +475,7 @@ const TournamentManagement: React.FC = () => {
                                 }
                                 className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
                               >
-                                <Edit className="w-3.5 h-3.5" /> Edit Tournament
+                                <Edit className="w-3.5 h-3.5" /> Editar Torneo
                               </DropdownMenuItem>
 
                               {t.status === 'draft' && (
@@ -476,7 +483,7 @@ const TournamentManagement: React.FC = () => {
                                   onClick={() => handleStatus(t.id, 'published')}
                                   className="flex items-center gap-2.5 text-[#ace600] hover:text-[#c0f000] focus:text-[#c0f000] hover:bg-[#ace600]/[0.06] focus:bg-[#ace600]/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
                                 >
-                                  <CheckCircle className="w-3.5 h-3.5" /> Publish
+                                  <CheckCircle className="w-3.5 h-3.5" /> Publicar
                                 </DropdownMenuItem>
                               )}
                               {t.status === 'published' && (
@@ -484,7 +491,7 @@ const TournamentManagement: React.FC = () => {
                                   onClick={() => handleStatus(t.id, 'cancelled')}
                                   className="flex items-center gap-2.5 text-amber-400 hover:text-amber-300 focus:text-amber-300 hover:bg-amber-500/[0.06] focus:bg-amber-500/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
                                 >
-                                  <AlertTriangle className="w-3.5 h-3.5" /> Cancel
+                                  <AlertTriangle className="w-3.5 h-3.5" /> Cancelar
                                 </DropdownMenuItem>
                               )}
 
@@ -493,7 +500,7 @@ const TournamentManagement: React.FC = () => {
                                 onClick={() => setToDelete(t)}
                                 className="flex items-center gap-2.5 text-red-400 hover:text-red-300 focus:text-red-300 hover:bg-red-500/[0.06] focus:bg-red-500/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
                               >
-                                <Trash2 className="w-3.5 h-3.5" /> Delete
+                                <Trash2 className="w-3.5 h-3.5" /> Eliminar
                               </DropdownMenuItem>
                             </>
                           )}
@@ -515,11 +522,11 @@ const TournamentManagement: React.FC = () => {
             <div className="w-11 h-11 rounded-2xl bg-red-500/[0.08] border border-red-500/15 flex items-center justify-center mb-4">
               <Trash2 className="w-5 h-5 text-red-400" />
             </div>
-            <h2 className="text-base font-bold text-white mb-1">Delete Tournament</h2>
+            <h2 className="text-base font-bold text-white mb-1">Eliminar Torneo</h2>
             <p className="text-sm text-white/35 leading-relaxed">
-              Are you sure you want to delete{' '}
-              <span className="text-white/60 font-medium">"{toDelete?.name}"</span>? This action
-              cannot be undone.
+              ¿Estás seguro de que deseas eliminar{' '}
+              <span className="text-white/60 font-medium">"{toDelete?.name}"</span>? Esta acción
+              no se puede deshacer.
             </p>
           </div>
           <div className="flex gap-2.5 px-6 pb-6">
@@ -527,13 +534,13 @@ const TournamentManagement: React.FC = () => {
               onClick={() => setToDelete(null)}
               className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 hover:text-white text-sm font-semibold transition-all"
             >
-              Cancel
+              Cancelar
             </button>
             <button
               onClick={handleDelete}
               className="flex-1 h-9 rounded-xl bg-red-500/80 hover:bg-red-500 text-white text-sm font-bold transition-all shadow-[0_0_16px_rgba(239,68,68,0.2)]"
             >
-              Delete
+              Eliminar
             </button>
           </div>
         </DialogContent>

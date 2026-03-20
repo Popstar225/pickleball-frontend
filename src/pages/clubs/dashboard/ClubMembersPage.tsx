@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/store';
 import {
@@ -67,10 +68,11 @@ function initials(m: ClubMember) {
 
 /* ─── Status pill ── */
 function StatusPill({ status }: { status: string }) {
+  const { t } = useTranslation();
   const cfg =
-    status === 'active'   ? { label: 'Activo',    dot: 'bg-emerald-400', text: 'text-emerald-400', bg: 'bg-emerald-500/[0.08]' } :
-    status === 'pending'  ? { label: 'Pendiente', dot: 'bg-amber-400',   text: 'text-amber-400',   bg: 'bg-amber-500/[0.08]' } :
-                            { label: 'Inactivo',  dot: 'bg-white/20',    text: 'text-white/35',    bg: 'bg-white/[0.05]' };
+    status === 'active'   ? { label: t('club_dashboard.members.status_active'),    dot: 'bg-emerald-400', text: 'text-emerald-400', bg: 'bg-emerald-500/[0.08]' } :
+    status === 'pending'  ? { label: t('club_dashboard.members.status_pending'), dot: 'bg-amber-400',   text: 'text-amber-400',   bg: 'bg-amber-500/[0.08]' } :
+                            { label: t('club_dashboard.members.status_inactive'),  dot: 'bg-white/20',    text: 'text-white/35',    bg: 'bg-white/[0.05]' };
   return (
     <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-white/[0.06] ${cfg.bg} ${cfg.text}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
@@ -88,6 +90,7 @@ function AddMemberDialog({
   onSubmit: (d: { userId: string }) => Promise<void>;
   loading: boolean;
 }) {
+  const { t } = useTranslation();
   const [userId, setUserId] = useState('');
   const reset = () => setUserId('');
 
@@ -102,13 +105,13 @@ function AddMemberDialog({
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="p-0 gap-0 bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-sm shadow-[0_32px_80px_rgba(0,0,0,0.6)] overflow-hidden">
         <div className="px-6 pt-6 pb-4 border-b border-white/[0.06]">
-          <h2 className="text-base font-bold text-white">Agregar Nuevo Miembro</h2>
-          <p className="text-xs text-white/35 mt-1">Ingresa el ID del usuario registrado en la plataforma</p>
+          <h2 className="text-base font-bold text-white">{t('club_dashboard.members.add_new_title')}</h2>
+          <p className="text-xs text-white/35 mt-1">{t('club_dashboard.members.add_new_desc')}</p>
         </div>
         <div className="px-6 py-5">
-          <label className={labelCls}>ID del Usuario <span className="text-[#ace600]">*</span></label>
+          <label className={labelCls}>{t('club_dashboard.members.user_id_label')} <span className="text-[#ace600]">*</span></label>
           <Input
-            placeholder="ID del usuario en la plataforma"
+            placeholder={t('club_dashboard.members.user_id_placeholder')}
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
             className={inputCls}
@@ -116,11 +119,11 @@ function AddMemberDialog({
         </div>
         <div className="flex gap-2.5 px-6 pb-6 pt-2 border-t border-white/[0.06]">
           <button onClick={() => handleClose(false)} disabled={loading} className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 hover:text-white text-sm font-semibold transition-all disabled:opacity-40">
-            Cancelar
+            {t('club_dashboard.members.cancel')}
           </button>
           <button onClick={handleSubmit} disabled={!userId.trim() || loading} className="flex-1 h-9 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black text-sm font-bold transition-all shadow-[0_0_16px_rgba(172,230,0,0.2)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" strokeWidth={2.5} />}
-            Agregar
+            {t('club_dashboard.members.add')}
           </button>
         </div>
       </DialogContent>
@@ -135,6 +138,7 @@ function DeleteMemberDialog({
   open: boolean; onOpenChange: (v: boolean) => void;
   memberName: string; onConfirm: () => void; loading: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onOpenChange(false)}>
       <DialogContent className="bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-sm p-0 shadow-2xl overflow-hidden">
@@ -142,10 +146,11 @@ function DeleteMemberDialog({
           <div className="w-11 h-11 rounded-2xl bg-red-500/[0.08] border border-red-500/15 flex items-center justify-center mb-4">
             <Trash2 className="w-5 h-5 text-red-400" />
           </div>
-          <h2 className="text-base font-bold text-white mb-1">¿Eliminar miembro?</h2>
+          <h2 className="text-base font-bold text-white mb-1">{t('club_dashboard.members.delete_title')}</h2>
           <p className="text-sm text-white/35 leading-relaxed">
-            Estás a punto de eliminar a{' '}
-            <span className="text-white/60 font-medium">"{memberName}"</span>. Esta acción no puede deshacerse.
+            {t('club_dashboard.members.delete_desc')}{' '}
+            <span className="text-white/60 font-medium">"{memberName}"</span>. {t('club_dashboard.members.delete_undone')}
+
           </p>
         </div>
         <div className="flex gap-2.5 px-6 pb-6">

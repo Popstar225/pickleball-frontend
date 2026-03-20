@@ -277,6 +277,9 @@ export default function PartnerVenuesManagement() {
   const [form,        setForm]        = useState<FormData>(emptyForm);
   const [facilityInput, setFacilityInput] = useState('');
   const [activeTab, setActiveTab] = useState<'basic' | 'hours'>('basic');
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteVenueId, setDeleteVenueId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const PER_PAGE = 9;
 
   useEffect(() => {
@@ -360,13 +363,27 @@ export default function PartnerVenuesManagement() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar este venue? Esta acción no se puede deshacer.')) return;
+  const handleDelete = (id: string) => {
+    setDeleteVenueId(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteVenueId) return;
+    setDeleting(true);
     try {
-      await dispatch(deleteVenue(id)).unwrap();
-      toast.success('Venue eliminado');
+      await dispatch(deleteVenue(deleteVenueId)).unwrap();
+      toast.success('Negocio eliminado');
+      setDeleteConfirmOpen(false);
+      setDeleteVenueId(null);
+      dispatch(fetchVenuesByClub({
+        clubId: partnerId!, page, limit: PER_PAGE,
+        isActive: filter === 'true' ? true : filter === 'false' ? false : undefined,
+      }));
     } catch (e: any) {
       toast.error(e?.message || 'Error al eliminar');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -787,6 +804,47 @@ export default function PartnerVenuesManagement() {
         onClose={closeDetail}
         onEdit={v => { closeDetail(); openEdit(v); }}
       />
+
+      {/* ── Delete Confirmation Modal ──────────────────────────────────────────── */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="bg-[#0d1117] border-white/[0.09] rounded-2xl p-0 overflow-hidden max-w-sm">
+          <div className="bg-gradient-to-r from-red-500/60 via-red-500/30 to-transparent h-0.5" />
+
+          <div className="p-6">
+            <DialogHeader className="mb-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                  <AlertCircle className="w-4 h-4 text-red-400" />
+                </div>
+                <DialogTitle className="text-base font-bold text-white">
+                  Eliminar Negocio
+                </DialogTitle>
+              </div>
+              <DialogDescription className="text-white/40 text-xs">
+                Esta acción no se puede deshacer. El negocio y todas sus canchas se eliminarán permanentemente.
+              </DialogDescription>
+            </DialogHeader>
+
+            {/* Delete actions */}
+            <div className="flex gap-2 mt-6 pt-4 border-t border-white/[0.06]">
+              <button onClick={() => { setDeleteConfirmOpen(false); setDeleteVenueId(null); }} disabled={deleting}
+                className="flex-1 h-10 rounded-xl text-xs font-semibold border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/40 hover:text-white transition-all disabled:opacity-50">
+                Cancelar
+              </button>
+              <button onClick={confirmDelete} disabled={deleting}
+                className={cn(
+                  'flex-1 h-10 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-2 transition-all',
+                  'bg-red-500 hover:bg-red-400 text-white shadow-[0_0_12px_rgba(239,68,68,0.18)] disabled:opacity-50',
+                )}>
+                {deleting
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Eliminando…</>
+                  : 'Sí, Eliminar'
+                }
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

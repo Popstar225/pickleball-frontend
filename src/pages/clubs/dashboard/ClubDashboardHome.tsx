@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import {
   Trophy,
   Users,
@@ -23,6 +24,7 @@ import {
 
 // ─── Status badge atoms ───────────────────────────────────────────────────────
 function MemberBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   const active = status === 'active';
   return (
     <span
@@ -32,12 +34,13 @@ function MemberBadge({ status }: { status: string }) {
           : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
       }`}
     >
-      {active ? 'Activo' : 'Pendiente'}
+      {active ? t('club_dashboard.home.status_active') : t('club_dashboard.home.status_pending')}
     </span>
   );
 }
 
 function EventBadge({ status }: { status: string }) {
+  const { t } = useTranslation();
   const registered = status === 'registered';
   return (
     <span
@@ -47,13 +50,14 @@ function EventBadge({ status }: { status: string }) {
           : 'bg-white/[0.06] text-white/40 border-white/[0.08]'
       }`}
     >
-      {registered ? 'Registrado' : 'Preparando'}
+      {registered ? t('club_dashboard.home.status_registered') : t('club_dashboard.home.status_preparing')}
     </span>
   );
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function ClubDashboardHome() {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { profile, stats: clubStats, members, events, membersLoading, eventsLoading } = useSelector(
     (state: RootState) => state.clubDashboard,
@@ -68,33 +72,33 @@ export default function ClubDashboardHome() {
 
   const stats = [
     {
-      label: 'Miembros Totales',
+      label: t('club_dashboard.home.stat_total_members'),
       value: clubStats?.totalMembers ?? profile?.memberCount ?? 0,
-      sub: `${clubStats?.activeMembers ?? 0} activos`,
+      sub: t('club_dashboard.home.stat_active_members_sub', { n: clubStats?.activeMembers ?? 0 }),
       icon: Users,
       color: 'text-sky-400',
       accent: 'bg-sky-500/10 border-sky-500/20',
     },
     {
-      label: 'Torneos Organizados',
+      label: t('club_dashboard.home.stat_tournaments'),
       value: profile?.totalTournaments ?? 0,
-      sub: `${clubStats?.upcomingTournaments ?? 0} próximos`,
+      sub: t('club_dashboard.home.stat_upcoming_sub', { n: clubStats?.upcomingTournaments ?? 0 }),
       icon: Trophy,
       color: 'text-[#ace600]',
       accent: 'bg-[#ace600]/10 border-[#ace600]/20',
     },
     {
-      label: 'Ingresos del Mes',
+      label: t('club_dashboard.home.stat_revenue'),
       value: `$${(clubStats?.monthlyRevenue ?? 0).toLocaleString()}`,
-      sub: 'MXN',
+      sub: t('club_dashboard.home.stat_revenue_sub'),
       icon: DollarSign,
       color: 'text-emerald-400',
       accent: 'bg-emerald-500/10 border-emerald-500/20',
     },
     {
-      label: 'Canchas',
+      label: t('club_dashboard.home.stat_courts'),
       value: clubStats?.totalCourts ?? 0,
-      sub: 'Registradas',
+      sub: t('club_dashboard.home.stat_courts_sub'),
       icon: AlertCircle,
       color: 'text-amber-400',
       accent: 'bg-amber-500/10 border-amber-500/20',
@@ -102,10 +106,10 @@ export default function ClubDashboardHome() {
   ];
 
   const quickActions = [
-    { to: '/clubs/dashboard/members', icon: Users, label: 'Gestionar Miembros' },
-    { to: '/clubs/dashboard/tournaments', icon: Trophy, label: 'Crear Torneo' },
-    { to: '/clubs/dashboard/messages', icon: MessageSquare, label: 'Ver Mensajes' },
-    { to: '/clubs/dashboard/payments', icon: DollarSign, label: 'Ver Pagos' },
+    { to: '/clubs/dashboard/members', icon: Users, label: t('club_dashboard.home.action_manage_members') },
+    { to: '/clubs/dashboard/tournaments', icon: Trophy, label: t('club_dashboard.home.action_create_tournament') },
+    { to: '/clubs/dashboard/messages', icon: MessageSquare, label: t('club_dashboard.home.action_view_messages') },
+    { to: '/clubs/dashboard/payments', icon: DollarSign, label: t('club_dashboard.home.action_view_payments') },
   ];
 
   return (
@@ -113,8 +117,8 @@ export default function ClubDashboardHome() {
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">Panel del Club</h1>
-          <p className="text-sm text-white/35 mt-0.5">Gestiona tu club, miembros y torneos</p>
+          <h1 className="text-2xl font-bold text-white tracking-tight">{t('club_dashboard.home.title')}</h1>
+          <p className="text-sm text-white/35 mt-0.5">{t('club_dashboard.home.subtitle')}</p>
         </div>
         <div className="flex gap-2">
           <Link
@@ -122,14 +126,14 @@ export default function ClubDashboardHome() {
             className="flex items-center gap-2 h-9 px-4 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-white/60 hover:text-white text-xs font-semibold transition-all"
           >
             <UserPlus className="w-3.5 h-3.5" />
-            Agregar Miembro
+            {t('club_dashboard.home.add_member')}
           </Link>
           <Link
             to="/clubs/dashboard/tournaments"
             className="flex items-center gap-2 h-9 px-4 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black text-xs font-bold transition-all shadow-[0_0_16px_rgba(172,230,0,0.18)] hover:shadow-[0_0_24px_rgba(172,230,0,0.3)]"
           >
             <Trophy className="w-3.5 h-3.5" />
-            Crear Torneo
+            {t('club_dashboard.home.create_tournament')}
           </Link>
         </div>
       </div>
@@ -161,13 +165,13 @@ export default function ClubDashboardHome() {
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.05]">
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-white/25" />
-              <span className="text-sm font-semibold text-white/60">Miembros Recientes</span>
+              <span className="text-sm font-semibold text-white/60">{t('club_dashboard.home.recent_members')}</span>
             </div>
             <Link
               to="/clubs/dashboard/members"
               className="flex items-center gap-1 text-[11px] text-white/30 hover:text-[#ace600] transition-colors font-semibold"
             >
-              Ver todos <ArrowRight className="w-3 h-3" />
+              {t('club_dashboard.home.view_all')} <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
 

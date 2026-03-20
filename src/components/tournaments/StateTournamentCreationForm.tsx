@@ -37,6 +37,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { translateEventLabel } from '@/utils/formatters';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface TournamentEvent {
@@ -656,7 +657,7 @@ export const StateTournamentCreationForm: React.FC<Props> = ({
                                 checked ? 'text-white' : 'text-white/60',
                               )}
                             >
-                              {event.label}
+                              {translateEventLabel(event.label)}
                             </p>
                             <div className="flex flex-wrap gap-1.5 mt-1.5">
                               {[event.block, event.gender].map((tag) => (

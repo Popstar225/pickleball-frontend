@@ -190,22 +190,22 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
 
   function validateForm(): boolean {
     if (!form.name || !form.venue_name || !form.state) {
-      alert('Please fill in all required fields.');
+      alert('Por favor, completa todos los campos requeridos.');
       return false;
     }
     if (new Date(form.start_date) >= new Date(form.end_date)) {
-      alert('End date must be after start date.');
+      alert('La fecha de finalización debe ser posterior a la fecha de inicio.');
       return false;
     }
     if (new Date(form.registration_deadline) >= new Date(form.start_date)) {
-      alert('Registration deadline must be before start date.');
+      alert('La fecha límite de registro debe ser anterior a la fecha de inicio.');
       return false;
     }
     if (
       form.max_participants &&
       form.max_participants > (permissions?.max_participants_limit ?? 64)
     ) {
-      alert(`Max participants limit is ${permissions?.max_participants_limit}.`);
+      alert(`El límite máximo de participantes es ${permissions?.max_participants_limit}.`);
       return false;
     }
     return true;
@@ -260,9 +260,9 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
   const canCreate = permissions?.can_create_tournaments ?? false;
 
   const typeDesc: Record<string, string> = {
-    local: 'City / Area level',
-    state: 'Federal Entity level',
-    national: 'Country · Annual Main Event',
+    local: 'Nivel de ciudad / Área',
+    state: 'Nivel de entidad federativa',
+    national: 'País · Evento principal anual',
   };
 
   const typeBadge: Record<string, string> = {
@@ -278,12 +278,12 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
         <div className="w-14 h-14 rounded-2xl bg-yellow-500/8 border border-yellow-500/15 flex items-center justify-center mb-5">
           <AlertTriangle className="w-6 h-6 text-yellow-500" />
         </div>
-        <h3 className="text-lg font-semibold text-white mb-2">Access Restricted</h3>
+        <h3 className="text-lg font-semibold text-white mb-2">Acceso restringido</h3>
         <p className="text-white/30 text-sm max-w-xs leading-relaxed">
-          Only clubs, state organizations, and administrators can create tournaments.
+          Solo clubes, organizaciones estatales y administradores pueden crear torneos.
         </p>
         <span className="mt-5 text-[11px] text-white/25 bg-white/[0.03] border border-white/[0.06] px-3 py-1.5 rounded-full">
-          Role: {user?.user_type || 'unknown'}
+          Rol: {user?.user_type || 'unknown'}
         </span>
       </div>
     );
@@ -299,19 +299,19 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
               <Trophy className="w-2.5 h-2.5 text-white/40" />
             </div>
             <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/30">
-              Your Permissions
+              Tus permisos
             </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
             {[
-              { label: 'Role', value: user?.user_type ?? '—', cap: true },
-              { label: 'Max Participants', value: String(permissions.max_participants_limit) },
+              { label: 'Rol', value: user?.user_type ?? '—', cap: true },
+              { label: 'Máximo de participantes', value: String(permissions.max_participants_limit) },
               {
-                label: 'Paid Events',
-                value: permissions.can_create_paid_events ? 'Allowed' : 'Disabled',
+                label: 'Eventos pagados',
+                value: permissions.can_create_paid_events ? 'Permitido' : 'Deshabilitado',
               },
-              { label: 'Needs Approval', value: permissions.requires_approval ? 'Yes' : 'No' },
+              { label: 'Requiere aprobación', value: permissions.requires_approval ? 'Sí' : 'No' },
             ].map(({ label, value, cap }) => (
               <div
                 key={label}
@@ -329,7 +329,7 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
 
           <div className="flex items-center gap-2">
             <span className="text-[9px] font-bold uppercase tracking-widest text-white/20">
-              Types:
+              Tipos:
             </span>
             <div className="flex gap-1.5">
               {permissions.allowed_tournament_types.map((t) => (
@@ -359,7 +359,7 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
             className="flex items-center gap-2 bg-[#ace600] hover:bg-[#c0f000] active:scale-[0.98] text-black text-sm font-bold px-5 py-2.5 rounded-xl transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(172,230,0,0.18)] hover:shadow-[0_0_32px_rgba(172,230,0,0.32)]"
           >
             <Plus className="w-4 h-4" strokeWidth={2.5} />
-            Create Tournament
+            Crear Torneo
           </button>
         </DialogTrigger>
 
@@ -402,9 +402,9 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
                 <Trophy className="w-4 h-4 text-[#ace600]" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-white leading-tight">Create Tournament</h2>
+                <h2 className="text-base font-bold text-white leading-tight">Crear Torneo</h2>
                 <p className="text-[11px] text-white/30 mt-0.5">
-                  Events will be created within this tournament
+                  Los eventos se crearán dentro de este torneo
                 </p>
               </div>
             </div>
@@ -414,24 +414,24 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
           <div className="overflow-y-auto flex-1 px-7 py-6 space-y-8">
             {/* Basic info */}
             <section>
-              <SectionHeading icon={Trophy}>Basic Information</SectionHeading>
+              <SectionHeading icon={Trophy}>Información básica</SectionHeading>
               <div className="space-y-4">
-                <Field label="Tournament Name" required>
+                <Field label="Nombre del torneo" required>
                   <input
                     className={inputBase}
                     value={form.name}
                     onChange={(e) => set('name', e.target.value)}
-                    placeholder="e.g. Summer Open 2025"
+                    placeholder="Por ejemplo, Abierto de verano 2025"
                   />
                 </Field>
 
-                <Field label="Tournament Type Name" required hint="Tier 1 — Local (mejores N resultados)">
+                <Field label="Nombre del tipo de torneo" required hint="Nivel 1 — Local (mejores N resultados)">
                   <Select
                     value={form.tournament_type_name || ''}
                     onValueChange={(v) => set('tournament_type_name', v)}
                   >
                     <SelectTrigger className={selectTrigger}>
-                      <SelectValue placeholder="Select tournament type..." />
+                      <SelectValue placeholder="Selecciona un tipo de torneo..." />
                     </SelectTrigger>
                     <SelectContent className="bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl">
                       {LOCAL_TOURNAMENT_NAMES.map((n) => (
@@ -448,7 +448,7 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
                 </Field>
 
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Tournament Type" required>
+                  <Field label="Tipo de torneo" required>
                     <Select
                       value={form.tournament_type}
                       onValueChange={(v) => set('tournament_type', v)}
@@ -473,17 +473,17 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
                     </Select>
                   </Field>
 
-                  <Field label="Category" required>
+                  <Field label="Categoría" required>
                     <Select value={form.category} onValueChange={(v) => set('category', v)}>
                       <SelectTrigger className={selectTrigger}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl">
                         {[
-                          { v: 'singles', l: 'Singles' },
-                          { v: 'doubles', l: 'Doubles' },
-                          { v: 'mixed_doubles', l: 'Mixed Doubles' },
-                          { v: 'team', l: 'Team' },
+                          { v: 'singles', l: 'Individuales' },
+                          { v: 'doubles', l: 'Dobles' },
+                          { v: 'mixed_doubles', l: 'Dobles mixtos' },
+                          { v: 'team', l: 'Equipo' },
                         ].map(({ v, l }) => (
                           <SelectItem
                             key={v}
@@ -500,8 +500,8 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
 
                 <div className="grid grid-cols-2 gap-3">
                   <Field
-                    label="Max Participants"
-                    hint={`Your limit: ${permissions?.max_participants_limit ?? 64}`}
+                    label="Máximo de participantes"
+                    hint={`Tu límite: ${permissions?.max_participants_limit ?? 64}`}
                   >
                     <input
                       className={inputBase}
@@ -514,7 +514,7 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
                   </Field>
 
                   {permissions?.can_create_paid_events && (
-                    <Field label="Entry Fee (MXN)">
+                    <Field label="Cuota de inscripción (MXN)">
                       <div className={iconInputWrap}>
                         <Banknote className={iconCls} />
                         <input
@@ -531,13 +531,13 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
                   )}
                 </div>
 
-                <Field label="Description">
+                <Field label="Descripción">
                   <textarea
                     className={`${inputBase} h-auto py-2.5 resize-none`}
                     rows={3}
                     value={form.description}
                     onChange={(e) => set('description', e.target.value)}
-                    placeholder="Brief overview of the tournament…"
+                    placeholder="Descripción breve del torneo..."
                   />
                 </Field>
               </div>
@@ -545,31 +545,31 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
 
             {/* Venue */}
             <section>
-              <SectionHeading icon={MapPin}>Venue</SectionHeading>
+              <SectionHeading icon={MapPin}>Lugar</SectionHeading>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Venue Name" required>
+                  <Field label="Nombre del lugar" required>
                     <input
                       className={inputBase}
                       value={form.venue_name}
                       onChange={(e) => set('venue_name', e.target.value)}
-                      placeholder="Club or facility name"
+                      placeholder="Nombre del club o instalación"
                     />
                   </Field>
-                  <Field label="Address">
+                  <Field label="Dirección">
                     <input
                       className={inputBase}
                       value={form.venue_address}
                       onChange={(e) => set('venue_address', e.target.value)}
-                      placeholder="Street address"
+                      placeholder="Dirección de calle"
                     />
                   </Field>
                 </div>
-                <Field label="State" required>
+                <Field label="Estado" required>
                   <StateAutocomplete
                     value={form.state}
                     onChange={(v) => set('state', v)}
-                    placeholder="Search and select state..."
+                    placeholder="Busca y selecciona un estado..."
                     required
                   />
                 </Field>
@@ -578,9 +578,9 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
 
             {/* Dates */}
             <section>
-              <SectionHeading icon={Calendar}>Dates</SectionHeading>
+              <SectionHeading icon={Calendar}>Fechas</SectionHeading>
               <div className="grid grid-cols-3 gap-3">
-                <Field label="Start Date & Time" required>
+                <Field label="Fecha y hora de inicio" required>
                   <input
                     className={inputBase}
                     type="datetime-local"
@@ -588,7 +588,7 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
                     onChange={(e) => set('start_date', e.target.value)}
                   />
                 </Field>
-                <Field label="End Date & Time" required>
+                <Field label="Fecha y hora de finalización" required>
                   <input
                     className={inputBase}
                     type="datetime-local"
@@ -596,7 +596,7 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
                     onChange={(e) => set('end_date', e.target.value)}
                   />
                 </Field>
-                <Field label="Registration Deadline" required hint="Must close before start date">
+                <Field label="Fecha límite de registro" required hint="Debe cerrar antes de la fecha de inicio">
                   <input
                     className={inputBase}
                     type="datetime-local"
@@ -611,11 +611,11 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
                   <div className="mt-3 inline-flex items-center gap-1.5 bg-[#ace600]/[0.06] border border-[#ace600]/15 rounded-lg px-3 py-1.5">
                     <Calendar className="w-3 h-3 text-[#ace600]" />
                     <span className="text-[11px] font-bold text-[#ace600]">
-                      {Math.ceil(
+                      Torneo de {Math.ceil(
                         (new Date(form.end_date).getTime() - new Date(form.start_date).getTime()) /
                           86400000,
                       )}
-                      -day tournament
+                       días
                     </span>
                   </div>
                 )}
@@ -623,10 +623,10 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
 
             {/* Contact & Rules */}
             <section>
-              <SectionHeading icon={ScrollText}>Contact &amp; Rules</SectionHeading>
+              <SectionHeading icon={ScrollText}>Contacto y reglas</SectionHeading>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <Field label="Contact Email">
+                  <Field label="Correo de contacto">
                     <div className={iconInputWrap}>
                       <Mail className={iconCls} />
                       <input
@@ -634,11 +634,11 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
                         type="email"
                         value={form.contact_email}
                         onChange={(e) => set('contact_email', e.target.value)}
-                        placeholder="contact@example.com"
+                        placeholder="contacto@ejemplo.com"
                       />
                     </div>
                   </Field>
-                  <Field label="Contact Phone">
+                  <Field label="Teléfono de contacto">
                     <div className={iconInputWrap}>
                       <Phone className={iconCls} />
                       <input
@@ -650,13 +650,13 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
                     </div>
                   </Field>
                 </div>
-                <Field label="Rules &amp; Regulations">
+                <Field label="Reglas y regulaciones">
                   <textarea
                     className={`${inputBase} h-auto py-2.5 resize-none`}
                     rows={4}
                     value={form.rules}
                     onChange={(e) => set('rules', e.target.value)}
-                    placeholder="Enter tournament rules and regulations…"
+                    placeholder="Ingresa las reglas y regulaciones del torneo..."
                   />
                 </Field>
               </div>
@@ -667,13 +667,13 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
               <div className="flex gap-3 bg-amber-500/[0.06] border border-amber-500/15 rounded-xl px-4 py-3.5">
                 <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-sm font-semibold text-amber-300">Approval Required</p>
+                  <p className="text-sm font-semibold text-amber-300">Aprobación requerida</p>
                   <p className="text-[11px] text-amber-400/55 mt-0.5 leading-relaxed">
-                    This tournament needs approval from{' '}
+                    Este torneo necesita aprobación de{' '}
                     <span className="text-amber-300 font-medium">
                       {permissions.approval_required_by}
                     </span>{' '}
-                    before it can be published.
+                    antes de que pueda ser publicado.
                   </p>
                 </div>
               </div>
@@ -695,7 +695,7 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
               onClick={() => setOpen(false)}
               className="text-sm text-white/30 hover:text-white/55 transition-colors"
             >
-              Cancel
+              Cancelar
             </button>
             <button
               onClick={handleSubmit}
@@ -705,12 +705,12 @@ const TournamentCreation: React.FC<TournamentCreationProps> = ({ onTournamentCre
               {loading || paymentLoading ? (
                 <>
                   <div className="w-3.5 h-3.5 border-2 border-black/25 border-t-black rounded-full animate-spin" />
-                  {paymentLoading ? 'Preparing payment…' : 'Creating…'}
+                  {paymentLoading ? 'Preparando pago...' : 'Creando...'}
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
-                  {user?.user_type === 'admin' ? 'Create Tournament' : 'Continue to Payment'}
+                  {user?.user_type === 'admin' ? 'Crear Torneo' : 'Continuar con el pago'}
                 </>
               )}
             </button>

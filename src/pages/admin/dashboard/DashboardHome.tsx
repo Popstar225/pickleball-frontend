@@ -151,9 +151,9 @@ export default function DashboardHome() {
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <h1 className="text-[22px] font-black text-white tracking-tight">Panel de Control</h1>
+          <h1 className="text-[22px] font-black text-white tracking-tight">Panel de Administradora</h1>
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]">
-            <Zap className="w-2.5 h-2.5" /> Admin
+            <Zap className="w-2.5 h-2.5" /> Administradora
           </span>
         </div>
         <p className="text-xs text-white/25">

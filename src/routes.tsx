@@ -161,6 +161,7 @@ import ClubPaymentsPage from './pages/clubs/dashboard/ClubPaymentsPage';
 import StateMessagesPage from './pages/state/dashboard/StateMessagesPage';
 import StateStatistics from './pages/state/dashboard/StateStatistics';
 import StatePaymentsPage from './pages/state/dashboard/StatePaymentsPage';
+import CourtScheduleManagementWrapper from './components/courts/CourtScheduleManagementWrapper';
 
 // Wrapper components for routes with parameters
 const TournamentEventManagementWrapper: React.FC = () => {
@@ -1030,6 +1031,12 @@ export const routes = [
         key: 'club-dashboard-members',
         path: '/clubs/dashboard/members',
         element: <ClubMembersPage />,
+        public: false,
+      },
+      {
+        key: 'club-dashboard-court-schedule',
+        path: '/clubs/dashboard/court-schedule',
+        element: <CourtScheduleManagementWrapper />,
         public: false,
       },
       {

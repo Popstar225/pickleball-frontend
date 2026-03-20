@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AvatarCropDialog } from '@/components/ui/AvatarCropDialog';
 import { useDispatch, useSelector } from 'react-redux';
 import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
@@ -42,16 +43,7 @@ const inputCls =
 
 const labelCls = 'block text-[10px] font-bold text-white/25 uppercase tracking-widest mb-1.5';
 
-// ─── Days ─────────────────────────────────────────────────────────────────────
-const DAYS: { key: keyof ClubOperatingHours; label: string; short: string }[] = [
-  { key: 'monday',    label: 'Lunes',      short: 'LUN' },
-  { key: 'tuesday',   label: 'Martes',     short: 'MAR' },
-  { key: 'wednesday', label: 'Miércoles',  short: 'MIÉ' },
-  { key: 'thursday',  label: 'Jueves',     short: 'JUE' },
-  { key: 'friday',    label: 'Viernes',    short: 'VIE' },
-  { key: 'saturday',  label: 'Sábado',     short: 'SÁB' },
-  { key: 'sunday',    label: 'Domingo',    short: 'DOM' },
-];
+// ─── Days (will be built dynamically from translations) ──────────────────────
 
 const TAB_CONFIG = [
   { value: 'identity',     label: 'Identidad',  icon: Building2 },
@@ -62,32 +54,30 @@ const TAB_CONFIG = [
   { value: 'membership',   label: 'Membresía',  icon: Shield },
   { value: 'rules',        label: 'Reglas',     icon: Settings },
   { value: 'media',        label: 'Medios',     icon: Share2 },
-  { value: 'owner',        label: 'Propietario',icon: User },
+  { value: 'owner',        label: 'Propietario', icon: User },
   { value: 'hours',        label: 'Horarios',   icon: Clock },
-] as const;
-type TabValue = (typeof TAB_CONFIG)[number]['value'];
+];
+
+type TabValue = 'identity' | 'contact' | 'location' | 'courts' | 'availability' | 'membership' | 'rules' | 'media' | 'owner' | 'hours';
 
 const CLUB_TYPES = { RECREATIONAL:'recreational', COMPETITIVE:'competitive', TRAINING:'training', MIXED:'mixed' } as const;
-const CLUB_TYPES_OPTIONS = [
-  { value: 'recreational', label: 'Recreativo' },
-  { value: 'competitive',  label: 'Competitivo' },
-  { value: 'training',     label: 'Escuela' },
-  { value: 'mixed',        label: 'Mixto' },
+const CLUB_TYPES_OPTIONS = ['Recreativo', 'Competitivo', 'Entrenamiento', 'Mixto'];
+const MEMBERSHIP_STATUS_OPTIONS = [{ value: 'active', label: 'Activo' }, { value: 'expired', label: 'Expirado' }, { value: 'pending', label: 'Pendiente' }];
+const SUBSCRIPTION_PLAN_OPTIONS = [{ value: 'basic', label: 'Básico' }, { value: 'premium', label: 'Premium' }];
+const DAYS = [
+  { key: 'monday' as const, label: 'Lunes', short: 'L' },
+  { key: 'tuesday' as const, label: 'Martes', short: 'M' },
+  { key: 'wednesday' as const, label: 'Miércoles', short: 'X' },
+  { key: 'thursday' as const, label: 'Jueves', short: 'J' },
+  { key: 'friday' as const, label: 'Viernes', short: 'V' },
+  { key: 'saturday' as const, label: 'Sábado', short: 'S' },
+  { key: 'sunday' as const, label: 'Domingo', short: 'D' },
 ];
-const MEMBERSHIP_STATUS_OPTIONS = [
-  { value: 'active',  label: 'Activo' },
-  { value: 'pending', label: 'Pendiente' },
-  { value: 'expired', label: 'Expirado' },
-];
-const SUBSCRIPTION_PLAN_OPTIONS = [
-  { value: 'basic',   label: 'Básico' },
-  { value: 'premium', label: 'Premium' },
-];
-// ─── Primitives ───────────────────────────────────────────────────────────────
 
-function Field({ label, value, onChange, disabled, type = 'text', placeholder = '', textarea = false, rows = 3 }: {
-  label: string; value: string; onChange: (v: string) => void; disabled: boolean;
-  type?: string; placeholder?: string; textarea?: boolean; rows?: number;
+// ─── Field Component ──────────────────────────────────────────────────────────
+function Field({ label, value, onChange, disabled, type = 'text', textarea, rows = 3, placeholder }: {
+  label: string; value: string | number; onChange: (v: string) => void; disabled: boolean;
+  type?: string; textarea?: boolean; rows?: number; placeholder?: string;
 }) {
   return (
     <div>
@@ -154,6 +144,7 @@ function SectionCard({ children }: { children: React.ReactNode }) {
 function SaveBar({ visible, onSave, onCancel, loading }: {
   visible: boolean; onSave: () => void; onCancel: () => void; loading: boolean;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="sticky bottom-4 z-20 mt-4 transition-all duration-200"
       style={{ opacity: visible ? 1 : 0, pointerEvents: visible ? 'auto' : 'none', transform: visible ? 'translateY(0)' : 'translateY(8px)' }}>
@@ -161,18 +152,18 @@ function SaveBar({ visible, onSave, onCancel, loading }: {
         style={{ background: 'rgba(10,13,20,0.96)', backdropFilter: 'blur(20px)' }}>
         <div className="flex items-center gap-2">
           <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-          <p className="text-xs font-medium text-white/40">Cambios sin guardar</p>
+          <p className="text-xs font-medium text-white/40">{t('club_dashboard.account.save_bar_unsaved')}</p>
         </div>
         <div className="flex gap-2">
           <button type="button" onClick={onCancel} disabled={loading}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border border-white/[0.08] text-white/50 hover:text-white/80 hover:bg-white/[0.04] disabled:opacity-40 transition-all">
-            <X className="w-3.5 h-3.5" /> Descartar
+            <X className="w-3.5 h-3.5" /> {t('club_dashboard.account.save_bar_discard')}
           </button>
           <button type="button" onClick={onSave} disabled={loading}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-black disabled:opacity-50 transition-all shadow-[0_0_16px_rgba(172,230,0,0.2)]"
             style={{ background: A }}>
             {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-            {loading ? 'Guardando…' : 'Guardar'}
+            {loading ? t('club_dashboard.account.save_bar_saving') : t('club_dashboard.account.save_bar_save')}
           </button>
         </div>
       </div>
@@ -181,42 +172,42 @@ function SaveBar({ visible, onSave, onCancel, loading }: {
 }
 
 // ─── Form type & helpers ──────────────────────────────────────────────────────
-type FormData = {
-  id: string; name: string; clubType: string; description: string; contactPerson: string;
-  contactEmail: string; contactPhone: string; contactWhatsapp: string; state: string; city: string;
-  address: string; latitude: string; longitude: string; foundedDate: string; memberCount: number;
-  maxMembers: number; hasCourts: boolean; courtCount: number; courtTypes: string[];
-  offersTraining: boolean; offersTournaments: boolean; offersEquipment: boolean;
-  membershipStatus: string; membershipExpiresAt: string; subscriptionPlan: string;
-  membershipFee: string; courtRentalFee: string; logoUrl: string; bannerImage: string; photos: string[];
-  website: string; socialMedia: { facebook?: string; instagram?: string; twitter?: string };
+interface FormData {
+  id: string; name: string; clubType: string; description: string;
+  contactPerson: string; contactEmail: string; contactPhone: string;
+  contactWhatsapp: string; state: string; city: string; address: string; latitude: string; longitude: string; foundedDate: string;
+  memberCount: number; maxMembers: number; hasCourts: boolean; courtCount: number; courtTypes: string[]; offersTraining: boolean;
+  offersTournaments: boolean; offersEquipment: boolean; membershipStatus: string; membershipExpiresAt: string;
+  subscriptionPlan: string; membershipFee: string; courtRentalFee: string; logoUrl: string; bannerImage: string;
+  photos: string[]; website: string; socialMedia: Record<string, string>;
   operatingHours: ClubOperatingHours;
   availability: { court_booking: boolean; drop_in: boolean; leagues: boolean; tournaments: boolean };
-  clubRules: string; dressCode: string; totalTournaments: number; totalMatches: number;
-  averageRating: string; reviewCount: number; isActive: boolean; isVerified: boolean; isFeatured: boolean;
+  clubRules: string; dressCode: string; totalTournaments: number; totalMatches: number; averageRating: string; reviewCount: number;
+  isActive: boolean; isVerified: boolean; isFeatured: boolean;
   settings: { allow_guest_play: boolean; max_guest_visits: number; auto_approve_members: boolean };
   notes: string; owner: { id: string; name: string; email: string; profilePhoto: string | null };
-};
+}
 
 const emptyFormData: FormData = {
-  id:'', name:'', clubType:'', description:'', contactPerson:'', contactEmail:'', contactPhone:'',
-  contactWhatsapp:'', state:'', city:'', address:'', latitude:'', longitude:'', foundedDate:'',
-  memberCount:0, maxMembers:0, hasCourts:false, courtCount:0, courtTypes:[], offersTraining:false,
-  offersTournaments:false, offersEquipment:false, membershipStatus:'active', membershipExpiresAt:'',
-  subscriptionPlan:'basic', membershipFee:'', courtRentalFee:'', logoUrl:'', bannerImage:'',
-  photos:[], website:'', socialMedia:{},
-  operatingHours:{
-    monday:{open:'06:00',close:'22:00'}, tuesday:{open:'06:00',close:'22:00'},
-    wednesday:{open:'06:00',close:'22:00'}, thursday:{open:'06:00',close:'22:00'},
-    friday:{open:'06:00',close:'23:00'}, saturday:{open:'07:00',close:'23:00'},
-    sunday:{open:'07:00',close:'21:00'},
+  id: '', name: '', clubType: '', description: '',
+  contactPerson: '', contactEmail: '', contactPhone: '',
+  contactWhatsapp: '', state: '', city: '', address: '', latitude: '', longitude: '', foundedDate: '',
+  memberCount: 0, maxMembers: 0, hasCourts: false, courtCount: 0, courtTypes: [], offersTraining: false,
+  offersTournaments: false, offersEquipment: false, membershipStatus: 'active', membershipExpiresAt: '',
+  subscriptionPlan: 'basic', membershipFee: '', courtRentalFee: '', logoUrl: '', bannerImage: '',
+  photos: [], website: '', socialMedia: {},
+  operatingHours: {
+    monday: { open: '06:00', close: '22:00' }, tuesday: { open: '06:00', close: '22:00' },
+    wednesday: { open: '06:00', close: '22:00' }, thursday: { open: '06:00', close: '22:00' },
+    friday: { open: '06:00', close: '23:00' }, saturday: { open: '07:00', close: '23:00' },
+    sunday: { open: '07:00', close: '21:00' },
   },
-  availability:{ court_booking:true, drop_in:true, leagues:false, tournaments:false },
-  clubRules:'', dressCode:'', totalTournaments:0, totalMatches:0, averageRating:'', reviewCount:0,
-  isActive:true, isVerified:false, isFeatured:false,
-  settings:{ allow_guest_play:true, max_guest_visits:3, auto_approve_members:false },
-  notes:'', owner:{ id:'', name:'', email:'', profilePhoto:null },
-};
+  availability: { court_booking: true, drop_in: true, leagues: false, tournaments: false },
+  clubRules: '', dressCode: '', totalTournaments: 0, totalMatches: 0, averageRating: '', reviewCount: 0,
+  isActive: true, isVerified: false, isFeatured: false,
+  settings: { allow_guest_play: true, max_guest_visits: 3, auto_approve_members: false },
+  notes: '', owner: { id: '', name: '', email: '', profilePhoto: null },
+}
 
 function toForm(p: ClubProfile): FormData {
   return {

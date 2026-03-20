@@ -283,7 +283,7 @@ export default function DashboardLayoutBase({
             </Button>
             <div>
               <h1 className="text-xl font-bold text-white">
-                {navItems.find((item) => isActive(item.url))?.title || 'Dashboard'}
+                {navItems.find((item) => isActive(item.url))?.title || 'Panel'}
               </h1>
               <p className="text-sm text-slate-200 hidden sm:block">
                 {navItems.find((item) => isActive(item.url))?.description || 'Vista general'}
@@ -565,7 +565,7 @@ export default function DashboardLayoutBase({
         <main className="flex-1 overflow-y-auto bg-slate-950 p-4 lg:p-6">
           <div className="mb-6 flex items-center gap-2 text-sm text-slate-200">
             <Link to={basePath} className="hover:text-white transition-colors">
-              Dashboard
+              Panel
             </Link>
             {location.pathname !== basePath && (
               <>

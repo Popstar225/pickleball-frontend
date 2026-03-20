@@ -280,11 +280,11 @@ function ClubDetailDialog({
                   </MetaChip>
                 </div>
               </div>
-              {club.membership_fee !== undefined && (
+              {club.membership_fee !== undefined && club.membership_fee !== null && (
                 <div className="text-right shrink-0">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-white/88">Membresía</p>
                   <p className="text-xl font-black text-[#ace600] leading-tight">
-                    ${club.membership_fee.toLocaleString()}
+                    ${typeof club.membership_fee === 'number' ? club.membership_fee.toLocaleString() : Number(club.membership_fee).toLocaleString()}
                     <span className="text-xs font-normal text-white/60 ml-1">MXN</span>
                   </p>
                 </div>
@@ -395,11 +395,11 @@ function ClubDetailDialog({
                   })}
                 </p>
               )}
-              {club.court_rental_fee !== undefined && (
+              {club.court_rental_fee !== undefined && club.court_rental_fee !== null && (
                 <p className="text-[11px] text-white/60">
                   Renta de cancha:{' '}
                   <span className="text-white/50 font-semibold">
-                    ${club.court_rental_fee.toLocaleString()} MXN/hr
+                    ${typeof club.court_rental_fee === 'number' ? club.court_rental_fee.toLocaleString() : Number(club.court_rental_fee).toLocaleString()} MXN/hr
                   </span>
                 </p>
               )}
@@ -527,7 +527,7 @@ function ClubJoinPaymentForm({
         >
           <div className={`w-3.5 h-3.5 border-2 border-black/25 border-t-black rounded-full animate-spin ${processing ? '' : 'hidden'}`} />
           <CreditCard className={`w-4 h-4 ${processing ? 'hidden' : ''}`} />
-          Pagar ${amount.toLocaleString()} MXN
+          Pagar ${typeof amount === 'number' ? amount.toLocaleString() : Number(amount).toLocaleString()} MXN
         </button>
       </div>
     </div>
@@ -651,7 +651,7 @@ export default function PlayerClubsPage() {
             {myClubs.length} unidos
           </span>
         </div>
-        <p className="text-xs text-white/88">
+        <p className="text-xs text-white">
           Encuentra y únete a clubes de pickleball cerca de ti
         </p>
       </div>
@@ -863,7 +863,7 @@ export default function PlayerClubsPage() {
                   <div className="border-t border-white/[0.05] px-5 py-3 flex items-center justify-between">
                     <span className="text-[11px] text-white/60">Cuota de membresía</span>
                     <span className="text-sm font-bold text-[#ace600]">
-                      ${club.membership_fee.toLocaleString()} MXN
+                      ${typeof club.membership_fee === 'number' ? club.membership_fee.toLocaleString() : Number(club.membership_fee).toLocaleString()} MXN
                     </span>
                   </div>
                 )}
@@ -1009,7 +1009,7 @@ export default function PlayerClubsPage() {
                 <div className="flex justify-between items-baseline pt-2 border-t border-white/[0.06]">
                   <span className="text-[11px] text-white/65">Cuota de membresía</span>
                   <span className="font-bold text-[#ace600] text-xl">
-                    ${joinPaymentInfo.amount.toLocaleString()}{' '}
+                    ${typeof joinPaymentInfo.amount === 'number' ? joinPaymentInfo.amount.toLocaleString() : Number(joinPaymentInfo.amount).toLocaleString()}{' '}
                     <span className="text-sm font-normal text-white/60">MXN</span>
                   </span>
                 </div>

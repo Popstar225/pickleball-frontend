@@ -106,7 +106,7 @@ export default function StateDashboardHome() {
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <h1 className="text-[22px] font-bold text-white tracking-tight">Dashboard Estatal</h1>
+          <h1 className="text-[22px] font-bold text-white tracking-tight">Panel de estatal</h1>
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#ace600] animate-pulse" />
             Estatal

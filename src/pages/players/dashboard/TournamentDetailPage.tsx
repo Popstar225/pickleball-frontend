@@ -260,7 +260,7 @@ const EventPaymentDialog: React.FC<EventPaymentDialogProps> = ({
             <div className="relative rounded-2xl p-5 border bg-[#ace600]/[0.05] border-[#ace600]/[0.3] overflow-hidden">
               {/* Popular ribbon */}
               <div className="absolute top-3 right-[-34px] bg-[#ace600] text-black px-10 py-0.5 rotate-45 font-sans text-[9px] font-extrabold tracking-[1px]">
-                EVENT
+                EVENTO
               </div>
 
               {/* Icon + type label */}

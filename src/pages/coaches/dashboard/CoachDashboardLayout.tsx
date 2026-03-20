@@ -16,7 +16,7 @@ import {
 
 const navItems: NavItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Panel de estatal',
     url: '/coaches/dashboard',
     icon: LayoutDashboard,
     description: 'Vista general',

@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import {
+  getGenderLabel,
+  getModalityLabel,
+  getFormatLabel,
+  getSetsFormatLabel,
+  getRegistrationStatusLabel,
+  parseRegistrationError,
+} from '@/utils/formatters';
 import {
   Select,
   SelectContent,
@@ -86,60 +95,62 @@ interface TournamentEventManagementProps {
 }
 
 /* ─── Status config ── */
-const EVENT_STATUS: Record<string, { label: string; dot: string; text: string; bg: string }> = {
-  draft: { label: 'Draft', dot: 'bg-white/30', text: 'text-white/50', bg: 'bg-white/[0.06]' },
+const EVENT_STATUS: Record<string, { labelKey: string; dot: string; text: string; bg: string }> = {
+  draft: { labelKey: 'event_status.draft', dot: 'bg-white/30', text: 'text-white/50', bg: 'bg-white/[0.06]' },
   published: {
-    label: 'Published',
+    labelKey: 'event_status.published',
     dot: 'bg-sky-400',
     text: 'text-sky-300',
     bg: 'bg-sky-500/[0.08]',
   },
   ongoing: {
-    label: 'Ongoing',
+    labelKey: 'event_status.ongoing',
     dot: 'bg-[#ace600]',
     text: 'text-[#ace600]',
     bg: 'bg-[#ace600]/[0.08]',
   },
   completed: {
-    label: 'Completed',
+    labelKey: 'event_status.completed',
     dot: 'bg-emerald-400',
     text: 'text-emerald-400',
     bg: 'bg-emerald-500/[0.08]',
   },
   cancelled: {
-    label: 'Cancelled',
+    labelKey: 'event_status.cancelled',
     dot: 'bg-red-400',
     text: 'text-red-400',
     bg: 'bg-red-500/[0.08]',
   },
 };
 
-const GROUP_STATUS: Record<string, { label: string; text: string; bg: string }> = {
-  pending: { label: 'Pending', text: 'text-white/40', bg: 'bg-white/[0.05]' },
-  in_progress: { label: 'In Progress', text: 'text-amber-400', bg: 'bg-amber-500/[0.08]' },
-  completed: { label: 'Completed', text: 'text-emerald-400', bg: 'bg-emerald-500/[0.08]' },
+const GROUP_STATUS: Record<string, { labelKey: string; text: string; bg: string }> = {
+  pending: { labelKey: 'group_status.pending', text: 'text-white/40', bg: 'bg-white/[0.05]' },
+  in_progress: { labelKey: 'group_status.in_progress', text: 'text-amber-400', bg: 'bg-amber-500/[0.08]' },
+  completed: { labelKey: 'group_status.completed', text: 'text-emerald-400', bg: 'bg-emerald-500/[0.08]' },
 };
 
 /* ─── Small reusable pieces ── */
 function StatusPill({ status }: { status: string }) {
+  const { t } = useTranslation();
   const cfg = EVENT_STATUS[status] ?? EVENT_STATUS.draft;
   return (
     <span
       className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-white/[0.06] ${cfg.bg} ${cfg.text}`}
     >
       <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-      {cfg.label}
+      {t(cfg.labelKey)}
     </span>
   );
 }
 
 function GroupPill({ status }: { status: string }) {
+  const { t } = useTranslation();
   const cfg = GROUP_STATUS[status] ?? GROUP_STATUS.pending;
   return (
     <span
       className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-md ${cfg.bg} ${cfg.text}`}
     >
-      {cfg.label}
+      {t(cfg.labelKey)}
     </span>
   );
 }
@@ -249,6 +260,7 @@ const labelCls = 'text-[11px] font-semibold uppercase tracking-widest text-white
 const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ tournamentId }) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { tournamentEvents, eventRegistrations, eventGroups, eventMatches, loading, error } =
     useSelector((state: RootState) => state.tournaments);
   const { profile } = useSelector((state: any) => state.clubDashboard);
@@ -382,7 +394,11 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
     try {
       const elig = await dispatch(checkRegistrationEligibility(registrationData.user_id)).unwrap();
       if (!(elig as any)?.eligible) {
-        setRegPaymentError('Player is not eligible for this event.');
+        // Parse the error message and get translation key and data
+        const errorMsg = (elig as any)?.message || 'Player is not eligible for this event.';
+        const { key, data } = parseRegistrationError(errorMsg);
+        const translatedError = String(t(key, data));
+        setRegPaymentError(translatedError);
         return;
       }
       const res = await PaymentService.createPaymentIntent({
@@ -400,7 +416,11 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
       setRegPaymentData({ paymentId: res.data.payment_id, clientSecret: res.data.client_secret });
       setRegisterStep('payment');
     } catch (err: any) {
-      setRegPaymentError(err.message || 'Failed to proceed to payment');
+      // Parse error message for translation
+      const errorMsg = err.message || 'Failed to proceed to payment';
+      const { key, data } = parseRegistrationError(errorMsg);
+      const translatedError = String(key === 'registration_errors.generic' ? t(key) : t(key, data));
+      setRegPaymentError(translatedError);
     } finally {
       setIsInitializingPayment(false);
     }
@@ -424,7 +444,15 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
       setRegistrationData({ user_id: '' });
       dispatch(fetchEventRegistrations({ tournamentId, eventId: selectedEvent.id }));
     } catch (err: any) {
-      setRegPaymentError(err.message || 'Registration failed after payment');
+      // Parse error message for translation
+      const errorMsg = err.message || 'Registration failed after payment';
+      const { key, data } = parseRegistrationError(errorMsg);
+      const translatedError = String(
+        key === 'registration_errors.generic'
+          ? t('registration_errors.payment_failed')
+          : t(key, data)
+      );
+      setRegPaymentError(translatedError);
     }
   }
 
@@ -532,13 +560,13 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl font-bold text-white tracking-tight">Event Management</h1>
+            <h1 className="text-2xl font-bold text-white tracking-tight">{t('tournament_event_management.page_title')}</h1>
             <span className="text-xs font-bold px-2 py-1 rounded-full bg-[#ace600]/10 border border-[#ace600]/20 text-[#ace600]">
-              {tournamentEvents.length} {tournamentEvents.length === 1 ? 'Event' : 'Events'}
+              {tournamentEvents.length} {tournamentEvents.length === 1 ? 'Evento' : 'Eventos'}
             </span>
           </div>
           <p className="text-sm text-white/35 mt-0.5">
-            Configure events, groups, registrations & matches
+            {t('tournament_event_management.page_subtitle')}
           </p>
         </div>
 
@@ -546,21 +574,21 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
           <DialogTrigger asChild>
             <button className="flex items-center gap-2 bg-[#ace600] hover:bg-[#c0f000] active:scale-[0.98] text-black text-sm font-bold px-4 py-2.5 rounded-xl transition-all duration-150 shadow-[0_0_18px_rgba(172,230,0,0.18)] hover:shadow-[0_0_28px_rgba(172,230,0,0.32)]">
               <Plus className="w-4 h-4" strokeWidth={2.5} />
-              New Event
+              {t('tournament_event_management.new_event_btn')}
             </button>
           </DialogTrigger>
 
           {/* ── Create event dialog ── */}
           <DialogContent className="p-0 gap-0 bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-md shadow-[0_32px_80px_rgba(0,0,0,0.6)] overflow-hidden">
             <div className="px-6 pt-6 pb-5 border-b border-white/[0.06]">
-              <h2 className="text-base font-bold text-white">Create Tournament Event</h2>
-              <p className="text-xs text-white/35 mt-1">Define skill block, format, and capacity</p>
+              <h2 className="text-base font-bold text-white">{t('tournament_event_management.create_event_title')}</h2>
+              <p className="text-xs text-white/35 mt-1">{t('tournament_event_management.create_event_desc')}</p>
             </div>
             <div className="px-6 py-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-2 gap-3">
                 {/* Skill block */}
                 <div>
-                  <label className={labelCls}>Skill Block</label>
+                  <label className={labelCls}>{t('tournament_event_management.field_skill_block')}</label>
                   <Select
                     value={eventFormData.skill_block}
                     onValueChange={(v) => setEventFormData({ ...eventFormData, skill_block: v })}
@@ -579,7 +607,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                 </div>
                 {/* Gender */}
                 <div>
-                  <label className={labelCls}>Gender</label>
+                  <label className={labelCls}>{t('tournament_event_management.field_gender')}</label>
                   <Select
                     value={eventFormData.gender}
                     onValueChange={(v: any) => setEventFormData({ ...eventFormData, gender: v })}
@@ -588,26 +616,22 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className={selContent}>
-                      {['male', 'female', 'mixed'].map((g) => (
-                        <SelectItem
-                          key={g}
-                          value={
-                            g === 'mixed'
-                              ? g.charAt(0).toUpperCase() + g.slice(1)
-                              : g.charAt(0).toUpperCase()
-                          }
-                          className={selItem}
-                        >
-                          {g.charAt(0).toUpperCase() + g.slice(1)}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="M" className={selItem}>
+                        {t('gender.male')}
+                      </SelectItem>
+                      <SelectItem value="F" className={selItem}>
+                        {t('gender.female')}
+                      </SelectItem>
+                      <SelectItem value="MX" className={selItem}>
+                        {t('gender.mixed')}
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               {/* Modality */}
               <div>
-                <label className={labelCls}>Modality</label>
+                <label className={labelCls}>{t('tournament_event_management.field_modality')}</label>
                 <Select
                   value={eventFormData.modality}
                   onValueChange={(v: any) => setEventFormData({ ...eventFormData, modality: v })}
@@ -618,7 +642,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                   <SelectContent className={selContent}>
                     {['Singles', 'Doubles', 'Mixed'].map((m) => (
                       <SelectItem key={m} value={m} className={selItem}>
-                        {m}
+                        {m === 'Singles' ? t('tournament_event_management.modality_singles') : m === 'Doubles' ? t('tournament_event_management.modality_doubles') : t('tournament_event_management.modality_mixed')}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -626,7 +650,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
               </div>
               {/* Format */}
               <div>
-                <label className={labelCls}>Format</label>
+                <label className={labelCls}>{t('tournament_event_management.field_format')}</label>
                 <Select
                   value={eventFormData.format}
                   onValueChange={(v: any) => setEventFormData({ ...eventFormData, format: v })}
@@ -636,17 +660,17 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                   </SelectTrigger>
                   <SelectContent className={selContent}>
                     <SelectItem value="hybrid" className={selItem}>
-                      Hybrid
+                      {t('tournament_event_management.format_hybrid')}
                     </SelectItem>
                     <SelectItem value="single_elimination" className={selItem}>
-                      Single Elimination
+                      {t('tournament_event_management.format_single_elimination')}
                     </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               {/* Sets format */}
               <div>
-                <label className={labelCls}>Sets Format</label>
+                <label className={labelCls}>{t('tournament_event_management.field_sets_format')}</label>
                 <Select
                   value={eventFormData.sets_format}
                   onValueChange={(v: any) => setEventFormData({ ...eventFormData, sets_format: v })}
@@ -656,10 +680,10 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                   </SelectTrigger>
                   <SelectContent className={selContent}>
                     <SelectItem value="best_of_3" className={selItem}>
-                      Best of 3
+                      {t('tournament_event_management.sets_best_of_3')}
                     </SelectItem>
                     <SelectItem value="best_of_5" className={selItem}>
-                      Best of 5
+                      {t('tournament_event_management.sets_best_of_5')}
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -667,7 +691,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
               {/* Participants */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={labelCls}>Max Participants</label>
+                  <label className={labelCls}>{t('tournament_event_management.field_max_participants')}</label>
                   <Input
                     type="number"
                     value={eventFormData.max_participants}
@@ -682,11 +706,11 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                     max={organizerPermissions?.max_participants_limit ?? 64}
                   />
                   <p className="text-[10px] text-white/25 mt-1">
-                    Limit: {organizerPermissions?.max_participants_limit ?? 64}
+                    {t('tournament_event_management.max_limit')}: {organizerPermissions?.max_participants_limit ?? 64}
                   </p>
                 </div>
                 <div>
-                  <label className={labelCls}>Min Participants</label>
+                  <label className={labelCls}>{t('tournament_event_management.field_min_participants')}</label>
                   <Input
                     type="number"
                     value={eventFormData.minimum_participants}
@@ -707,13 +731,13 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                 onClick={() => setShowCreateDialog(false)}
                 className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 hover:text-white text-sm font-semibold transition-all"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleCreateEvent}
                 className="flex-1 h-9 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black text-sm font-bold transition-all shadow-[0_0_16px_rgba(172,230,0,0.2)]"
               >
-                Create Event
+                {t('tournament_event_management.btn_create_event')}
               </button>
             </div>
           </DialogContent>
@@ -727,26 +751,26 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
             <Star className="w-3 h-3 text-[#ace600]" />
             <span className="text-[11px] font-semibold text-white/50">
               <span className="text-white/80 capitalize">
-                {organizerPermissions.current_subscription_level}
+                {t(`subscription.${organizerPermissions.current_subscription_level}`)}
               </span>{' '}
-              plan
+              {t('subscription.plan')}
             </span>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.04] rounded-lg border border-white/[0.06]">
             <Users className="w-3 h-3 text-white/30" />
             <span className="text-[11px] font-semibold text-white/50">
-              Up to{' '}
+              {t('permissions.up_to')}{' '}
               <span className="text-white/80">{organizerPermissions.max_participants_limit}</span>{' '}
-              participants
+              {t('permissions.participants')}
             </span>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.04] rounded-lg border border-white/[0.06]">
             <Shield className="w-3 h-3 text-white/30" />
             <span className="text-[11px] font-semibold text-white/50">
               {organizerPermissions.requires_approval ? (
-                'Approval required'
+                t('permissions.approval_required')
               ) : (
-                <span className="text-emerald-400">No approval needed</span>
+                <span className="text-emerald-400">{t('permissions.no_approval_needed')}</span>
               )}
             </span>
           </div>
@@ -754,7 +778,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
             <div className="flex items-center gap-2 px-3 py-1.5 bg-[#ace600]/[0.06] rounded-lg border border-[#ace600]/20">
               <Zap className="w-3 h-3 text-[#ace600]" />
               <span className="text-[11px] font-semibold text-[#ace600]/80">
-                Paid events enabled
+                {t('permissions.paid_events_enabled')}
               </span>
             </div>
           )}
@@ -776,7 +800,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
-              {label}
+              {t(`tabs.${id}`)}
               {id === 'events' && tournamentEvents.length > 0 && (
                 <span className="ml-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-white/[0.06] text-white/40">
                   {tournamentEvents.length}
@@ -792,16 +816,16 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
             {/* Debug info */}
             <div className="mb-4 p-3 rounded-lg bg-white/[0.02] border border-white/[0.07]">
               <p className="text-xs text-white/50">
-                <span className="font-semibold">Events Count:</span> {tournamentEvents?.length || 0}{' '}
-                |<span className="font-semibold ml-3">Loading:</span> {loading ? 'Yes' : 'No'} |
-                <span className="font-semibold ml-3">TournamentId:</span> {tournamentId}
+                <span className="font-semibold">Cantidad de Eventos:</span> {tournamentEvents?.length || 0}{' '}
+                |<span className="font-semibold ml-3">Cargando:</span> {loading ? 'Sí' : 'No'} |
+                <span className="font-semibold ml-3">ID de Torneo:</span> {tournamentId}
               </p>
             </div>
 
             {loading && (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
                 <Loader2 className="w-6 h-6 text-[#ace600] animate-spin" />
-                <p className="text-sm text-white/25">Loading events…</p>
+                <p className="text-sm text-white/25">{t('tournament_event_management.loading_events')}</p>
               </div>
             )}
             {!loading && tournamentEvents.length === 0 && (
@@ -809,16 +833,16 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                 <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-center mb-4">
                   <Trophy className="w-6 h-6 text-white/20" />
                 </div>
-                <p className="text-white/50 font-semibold text-sm mb-1">No events yet</p>
+                <p className="text-white/50 font-semibold text-sm mb-1">{t('tournament_event_management.no_events_title')}</p>
                 <p className="text-white/20 text-xs max-w-xs mb-5">
-                  Create your first event to begin structuring this tournament.
+                  {t('tournament_event_management.no_events_desc')}
                 </p>
                 <button
                   onClick={() => setShowCreateDialog(true)}
                   className="flex items-center gap-2 bg-[#ace600] hover:bg-[#c0f000] text-black text-xs font-bold px-4 py-2 rounded-lg transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  Create Event
+                  {t('tournament_event_management.btn_create_event')}
                 </button>
               </div>
             )}
@@ -858,16 +882,12 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
 
                     {/* Name */}
                     <div className="mb-3">
-                      <p className="text-sm font-bold text-white leading-tight capitalize">
-                        {event.modality} —{' '}
-                        {event.gender === 'M'
-                          ? 'Male'
-                          : event.gender === 'F'
-                            ? 'Female'
-                            : event.gender}
+                      <p className="text-sm font-bold text-white leading-tight">
+                        {getModalityLabel(event.modality)} —{' '}
+                        {getGenderLabel(event.gender)}
                       </p>
-                      <p className="text-[11px] text-white/35 mt-0.5 capitalize">
-                        {event.format.replace(/_/g, ' ')} · {event.sets_format.replace(/_/g, ' ')}
+                      <p className="text-[11px] text-white/35 mt-0.5">
+                        {getFormatLabel(event.format)} · {getSetsFormatLabel(event.sets_format)}
                       </p>
                     </div>
 
@@ -884,7 +904,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                         <Hash className="w-3 h-3" />
                         <span className="font-medium">
                           {event.number_of_groups ?? event.groupCount ?? 0}{' '}
-                          <span className="text-white/25">groups</span>
+                          <span className="text-white/25">{t('tournament_event_management.groups')}</span>
                         </span>
                       </div>
                     </div>
@@ -907,10 +927,10 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                           }}
                           className="flex items-center gap-1.5 text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition-colors"
                         >
-                          <Play className="w-3 h-3" /> Regenerate Groups
+                          <Play className="w-3 h-3" /> {t('tournament_event_management.btn_regenerate_groups')}
                         </button>
                       ) : (
-                        <span className="text-[11px] text-white/20">Groups pending</span>
+                        <span className="text-[11px] text-white/20">{t('tournament_event_management.groups_pending')}</span>
                       )}
                       <div className="flex items-center gap-2">
                         <button
@@ -920,7 +940,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                             setDeleteTarget(event);
                           }}
                           className="p-1 rounded-md text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all"
-                          title="Delete event"
+                          title={t('tournament_event_management.delete_event_tooltip')}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -949,15 +969,15 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                       <Trophy className="w-4 h-4 text-[#ace600]" />
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-white capitalize">
-                        {selectedEvent.skill_block} {selectedEvent.modality}
+                      <p className="text-sm font-bold text-white">
+                        {selectedEvent.skill_block} {getModalityLabel(selectedEvent.modality)}
                         <span className="text-white/40 ml-2">•</span>
                         <span className="text-white/40 ml-2 font-normal text-xs">
-                          {selectedEvent.gender}
+                          {getGenderLabel(selectedEvent.gender)}
                         </span>
                       </p>
                       <p className="text-[11px] text-white/35">
-                        {selectedEvent.format.replace(/_/g, ' ')}
+                        {getFormatLabel(selectedEvent.format)}
                       </p>
                     </div>
                   </div>
@@ -966,22 +986,22 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                       onClick={() => setShowEventDetailsModal(true)}
                       className="flex items-center gap-1.5 px-3 py-1.5 bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.07] text-white/50 hover:text-white text-xs font-semibold rounded-lg transition-all"
                     >
-                      <Eye className="w-3.5 h-3.5" /> Details
+                      <Eye className="w-3.5 h-3.5" /> {t('tournament_event_management.btn_details')}
                     </button>
                     <Dialog open={showRegisterDialog} onOpenChange={handleCloseRegisterDialog}>
                       <DialogTrigger asChild>
                         <button className="flex items-center gap-2 bg-[#ace600] hover:bg-[#c0f000] active:scale-95 text-black text-xs font-bold px-3.5 py-1.5 rounded-lg transition-all shadow-[0_0_12px_rgba(172,230,0,0.15)]">
-                          <Plus className="w-3.5 h-3.5" /> Register Player
+                          <Plus className="w-3.5 h-3.5" /> {t('tournament_event_management.btn_register_player')}
                         </button>
                       </DialogTrigger>
                       <DialogContent className="p-0 gap-0 bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-sm shadow-2xl overflow-hidden">
                         <div className="px-6 pt-6 pb-4 border-b border-white/[0.06]">
                           <h2 className="text-base font-bold text-white">
-                            {registerStep === 'form' ? 'Register Player' : 'Complete Payment'}
+                            {registerStep === 'form' ? t('tournament_event_management.register_player_title') : t('tournament_event_management.complete_payment_title')}
                           </h2>
                           <p className="text-xs text-white/35 mt-1">
                             {registerStep === 'form'
-                              ? 'Add a player to this event'
+                              ? t('tournament_event_management.register_player_desc')
                               : `${selectedEvent.skill_block} ${selectedEvent.gender}'s ${selectedEvent.modality}`}
                           </p>
                         </div>
@@ -996,7 +1016,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                                 </div>
                               )}
                               <div>
-                                <label className={labelCls}>User ID</label>
+                                <label className={labelCls}>{t('tournament_event_management.field_user_id')}</label>
                                 <Input
                                   value={registrationData.user_id}
                                   onChange={(e) =>
@@ -1005,15 +1025,15 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                                       user_id: e.target.value,
                                     })
                                   }
-                                  placeholder="Enter user ID"
+                                  placeholder={t('tournament_event_management.placeholder_user_id')}
                                   className={inputCls}
                                 />
                               </div>
                               {selectedEvent.modality !== 'Singles' && (
                                 <div>
                                   <label className={labelCls}>
-                                    Partner User ID{' '}
-                                    <span className="normal-case text-white/20">(optional)</span>
+                                    {t('tournament_event_management.field_partner_id')}{' '}
+                                    <span className="normal-case text-white/20">({t('tournament_event_management.optional')})</span>
                                   </label>
                                   <Input
                                     value={(registrationData as any).partner_user_id || ''}
@@ -1023,14 +1043,14 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                                         partner_user_id: e.target.value,
                                       } as any)
                                     }
-                                    placeholder="Enter partner ID"
+                                    placeholder={t('tournament_event_management.placeholder_partner_id')}
                                     className={inputCls}
                                   />
                                 </div>
                               )}
                               {/* Entry fee preview */}
                               <div className="flex justify-between items-center px-3 py-2.5 bg-white/[0.03] rounded-lg border border-white/[0.06]">
-                                <span className="text-xs text-white/50">Entry Fee</span>
+                                <span className="text-xs text-white/50">{t('tournament_event_management.entry_fee')}</span>
                                 <span className="text-xs font-bold text-[#ace600]">MXN $50.00</span>
                               </div>
                             </div>
@@ -1039,7 +1059,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                                 onClick={() => handleCloseRegisterDialog(false)}
                                 className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 text-sm font-semibold transition-all"
                               >
-                                Cancel
+                                {t('common.cancel')}
                               </button>
                               <button
                                 onClick={handleRegister}
@@ -1049,10 +1069,10 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                                 {isInitializingPayment ? (
                                   <>
                                     <span className="w-3.5 h-3.5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                                    Verifying...
+                                    {t('tournament_event_management.btn_verifying')}
                                   </>
                                 ) : (
-                                  'Continue to Payment'
+                                  t('tournament_event_management.btn_continue_payment')
                                 )}
                               </button>
                             </div>
@@ -1086,7 +1106,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                                 </Elements>
                               ) : (
                                 <p className="text-sm text-white/40 text-center py-6">
-                                  Preparing payment...
+                                  Preparando pago...
                                 </p>
                               )}
                             </div>
@@ -1099,7 +1119,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                                 }}
                                 className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors"
                               >
-                                ← Back to player form
+                                ← {t('tournament_event_management.btn_back_to_form')}
                               </button>
                             </div>
                           </>
@@ -1113,31 +1133,31 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                 <div className="grid grid-cols-4 gap-2">
                   <StatCard
                     icon={Users}
-                    label="Registrations"
+                    label={t('tournament_event_management.stat_registrations')}
                     value={totalRegistrations}
-                    meta={`${registrationRate}% capacity`}
+                    meta={`${registrationRate}% ${t('tournament_event_management.stat_capacity')}`}
                     color="bg-sky-500/10 border-sky-500/20 text-sky-400"
                     trend={totalRegistrations > 0 ? 'up' : 'neutral'}
                   />
                   <StatCard
                     icon={CheckCircle}
-                    label="Confirmed"
+                    label={t('tournament_event_management.stat_confirmed')}
                     value={confirmedRegistrations}
-                    meta={`${totalRegistrations > 0 ? Math.round((confirmedRegistrations / totalRegistrations) * 100) : 0}% of total`}
+                    meta={`${totalRegistrations > 0 ? Math.round((confirmedRegistrations / totalRegistrations) * 100) : 0}% ${t('tournament_event_management.of_total')}`}
                     color="bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
                   />
                   <StatCard
                     icon={Swords}
-                    label="Pending"
+                    label={t('tournament_event_management.stat_pending')}
                     value={pendingRegistrations}
-                    meta={`waiting`}
+                    meta={t('tournament_event_management.stat_waiting')}
                     color="bg-amber-500/10 border-amber-500/20 text-amber-400"
                   />
                   <StatCard
                     icon={Target}
-                    label="Capacity"
+                    label={t('tournament_event_management.stat_capacity')}
                     value={`${registrationRate}%`}
-                    meta={`of ${selectedEvent.max_participants}`}
+                    meta={`${t('tournament_event_management.of')} ${selectedEvent.max_participants}`}
                     color="bg-violet-500/10 border-violet-500/20 text-violet-400"
                   />
                 </div>
@@ -1151,7 +1171,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20" />
                   <input
                     type="text"
-                    placeholder="Search players…"
+                    placeholder={t('tournament_event_management.search_players')}
                     value={searchRegistrations}
                     onChange={(e) => setSearchRegistrations(e.target.value)}
                     className={`${inputCls} pl-9 w-full`}
@@ -1162,10 +1182,10 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                   onChange={(e) => setRegistrationFilter(e.target.value)}
                   className={`${selTrigger} min-w-[140px]`}
                 >
-                  <option value="all">All Status</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="pending">Pending</option>
-                  <option value="withdrawn">Withdrawn</option>
+                  <option value="all">{t('tournament_event_management.filter_all_status')}</option>
+                  <option value="confirmed">{t('registration_status.confirmed')}</option>
+                  <option value="pending">{t('registration_status.pending')}</option>
+                  <option value="withdrawn">{t('registration_status.withdrawn')}</option>
                 </select>
               </div>
             )}
@@ -1176,7 +1196,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-white/[0.05]">
-                      {['Player', 'Partner', 'Status', 'Date'].map((h) => (
+                      {[t('tournament_event_management.table_player'), t('tournament_event_management.table_partner'), t('tournament_event_management.table_status'), t('tournament_event_management.table_date')].map((h) => (
                         <th
                           key={h}
                           className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-white/25"
@@ -1208,9 +1228,9 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                           </td>
                           <td className="px-4 py-3">
                             <span
-                              className={`text-[11px] font-semibold px-2 py-0.5 rounded-md capitalize ${statusColor}`}
+                              className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${statusColor}`}
                             >
-                              {reg.status}
+                              {getRegistrationStatusLabel(reg.status)}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-white/30 text-xs">
@@ -1230,10 +1250,10 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
             {selectedEvent && eventRegistrations.length === 0 && (
               <EmptyState
                 icon={Users}
-                title="No registrations yet"
-                description="Players will appear here once they register for this event"
+                title="Sin inscripciones aún"
+                description="Los jugadores aparecerán aquí una vez que se inscriban en este evento"
                 action={() => setShowRegisterDialog(true)}
-                actionLabel="Register Player"
+                actionLabel="Inscribir Jugador"
               />
             )}
 
@@ -1242,8 +1262,8 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
               eventRegistrations.length > 0 && (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Filter className="w-8 h-8 text-white/10 mb-3" />
-                  <p className="text-sm text-white/30">No matches found</p>
-                  <p className="text-xs text-white/20 mt-1">Try adjusting your filters</p>
+                  <p className="text-sm text-white/30">No se encontraron resultados</p>
+                  <p className="text-xs text-white/20 mt-1">Intenta ajustar tus filtros</p>
                 </div>
               )}
           </div>
@@ -1254,7 +1274,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
           <div className="p-5 space-y-4">
             {!selectedEvent && (
               <div className="p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl text-center">
-                <p className="text-xs text-white/30">Select an event from the Events tab first</p>
+                <p className="text-xs text-white/30">Selecciona un evento desde la pestaña Eventos primero</p>
               </div>
             )}
 
@@ -1263,16 +1283,15 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                 <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-center mb-5">
                   <Target className="w-7 h-7 text-white/20" />
                 </div>
-                <p className="text-white/60 font-semibold text-sm mb-1">Groups not generated</p>
+                <p className="text-white/60 font-semibold text-sm mb-1">Grupos no generados</p>
                 <p className="text-white/25 text-xs mb-6 max-w-xs">
-                  Once enough players are registered, generate groups to begin the round-robin
-                  phase.
+                  Una vez que haya suficientes jugadores inscritos, genera los grupos para comenzar la fase de grupos.
                 </p>
                 <button
                   onClick={handleGenerateGroups}
                   className="flex items-center gap-2 bg-[#ace600] hover:bg-[#c0f000] text-black text-sm font-bold px-5 py-2.5 rounded-xl transition-all shadow-[0_0_18px_rgba(172,230,0,0.18)]"
                 >
-                  <Play className="w-4 h-4" /> Generate Groups
+                  <Play className="w-4 h-4" /> Generar Grupos
                 </button>
               </div>
             )}
@@ -1282,31 +1301,31 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                 <>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-bold text-white capitalize">
-                        {selectedEvent.skill_block} {selectedEvent.modality}
+                      <p className="text-sm font-bold text-white">
+                        {selectedEvent.skill_block} {getModalityLabel(selectedEvent.modality)}
                       </p>
                       <p className="text-[11px] text-white/35">
-                        {selectedEvent?.number_of_groups} groups generated
+                        {selectedEvent?.number_of_groups} grupos generados
                       </p>
                     </div>
                     <Dialog open={showMatchDialog} onOpenChange={setShowMatchDialog}>
                       <DialogTrigger asChild>
                         <button className="flex items-center gap-2 bg-white/[0.06] hover:bg-white/[0.09] border border-white/[0.08] text-white/70 hover:text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-all">
-                          <Plus className="w-3.5 h-3.5" /> Create Match
+                          <Plus className="w-3.5 h-3.5" /> Crear Partido
                         </button>
                       </DialogTrigger>
                       <DialogContent className="p-0 gap-0 bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-sm shadow-2xl overflow-hidden">
                         <div className="px-6 pt-6 pb-4 border-b border-white/[0.06]">
-                          <h2 className="text-base font-bold text-white">Create Match</h2>
+                          <h2 className="text-base font-bold text-white">Crear Partido</h2>
                           <p className="text-xs text-white/35 mt-1">
-                            Schedule a new match for this event
+                            Programa un nuevo partido para este evento
                           </p>
                         </div>
                         <div className="px-6 py-5 space-y-3">
                           {[
-                            ['Player 1 ID', 'player1_id', 'player1_id'],
-                            ['Player 2 ID', 'player2_id', 'player2_id'],
-                            ['Group ID', 'group_id', 'group_id (optional)'],
+                            ['ID Jugador 1', 'player1_id', 'player1_id'],
+                            ['ID Jugador 2', 'player2_id', 'player2_id'],
+                            ['ID Grupo', 'group_id', 'group_id (opcional)'],
                           ].map(([lbl, key, ph]) => (
                             <div key={key}>
                               <label className={labelCls}>{lbl}</label>
@@ -1326,13 +1345,13 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                             onClick={() => setShowMatchDialog(false)}
                             className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 text-sm font-semibold transition-all"
                           >
-                            Cancel
+                            Cancelar
                           </button>
                           <button
                             onClick={handleCreateMatch}
                             className="flex-1 h-9 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black text-sm font-bold transition-all"
                           >
-                            Create
+                            Crear
                           </button>
                         </div>
                       </DialogContent>
@@ -1353,7 +1372,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                                 {group.groupNumber}
                               </div>
                               <span className="text-sm font-semibold text-white/80">
-                                Group {group.groupNumber}
+                                Grupo {group.groupNumber}
                               </span>
                             </div>
                             <GroupPill status={group.status} />
@@ -1361,16 +1380,16 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                           <div className="flex items-center gap-4 text-xs text-white/40 mb-3">
                             <span className="flex items-center gap-1.5">
                               <Users className="w-3 h-3" />
-                              {group.playerCount} players
+                              {group.playerCount} jugadores
                             </span>
                             <span className="flex items-center gap-1.5">
                               <Clock className="w-3 h-3" />
-                              {group.matchesCompleted}/{group.totalMatches} matches
+                              {group.matchesCompleted}/{group.totalMatches} partidos
                             </span>
                           </div>
                           <div className="mb-3">
                             <div className="flex justify-between text-[10px] text-white/30 mb-1.5">
-                              <span>Progress</span>
+                              <span>Progreso</span>
                               <span>{pct}%</span>
                             </div>
                             <div className="w-full h-1.5 rounded-full bg-white/[0.07] overflow-hidden">
@@ -1385,7 +1404,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                               onClick={() => handleFinalizeGroup(group.id)}
                               className="w-full flex items-center justify-center gap-2 h-8 rounded-lg bg-emerald-500/[0.08] hover:bg-emerald-500/[0.14] border border-emerald-500/20 text-emerald-400 hover:text-emerald-300 text-xs font-semibold transition-all"
                             >
-                              <CheckCircle className="w-3.5 h-3.5" /> Finalize Group
+                              <CheckCircle className="w-3.5 h-3.5" /> Finalizar Grupo
                             </button>
                           )}
                         </div>
@@ -1402,7 +1421,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
           <div className="p-5">
             {!selectedEvent && (
               <div className="p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl text-center">
-                <p className="text-xs text-white/30">Select an event from the Events tab first</p>
+                <p className="text-xs text-white/30">Selecciona un evento desde la pestaña Eventos primero</p>
               </div>
             )}
 
@@ -1425,10 +1444,10 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
             {selectedEvent && eventMatches.length === 0 && (
               <EmptyState
                 icon={Swords}
-                title="No matches scheduled yet"
-                description="Matches will be created once groups are generated"
+                title="Sin partidos programados aún"
+                description="Los partidos se crearán una vez que se generen los grupos"
                 action={handleGenerateGroups}
-                actionLabel="Generate Groups"
+                actionLabel="Generar Grupos"
               />
             )}
 
@@ -1437,7 +1456,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-white/[0.05]">
-                      {['Match', 'Status', 'Score', 'Action'].map((h) => (
+                      {['Partido', 'Estado', 'Marcador', 'Acción'].map((h) => (
                         <th
                           key={h}
                           className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-white/25"
@@ -1470,7 +1489,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                             <span
                               className={`text-[11px] font-semibold px-2 py-0.5 rounded-md ${done ? 'text-emerald-400 bg-emerald-500/[0.08]' : 'text-amber-400 bg-amber-500/[0.08]'}`}
                             >
-                              {done ? 'Completed' : 'Pending'}
+                              {done ? 'Completado' : 'Pendiente'}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-white/50 text-xs font-mono">{score}</td>
@@ -1483,7 +1502,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                                 }}
                                 className="flex items-center gap-1.5 text-[11px] font-semibold text-[#ace600] hover:text-[#c0f000] transition-colors"
                               >
-                                <CheckCircle className="w-3.5 h-3.5" /> Record Result
+                                <CheckCircle className="w-3.5 h-3.5" /> Registrar Resultado
                               </button>
                             )}
                           </td>
@@ -1502,15 +1521,15 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
       <Dialog open={showRecordResultDialog} onOpenChange={setShowRecordResultDialog}>
         <DialogContent className="p-0 gap-0 bg-[#0d1117] border border-white/[0.08] rounded-2xl max-w-md shadow-2xl overflow-hidden">
           <div className="px-6 pt-6 pb-4 border-b border-white/[0.06]">
-            <h2 className="text-base font-bold text-white">Record Match Result</h2>
-            <p className="text-xs text-white/35 mt-1">Enter the match outcome and score</p>
+            <h2 className="text-base font-bold text-white">Registrar Resultado del Partido</h2>
+            <p className="text-xs text-white/35 mt-1">Ingresa el resultado y marcador del partido</p>
           </div>
           {selectedMatch && (
             <div className="px-6 py-5 space-y-4">
               {/* Match overview */}
               <div className="p-3 bg-white/[0.02] border border-white/[0.07] rounded-xl">
                 <p className="text-xs font-bold text-white/50 uppercase tracking-wider mb-2">
-                  Match
+                  Partido
                 </p>
                 <p className="text-sm text-white/80 font-medium">
                   {selectedMatch.player1?.name} vs {selectedMatch.player2?.name}
@@ -1519,13 +1538,13 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
 
               {/* Winner selection */}
               <div>
-                <label className={labelCls}>Match Winner</label>
+                <label className={labelCls}>Ganador del Partido</label>
                 <Select
                   value={matchResult.winner_id}
                   onValueChange={(v) => setMatchResult({ ...matchResult, winner_id: v })}
                 >
                   <SelectTrigger className={selTrigger}>
-                    <SelectValue placeholder="Select winner" />
+                    <SelectValue placeholder="Seleccionar ganador" />
                   </SelectTrigger>
                   <SelectContent className={selContent}>
                     <SelectItem value={selectedMatch.player1?.id || ''} className={selItem}>
@@ -1540,7 +1559,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
 
               {/* Score */}
               <div>
-                <label className={labelCls}>Score (e.g., "11-9, 11-8")</label>
+                <label className={labelCls}>Marcador (ej., "11-9, 11-8")</label>
                 <Input
                   value={matchResult.score}
                   onChange={(e) => setMatchResult({ ...matchResult, score: e.target.value })}
@@ -1552,7 +1571,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
               {/* Info */}
               <div className="p-3 bg-emerald-500/[0.05] border border-emerald-500/12 rounded-xl">
                 <p className="text-[11px] text-emerald-400/70 leading-relaxed">
-                  Mark this match as completed. The winner will advance if applicable.
+                  Marca este partido como completado. El ganador avanzará si aplica.
                 </p>
               </div>
             </div>
@@ -1562,14 +1581,14 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
               onClick={() => setShowRecordResultDialog(false)}
               className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 text-sm font-semibold transition-all"
             >
-              Cancel
+              Cancelar
             </button>
             <button
               onClick={handleRecordMatchResult}
               disabled={!matchResult.winner_id}
               className="flex-1 h-9 rounded-xl bg-emerald-500/70 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-bold transition-all"
             >
-              Save Result
+              Guardar Resultado
             </button>
           </div>
         </DialogContent>
@@ -1583,38 +1602,38 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
               <div className="px-6 pt-6 pb-4 border-b border-white/[0.06]">
                 <h2 className="text-base font-bold text-white">{selectedEvent.skill_block}</h2>
                 <p className="text-xs text-white/35 mt-1">
-                  {selectedEvent.modality} • {selectedEvent.gender}
+                  {getModalityLabel(selectedEvent.modality)} • {getGenderLabel(selectedEvent.gender)}
                 </p>
               </div>
               <div className="px-6 py-5 space-y-4">
                 <div className="space-y-3">
                   <div className="flex items-center justify-between py-2 border-b border-white/[0.05]">
-                    <span className="text-xs text-white/40">Format</span>
-                    <span className="text-xs font-semibold text-white/80 capitalize">
-                      {selectedEvent.format.replace(/_/g, ' ')}
+                    <span className="text-xs text-white/40">Formato</span>
+                    <span className="text-xs font-semibold text-white/80">
+                      {getFormatLabel(selectedEvent.format)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between py-2 border-b border-white/[0.05]">
                     <span className="text-xs text-white/40">Sets</span>
-                    <span className="text-xs font-semibold text-white/80 capitalize">
-                      {selectedEvent.sets_format.replace(/_/g, ' ')}
+                    <span className="text-xs font-semibold text-white/80">
+                      {getSetsFormatLabel(selectedEvent.sets_format)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between py-2 border-b border-white/[0.05]">
-                    <span className="text-xs text-white/40">Capacity</span>
+                    <span className="text-xs text-white/40">Capacidad</span>
                     <span className="text-xs font-semibold text-white/80">
                       {selectedEvent.current_participants || 0}/{selectedEvent.max_participants}
                     </span>
                   </div>
                   <div className="flex items-center justify-between py-2 border-b border-white/[0.05]">
-                    <span className="text-xs text-white/40">Groups</span>
+                    <span className="text-xs text-white/40">Grupos</span>
                     <span className="text-xs font-semibold text-white/80">
                       {selectedEvent.number_of_groups || 0}
                     </span>
                   </div>
                   <div className="flex items-center justify-between py-2">
-                    <span className="text-xs text-white/40">Status</span>
-                    <span className="text-xs font-semibold text-[#ace600]">Active</span>
+                    <span className="text-xs text-white/40">Estado</span>
+                    <span className="text-xs font-semibold text-[#ace600]">Activo</span>
                   </div>
                 </div>
               </div>
@@ -1623,7 +1642,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
                   onClick={() => setShowEventDetailsModal(false)}
                   className="flex-1 h-9 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black text-sm font-bold transition-all"
                 >
-                  Close
+                  Cerrar
                 </button>
               </div>
             </>
@@ -1635,7 +1654,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
       {loading && (
         <div className="flex items-center justify-center gap-2.5 py-4">
           <Loader2 className="w-4 h-4 text-[#ace600] animate-spin" />
-          <span className="text-xs text-white/30">Updating…</span>
+          <span className="text-xs text-white/30">Actualizando…</span>
         </div>
       )}
 
@@ -1652,7 +1671,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
               }
               className="text-[10px] text-red-400/60 hover:text-red-400 mt-1 underline"
             >
-              Retry
+              Reintentar
             </button>
           </div>
         </div>
@@ -1666,20 +1685,20 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
               <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
                 <Trash2 className="w-4 h-4 text-red-400" />
               </div>
-              <DialogTitle className="text-base font-bold text-white">Delete Event</DialogTitle>
+              <DialogTitle className="text-base font-bold text-white">Eliminar Evento</DialogTitle>
             </div>
             <DialogDescription className="text-xs text-white/35 mt-1">
-              This action cannot be undone.
+              Esta acción no se puede deshacer.
             </DialogDescription>
           </div>
           <div className="px-6 py-5 space-y-4">
             {deleteTarget && (
               <p className="text-sm text-white/70">
-                Are you sure you want to delete{' '}
-                <span className="font-bold text-white capitalize">
-                  {deleteTarget.modality} — {deleteTarget.skill_block}
+                ¿Estás seguro de que deseas eliminar{' '}
+                <span className="font-bold text-white">
+                  {getModalityLabel(deleteTarget.modality)} — {deleteTarget.skill_block}
                 </span>
-                ? All related data will be removed.
+                ? Todos los datos relacionados serán eliminados.
               </p>
             )}
             {deleteError && (
@@ -1695,7 +1714,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
               disabled={deleting}
               className="flex-1 h-9 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/60 text-sm font-semibold transition-all disabled:opacity-50"
             >
-              Cancel
+              Cancelar
             </button>
             <button
               onClick={handleDeleteEvent}
@@ -1703,7 +1722,7 @@ const TournamentEventManagement: React.FC<TournamentEventManagementProps> = ({ t
               className="flex-1 h-9 rounded-xl bg-red-500 hover:bg-red-400 text-white text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-              {deleting ? 'Deleting…' : 'Delete'}
+              {deleting ? 'Eliminando…' : 'Eliminar'}
             </button>
           </div>
         </DialogContent>

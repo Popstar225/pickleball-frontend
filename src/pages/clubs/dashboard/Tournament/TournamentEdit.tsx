@@ -175,7 +175,7 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
     return (
       <div className="flex flex-col items-center justify-center py-32 gap-3">
         <Loader2 className="w-6 h-6 text-[#ace600] animate-spin" />
-        <p className="text-sm text-white/25">Loading tournament…</p>
+        <p className="text-sm text-white/25">Cargando torneo...</p>
       </div>
     );
   }
@@ -186,13 +186,13 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
         <div className="w-14 h-14 rounded-2xl bg-red-500/[0.08] border border-red-500/15 flex items-center justify-center mb-4">
           <AlertTriangle className="w-6 h-6 text-red-400" />
         </div>
-        <p className="text-white/50 font-semibold text-sm mb-1">Access Denied</p>
-        <p className="text-white/20 text-xs">You don't have permission to edit this tournament.</p>
+        <p className="text-white/50 font-semibold text-sm mb-1">Acceso denegado</p>
+        <p className="text-white/20 text-xs">No tienes permiso para editar este torneo.</p>
         <button
           onClick={() => navigate(-1)}
           className="mt-5 text-xs text-white/30 hover:text-white/55 transition-colors flex items-center gap-1.5"
         >
-          <ChevronLeft className="w-3.5 h-3.5" /> Go back
+          <ChevronLeft className="w-3.5 h-3.5" /> Atrás
         </button>
       </div>
     );
@@ -212,13 +212,13 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
         onClick={() => navigate(-1)}
         className="flex items-center gap-1.5 text-xs text-white/30 hover:text-white/55 transition-colors"
       >
-        <ChevronLeft className="w-3.5 h-3.5" /> Back to Tournament
+        <ChevronLeft className="w-3.5 h-3.5" /> Volver al torneo
       </button>
 
       {/* ── Page heading ──────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight">Edit Tournament</h1>
+          <h1 className="text-xl font-bold text-white tracking-tight">Editar Torneo</h1>
           <p className="text-xs text-white/30 mt-0.5">
             {currentTournament?.name && (
               <span className="text-white/50">{currentTournament.name}</span>
@@ -232,7 +232,7 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
             disabled={saving}
             className="flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/50 hover:text-white text-xs font-semibold transition-all disabled:opacity-40"
           >
-            <X className="w-3.5 h-3.5" /> Cancel
+            <X className="w-3.5 h-3.5" /> Cancelar
           </button>
           <button
             onClick={handleSubmit}
@@ -244,7 +244,7 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
             ) : (
               <Check className="w-3.5 h-3.5" />
             )}
-            {saving ? 'Saving…' : 'Save Changes'}
+            {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
         </div>
       </div>
@@ -253,19 +253,19 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
       <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl px-6 py-6 space-y-8">
         {/* Basics */}
         <section>
-          <SectionHeading icon={Trophy}>Basic Information</SectionHeading>
+          <SectionHeading icon={Trophy}>Información básica</SectionHeading>
           <div className="space-y-4">
-            <Field label="Tournament Name" required>
+            <Field label="Nombre del torneo" required>
               <input
                 className={inputCls}
                 value={form.name}
                 onChange={(e) => set('name', e.target.value)}
-                placeholder="e.g. Summer Open 2025"
+                placeholder="Por ejemplo, Abierto de verano 2025"
               />
             </Field>
 
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Type" required>
+              <Field label="Tipo" required>
                 <Select
                   value={form.tournament_type}
                   onValueChange={(v) => set('tournament_type', v)}
@@ -275,9 +275,9 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
                   </SelectTrigger>
                   <SelectContent className="bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl">
                     {[
-                      { v: 'local', l: 'Local', s: 'City / Area level' },
-                      { v: 'state', l: 'State', s: 'Federal Entity level' },
-                      { v: 'national', l: 'National', s: 'Country ·a Annual Main Event' },
+                      { v: 'local', l: 'Local', s: 'Nivel de ciudad / Área' },
+                      { v: 'state', l: 'Estatal', s: 'Nivel de entidad federativa' },
+                      { v: 'national', l: 'Nacional', s: 'País · Evento principal anual' },
                     ].map(({ v, l, s }) => (
                       <SelectItem
                         key={v}
@@ -294,17 +294,17 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
                 </Select>
               </Field>
 
-              <Field label="Category" required>
+              <Field label="Categoría" required>
                 <Select value={form.category} onValueChange={(v) => set('category', v)}>
                   <SelectTrigger className={selectTriggerCls}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl">
                     {[
-                      { v: 'singles', l: 'Singles' },
-                      { v: 'doubles', l: 'Doubles' },
-                      { v: 'mixed_doubles', l: 'Mixed Doubles' },
-                      { v: 'team', l: 'Team' },
+                      { v: 'singles', l: 'Individuales' },
+                      { v: 'doubles', l: 'Dobles' },
+                      { v: 'mixed_doubles', l: 'Dobles mixtos' },
+                      { v: 'team', l: 'Equipo' },
                     ].map(({ v, l }) => (
                       <SelectItem
                         key={v}
@@ -320,7 +320,7 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Max Participants">
+              <Field label="Máximo de participantes">
                 <input
                   className={inputCls}
                   type="number"
@@ -329,7 +329,7 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
                   min={1}
                 />
               </Field>
-              <Field label="Entry Fee (MXN)">
+              <Field label="Cuota de inscripción (MXN)">
                 <div className="relative">
                   <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
                   <input
@@ -345,13 +345,13 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
               </Field>
             </div>
 
-            <Field label="Description">
+            <Field label="Descripción">
               <textarea
                 className={`${inputCls} h-auto py-2.5 resize-none`}
                 rows={3}
                 value={form.description}
                 onChange={(e) => set('description', e.target.value)}
-                placeholder="Brief overview…"
+                placeholder="Descripción breve..."
               />
             </Field>
           </div>
@@ -359,41 +359,41 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
 
         {/* Venue */}
         <section>
-          <SectionHeading icon={MapPin}>Venue</SectionHeading>
+          <SectionHeading icon={MapPin}>Lugar</SectionHeading>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Venue Name" required>
+              <Field label="Nombre del lugar" required>
                 <input
                   className={inputCls}
                   value={form.venue_name}
                   onChange={(e) => set('venue_name', e.target.value)}
-                  placeholder="Club or facility name"
+                  placeholder="Nombre del club o instalación"
                 />
               </Field>
-              <Field label="Address">
+              <Field label="Dirección">
                 <input
                   className={inputCls}
                   value={form.venue_address}
                   onChange={(e) => set('venue_address', e.target.value)}
-                  placeholder="Street address"
+                  placeholder="Dirección de calle"
                 />
               </Field>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Field label="State" required>
+              <Field label="Estado" required>
                 <input
                   className={inputCls}
                   value={form.state}
                   onChange={(e) => set('state', e.target.value)}
-                  placeholder="e.g. Jalisco"
+                  placeholder="Por ejemplo, Jalisco"
                 />
               </Field>
-              <Field label="City" required>
+              <Field label="Ciudad" required>
                 <input
                   className={inputCls}
                   value={form.city}
                   onChange={(e) => set('city', e.target.value)}
-                  placeholder="e.g. Guadalajara"
+                  placeholder="Por ejemplo, Guadalajara"
                 />
               </Field>
             </div>
@@ -402,9 +402,9 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
 
         {/* Dates */}
         <section>
-          <SectionHeading icon={Calendar}>Dates</SectionHeading>
+          <SectionHeading icon={Calendar}>Fechas</SectionHeading>
           <div className="grid grid-cols-3 gap-3">
-            <Field label="Start Date" required>
+            <Field label="Fecha de inicio" required>
               <input
                 className={inputCls}
                 type="date"
@@ -412,7 +412,7 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
                 onChange={(e) => set('start_date', e.target.value)}
               />
             </Field>
-            <Field label="End Date" required>
+            <Field label="Fecha de finalización" required>
               <input
                 className={inputCls}
                 type="date"
@@ -420,7 +420,7 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
                 onChange={(e) => set('end_date', e.target.value)}
               />
             </Field>
-            <Field label="Registration Deadline" required hint="Must close before start date">
+            <Field label="Fecha límite de registro" required hint="Debe cerrar antes de la fecha de inicio">
               <input
                 className={inputCls}
                 type="date"
@@ -433,7 +433,7 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
             <div className="mt-3 inline-flex items-center gap-1.5 bg-[#ace600]/[0.06] border border-[#ace600]/15 rounded-lg px-3 py-1.5">
               <Calendar className="w-3 h-3 text-[#ace600]" />
               <span className="text-[11px] font-bold text-[#ace600]">
-                {duration}-day tournament
+                Torneo de {duration}-días
               </span>
             </div>
           )}
@@ -441,10 +441,10 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
 
         {/* Contact & Rules */}
         <section>
-          <SectionHeading icon={ScrollText}>Contact &amp; Rules</SectionHeading>
+          <SectionHeading icon={ScrollText}>Contacto y reglas</SectionHeading>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Contact Email">
+              <Field label="Correo de contacto">
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
                   <input
@@ -452,11 +452,11 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
                     type="email"
                     value={form.contact_email}
                     onChange={(e) => set('contact_email', e.target.value)}
-                    placeholder="contact@example.com"
+                    placeholder="contacto@ejemplo.com"
                   />
                 </div>
               </Field>
-              <Field label="Contact Phone">
+              <Field label="Teléfono de contacto">
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
                   <input
@@ -468,13 +468,13 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
                 </div>
               </Field>
             </div>
-            <Field label="Rules &amp; Regulations">
+            <Field label="Reglas y regulaciones">
               <textarea
                 className={`${inputCls} h-auto py-2.5 resize-none`}
                 rows={4}
                 value={form.rules}
                 onChange={(e) => set('rules', e.target.value)}
-                placeholder="Tournament rules and regulations…"
+                placeholder="Reglas y regulaciones del torneo..."
               />
             </Field>
           </div>
@@ -496,7 +496,7 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
           disabled={saving}
           className="text-sm text-white/30 hover:text-white/55 transition-colors disabled:opacity-40"
         >
-          Cancel
+          Cancelar
         </button>
         <button
           onClick={handleSubmit}
@@ -505,11 +505,11 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
         >
           {saving ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin" /> Saving…
+              <Loader2 className="w-4 h-4 animate-spin" /> Guardando...
             </>
           ) : (
             <>
-              <Check className="w-4 h-4" /> Save Changes
+              <Check className="w-4 h-4" /> Guardar cambios
             </>
           )}
         </button>

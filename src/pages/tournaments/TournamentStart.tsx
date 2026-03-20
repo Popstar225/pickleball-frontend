@@ -111,10 +111,10 @@ export default function TournamentStart() {
 
   // Helper function to safely format dates
   const formatDate = (dateString: string | undefined) => {
-    if (!dateString) return 'Not available';
+    if (!dateString) return 'No disponible';
     try {
       const date = new Date(dateString);
-      if (isNaN(date.getTime())) return 'Invalid Date';
+      if (isNaN(date.getTime())) return 'Fecha Inválida';
       return date.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -123,7 +123,7 @@ export default function TournamentStart() {
         minute: '2-digit',
       });
     } catch {
-      return 'Invalid Date';
+      return 'Fecha Inválida';
     }
   };
 

@@ -37,12 +37,12 @@ interface ReservationFlowProps {
 type FlowStep = 'venue' | 'court' | 'date-time' | 'review' | 'payment' | 'confirmation';
 
 const STEPS: { key: FlowStep; label: string; icon: React.ReactNode }[] = [
-  { key: 'venue', label: 'Venue', icon: <MapPin className="w-4 h-4" /> },
-  { key: 'court', label: 'Court', icon: <MapPin className="w-4 h-4" /> },
-  { key: 'date-time', label: 'Date & Time', icon: <Clock className="w-4 h-4" /> },
-  { key: 'review', label: 'Review', icon: <Check className="w-4 h-4" /> },
-  { key: 'payment', label: 'Payment', icon: <DollarSign className="w-4 h-4" /> },
-  { key: 'confirmation', label: 'Confirmation', icon: <Check className="w-4 h-4" /> },
+  { key: 'venue', label: 'Negocio', icon: <MapPin className="w-4 h-4" /> },
+  { key: 'court', label: 'Cancha', icon: <MapPin className="w-4 h-4" /> },
+  { key: 'date-time', label: 'Fecha y Hora', icon: <Clock className="w-4 h-4" /> },
+  { key: 'review', label: 'Revisión', icon: <Check className="w-4 h-4" /> },
+  { key: 'payment', label: 'Pago', icon: <DollarSign className="w-4 h-4" /> },
+  { key: 'confirmation', label: 'Confirmación', icon: <Check className="w-4 h-4" /> },
 ];
 
 export default function ReservationFlow({ clubId, clubName, onClose }: ReservationFlowProps) {
@@ -55,7 +55,7 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null);
   const [selectedCourt, setSelectedCourt] = useState<Court | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>('');
-  const [selectedTime, setSelectedTime] = useState<{ start: string; end: string } | null>(null);
+  const [selectedTimes, setSelectedTimes] = useState<Array<{ start: string; end: string }>>([]);
   const [reservationData, setReservationData] = useState<Partial<CourtReservation>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentIntent, setPaymentIntent] = useState<{ paymentId: string; clientSecret: string } | null>(null);
@@ -102,24 +102,28 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
   }, []);
 
   const handleTimeSlotSelect = useCallback((start: string, end: string) => {
-    setSelectedTime({ start, end });
+    setSelectedTimes((prev) => {
+      const exists = prev.find((t) => t.start === start && t.end === end);
+      if (exists) {
+        return prev.filter((t) => !(t.start === start && t.end === end));
+      }
+      return [...prev, { start, end }];
+    });
   }, []);
 
   const handleGoToReview = useCallback(() => {
-    if (selectedCourt && selectedDate && selectedTime) {
+    if (selectedCourt && selectedDate && selectedTimes.length > 0) {
       setReservationData({
         court_id: selectedCourt.id,
         club_id: clubId,
         reservation_date: selectedDate,
-        start_time: new Date(`${selectedDate}T${selectedTime.start}`).toISOString(),
-        end_time: new Date(`${selectedDate}T${selectedTime.end}`).toISOString(),
       });
       setCurrentStep('review');
     }
-  }, [selectedCourt, selectedDate, selectedTime, selectedVenue, clubId]);
+  }, [selectedCourt, selectedDate, selectedTimes, selectedVenue, clubId]);
 
   const handleInitPayment = useCallback(async () => {
-    if (!selectedCourt || !selectedDate || !selectedTime) {
+    if (!selectedCourt || !selectedDate || selectedTimes.length === 0) {
       toast.error('Por favor selecciona todos los campos requeridos');
       return;
     }
@@ -129,20 +133,19 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
         typeof selectedCourt.hourly_rate === 'string'
           ? parseFloat(selectedCourt.hourly_rate)
           : selectedCourt.hourly_rate || 0;
-      const startIso = new Date(`${selectedDate}T${selectedTime.start}`).toISOString();
-      const endIso   = new Date(`${selectedDate}T${selectedTime.end}`).toISOString();
-      const durationMs = new Date(endIso).getTime() - new Date(startIso).getTime();
-      const durationHrs = Math.max(1, Math.round(durationMs / 3_600_000));
-      const totalAmount = rate * durationHrs;
+
+      // Calculate total amount: rate * count of selected time slots
+      const totalAmount = rate * selectedTimes.length;
+      const timeDesc = selectedTimes.map((t) => `${t.start}–${t.end}`).join(', ');
 
       const res = await PaymentService.createCourtRentalPayment({
         amount: Math.round(totalAmount * 100),
         court_id: selectedCourt.id,
         club_id: clubId,
-        start_time: startIso,
-        end_time: endIso,
-        duration_hours: durationHrs,
-        description: `Cancha ${selectedCourt.name} — ${selectedDate} ${selectedTime.start}–${selectedTime.end}`,
+        start_time: new Date(`${selectedDate}T${selectedTimes[0].start}`).toISOString(),
+        end_time: new Date(`${selectedDate}T${selectedTimes[selectedTimes.length - 1].end}`).toISOString(),
+        duration_hours: selectedTimes.length,
+        description: `Cancha ${selectedCourt.name} — ${selectedDate} ${timeDesc}`,
       });
       setPaymentIntent({ paymentId: res.data.payment_id, clientSecret: res.data.client_secret });
       setCurrentStep('payment');
@@ -151,31 +154,31 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
     } finally {
       setIsSubmitting(false);
     }
-  }, [selectedCourt, selectedDate, selectedTime, clubId]);
+  }, [selectedCourt, selectedDate, selectedTimes, clubId]);
 
   const handlePaymentSuccess = useCallback(async () => {
-    if (!selectedCourt || !selectedDate || !selectedTime) return;
+    if (!selectedCourt || !selectedDate || selectedTimes.length === 0) return;
     setIsSubmitting(true);
     try {
       const rate =
         typeof selectedCourt.hourly_rate === 'string'
           ? parseFloat(selectedCourt.hourly_rate)
           : selectedCourt.hourly_rate || 0;
-      const startIso = new Date(`${selectedDate}T${selectedTime.start}`).toISOString();
-      const endIso   = new Date(`${selectedDate}T${selectedTime.end}`).toISOString();
-      const durationMs = new Date(endIso).getTime() - new Date(startIso).getTime();
-      const durationHrs = Math.max(1, Math.round(durationMs / 3_600_000));
+
+      // Calculate total amount: rate * count of selected time slots
+      const totalAmount = rate * selectedTimes.length;
 
       const payload: Partial<CourtReservation> = {
         court_id: selectedCourt.id,
         club_id: clubId,
         reservation_date: selectedDate,
-        start_time: startIso,
-        end_time: endIso,
+        start_time: new Date(`${selectedDate}T${selectedTimes[0].start}`).toISOString(),
+        end_time: new Date(`${selectedDate}T${selectedTimes[selectedTimes.length - 1].end}`).toISOString(),
         purpose: reservationData.purpose || 'Court Rental',
         hourly_rate: rate,
-        total_amount: rate * durationHrs,
-        final_amount: rate * durationHrs,
+        total_amount: totalAmount,
+        final_amount: totalAmount,
+        duration_hours: selectedTimes.length,
         payment_status: 'completed',
         status: 'confirmed',
         ...reservationData,
@@ -190,7 +193,7 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
     } finally {
       setIsSubmitting(false);
     }
-  }, [selectedCourt, selectedDate, selectedTime, reservationData, dispatch, clubId]);
+  }, [selectedCourt, selectedDate, selectedTimes, reservationData, dispatch, clubId]);
 
   const goToPreviousStep = () => {
     const stepIndex = STEPS.findIndex((s) => s.key === currentStep);
@@ -200,14 +203,18 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
   };
 
   const goToNextStep = async () => {
+    // Handle confirmation step separately (last step, should close)
+    if (currentStep === 'confirmation') {
+      onClose();
+      return;
+    }
+
     const stepIndex = STEPS.findIndex((s) => s.key === currentStep);
     if (stepIndex < STEPS.length - 1) {
       if (currentStep === 'date-time') {
         handleGoToReview();
       } else if (currentStep === 'review') {
         await handleInitPayment();
-      } else if (currentStep === 'confirmation') {
-        onClose();
       } else {
         setCurrentStep(STEPS[stepIndex + 1].key);
       }
@@ -220,7 +227,7 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
         {/* Header */}
         <div className="sticky top-0 bg-[#0d1117] border-b border-white/[0.07] p-6 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-white mb-1">Reserve a Court</h1>
+            <h1 className="text-xl font-bold text-white mb-1">Reserva una cancha</h1>
             <p className="text-sm text-white/40">{clubName}</p>
           </div>
           <button
@@ -289,7 +296,7 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
           {loading && (
             <div className="flex flex-col items-center justify-center py-12 gap-3">
               <Loader className="w-6 h-6 text-[#ace600] animate-spin" />
-              <p className="text-sm text-white/40">Loading...</p>
+              <p className="text-sm text-white/40">Cargando...</p>
             </div>
           )}
 
@@ -306,7 +313,7 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
               courtName={selectedCourt.name}
               availableSlots={availableTimeSlots}
               selectedDate={selectedDate}
-              selectedTime={selectedTime}
+              selectedTimes={selectedTimes}
               onDateSelect={handleDateSelect}
               onTimeSelect={handleTimeSlotSelect}
             />
@@ -318,7 +325,7 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
               venueName={selectedVenue?.name}
               courtName={selectedCourt?.name}
               date={selectedDate}
-              time={selectedTime}
+              times={selectedTimes}
               rate={
                 typeof selectedCourt?.hourly_rate === 'string'
                   ? parseFloat(selectedCourt.hourly_rate)
@@ -352,9 +359,9 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
               <FlowPaymentForm
                 paymentId={paymentIntent.paymentId}
                 amount={
-                  typeof selectedCourt?.hourly_rate === 'string'
+                  (typeof selectedCourt?.hourly_rate === 'string'
                     ? parseFloat(selectedCourt.hourly_rate)
-                    : selectedCourt?.hourly_rate || 0
+                    : selectedCourt?.hourly_rate || 0) * selectedTimes.length
                 }
                 currency="MXN"
                 onSuccess={handlePaymentSuccess}
@@ -383,7 +390,7 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
               disabled={
                 (currentStep === 'venue' && !selectedVenue) ||
                 (currentStep === 'court' && !selectedCourt) ||
-                (currentStep === 'date-time' && (!selectedDate || !selectedTime)) ||
+                (currentStep === 'date-time' && (!selectedDate || selectedTimes.length === 0)) ||
                 isSubmitting ||
                 loading
               }
@@ -427,15 +434,15 @@ function VenueStep({
   if (venues.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-white/40 mb-2">No venues found</p>
-        <p className="text-xs text-white/20">This club doesn't have any venues yet</p>
+        <p className="text-white/40 mb-2">No hay negocios disponibles</p>
+        <p className="text-xs text-white/20">Este club no tiene negocios disponibles todavía</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-semibold text-white/60 mb-4">Select a Venue</p>
+      <p className="text-sm font-semibold text-white/60 mb-4">Selecciona un negocio</p>
       {venues.map((venue) => (
         <button
           key={venue.id}
@@ -452,14 +459,14 @@ function VenueStep({
               {venue.name}
             </h3>
             <span className="text-[11px] px-2 py-1 rounded-full bg-white/[0.08] text-white/60">
-              {venue.number_of_courts} courts
+              {venue.number_of_courts} canchas
             </span>
           </div>
           <p className="text-sm text-white/40 flex items-center gap-2">
             <MapPin className="w-3 h-3" />
             {venue.address}
           </p>
-          <p className="text-sm text-white/40 mt-2">${venue.base_price_per_hour}/hour</p>
+          <p className="text-sm text-white/40 mt-2">${venue.base_price_per_hour}/hora</p>
         </button>
       ))}
     </div>
@@ -478,15 +485,15 @@ function CourtStep({
   if (courts.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-white/40 mb-2">No courts found</p>
-        <p className="text-xs text-white/20">This venue doesn't have any courts yet</p>
+        <p className="text-white/40 mb-2">No hay canchas disponibles</p>
+        <p className="text-xs text-white/20">Este negocio no tiene canchas disponibles todavía</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-semibold text-white/60 mb-4">Select a Court</p>
+      <p className="text-sm font-semibold text-white/60 mb-4">Selecciona una cancha</p>
       <div className="grid grid-cols-2 gap-3">
         {courts.map((court) => (
           <button
@@ -513,14 +520,14 @@ function DateTimeStep({
   courtName,
   availableSlots,
   selectedDate,
-  selectedTime,
+  selectedTimes,
   onDateSelect,
   onTimeSelect,
 }: {
   courtName: string;
   availableSlots: Array<{ start: string; end: string; available: boolean }>;
   selectedDate: string;
-  selectedTime: { start: string; end: string } | null;
+  selectedTimes: Array<{ start: string; end: string }>;
   onDateSelect: (date: string) => void;
   onTimeSelect: (start: string, end: string) => void;
 }) {
@@ -537,7 +544,7 @@ function DateTimeStep({
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-semibold text-white/60 mb-3">Select a Date</p>
+        <p className="text-sm font-semibold text-white/60 mb-3">Selecciona una fecha</p>
         <div className="grid grid-cols-4 gap-2">
           {getNextDays().map((date) => (
             <button
@@ -550,7 +557,7 @@ function DateTimeStep({
                   : 'bg-white/[0.08] text-white/60 hover:bg-white/[0.12]',
               )}
             >
-              {new Date(date).toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' })}
+              {new Date(date).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric' })}
             </button>
           ))}
         </div>
@@ -558,28 +565,60 @@ function DateTimeStep({
 
       {selectedDate && (
         <div>
-          <p className="text-sm font-semibold text-white/60 mb-3">Select Time Slot</p>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-semibold text-white/60">Selecciona uno o más horarios</p>
+            <div className="flex gap-3 text-[10px]">
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded bg-[#ace600]"></div>
+                <span className="text-white/40">Disponible</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-3 h-3 rounded bg-red-500/50"></div>
+                <span className="text-white/40">Reservado</span>
+              </div>
+            </div>
+          </div>
           {availableSlots.length === 0 ? (
-            <p className="text-white/40 text-sm text-center py-4">No availability for this date</p>
+            <p className="text-white/40 text-sm text-center py-4">Sin disponibilidad para esta fecha</p>
           ) : (
             <div className="grid grid-cols-3 gap-2">
-              {availableSlots.map((slot, idx) => (
-                <button
-                  key={idx}
-                  disabled={!slot.available}
-                  onClick={() => onTimeSelect(slot.start, slot.end)}
-                  className={cn(
-                    'p-3 rounded-lg text-sm font-semibold transition-all',
-                    !slot.available
-                      ? 'bg-red-500/10 text-red-400 cursor-not-allowed border border-red-500/20'
-                      : selectedTime?.start === slot.start
-                        ? 'bg-[#ace600] text-black'
-                        : 'bg-white/[0.08] text-white/60 hover:bg-white/[0.12]',
-                  )}
-                >
-                  {slot.start} - {slot.end}
-                </button>
-              ))}
+              {availableSlots.map((slot, idx) => {
+                const isSelected = selectedTimes.some((t) => t.start === slot.start && t.end === slot.end);
+                const isReserved = !slot.available;
+                return (
+                  <button
+                    key={idx}
+                    disabled={isReserved}
+                    onClick={() => onTimeSelect(slot.start, slot.end)}
+                    className={cn(
+                      'p-3 rounded-lg text-sm font-semibold transition-all',
+                      isReserved
+                        ? 'bg-red-500/10 text-red-400 cursor-not-allowed border border-red-500/20'
+                        : isSelected
+                          ? 'bg-[#ace600] text-black border-2 border-[#ace600]'
+                          : 'bg-white/[0.08] text-white/60 hover:bg-white/[0.12]',
+                    )}
+                    title={isReserved ? 'Este horario ya está reservado' : ''}
+                  >
+                    <div className="flex flex-col items-center">
+                      <span>{slot.start} - {slot.end}</span>
+                      {isReserved && <span className="text-[9px] mt-0.5">Reservado</span>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {selectedTimes.length > 0 && (
+            <div className="mt-4 p-3 bg-[#ace600]/10 border border-[#ace600]/20 rounded-lg">
+              <p className="text-xs font-semibold text-[#ace600] mb-2">Horarios seleccionados: {selectedTimes.length}</p>
+              <div className="flex flex-wrap gap-2">
+                {selectedTimes.map((time, idx) => (
+                  <span key={idx} className="text-xs bg-[#ace600]/20 text-[#ace600] px-2.5 py-1 rounded-full">
+                    {time.start} - {time.end}
+                  </span>
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -593,16 +632,20 @@ function ReviewStep({
   venueName,
   courtName,
   date,
-  time,
+  times,
   rate,
 }: {
   clubName: string;
   venueName?: string;
   courtName?: string;
   date: string;
-  time?: { start: string; end: string } | null;
+  times?: Array<{ start: string; end: string }>;
   rate?: number;
 }) {
+  // Calculate total based on count of selected times * rate
+  const timeCount = times?.length || 0;
+  const totalPrice = rate && timeCount > 0 ? rate * timeCount : 0;
+
   return (
     <div className="space-y-4">
       <div className="bg-white/[0.04] border border-white/[0.07] rounded-xl p-4 space-y-3">
@@ -611,17 +654,17 @@ function ReviewStep({
           <span className="font-semibold text-white">{clubName}</span>
         </div>
         <div className="flex justify-between items-center pb-3 border-b border-white/[0.07]">
-          <span className="text-white/60 text-sm">Venue</span>
+          <span className="text-white/60 text-sm">Negocio</span>
           <span className="font-semibold text-white">{venueName}</span>
         </div>
         <div className="flex justify-between items-center pb-3 border-b border-white/[0.07]">
-          <span className="text-white/60 text-sm">Court</span>
+          <span className="text-white/60 text-sm">Cancha</span>
           <span className="font-semibold text-white">{courtName}</span>
         </div>
         <div className="flex justify-between items-center pb-3 border-b border-white/[0.07]">
-          <span className="text-white/60 text-sm">Date</span>
+          <span className="text-white/60 text-sm">Fecha</span>
           <span className="font-semibold text-white">
-            {new Date(date).toLocaleDateString('en-US', {
+            {new Date(date).toLocaleDateString('es-ES', {
               weekday: 'long',
               year: 'numeric',
               month: 'long',
@@ -630,18 +673,36 @@ function ReviewStep({
           </span>
         </div>
         <div className="flex justify-between items-center pb-3 border-b border-white/[0.07]">
-          <span className="text-white/60 text-sm">Time</span>
-          <span className="font-semibold text-white">
-            {time?.start} - {time?.end}
-          </span>
+          <span className="text-white/60 text-sm">Horarios</span>
+          <div className="text-right">
+            {times && times.length > 0 ? (
+              <div className="space-y-1">
+                {times.map((time, idx) => (
+                  <div key={idx} className="text-sm font-semibold text-white">
+                    {time.start} - {time.end}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <span className="font-semibold text-white">—</span>
+            )}
+          </div>
+        </div>
+        <div className="flex justify-between items-center pb-3 border-b border-white/[0.07]">
+          <span className="text-white/60 text-sm">Cantidad de Horarios</span>
+          <span className="font-semibold text-white">{timeCount}</span>
+        </div>
+        <div className="flex justify-between items-center pb-3 border-b border-white/[0.07]">
+          <span className="text-white/60 text-sm">Precio por Horario</span>
+          <span className="font-semibold text-white">${rate}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-white/60 text-sm">Price</span>
-          <span className="font-bold text-[#ace600] text-lg">${rate}/hour</span>
+          <span className="text-white/60 text-sm font-semibold">Total a Pagar</span>
+          <span className="font-bold text-[#ace600] text-lg">${totalPrice.toFixed(2)}</span>
         </div>
       </div>
       <p className="text-xs text-white/40 text-center">
-        Please review the details carefully before confirming
+        Por favor, revisa los detalles cuidadosamente antes de confirmar
       </p>
     </div>
   );

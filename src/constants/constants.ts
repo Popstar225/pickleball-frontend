@@ -110,7 +110,7 @@ export const Mexico = [
   { state: 'Guerrero', code: 'GRO' },
   { state: 'Hidalgo', code: 'HID' },
   { state: 'Jalisco', code: 'JAL' },
-  { state: 'México City', code: 'CMX' },
+  { state: 'Ciudad de México', code: 'CMX' },
   { state: 'Michoacán', code: 'MIC' },
   { state: 'Morelos', code: 'MOR' },
   { state: 'Nayarit', code: 'NAY' },

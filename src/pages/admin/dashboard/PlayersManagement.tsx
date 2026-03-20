@@ -78,10 +78,10 @@ const userTypeCfg: Record<string, { label: string; cls: string }> = {
 
 const membershipCfg: Record<string, { label: string; cls: string }> = {
   free: { label: 'Gratis', cls: 'bg-white/[0.05] text-white/35 border-white/[0.08]' },
-  basic: { label: 'Básico', cls: 'bg-white/[0.06] text-white/45 border-white/[0.1]' },
+  basic: { label: 'Básica', cls: 'bg-white/[0.06] text-white/45 border-white/[0.1]' },
   pro: { label: 'Pro', cls: 'bg-violet-500/10 text-violet-400 border-violet-500/20' },
   premium: { label: 'Premium', cls: 'bg-amber-500/10 text-amber-400 border-amber-500/20' },
-  expired: { label: 'Expirado', cls: 'bg-red-500/10 text-red-400 border-red-500/20' },
+  expired: { label: 'Expirada', cls: 'bg-red-500/10 text-red-400 border-red-500/20' },
 };
 
 function TypeBadge({ type }: { type: string }) {

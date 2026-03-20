@@ -33,20 +33,20 @@ export default function Confirmation() {
           className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
-          Back to All Demos
+          Volver
         </button>
 
         <div>
-          <h1 className="text-3xl font-bold text-white">Tournament Confirmation Modal</h1>
-          <p className="text-white/40 mt-2">Review consequences before starting tournament</p>
+          <h1 className="text-3xl font-bold text-white">Modal de Confirmación del Torneo</h1>
+          <p className="text-white/40 mt-2">Revisa las consecuencias antes de iniciar el torneo</p>
         </div>
 
         {/* State Info */}
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4">
           <p className="text-sm text-white/70">
-            Modal Status:{' '}
+            Estado del modal:{' '}
             <span className={isOpen ? 'text-blue-400' : 'text-white/50'}>
-              {isOpen ? 'Open' : 'Closed'}
+              {isOpen ? 'Abierto' : 'Cerrado'}
             </span>
           </p>
           {!isOpen && (
@@ -54,7 +54,7 @@ export default function Confirmation() {
               onClick={() => setIsOpen(true)}
               className="text-blue-400 hover:text-blue-300 text-sm mt-2"
             >
-              Reopen Modal
+              Reabrir Modal
             </button>
           )}
         </div>
@@ -75,45 +75,45 @@ export default function Confirmation() {
 
         {/* Info Section */}
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 space-y-4">
-          <h3 className="text-lg font-bold text-white">Component Features</h3>
+          <h3 className="text-lg font-bold text-white">Características del Componente</h3>
           <ul className="space-y-2 text-sm">
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
               <span className="text-white/70">
-                Clear tournament summary (event count, registrations)
+                Resumen claro del torneo (número de eventos e inscripciones)
               </span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
-              <span className="text-white/70">Lists key consequences with visual icons</span>
+              <span className="text-white/70">Lista las consecuencias clave con íconos visuales</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
-              <span className="text-white/70">Warning banner emphasizing irreversibility</span>
+              <span className="text-white/70">Banner de advertencia que enfatiza la irreversibilidad</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
-              <span className="text-white/70">Mandatory checkbox for acknowledgment</span>
+              <span className="text-white/70">Casilla de verificación obligatoria para confirmación</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
-              <span className="text-white/70">Confirm button disabled until checkbox checked</span>
+              <span className="text-white/70">Botón de confirmar deshabilitado hasta marcar la casilla</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
-              <span className="text-white/70">Cancel option available</span>
+              <span className="text-white/70">Opción de cancelar disponible</span>
             </li>
           </ul>
         </div>
 
         {/* Test Scenario */}
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 space-y-4">
-          <h3 className="text-lg font-bold text-white">Try It Out</h3>
+          <h3 className="text-lg font-bold text-white">Pruébalo</h3>
           <ol className="space-y-2 text-sm text-white/70">
-            <li>1. Read the tournament summary and consequences</li>
-            <li>2. Check the acknowledgment checkbox</li>
-            <li>3. Click "Start Tournament" to confirm</li>
-            <li>4. Use "Reopen Modal" button to test again</li>
+            <li>1. Lee el resumen del torneo y las consecuencias</li>
+            <li>2. Marca la casilla de confirmación</li>
+            <li>3. Haz clic en "Iniciar Torneo" para confirmar</li>
+            <li>4. Usa el botón "Reabrir Modal" para volver a probar</li>
           </ol>
         </div>
       </div>

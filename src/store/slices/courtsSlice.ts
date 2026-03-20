@@ -48,6 +48,21 @@ export const fetchCourts = createAsyncThunk(
   },
 );
 
+export const fetchCourtsByVenue = createAsyncThunk(
+  'courts/fetchCourtsByVenue',
+  async (venueId: string, { rejectWithValue }) => {
+    try {
+      const response: any = await api.get(`/courts/venue/${venueId}`);
+      // API returns: { success, message, data: { venue, courts: [...] }, pagination }
+      const courts = response?.data?.courts || [];
+      const pagination = response?.pagination || { page: 1, limit: 10, total: courts.length, pages: 1 };
+      return { courts, pagination };
+    } catch (error: any) {
+      return rejectWithValue(error.message || 'Failed to fetch courts by venue');
+    }
+  },
+);
+
 export const fetchCourt = createAsyncThunk('courts/fetchCourt', async (id: string) => {
   return await api.get(`/courts/${id}`);
 });
@@ -66,12 +81,22 @@ export const updateCourt = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
+      console.log('[updateCourt thunk] Sending update request:', { id, courtData });
       const response = await api.put(`/courts/${id}`, courtData);
+      console.log('[updateCourt thunk] Response:', response);
       return response;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data?.message || error.message || 'Failed to update court',
-      );
+      console.error('[updateCourt thunk] Error:', {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+      const errorMessage = 
+        error.response?.data?.message || 
+        error.response?.data?.error ||
+        error.message || 
+        'Failed to update court';
+      return rejectWithValue(errorMessage);
     }
   },
 );
@@ -167,6 +192,22 @@ const courtsSlice = createSlice({
       .addCase(fetchCourts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch courts';
+      })
+      // Fetch Courts By Venue
+      .addCase(fetchCourtsByVenue.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCourtsByVenue.fulfilled, (state, action) => {
+        state.loading = false;
+        const { courts, pagination } = action.payload as any;
+        console.log(`📦 fetchCourtsByVenue response: ${courts.length} courts`, { courts, pagination });
+        state.courts = courts || [];
+        state.pagination = pagination || null;
+      })
+      .addCase(fetchCourtsByVenue.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch courts by venue';
       })
       // Fetch Court
       .addCase(fetchCourt.pending, (state) => {

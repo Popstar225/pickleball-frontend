@@ -487,7 +487,7 @@ const TournamentManagement: React.FC = () => {
                             onClick={() => navigate(`/clubs/dashboard/tournaments/${t.id}/manage`)}
                             className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
                           >
-                            <Settings className="w-3.5 h-3.5" /> Manage Events
+                            <Settings className="w-3.5 h-3.5" /> Gestionar eventos
                           </DropdownMenuItem>
 
                           {canManage(t) && (

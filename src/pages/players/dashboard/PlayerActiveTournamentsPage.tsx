@@ -346,7 +346,7 @@ function ActiveCard({
               <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08]">
                 <PositionIcon position={reg.standing.position} />
               </div>
-              <p className="text-[10px] text-white/88 mt-1">en grupo</p>
+              <p className="text-[10px] text-white/50 mt-1">en grupo</p>
             </div>
           )}
         </div>
@@ -393,7 +393,7 @@ function ActiveCard({
         {/* Standing tiles (visible only when expanded or has upcoming match) */}
         {hasGroupData && reg.standing && (expanded || hasUpcoming) && (
           <div className="mb-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/88 mb-2">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white mb-2">
               Posición en grupo
             </p>
             <div className="grid grid-cols-4 gap-2">
@@ -423,7 +423,7 @@ function ActiveCard({
         {/* Recent matches (visible when expanded) */}
         {hasRecent && expanded && (
           <div className="mb-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/88 mb-2">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-white mb-2">
               Partidos recientes
             </p>
             <div className="space-y-1.5">
@@ -728,7 +728,7 @@ export default function PlayerActiveTournamentsPage() {
                   <h3 className="text-base font-bold text-white/60 mb-1">
                     Historial de Torneos
                   </h3>
-                  <p className="text-sm text-white/88 max-w-[340px] leading-relaxed">
+                  <p className="text-sm text-white/50 max-w-[340px] leading-relaxed">
                     Aquí aparecerán los torneos completados. Una vez que termines una competencia
                     podrás ver tus resultados y posición final.
                   </p>

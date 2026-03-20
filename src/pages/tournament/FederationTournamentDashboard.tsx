@@ -44,6 +44,7 @@ import TournamentStatusTimeline, {
   Stage as TimelineStage,
 } from '@/components/tournament/TournamentStatusTimeline';
 import { cn } from '@/lib/utils';
+import { getGenderLabel, getModalityLabel, getFormatLabel, getStatusLabel } from '@/utils/formatters';
 import { api } from '@/lib/api';
 import { markTournamentAsComplete } from '@/services/tournamentBracketService';
 
@@ -225,8 +226,8 @@ const FederationTournamentDashboard: React.FC = () => {
         <div className="flex items-center gap-3 p-6 bg-red-500/[0.06] border border-red-500/15 rounded-2xl">
           <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-red-400 mb-1">Tournament ID Required</p>
-            <p className="text-xs text-red-400/70">Please select a tournament to manage</p>
+            <p className="text-sm font-semibold text-red-400 mb-1">ID de Torneo Requerido</p>
+            <p className="text-xs text-red-400/70">Por favor selecciona un torneo para administrar</p>
           </div>
         </div>
       </div>
@@ -677,7 +678,7 @@ const FederationTournamentDashboard: React.FC = () => {
           </div>
           <p className="text-xs text-white/25">
             {selectedEvent
-              ? `${selectedEvent.skill_block} · ${selectedEvent.modality} · ${selectedEvent.gender}`
+              ? `${selectedEvent.skill_block} · ${getModalityLabel(selectedEvent.modality)} · ${getGenderLabel(selectedEvent.gender)}`
               : 'Selecciona un evento para administrar'}
           </p>
         </div>
@@ -703,9 +704,7 @@ const FederationTournamentDashboard: React.FC = () => {
                     : 'bg-sky-400',
               )}
             />
-            {selectedEvent.status === 'completed'
-              ? 'COMPLETADO'
-              : selectedEvent.status?.replace(/_/g, ' ').toUpperCase() || 'ACTIVO'}
+            {(getStatusLabel(selectedEvent.status) || 'Activo').toUpperCase()}
           </span>
         )}
       </div>
@@ -756,10 +755,10 @@ const FederationTournamentDashboard: React.FC = () => {
                           'bg-white/[0.05] text-white/25 border-white/[0.08]',
                       )}
                     >
-                      {event.modality}
+                      {getModalityLabel(event.modality)}
                     </span>
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-white/[0.05] border border-white/[0.08] text-white/25">
-                      {event.gender}
+                      {getGenderLabel(event.gender)}
                     </span>
                   </div>
                 </div>
@@ -858,12 +857,12 @@ const FederationTournamentDashboard: React.FC = () => {
                           'bg-white/[0.05] text-white/30 border-white/[0.08]',
                       )}
                     >
-                      {selectedEvent.modality}
+                      {getModalityLabel(selectedEvent.modality)}
                     </span>
                   }
                 />
-                <InfoRow label="Género" value={selectedEvent.gender} />
-                <InfoRow label="Formato" value={selectedEvent.format ?? '—'} />
+                <InfoRow label="Género" value={getGenderLabel(selectedEvent.gender)} />
+                <InfoRow label="Formato" value={selectedEvent.format ? getFormatLabel(selectedEvent.format) : '—'} />
                 <InfoRow label="Inscritos" value={`${regs.length} jugadores`} />
                 <InfoRow
                   label="Etapa Actual"

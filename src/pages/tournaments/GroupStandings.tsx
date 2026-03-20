@@ -43,13 +43,13 @@ interface GroupStandingsProps {
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 const TIEBREAKER_CHAIN = [
-  { order: 1, name: 'Matches Won', icon: '🏆' },
-  { order: 2, name: 'Head-to-Head', icon: '🤝' },
-  { order: 3, name: 'Set Difference', icon: '📊' },
-  { order: 4, name: 'Ranking Points', icon: '⭐' },
-  { order: 5, name: 'Point Difference', icon: '📈' },
-  { order: 6, name: 'Points For', icon: '🎯' },
-  { order: 7, name: 'Draw', icon: '🔄' },
+  { order: 1, name: 'Partidos Ganados', icon: '🏆' },
+  { order: 2, name: 'Cara a Cara', icon: '🤝' },
+  { order: 3, name: 'Diferencia de Sets', icon: '📊' },
+  { order: 4, name: 'Puntos de Ranking', icon: '⭐' },
+  { order: 5, name: 'Diferencia de Puntos', icon: '📈' },
+  { order: 6, name: 'Puntos a Favor', icon: '🎯' },
+  { order: 7, name: 'Empate', icon: '🔄' },
 ];
 
 const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };

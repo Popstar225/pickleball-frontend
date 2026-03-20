@@ -44,6 +44,7 @@ import {
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { translateEventLabel } from '@/utils/formatters';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface TournamentEvent {
@@ -644,7 +645,7 @@ export const ClubTournamentCreationForm: React.FC<Props> = ({ onSuccess, onCance
                                 checked ? 'text-white' : 'text-white/60',
                               )}
                             >
-                              {event.label}
+                              {translateEventLabel(event.label)}
                             </p>
                             <div className="flex flex-wrap gap-1.5 mt-1.5">
                               <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/[0.05] border border-white/[0.08] text-white/30">

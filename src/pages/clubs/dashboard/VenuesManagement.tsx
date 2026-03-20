@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import {
@@ -18,7 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import {
   AlertCircle, Plus, Trash2, Edit2, ChevronLeft, ChevronRight,
-  Loader2, MapPin, DollarSign, LayoutGrid, Layers, Phone, X,
+  Loader2, MapPin, DollarSign, LayoutGrid, Layers, Phone, X, ChevronDown,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -43,7 +44,25 @@ const FILTER_OPTIONS = [
   { value: 'false', label: 'Inactivos' },
 ];
 
-const labelOf = (v: string) => v.charAt(0).toUpperCase() + v.slice(1);
+const COURT_TYPE_LABELS: Record<string, string> = {
+  covered: 'Cubierta',
+  indoor: 'Interior',
+  outdoor: 'Exterior',
+};
+
+const SURFACE_TYPE_LABELS: Record<string, string> = {
+  wood: 'Madera',
+  concrete: 'Concreto',
+  acrylic: 'Acrílico',
+  tartan: 'Tartán',
+  other: 'Otro',
+};
+
+const labelOf = (v: string, type?: 'court' | 'surface') => {
+  if (type === 'court') return COURT_TYPE_LABELS[v] || v;
+  if (type === 'surface') return SURFACE_TYPE_LABELS[v] || v;
+  return v.charAt(0).toUpperCase() + v.slice(1);
+};
 
 type FormData = {
   name: string; state: string; address: string; phone: string; whatsapp: string;
@@ -72,6 +91,7 @@ function Field({ label, req, children }: { label: string; req?: boolean; childre
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function VenuesManagement() {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { venues, loading, error } = useSelector((s: RootState) => s.venues);
   const { profile, profileLoading } = useSelector((s: RootState) => s.clubDashboard);
   const clubId = profile?.id;
@@ -83,6 +103,10 @@ export default function VenuesManagement() {
   const [page,       setPage]       = useState(1);
   const [filter,     setFilter]     = useState('all');
   const [form,       setForm]       = useState<FormData>(emptyForm);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleteVenueId, setDeleteVenueId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [expandedVenues, setExpandedVenues] = useState<Set<string>>(new Set());
   const PER_PAGE = 9;
 
   useEffect(() => { dispatch(fetchClubProfile()); }, [dispatch]);
@@ -112,25 +136,62 @@ export default function VenuesManagement() {
   const setF = (k: keyof FormData, v: any) => setForm(p => ({ ...p, [k]: v }));
 
   const handleSubmit = async () => {
-    if (!form.name.trim()) { toast.error('Ingresa el nombre del venue'); return; }
+    if (!form.name.trim()) { toast.error('Ingresa el nombre del negocio'); return; }
+    if (!form.state.trim()) { toast.error('El estado es requerido'); return; }
+    if (!form.address.trim()) { toast.error('La dirección es requerida'); return; }
+    if (!form.court_type) { toast.error('El tipo de cancha es requerido'); return; }
+    if (!form.surface_type) { toast.error('La superficie es requerida'); return; }
+    if (form.base_price_per_hour <= 0) { toast.error('El precio debe ser mayor a 0'); return; }
+    if (form.number_of_courts <= 0) { toast.error('El número de canchas debe ser mayor a 0'); return; }
+    
     try {
       if (isEdit && editId) {
+        console.log('📝 Updating venue:', { id: editId, ...form, club_id: clubId });
         await dispatch(updateVenue({ id: editId, data: { ...form, club_id: clubId } })).unwrap();
-        toast.success('Venue actualizado');
+        toast.success('Negocio actualizado');
       } else {
+        console.log('✨ Creating venue:', { ...form, club_id: clubId });
         await dispatch(createVenue({ ...form, club_id: clubId })).unwrap();
-        toast.success('Venue creado');
+        toast.success('Negocio creado');
       }
       closeModal();
-    } catch (e: any) { toast.error(e || 'Error al guardar'); }
+    } catch (e: any) { 
+      console.error('❌ Error saving venue:', e);
+      const errorMsg = typeof e === 'string' ? e : (e?.message || 'Error al guardar');
+      toast.error(errorMsg); 
+    }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar este venue?')) return;
+  const handleDelete = (id: string) => {
+    setDeleteVenueId(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteVenueId) return;
+    setDeleting(true);
     try {
-      await dispatch(deleteVenue(id)).unwrap();
-      toast.success('Venue eliminado');
-    } catch (e: any) { toast.error(e || 'Error al eliminar'); }
+      await dispatch(deleteVenue(deleteVenueId)).unwrap();
+      toast.success('Negocio eliminado');
+      setDeleteConfirmOpen(false);
+      setDeleteVenueId(null);
+    } catch (e: any) {
+      toast.error(e || 'Error al eliminar');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const toggleExpandVenue = (venueId: string) => {
+    setExpandedVenues(prev => {
+      const next = new Set(prev);
+      if (next.has(venueId)) {
+        next.delete(venueId);
+      } else {
+        next.add(venueId);
+      }
+      return next;
+    });
   };
 
   const filtered     = venues.filter(v => v.name.toLowerCase().includes(search.toLowerCase()));
@@ -163,17 +224,17 @@ export default function VenuesManagement() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-[22px] font-bold text-white tracking-tight">Gestión de Venues</h1>
+            <h1 className="text-[22px] font-bold text-white tracking-tight">Gestión de Negocios</h1>
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]">
               <span className="w-1.5 h-1.5 rounded-full bg-[#ace600] animate-pulse" />
-              {filtered.length} venues
+              {filtered.length} negocios
             </span>
           </div>
-          <p className="text-xs text-white/25">Administra los venues y canchas de tu club</p>
+          <p className="text-xs text-white/25">Administra los negocios y canchas de tu club</p>
         </div>
         <button onClick={openCreate}
           className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-bold bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_14px_rgba(172,230,0,0.18)] transition-all">
-          <Plus className="w-3.5 h-3.5" /> Agregar Venue
+          <Plus className="w-3.5 h-3.5" /> Agregar Negocio
         </button>
       </div>
 
@@ -182,7 +243,7 @@ export default function VenuesManagement() {
         <div className="relative flex-1 min-w-[180px]">
           <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 pointer-events-none" />
           <Input className={cn(inputCls, 'pl-10 pr-9')}
-            placeholder="Buscar venues…"
+            placeholder="Buscar negocios…"
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(1); }} />
           {search && (
@@ -232,11 +293,11 @@ export default function VenuesManagement() {
             <LayoutGrid className="w-5 h-5 text-white/10" />
           </div>
           <div className="text-center">
-            <p className="text-sm font-semibold text-white/35 mb-1">Sin venues encontrados</p>
-            <p className="text-xs text-white/20 mb-4">Crea tu primer venue para comenzar</p>
+            <p className="text-sm font-semibold text-white/35 mb-1">Sin negocios encontrados</p>
+            <p className="text-xs text-white/20 mb-4">Crea tu primer negocio para comenzar</p>
             <button onClick={openCreate}
               className="inline-flex items-center gap-1.5 h-9 px-4 rounded-xl text-xs font-bold bg-[#ace600] hover:bg-[#c0f000] text-black transition-all">
-              <Plus className="w-3.5 h-3.5" /> Crear Venue
+              <Plus className="w-3.5 h-3.5" /> Crear Negocio
             </button>
           </div>
         </div>
@@ -279,7 +340,7 @@ export default function VenuesManagement() {
                     {[
                       { icon: MapPin,      label: 'Estado',    value: venue.state },
                       { icon: LayoutGrid,  label: 'Canchas',   value: `${venue.number_of_courts}` },
-                      { icon: Layers,      label: 'Tipo',      value: labelOf(venue.court_type) },
+                      { icon: Layers,      label: 'Tipo',      value: labelOf(venue.court_type, 'court') },
                       { icon: DollarSign,  label: 'Precio/hr', value: `$${venue.base_price_per_hour}` },
                     ].map(({ icon: Icon, label, value }) => (
                       <div key={label} className="flex items-center gap-2 px-2.5 py-2 bg-white/[0.02] border border-white/[0.05] rounded-xl">
@@ -293,7 +354,11 @@ export default function VenuesManagement() {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 mb-3">
+                    <button onClick={() => navigate(`/clubs/dashboard/courts?venueId=${venue.id}`)}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] font-bold border border-sky-500/20 bg-sky-500/[0.06] hover:bg-sky-500/[0.12] text-sky-400 transition-all">
+                      <LayoutGrid className="w-3 h-3" /> Canchas
+                    </button>
                     <button onClick={() => openEdit(venue)}
                       className="flex-1 inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] font-bold border border-[#ace600]/20 bg-[#ace600]/[0.06] hover:bg-[#ace600]/[0.12] text-[#ace600] transition-all">
                       <Edit2 className="w-3 h-3" /> Editar
@@ -303,6 +368,88 @@ export default function VenuesManagement() {
                       <Trash2 className="w-3 h-3" /> Eliminar
                     </button>
                   </div>
+
+                  {/* Courts section */}
+                  {venue.courts && venue.courts.length > 0 && (
+                    <>
+                      <div className="border-t border-white/[0.05] pt-3">
+                        <button
+                          onClick={() => toggleExpandVenue(venue.id)}
+                          className="w-full flex items-center justify-between px-0 py-2 text-[11px] font-bold uppercase tracking-widest text-white/40 hover:text-white/60 transition-colors"
+                        >
+                          <span className="flex items-center gap-2">
+                            <LayoutGrid className="w-3 h-3" />
+                            Canchas ({venue.courts.length})
+                          </span>
+                          <ChevronDown
+                            className={cn(
+                              'w-3 h-3 transition-transform',
+                              expandedVenues.has(venue.id) ? 'rotate-180' : '',
+                            )}
+                          />
+                        </button>
+
+                        {expandedVenues.has(venue.id) && (
+                          <div className="mt-3 space-y-2 pt-2 border-t border-white/[0.05]">
+                            {venue.courts.map(court => (
+                              <div
+                                key={court.id}
+                                className="p-2.5 bg-white/[0.02] border border-white/[0.05] rounded-xl"
+                              >
+                                <div className="flex items-start justify-between gap-2 mb-1.5">
+                                  <div>
+                                    <p className="text-[11px] font-bold text-white/80">
+                                      {court.name}
+                                    </p>
+                                    <p className="text-[9px] text-white/30 mt-0.5">
+                                      Cancha #{court.court_number}
+                                    </p>
+                                  </div>
+                                  <span
+                                    className={cn(
+                                      'inline-flex items-center px-1.5 py-0.5 rounded-full border text-[9px] font-bold uppercase tracking-wider shrink-0',
+                                      court.is_active
+                                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                        : 'bg-white/[0.04] text-white/25 border-white/[0.08]',
+                                    )}
+                                  >
+                                    {court.is_active ? 'Activa' : 'Inactiva'}
+                                  </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-1">
+                                  <div className="text-[9px]">
+                                    <p className="text-white/25 uppercase tracking-wider mb-0.5">
+                                      Tipo
+                                    </p>
+                                    <p className="text-white/60 font-semibold">
+                                      {labelOf(court.court_type, 'court')}
+                                    </p>
+                                  </div>
+                                  <div className="text-[9px]">
+                                    <p className="text-white/25 uppercase tracking-wider mb-0.5">
+                                      Superficie
+                                    </p>
+                                    <p className="text-white/60 font-semibold">
+                                      {labelOf(court.surface_type, 'surface')}
+                                    </p>
+                                  </div>
+                                  <div className="text-[9px] col-span-2">
+                                    <p className="text-white/25 uppercase tracking-wider mb-0.5">
+                                      Tarifa/Hora
+                                    </p>
+                                    <p className="text-[#ace600] font-bold">
+                                      ${(Number(court.hourly_rate ?? venue.base_price_per_hour) || 0).toFixed(2)}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
@@ -354,19 +501,19 @@ export default function VenuesManagement() {
                     : <Plus className="w-4 h-4 text-[#ace600]" />}
                 </div>
                 <DialogTitle className="text-base font-bold text-white">
-                  {isEdit ? 'Editar Venue' : 'Nuevo Venue'}
+                  {isEdit ? 'Editar Negocio' : 'Nuevo Negocio'}
                 </DialogTitle>
               </div>
               <DialogDescription className="text-xs text-white/25 ml-11">
                 {isEdit
-                  ? 'Actualiza los detalles del venue. Las canchas se actualizarán automáticamente.'
-                  : 'Agrega un nuevo venue. Las canchas se crearán según el número indicado.'}
+                  ? 'Actualiza los detalles del negocio. Las canchas se actualizarán automáticamente.'
+                  : 'Agrega un nuevo negocio. Las canchas se crearán según el número indicado.'}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4">
               {/* Name */}
-              <Field label="Nombre del Venue" req>
+              <Field label="Nombre del Negocio" req>
                 <Input className={inputCls} placeholder="Ej. Canchas Centro"
                   value={form.name} onChange={e => setF('name', e.target.value)} />
               </Field>
@@ -402,7 +549,7 @@ export default function VenuesManagement() {
                     <SelectContent className="bg-[#161c25] border-white/[0.08] rounded-xl shadow-2xl">
                       {COURT_TYPES.map(t => (
                         <SelectItem key={t} value={t} className="text-white/70 focus:bg-white/[0.06] focus:text-white">
-                          {labelOf(t)}
+                          {labelOf(t, 'court')}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -414,7 +561,7 @@ export default function VenuesManagement() {
                     <SelectContent className="bg-[#161c25] border-white/[0.08] rounded-xl shadow-2xl">
                       {SURFACE_TYPES.map(t => (
                         <SelectItem key={t} value={t} className="text-white/70 focus:bg-white/[0.06] focus:text-white">
-                          {labelOf(t)}
+                          {labelOf(t, 'surface')}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -467,7 +614,48 @@ export default function VenuesManagement() {
                 )}>
                 {loading
                   ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando…</>
-                  : isEdit ? 'Actualizar Venue' : 'Crear Venue'
+                  : isEdit ? 'Actualizar Negocio' : 'Crear Negocio'
+                }
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Delete Confirmation Modal ──────────────────────────────────────────── */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="bg-[#0d1117] border-white/[0.09] rounded-2xl p-0 overflow-hidden max-w-sm">
+          <div className="bg-gradient-to-r from-red-500/60 via-red-500/30 to-transparent h-0.5" />
+
+          <div className="p-6">
+            <DialogHeader className="mb-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                  <AlertCircle className="w-4 h-4 text-red-400" />
+                </div>
+                <DialogTitle className="text-base font-bold text-white">
+                  Eliminar Negocio
+                </DialogTitle>
+              </div>
+              <DialogDescription className="text-white/40 text-xs">
+                Esta acción no se puede deshacer. El negocio y todas sus canchas se eliminarán permanentemente.
+              </DialogDescription>
+            </DialogHeader>
+
+            {/* Delete actions */}
+            <div className="flex gap-2 mt-6 pt-4 border-t border-white/[0.06]">
+              <button onClick={() => { setDeleteConfirmOpen(false); setDeleteVenueId(null); }} disabled={deleting}
+                className="flex-1 h-10 rounded-xl text-xs font-semibold border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/40 hover:text-white transition-all disabled:opacity-50">
+                Cancelar
+              </button>
+              <button onClick={confirmDelete} disabled={deleting}
+                className={cn(
+                  'flex-1 h-10 rounded-xl text-xs font-bold inline-flex items-center justify-center gap-2 transition-all',
+                  'bg-red-500 hover:bg-red-400 text-white shadow-[0_0_12px_rgba(239,68,68,0.18)] disabled:opacity-50',
+                )}>
+                {deleting
+                  ? <><Loader2 className="w-4 h-4 animate-spin" /> Eliminando…</>
+                  : 'Sí, Eliminar'
                 }
               </button>
             </div>

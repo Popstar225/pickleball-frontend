@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/store';
-import { updateCourt, deleteCourt, createCourt, Court } from '@/store/slices/coachDashboardSlice';
+import { updateCourt, deleteCourt, createCourt } from '@/store/slices/courtsSlice';
+import type { Court } from '@/types/api';
 import { useToast } from '@/hooks/use-toast';
 import { X, Loader, Plus, Trash2, Upload, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -146,19 +147,61 @@ export default function CourtActionModal({
   const handleSave = async () => {
     setIsLoading(true);
     try {
+      // Validate required fields
+      if (!formData?.name?.trim()) {
+        toast({
+          title: 'Error',
+          description: 'El nombre de la cancha es requerido',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // For update, filter out unnecessary fields and only send valid court fields
+      const submitData = {
+        name: formData.name,
+        court_type: formData.court_type,
+        surface: formData.surface,
+        description: formData.description || null,
+        capacity: formData.capacity,
+        hourly_rate: formData.hourly_rate,
+        daily_rate: formData.daily_rate,
+        member_discount: formData.member_discount,
+        is_available: formData.is_available,
+        is_maintenance: formData.is_maintenance,
+        maintenance_notes: formData.maintenance_notes || null,
+        maintenance_start: formData.maintenance_start || null,
+        maintenance_end: formData.maintenance_end || null,
+        dimensions: formData.dimensions || null,
+        operating_hours: formData.operating_hours || null,
+        equipment_included: formData.equipment_included || [],
+        amenities: formData.amenities || [],
+        has_lighting: formData.has_lighting,
+        has_net: formData.has_net,
+        has_equipment: formData.has_equipment,
+        photos: formData.photos || [],
+        is_featured: formData.is_featured,
+        is_active: formData.is_active,
+        settings: formData.settings || {},
+        notes: formData.notes || null,
+      };
+
       if (isCreateMode) {
         // Create new court
-        await dispatch(createCourt(formData as any)).unwrap();
+        console.log('[CourtActionModal] Creating court with data:', submitData);
+        await dispatch(createCourt(submitData as any)).unwrap();
         toast({
           title: 'Éxito',
           description: 'Cancha creada correctamente',
         });
       } else if (court?.id) {
         // Update existing court
+        console.log('[CourtActionModal] Updating court', court.id, 'with data:', submitData);
         await dispatch(
           updateCourt({
-            courtId: court.id,
-            updateData: formData,
+            id: court.id,
+            courtData: submitData,
           }),
         ).unwrap();
 
@@ -169,7 +212,17 @@ export default function CourtActionModal({
       }
       onSaveSuccess();
     } catch (error: any) {
-      const errorMessage = error?.message || error?.toString?.() || 'No se pudo guardar la cancha';
+      console.error('[CourtActionModal] Save error:', error);
+      // Handle Redux async thunk errors
+      let errorMessage = 'No se pudo guardar la cancha';
+      if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.payload) {
+        errorMessage = typeof error.payload === 'string' ? error.payload : error.payload?.message || 'Error desconocido';
+      }
+      
       toast({
         title: 'Error',
         description: errorMessage,

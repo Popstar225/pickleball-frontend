@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { api } from '@/lib/api';
 import type { RootState } from '@/store';
 import {
@@ -19,18 +20,22 @@ function eventLabel(ev: any): string {
   return `${ev.skill_block} · ${ev.gender} · ${ev.modality}`;
 }
 
-const STATUS_CFG: Record<string, { label: string; textCls: string; bgCls: string; borderCls: string; dot: string }> = {
-  in_progress: { label: 'En curso',   textCls: 'text-[#ace600]',   bgCls: 'bg-[#ace600]/10',   borderCls: 'border-[#ace600]/25',   dot: 'bg-[#ace600] animate-pulse' },
-  completed:   { label: 'Finalizado', textCls: 'text-emerald-400', bgCls: 'bg-emerald-500/10', borderCls: 'border-emerald-500/25', dot: 'bg-emerald-400' },
-  open:        { label: 'Abierto',    textCls: 'text-sky-400',     bgCls: 'bg-sky-500/10',     borderCls: 'border-sky-500/25',     dot: 'bg-sky-400' },
-  closed:      { label: 'Cerrado',    textCls: 'text-amber-400',   bgCls: 'bg-amber-500/10',   borderCls: 'border-amber-500/25',   dot: 'bg-amber-400' },
-  cancelled:   { label: 'Cancelado',  textCls: 'text-red-400',     bgCls: 'bg-red-500/10',     borderCls: 'border-red-500/25',     dot: 'bg-red-400' },
-  full:        { label: 'Lleno',      textCls: 'text-violet-400',  bgCls: 'bg-violet-500/10',  borderCls: 'border-violet-500/25',  dot: 'bg-violet-400' },
-};
+function getStatusConfig(t: any, status: string) {
+  const statusMap: Record<string, { label: string; textCls: string; bgCls: string; borderCls: string; dot: string }> = {
+    in_progress: { label: t('club_dashboard.schedule.status_in_progress'),   textCls: 'text-[#ace600]',   bgCls: 'bg-[#ace600]/10',   borderCls: 'border-[#ace600]/25',   dot: 'bg-[#ace600] animate-pulse' },
+    completed:   { label: t('club_dashboard.schedule.status_completed'), textCls: 'text-emerald-400', bgCls: 'bg-emerald-500/10', borderCls: 'border-emerald-500/25', dot: 'bg-emerald-400' },
+    open:        { label: t('club_dashboard.schedule.status_open'),    textCls: 'text-sky-400',     bgCls: 'bg-sky-500/10',     borderCls: 'border-sky-500/25',     dot: 'bg-sky-400' },
+    closed:      { label: t('club_dashboard.schedule.status_closed'),    textCls: 'text-amber-400',   bgCls: 'bg-amber-500/10',   borderCls: 'border-amber-500/25',   dot: 'bg-amber-400' },
+    cancelled:   { label: t('club_dashboard.schedule.status_cancelled'),  textCls: 'text-red-400',     bgCls: 'bg-red-500/10',     borderCls: 'border-red-500/25',     dot: 'bg-red-400' },
+    full:        { label: t('club_dashboard.schedule.status_full'),      textCls: 'text-violet-400',  bgCls: 'bg-violet-500/10',  borderCls: 'border-violet-500/25',  dot: 'bg-violet-400' },
+  };
+  return statusMap[status] || { label: '—', textCls: 'text-white/30', bgCls: 'bg-white/[0.04]', borderCls: 'border-white/[0.08]', dot: 'bg-white/20' };
+}
+
 const DEFAULT_STATUS = { label: '—', textCls: 'text-white/30', bgCls: 'bg-white/[0.04]', borderCls: 'border-white/[0.08]', dot: 'bg-white/20' };
 
-function StatusPill({ status }: { status: string }) {
-  const c = STATUS_CFG[status] ?? DEFAULT_STATUS;
+function StatusPill({ status, t }: { status: string; t: any }) {
+  const c = getStatusConfig(t, status) ?? DEFAULT_STATUS;
   return (
     <span className={cn(
       'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest whitespace-nowrap',
@@ -46,10 +51,17 @@ function fmtDate(d: string) {
   return new Date(d).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-interface Tournament { id: string; name: string; status: string; start_date: string; events?: any[] }
+interface Tournament {
+  id: string;
+  name: string;
+  start_date: string;
+  status: string;
+  events: any[];
+}
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function ClubScheduleOverviewPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useSelector((s: RootState) => s.auth.user);
 
@@ -85,7 +97,7 @@ export default function ClubScheduleOverviewPage() {
 
         setTournaments(withEvents.filter(t => (t.events?.length ?? 0) > 0));
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error al cargar torneos');
+        setError(err instanceof Error ? err.message : t('club_dashboard.schedule.error_loading_tournaments'));
       } finally {
         setLoading(false);
       }
@@ -93,11 +105,11 @@ export default function ClubScheduleOverviewPage() {
     load();
   }, [user]);
 
-  // ── Loading ────────────────────────────────────────────────────────────────
+  // ── Loading ────────────────────────────────────────────────────────────
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-24 gap-3">
       <Loader2 className="w-5 h-5 text-[#ace600] animate-spin" />
-      <p className="text-xs text-white/20">Cargando torneos…</p>
+      <p className="text-xs text-white/20">{t('club_dashboard.schedule.loading')}</p>
     </div>
   );
 
@@ -180,7 +192,7 @@ export default function ClubScheduleOverviewPage() {
                     </span>
                   </p>
                 </div>
-                <StatusPill status={tournament.status} />
+                <StatusPill status={tournament.status} t={t} />
               </div>
 
               {/* Events list */}
@@ -210,7 +222,7 @@ export default function ClubScheduleOverviewPage() {
                             {ev.number_of_groups} grupos
                           </span>
                         )}
-                        <StatusPill status={ev.registration_status} />
+                        <StatusPill status={ev.registration_status} t={t} />
                       </div>
                     </div>
 

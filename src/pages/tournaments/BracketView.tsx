@@ -136,9 +136,9 @@ const BracketMatch: React.FC<{
         <div className="flex items-center gap-1">
           {getStatusIcon(match.status, 3)}
           <span className="text-[9px] text-white/40">
-            {match.status === 'pending' && 'Pending'}
-            {match.status === 'in_progress' && 'In Progress'}
-            {match.status === 'completed' && 'Complete'}
+            {match.status === 'pending' && 'Pendiente'}
+            {match.status === 'in_progress' && 'En curso'}
+            {match.status === 'completed' && 'Completado'}
             {match.status === 'walkover' && 'Walkover'}
           </span>
         </div>
@@ -206,7 +206,7 @@ export const BracketView: React.FC = () => {
       setData(response);
       setError(null);
     } catch (err: any) {
-      setError(err.message || 'Failed to load bracket');
+      setError(err.message || 'Error al cargar el bracket');
     } finally {
       setLoading(false);
     }
@@ -215,7 +215,7 @@ export const BracketView: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center py-20">
-        <p className="text-white/40">Loading bracket...</p>
+        <p className="text-white/40">Cargando bracket...</p>
       </div>
     );
   }
@@ -224,7 +224,7 @@ export const BracketView: React.FC = () => {
     return (
       <div className="text-center py-20">
         <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-        <p className="text-white/60">Bracket not found</p>
+        <p className="text-white/60">Bracket no encontrado</p>
       </div>
     );
   }
@@ -241,11 +241,11 @@ export const BracketView: React.FC = () => {
   const rounds = Array.from(matchesByRound.entries()).sort((a, b) => a[0] - b[0]);
 
   const getRoundName = (roundNumber: number, totalRounds: number): string => {
-    if (roundNumber === 1) return 'Round of ' + Math.pow(2, totalRounds);
+    if (roundNumber === 1) return 'Ronda de ' + Math.pow(2, totalRounds);
     if (roundNumber === totalRounds) return 'Final';
-    if (roundNumber === totalRounds - 1) return 'Semifinals';
-    if (roundNumber === totalRounds - 2) return 'Quarterfinals';
-    return `Round ${roundNumber}`;
+    if (roundNumber === totalRounds - 1) return 'Semifinales';
+    if (roundNumber === totalRounds - 2) return 'Cuartos de Final';
+    return `Ronda ${roundNumber}`;
   };
 
   return (
@@ -263,7 +263,7 @@ export const BracketView: React.FC = () => {
               >
                 <ArrowLeft className="w-4 h-4" />
               </Button>
-              <h1 className="text-xl font-bold text-white">Tournament Bracket</h1>
+              <h1 className="text-xl font-bold text-white">Bracket del Torneo</h1>
             </div>
             <p className="text-sm text-white/40 ml-10">
               {data.tournament_name} • {data.event_type}
@@ -285,15 +285,15 @@ export const BracketView: React.FC = () => {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <div className="flex items-center gap-2 text-emerald-400">
             {getStatusIcon('completed', 4)}
-            <span>Completed</span>
+            <span>Completado</span>
           </div>
           <div className="flex items-center gap-2 text-sky-400">
             {getStatusIcon('in_progress', 4)}
-            <span>In Progress</span>
+            <span>En curso</span>
           </div>
           <div className="flex items-center gap-2 text-white/40">
             {getStatusIcon('pending', 4)}
-            <span>Pending</span>
+            <span>Pendiente</span>
           </div>
           <div className="flex items-center gap-2 text-amber-400">
             {getStatusIcon('walkover', 4)}
@@ -305,9 +305,9 @@ export const BracketView: React.FC = () => {
         {rounds.length === 0 ? (
           <div className="text-center py-10 bg-[#161c25] border border-white/[0.08] rounded-xl">
             <AlertCircle className="w-12 h-12 text-white/20 mx-auto mb-3" />
-            <p className="text-white/40">No bracket data available yet</p>
+            <p className="text-white/40">Aún no hay datos del bracket</p>
             <p className="text-sm text-white/20 mt-1">
-              Bracket will be generated once tournament starts
+              El bracket se generará una vez que inicie el torneo
             </p>
           </div>
         ) : (
@@ -330,44 +330,44 @@ export const BracketView: React.FC = () => {
         {/* BRACKET INFO CARD */}
         {rounds.length > 0 && (
           <div className="bg-[#161c25] border border-white/[0.08] rounded-xl p-4 space-y-3">
-            <h3 className="text-sm font-bold text-white">Bracket Information</h3>
+            <h3 className="text-sm font-bold text-white">Información del Bracket</h3>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <p className="text-white/40 text-xs">Total Rounds</p>
+                <p className="text-white/40 text-xs">Total de Rondas</p>
                 <p className="text-white font-semibold">{data.total_rounds}</p>
               </div>
               <div>
-                <p className="text-white/40 text-xs">Total Matches</p>
+                <p className="text-white/40 text-xs">Total de Partidos</p>
                 <p className="text-white font-semibold">{data.matches.length}</p>
               </div>
               <div>
-                <p className="text-white/40 text-xs">Format</p>
-                <p className="text-white font-semibold">Single Elimination</p>
+                <p className="text-white/40 text-xs">Formato</p>
+                <p className="text-white font-semibold">Eliminación Directa</p>
               </div>
               <div>
-                <p className="text-white/40 text-xs">Event</p>
+                <p className="text-white/40 text-xs">Evento</p>
                 <p className="text-white font-semibold">{data.event_type}</p>
               </div>
             </div>
 
             {/* PROGRESS */}
             <div>
-              <p className="text-white/40 text-xs mb-2">Progress</p>
+              <p className="text-white/40 text-xs mb-2">Progreso</p>
               <div className="space-y-1 text-xs">
                 <div className="flex justify-between text-white/60">
-                  <span>Completed</span>
+                  <span>Completados</span>
                   <span className="font-bold text-emerald-400">
                     {data.matches.filter((m) => m.status === 'completed').length}
                   </span>
                 </div>
                 <div className="flex justify-between text-white/60">
-                  <span>In Progress</span>
+                  <span>En curso</span>
                   <span className="font-bold text-sky-400">
                     {data.matches.filter((m) => m.status === 'in_progress').length}
                   </span>
                 </div>
                 <div className="flex justify-between text-white/60">
-                  <span>Pending</span>
+                  <span>Pendientes</span>
                   <span className="font-bold text-white/40">
                     {data.matches.filter((m) => m.status === 'pending').length}
                   </span>
@@ -379,23 +379,23 @@ export const BracketView: React.FC = () => {
 
         {/* HOW BRACKET WORKS */}
         <div className="bg-[#161c25] border border-white/[0.08] rounded-xl p-4 space-y-3">
-          <h3 className="text-sm font-bold text-white">How Bracket Works</h3>
+          <h3 className="text-sm font-bold text-white">Cómo Funciona el Bracket</h3>
           <ol className="space-y-2 text-xs text-white/60">
             <li className="flex gap-2">
               <span className="text-[#ace600] font-bold shrink-0">1.</span>
-              <span>Winners advance to the next round automatically</span>
+              <span>Los ganadores avanzan automáticamente a la siguiente ronda</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600] font-bold shrink-0">2.</span>
-              <span>BYE boxes indicate players with automatic advancement (odd seeding)</span>
+              <span>Los cuadros BYE indican jugadores con avance automático (semilla impar)</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600] font-bold shrink-0">3.</span>
-              <span>Final match determines tournament champion</span>
+              <span>El partido final determina al campeón del torneo</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600] font-bold shrink-0">4.</span>
-              <span>All matches must be completed to advance</span>
+              <span>Todos los partidos deben completarse para avanzar</span>
             </li>
           </ol>
         </div>

@@ -6,7 +6,7 @@ import { getFullImageUrl } from '@/common/tools';
 
 const navItems: NavItem[] = [
   {
-    title: 'Dashboard',
+    title: 'Panel de estatal',
     url: '/state/dashboard/home',
     icon: LayoutDashboard,
     description: 'Vista general',

@@ -289,11 +289,11 @@ export const renewPlayerCredentialExample = {
 export const searchClubsExample = {
   dispatch: `dispatch(searchClubs({
     query: 'Pickleball',
-    city: 'Mexico City',
+    city: 'Ciudad de México',
     limit: 10,
     offset: 0
   }))`,
-  endpoint: `GET /api/players/clubs/search?q=Pickleball&city=Mexico%20City&limit=10&offset=0`,
+  endpoint: `GET /api/players/clubs/search?q=Pickleball&city=Ciudad%20de%20México&limit=10&offset=0`,
   response: {
     success: true,
     data: {
@@ -302,7 +302,7 @@ export const searchClubsExample = {
           id: 'club_001',
           name: 'Club Pickleball Central',
           location: 'Downtown',
-          city: 'Mexico City',
+          city: 'Ciudad de México',
           state: 'Mexico',
           coordinatorName: 'Juan García',
           phone: '+52 55 1234 5678',
@@ -428,7 +428,7 @@ export const fetchClubProfileExample = {
       id: 'club_001',
       name: 'Club Pickleball Central',
       location: 'Centro Deportivo Downtown',
-      city: 'Mexico City',
+      city: 'Ciudad de México',
       state: 'Mexico',
       coordinatorName: 'Juan García López',
       coordinatorEmail: 'juan@clubcentral.com',
@@ -440,7 +440,7 @@ export const fetchClubProfileExample = {
       activeMembers: 142,
       totalMembers: 150,
       website: 'https://clubcentral.com',
-      description: 'Leading pickleball club in Mexico City',
+      description: 'Leading pickleball club in Ciudad de México',
       logoUrl: 'https://cdn.federacion.com/logos/clubcentral.png',
       createdAt: '2020-06-15T10:00:00Z',
       updatedAt: '2024-01-15T14:30:00Z',

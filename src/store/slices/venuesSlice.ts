@@ -115,10 +115,53 @@ export const createVenue = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const response = await api.post('/venues', payload);
+      // Validate payload before sending
+      if (!payload.club_id) {
+        console.error('❌ Missing club_id');
+        return rejectWithValue('Club ID is required');
+      }
+      if (!payload.name) {
+        console.error('❌ Missing name');
+        return rejectWithValue('Venue name is required');
+      }
+      if (payload.number_of_courts <= 0) {
+        console.error('❌ Invalid number_of_courts:', payload.number_of_courts);
+        return rejectWithValue('Number of courts must be greater than 0');
+      }
+
+      // Map field names to match backend expectations
+      const apiPayload = {
+        club_id: payload.club_id,
+        name: payload.name,
+        state: payload.state || '',
+        address: payload.address || '',
+        phone: payload.phone || '',
+        whatsapp: payload.whatsapp || '',
+        court_type: payload.court_type || 'outdoor',
+        surface_type: payload.surface_type || 'concrete',
+        base_price_per_hour: Number(payload.base_price_per_hour) || 0,
+        number_of_courts: Number(payload.number_of_courts) || 1,
+        operating_hours: payload.operating_hours,
+        payment_config: payload.payment_config,
+        description: payload.description || '',
+        facilities: payload.facilities || [],
+      };
+
+      console.log('📤 CREATE VENUE - Full Payload:', JSON.stringify(apiPayload, null, 2));
+      console.log('📊 Court Details: type=%s, surface=%s, price=$%d, count=%d', 
+        apiPayload.court_type, apiPayload.surface_type, apiPayload.base_price_per_hour, apiPayload.number_of_courts);
+
+      const response = await api.post('/venues', apiPayload);
+      console.log('✅ Venue created successfully:', response);
       return (response as any).data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create venue');
+      const errorMsg = error.response?.data?.message || error.message || 'Failed to create venue';
+      const errorDetails = error.response?.data?.details || error.response?.data;
+      console.error('❌ VENUE CREATION FAILED');
+      console.error('   Message:', errorMsg);
+      console.error('   Details:', errorDetails);
+      console.error('   Full Error:', error.response?.data || error);
+      return rejectWithValue(errorMsg);
     }
   },
 );

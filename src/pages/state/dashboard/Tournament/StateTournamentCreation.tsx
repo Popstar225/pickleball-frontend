@@ -600,7 +600,7 @@ const StateTournamentCreation: React.FC<StateTournamentCreationProps> = ({
                       className={inputBase}
                       value={form.city}
                       onChange={(e) => set('city', e.target.value)}
-                      placeholder="e.g. Mexico City"
+                      placeholder="e.g. Ciudad de México"
                     />
                   </Field>
                 </div>

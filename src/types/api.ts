@@ -1103,6 +1103,7 @@ export interface CourtsQueryParams {
   page?: number;
   limit?: number;
   club_id?: string;
+  venue_id?: string;
   court_type?: 'indoor' | 'outdoor' | 'covered';
   surface?: 'concrete' | 'asphalt' | 'synthetic' | 'grass' | 'clay';
   is_available?: boolean;

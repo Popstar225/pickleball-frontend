@@ -465,7 +465,7 @@ export default function PlayerPaymentsPage() {
                           <span className="font-sans font-extrabold text-[15px] text-[#C8FF00]">
                             ${Number(payment.amount).toLocaleString()}
                           </span>
-                          <span className="text-[11px] text-white/88 ml-1">
+                          <span className="text-[11px] text-white ml-1">
                             {payment.currency?.toUpperCase() || 'MXN'}
                           </span>
                         </TableCell>
