@@ -14,7 +14,7 @@ import {
   ChatMessage,
 } from '../store/slices/messagesSlice';
 
-const SOCKET_URL = 'http://localhost:5000';
+const SOCKET_URL = import.meta.env.SERVER_BASE_URL || 'http://localhost:5000';
 
 interface SendMessagePayload {
   recipient_id: string;

@@ -12,7 +12,7 @@
 import io from 'socket.io-client';
 
 // Initialize socket connection to payments namespace
-const socket = io('http://localhost:5000/payments', {
+const socket = io(`${import.meta.env.SERVER_BASE_URL}/payments`, {
   auth: {
     token: localStorage.getItem('authToken'),
   },

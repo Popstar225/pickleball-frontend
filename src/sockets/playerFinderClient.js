@@ -11,7 +11,7 @@
 import io from 'socket.io-client';
 
 // Initialize socket connection to player finder namespace
-const socket = io('http://localhost:5000/player-finder', {
+const socket = io(`${import.meta.env.SERVER_BASE_URL}/player-finder`, {
   auth: {
     token: localStorage.getItem('authToken'),
   },

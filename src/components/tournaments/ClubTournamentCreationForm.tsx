@@ -149,6 +149,15 @@ const modalityCls: Record<string, string> = {
   Mixed: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
 };
 
+const translateModality = (modality: string): string => {
+  const translations: Record<string, string> = {
+    singles: 'Individual',
+    doubles: 'Dobles',
+    mixed: 'Mixto',
+  };
+  return translations[modality] || modality;
+};
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export const ClubTournamentCreationForm: React.FC<Props> = ({ onSuccess, onCancel }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -263,7 +272,7 @@ export const ClubTournamentCreationForm: React.FC<Props> = ({ onSuccess, onCance
           <h1 className="text-[22px] font-bold text-white tracking-tight">Crear Torneo Local</h1>
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]">
             <span className="w-1.5 h-1.5 rounded-full bg-[#ace600] animate-pulse" />
-            Club
+            Negocio
           </span>
         </div>
         <p className="text-xs text-white/25">
@@ -661,7 +670,7 @@ export const ClubTournamentCreationForm: React.FC<Props> = ({ onSuccess, onCance
                                     'bg-white/[0.05] text-white/30 border-white/[0.08]',
                                 )}
                               >
-                                {event.modality}
+                                {translateModality(event.modality)}
                               </span>
                             </div>
                           </div>

@@ -11,7 +11,7 @@
 import io from 'socket.io-client';
 
 // Initialize socket connection to reservations namespace
-const socket = io('http://localhost:5000/reservations', {
+const socket = io(`${import.meta.env.SERVER_BASE_URL}/reservations`, {
   auth: {
     token: localStorage.getItem('authToken'),
   },

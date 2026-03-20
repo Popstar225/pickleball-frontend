@@ -11,7 +11,7 @@
 import io from 'socket.io-client';
 
 // Initialize socket connection to messaging namespace
-const socket = io('http://localhost:5000/messaging', {
+const socket = io(`${import.meta.env.SERVER_BASE_URL}/messaging`, {
   auth: {
     token: localStorage.getItem('authToken'),
   },

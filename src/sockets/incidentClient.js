@@ -11,7 +11,7 @@
 import io from 'socket.io-client';
 
 // Initialize socket connection to incidents namespace
-const socket = io('http://localhost:5000/incidents', {
+const socket = io(`${process.env.NEXT_PUBLIC_API_BASE_URL}/incidents`, {
   auth: {
     token: localStorage.getItem('authToken'),
   },

@@ -15,7 +15,7 @@
 import io from 'socket.io-client';
 
 // Initialize socket connection to tournament bracket namespace
-const socket = io('http://localhost:5000/tournament-bracket', {
+const socket = io(`${import.meta.env.SERVER_BASE_URL}/tournament-bracket`, {
   auth: {
     token: localStorage.getItem('authToken'), // JWT token from authentication
   },
