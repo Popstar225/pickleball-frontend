@@ -102,6 +102,7 @@ import ClubAccountPage from './pages/clubs/dashboard/ClubAccountPage';
 import ClubMembersPage from './pages/clubs/dashboard/ClubMembersPage';
 import ClubCourtsPage from './pages/clubs/dashboard/CourtsManagement';
 import ClubVenuesPage from './pages/clubs/dashboard/VenuesManagement';
+import AdminVenuesManagement from './pages/admin/dashboard/VenuesManagement';
 import TournamentEventManagement from './pages/clubs/dashboard/Tournament/TournamentEventManagement';
 import TournamentManagement from './pages/clubs/dashboard/Tournament/TournamentManagement';
 import ClubTournamentManagementPage from './pages/clubs/dashboard/Tournament/ClubTournamentManagementPage';
@@ -541,9 +542,9 @@ export const routes = [
         public: false,
       },
       {
-        key: 'dashboard-clubs',
+        key: 'dashboard-venues',
         path: '/admin/dashboard/venues',
-        element: <ClubVenuesPage />,
+        element: <AdminVenuesManagement />,
         public: false,
       },
       {
