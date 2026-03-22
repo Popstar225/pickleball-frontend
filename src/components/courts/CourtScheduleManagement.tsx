@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { fetchCourts } from '@/store/slices/courtsSlice';
 import type { Court } from '../../types/api';
+import { COURT_SURFACES as SURFACE_LABEL } from '@/constants/constants';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Clock, Calendar, Loader2, LayoutGrid, ChevronRight,
@@ -20,11 +21,6 @@ import CourtImage from '@/assets/images/courts/court4.jpg'
 // ─── Tokens ───────────────────────────────────────────────────────────────────
 const COURT_TYPE_LABEL: Record<string, string> = {
   indoor: 'Cubierta', outdoor: 'Abierta', covered: 'Techada',
-};
-const SURFACE_LABEL: Record<string, string> = {
-  concrete: 'Concreto', asphalt: 'Asfalto', synthetic: 'Sintético',
-  grass: 'Pasto', clay: 'Arcilla', wood: 'Madera', acrylic: 'Acrílico',
-  tartan: 'Tartán', other: 'Otro',
 };
 
 interface OperatingHours {

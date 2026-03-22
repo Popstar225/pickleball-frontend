@@ -114,7 +114,7 @@ const RegistrationConfirmationPage: React.FC<Props> = ({ tournamentId, registrat
         );
         const registration = (regResponse as any)?.registration;
         if (!registration?.id) {
-          setError('Registration not found');
+        setError('Registro no encontrado');
           setLoading(false);
           return;
         }
@@ -122,7 +122,7 @@ const RegistrationConfirmationPage: React.FC<Props> = ({ tournamentId, registrat
         const tournRes = await api.get<ApiResponse<any>>(`/tournaments/${tournamentId}`);
         setTournamentData((tournRes as any)?.tournament || (tournRes as any)?.data);
       } catch (err) {
-        setError('Failed to load confirmation details');
+        setError('No se pudieron cargar los detalles de confirmación');
       } finally {
         setLoading(false);
       }
@@ -132,7 +132,7 @@ const RegistrationConfirmationPage: React.FC<Props> = ({ tournamentId, registrat
 
   const handleDownloadConfirmation = () => {
     if (!registrationData || !tournamentData) return;
-    const content = `TOURNAMENT REGISTRATION CONFIRMATION\n\nRegistration ID: ${registrationData.id}\nTournament: ${tournamentData.name}\nPlayer: ${registrationData.player.full_name}\nEvent: ${registrationData.event.name}\nEntry Fee: $${registrationData.entryFee.toFixed(2)}\nPayment Status: ${registrationData.paymentStatus.toUpperCase()}`;
+    const content = `CONFIRMACIÓN DE REGISTRO DE TORNEO\n\nID de Registro: ${registrationData.id}\nTorneo: ${tournamentData.name}\nJugador: ${registrationData.player.full_name}\nEvento: ${registrationData.event.name}\nCuota de Inscripción: $${registrationData.entryFee.toFixed(2)}\nEstado de Pago: ${registrationData.paymentStatus.toUpperCase()}`;
     const el = document.createElement('a');
     el.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
     el.setAttribute('download', `registration-${registrationId}.txt`);
@@ -144,9 +144,9 @@ const RegistrationConfirmationPage: React.FC<Props> = ({ tournamentId, registrat
 
   const handleShare = () => {
     if (!registrationData || !tournamentData) return;
-    const shareText = `I've registered for ${tournamentData.name}! Event: ${registrationData.event.name}. Registration ID: ${registrationData.id}`;
+    const shareText = `\u00a1Me he registrado para ${tournamentData.name}! Evento: ${registrationData.event.name}. ID de Registro: ${registrationData.id}`;
     if (navigator.share) {
-      navigator.share({ title: 'Tournament Registration', text: shareText });
+      navigator.share({ title: 'Registro de Torneo', text: shareText });
     } else {
       navigator.clipboard.writeText(shareText);
     }
@@ -168,7 +168,7 @@ const RegistrationConfirmationPage: React.FC<Props> = ({ tournamentId, registrat
         <div className="w-12 h-12 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
           <Trophy className="w-5 h-5 text-white/10" />
         </div>
-        <p className="text-sm text-white/30">{error || 'Confirmation not found'}</p>
+        <p className="text-sm text-white/30">{error || 'Confirmación no encontrada'}</p>
         <button
           onClick={() => navigate('/tournaments')}
           className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#ace600]/60 hover:text-[#ace600] transition-colors"

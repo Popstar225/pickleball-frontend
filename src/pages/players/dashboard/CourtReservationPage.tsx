@@ -85,19 +85,19 @@ function fmtHour(h: number) {
 }
 
 const SURFACE_LABELS: Record<string, string> = {
-  acrylic: 'Acrylic',
-  clay: 'Clay',
-  grass: 'Grass',
-  hardcourt: 'Hardcourt',
+  acrylic: 'Acrílico',
+  clay: 'Arcilla',
+  grass: 'Pasto',
+  hardcourt: 'Cancha Dura',
   wood: 'Wood',
-  concrete: 'Concrete',
-  synthetic: 'Synthetic',
+  concrete: 'Concreto',
+  synthetic: 'Sintético',
 };
 
 const TYPE_LABELS: Record<string, string> = {
-  outdoor: 'Outdoor',
-  indoor: 'Indoor',
-  covered: 'Covered',
+  outdoor: 'Exterior',
+  indoor: 'Interior',
+  covered: 'Cubierto',
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -377,7 +377,7 @@ export default function CourtReservationPage() {
             <p className="text-xs text-gray-300 mt-0.5">Browse courts, check availability and book your slot</p>
           </div>
           <Badge className="bg-[#ace600]/10 text-[#ace600] border border-[#ace600]/25 text-xs">
-            {courts.length} courts
+            {courts.length} canchas
           </Badge>
         </div>
       </div>
@@ -396,7 +396,7 @@ export default function CourtReservationPage() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search courts, venues…"
+                placeholder="Busca canchas, lugares…"
                 className="w-full bg-[#161b22] border border-white/10 rounded-lg pl-8 pr-3 py-2 text-sm text-white placeholder:text-gray-300 focus:outline-none focus:border-[#ace600]/40 transition-colors"
               />
             </div>
@@ -406,7 +406,7 @@ export default function CourtReservationPage() {
               className="flex items-center gap-1.5 text-xs text-gray-300 hover:text-gray-300 transition-colors"
             >
               <SlidersHorizontal className="w-3 h-3" />
-              Filters
+              Filtros
               {(filterType || filterSurface) && (
                 <span className="ml-1 w-4 h-4 rounded-full bg-[#ace600] text-black text-[10px] font-bold flex items-center justify-center">
                   {(filterType ? 1 : 0) + (filterSurface ? 1 : 0)}
@@ -419,7 +419,7 @@ export default function CourtReservationPage() {
               <div className="space-y-2 pt-1">
                 {/* Type filter */}
                 <div>
-                  <p className="text-[10px] text-gray-300 uppercase tracking-wider mb-1">Court Type</p>
+                  <p className="text-[10px] text-gray-300 uppercase tracking-wider mb-1">Tipo de Cancha</p>
                   <div className="flex flex-wrap gap-1">
                     <button
                       onClick={() => setFilterType('')}
@@ -429,7 +429,7 @@ export default function CourtReservationPage() {
                           : 'border-white/10 text-gray-300 hover:border-white/20'
                       }`}
                     >
-                      All
+                      Todos
                     </button>
                     {courtTypes.map((t) => (
                       <button
@@ -449,7 +449,7 @@ export default function CourtReservationPage() {
                 {/* Surface filter */}
                 {surfaceTypes.length > 0 && (
                   <div>
-                    <p className="text-[10px] text-gray-300 uppercase tracking-wider mb-1">Surface</p>
+                    <p className="text-[10px] text-gray-300 uppercase tracking-wider mb-1">Superficie</p>
                     <div className="flex flex-wrap gap-1">
                       <button
                         onClick={() => setFilterSurface('')}
@@ -459,7 +459,7 @@ export default function CourtReservationPage() {
                             : 'border-white/10 text-gray-300 hover:border-white/20'
                         }`}
                       >
-                        All
+                        Todos
                       </button>
                       {surfaceTypes.map((s) => (
                         <button
@@ -482,7 +482,7 @@ export default function CourtReservationPage() {
                     onClick={() => { setFilterType(''); setFilterSurface(''); }}
                     className="text-[11px] text-red-400/70 hover:text-red-400 transition-colors"
                   >
-                    Clear filters
+                    Limpiar filtros
                   </button>
                 )}
               </div>
@@ -494,7 +494,7 @@ export default function CourtReservationPage() {
             {loadingCourts ? (
               <div className="flex items-center justify-center py-12 gap-2 text-sm text-gray-300">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Loading courts…
+                Cargando canchas…
               </div>
             ) : filteredCourts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 gap-2 text-center px-4">

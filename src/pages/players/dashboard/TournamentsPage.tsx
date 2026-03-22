@@ -560,8 +560,8 @@ export default function PlayerTournamentsPage() {
             )}
 
             <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/[0.04]">
-              <span className="text-xs text-white/88">
-                <span className="font-semibold text-white/50">{filtered.length}</span> torneos
+              <span className="text-xs text-white">
+                <span className="font-semibold text-white">{filtered.length}</span> torneos
                 encontrados
               </span>
               {hasFilters && (

@@ -199,20 +199,20 @@ export default function DashboardLayoutBase({
           <SidebarContent />
           {!collapsed && <div className="mx-3 my-4 border-t border-slate-800" />}
           <div className="px-3 space-y-1">
-            <Link
-              to={`${basePath}/settings`}
-              className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+            <div
+              className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-slate-600 cursor-not-allowed select-none"
+              title="Próximamente"
             >
               <Settings className="h-5 w-5 flex-shrink-0" />
               {!collapsed && <span>Configuración</span>}
-            </Link>
-            <Link
-              to={`${basePath}/help`}
-              className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+            </div>
+            <div
+              className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-slate-600 cursor-not-allowed select-none"
+              title="Próximamente"
             >
               <HelpCircle className="h-5 w-5 flex-shrink-0" />
               {!collapsed && <span>Ayuda</span>}
-            </Link>
+            </div>
           </div>
         </div>
 
@@ -533,14 +533,13 @@ export default function DashboardLayoutBase({
                         <User className="h-4 w-4" />
                         <span>Mi Perfil</span>
                       </Link>
-                      <Link
-                        to={`${basePath}/settings`}
-                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
-                        onClick={() => setUserMenuOpen(false)}
+                      <div
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 cursor-not-allowed select-none"
+                        title="Próximamente"
                       >
                         <Settings className="h-4 w-4" />
                         <span>Configuración</span>
-                      </Link>
+                      </div>
                     </div>
 
                     <div className="border-t border-slate-700 p-2">

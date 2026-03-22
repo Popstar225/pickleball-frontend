@@ -30,24 +30,18 @@ import {
   SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { COURT_SURFACES, COURT_SURFACE_COLORS } from '@/constants/constants';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const COURT_TYPES: Record<string, string> = {
   indoor: 'Cubierta', outdoor: 'Aire Libre', covered: 'Techada',
-};
-const COURT_SURFACES: Record<string, string> = {
-  concrete: 'Concreto', asphalt: 'Asfalto', synthetic: 'Sintética',
-  grass: 'Pasto', clay: 'Arcilla',
 };
 const TYPE_STYLES: Record<string, { bg: string; border: string; text: string }> = {
   indoor:  { bg: 'bg-violet-500/10', border: 'border-violet-500/20', text: 'text-violet-400' },
   outdoor: { bg: 'bg-amber-500/10',  border: 'border-amber-500/20',  text: 'text-amber-400'  },
   covered: { bg: 'bg-sky-500/10',    border: 'border-sky-500/20',    text: 'text-sky-400'    },
 };
-const SURFACE_DOT: Record<string, string> = {
-  concrete: 'bg-slate-400', asphalt: 'bg-slate-500', synthetic: 'bg-sky-400',
-  grass: 'bg-emerald-400', clay: 'bg-orange-400',
-};
+const SURFACE_DOT = COURT_SURFACE_COLORS;
 
 // ─── Atoms ────────────────────────────────────────────────────────────────────
 function TypeBadge({ type }: { type?: string }) {

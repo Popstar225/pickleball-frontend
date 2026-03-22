@@ -36,6 +36,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { X, Loader2, AlertTriangle, DollarSign, MapPin, Users, Trash2 } from 'lucide-react';
 import { Court, CreateCourtRequest } from '../../../../types/api';
+import { COURT_SURFACES as SHARED_COURT_SURFACES, COURT_SURFACE_OPTIONS } from '@/constants/constants';
 
 const COURT_TYPES = {
   indoor: 'Cubierta',
@@ -43,13 +44,7 @@ const COURT_TYPES = {
   covered: 'Techada',
 };
 
-const COURT_SURFACES = {
-  concrete: 'Concreto',
-  asphalt: 'Asfalto',
-  synthetic: 'Sintética',
-  grass: 'Pasto',
-  clay: 'Arcilla',
-};
+const COURT_SURFACES = SHARED_COURT_SURFACES;
 
 interface CourtActionModalProps {
   isOpen: boolean;

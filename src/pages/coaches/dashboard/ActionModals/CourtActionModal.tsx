@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { COURT_SURFACE_OPTIONS, type CourtSurface } from '@/constants/constants';
 
 const ACCENT = '#ace600';
 const labelCls = 'block text-[11px] font-semibold text-[#4a5a72] uppercase tracking-widest mb-1.5';
@@ -201,8 +202,8 @@ export default function CourtActionModal({
                     <SelectValue placeholder="Selecciona tipo" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#111827] border-white/10">
-                    <SelectItem value="indoor">Indoor</SelectItem>
-                    <SelectItem value="outdoor">Outdoor</SelectItem>
+                    <SelectItem value="indoor">Interior</SelectItem>
+                    <SelectItem value="outdoor">Exterior</SelectItem>
                     <SelectItem value="covered">Cubierta</SelectItem>
                   </SelectContent>
                 </Select>
@@ -216,7 +217,7 @@ export default function CourtActionModal({
                   onValueChange={(value) =>
                     setFormData({
                       ...formData,
-                      surface: value as 'concrete' | 'asphalt' | 'synthetic' | 'grass' | 'clay',
+                      surface: value as CourtSurface,
                     })
                   }
                 >
@@ -227,11 +228,9 @@ export default function CourtActionModal({
                     <SelectValue placeholder="Selecciona superficie" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#111827] border-white/10">
-                    <SelectItem value="concrete">Concreto</SelectItem>
-                    <SelectItem value="asphalt">Asfalto</SelectItem>
-                    <SelectItem value="synthetic">Sintético</SelectItem>
-                    <SelectItem value="grass">Pasto</SelectItem>
-                    <SelectItem value="clay">Arcilla</SelectItem>
+                    {COURT_SURFACE_OPTIONS.map(({ value, label }) => (
+                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

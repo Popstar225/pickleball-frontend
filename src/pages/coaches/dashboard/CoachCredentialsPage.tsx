@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import { fetchMyCoachCredential, setMyCredential } from '@/store/slices/coachDashboardSlice';
+import { fetchMyCoachCredential, fetchCoachProfile, setMyCredential } from '@/store/slices/coachDashboardSlice';
 import { DigitalCredentialPaymentModal } from '@/components/payment/DigitalCredentialPaymentModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -84,10 +84,9 @@ function BenefitRow({ icon: Icon, text }: { icon: LucideIcon; text: string }) {
 /* ─── Main Page ─────────────────────────────────────────────── */
 export default function CoachCredentialsPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { myCredential, myCredentialLoading, myCredentialError } = useSelector(
+  const { myCredential, myCredentialLoading, myCredentialError, profile } = useSelector(
     (state: RootState) => state.coachDashboard,
   );
-  const [isRenewing, setIsRenewing] = useState(false);
   const [paymentModal, setPaymentModal] = useState<{
     open: boolean;
     planType: 'basic' | 'membership' | 'premium';
@@ -97,6 +96,7 @@ export default function CoachCredentialsPage() {
 
   useEffect(() => {
     dispatch(fetchMyCoachCredential());
+    dispatch(fetchCoachProfile());
   }, [dispatch]);
 
   const paymentPlans = [
@@ -158,14 +158,17 @@ export default function CoachCredentialsPage() {
     setPaymentModal(null);
     if (credential) {
       dispatch(setMyCredential(credential));
-    } else {
-      dispatch(fetchMyCoachCredential());
     }
+    dispatch(fetchMyCoachCredential());
   };
 
   const handleRenew = () => {
-    setIsRenewing(true);
-    setTimeout(() => setIsRenewing(false), 2000);
+    setPaymentModal({
+      open: true,
+      planType: 'membership',
+      planName: 'Licencia Profesional',
+      amount: 350,
+    });
   };
 
   const paymentHistory = [{
@@ -177,9 +180,13 @@ export default function CoachCredentialsPage() {
   }];
 
   const nrtpLevelMap: Record<string, number> = {
+    '2.5': 2.5, '3.0': 3.0, '3.5': 3.5, '4.0': 4.0, '4.5': 4.5, '5+': 5, '5.0': 5,
     'Level 1': 1, 'Level 2': 2, 'Level 3': 3, 'Level 4': 4, Pro: 5,
   };
-  const nrtpPct = myCredential ? ((nrtpLevelMap[myCredential.nrtp_level] || 3) / 5) * 100 : 0;
+  const rawNrtp = myCredential?.nrtp_level;
+  const nrtpNumeric = rawNrtp ? (nrtpLevelMap[rawNrtp] ?? parseFloat(rawNrtp) ?? 3) : 3;
+  const nrtpPct = myCredential ? (Math.min(nrtpNumeric, 5) / 5) * 100 : 0;
+  const isExpired = myCredential ? getExpiryDate(myCredential) < new Date() : false;
 
   const benefits: [LucideIcon, string][] = [
     [Trophy,     'Entrenamiento en torneos oficiales'],
@@ -242,12 +249,34 @@ export default function CoachCredentialsPage() {
             </div>
           </div>
 
+          {/* Expired banner */}
+          {isExpired && (
+            <div className="flex items-center justify-between gap-4 bg-[#ff6b6b]/[0.07] border border-[#ff6b6b]/[0.25] rounded-2xl px-5 py-4 mb-8 flex-wrap">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#ff6b6b]/[0.12] border border-[#ff6b6b]/[0.25] flex items-center justify-center shrink-0">
+                  <AlertCircle className="w-4 h-4 text-[#ff6b6b]" />
+                </div>
+                <div>
+                  <p className="text-sm font-extrabold text-[#ff6b6b]">Tu licencia ha expirado</p>
+                  <p className="text-[11px] text-white/40 mt-0.5">Renueva ahora para seguir operando como entrenador certificado</p>
+                </div>
+              </div>
+              <Button
+                onClick={handleRenew}
+                className="rounded-xl text-[12px] font-extrabold font-sans gap-1.5 bg-[#ff6b6b] text-white hover:bg-[#ff5252] shadow-[0_3px_14px_rgba(255,107,107,0.3)]"
+              >
+                <RefreshCcw className="w-3.5 h-3.5" />
+                Renovar Licencia
+              </Button>
+            </div>
+          )}
+
           {/* Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-7 items-start">
 
             {/* Left */}
             <div className="flex flex-col gap-4">
-              <CredentialHoloCard credential={myCredential} />
+              <CredentialHoloCard credential={myCredential} photoUrl={profile?.profilePhoto} />
 
               {(() => {
                 const start = new Date(myCredential?.issued_date || myCredential?.created_at);
@@ -380,17 +409,11 @@ export default function CoachCredentialsPage() {
                 action={
                   <Button
                     onClick={handleRenew}
-                    disabled={isRenewing}
                     size="sm"
-                    className={cn(
-                      'rounded-[9px] text-[12px] font-extrabold font-sans gap-1.5 h-8 px-3.5',
-                      isRenewing
-                        ? 'bg-[#C8FF00]/[0.1] text-[#C8FF00] border border-[#C8FF00]/[0.25] shadow-none hover:bg-[#C8FF00]/[0.1]'
-                        : 'bg-[#C8FF00] text-black shadow-[0_3px_14px_rgba(200,255,0,0.28)] hover:bg-[#d6ff26]',
-                    )}
+                    className="rounded-[9px] text-[12px] font-extrabold font-sans gap-1.5 h-8 px-3.5 bg-[#C8FF00] text-black shadow-[0_3px_14px_rgba(200,255,0,0.28)] hover:bg-[#d6ff26]"
                   >
-                    <RefreshCcw className={cn('w-3 h-3', isRenewing && 'animate-spin')} />
-                    {isRenewing ? 'Procesando...' : 'Renovar $350 USD'}
+                    <RefreshCcw className="w-3 h-3" />
+                    Renovar $350 USD
                   </Button>
                 }
               >
@@ -422,6 +445,18 @@ export default function CoachCredentialsPage() {
             </div>
           </div>
         </div>
+
+        {paymentModal && (
+          <DigitalCredentialPaymentModal
+            isOpen={paymentModal.open}
+            onClose={() => setPaymentModal(null)}
+            planType={paymentModal.planType}
+            planName={paymentModal.planName}
+            amount={paymentModal.amount}
+            userType="coach"
+            onSuccess={handlePaymentSuccess}
+          />
+        )}
       </div>
     );
   }

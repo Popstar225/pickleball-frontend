@@ -178,9 +178,10 @@ export interface CoachPayment {
 
 export interface CoachCredentialData {
   id: string;
-  coach_id: string;
+  user_id: string;
   credential_number: string;
-  coach_name: string;
+  player_name: string;
+  credential_type: string;
   nrtp_level: string;
   affiliation_status: string;
   club_name: string;
@@ -361,7 +362,7 @@ export const fetchCoachProfile = createAsyncThunk(
 
 export const updateCoachProfile = createAsyncThunk(
   'coachDashboard/updateProfile',
-  async (profileData: Partial<CoachProfile>, { rejectWithValue }) => {
+  async (profileData: Partial<CoachProfile> | FormData, { rejectWithValue }) => {
     try {
       const response = await api.put('/coaches/profile', profileData);
       return (response as any).data;
@@ -541,14 +542,17 @@ export const fetchMyCoachCredential = createAsyncThunk(
   'coachDashboard/fetchMyCredential',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/coaches/credentials', {}) as any;
-      // Extract the actual credential object from the response body
-      const credential =
+      const response = await api.get('/coaches/digital-credentials', {}) as any;
+      // Extract the actual credential object from the response body.
+      // api.get() already unwraps res.data, so `response` is the JSON body.
+      // Try known shapes; fall back to response.data itself (credential fields at top level of data).
+      const candidate =
         response?.data?.credential ??
         response?.credential ??
-        (response?.data?.credentials?.[0]) ??
+        response?.data?.credentials?.[0] ??
+        (response?.data && typeof response.data === 'object' ? response.data : null) ??
         null;
-      return credential;
+      return candidate;
     } catch (error: any) {
       // 404 = no credential yet, treat as null instead of error
       if (error.response?.status === 404) return null;
@@ -563,7 +567,7 @@ export const createCoachCredential = createAsyncThunk(
   'coachDashboard/createCredential',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.post<any>('/coaches/credentials', {});
+      const response = await api.post<any>('/coaches/digital-credentials', {});
       return response as any;
     } catch (error: any) {
       return rejectWithValue(

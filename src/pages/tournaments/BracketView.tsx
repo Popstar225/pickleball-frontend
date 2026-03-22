@@ -84,7 +84,7 @@ const BracketMatch: React.FC<{
   if (isBye) {
     return (
       <div className="bg-white/[0.04] border border-white/[0.08] rounded p-2 text-xs text-white/40">
-        BYE
+        ADIÓS
       </div>
     );
   }

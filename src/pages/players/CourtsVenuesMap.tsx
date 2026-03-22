@@ -203,11 +203,11 @@ const CourtsVenuesMap = () => {
               <div className="flex flex-wrap justify-center gap-4">
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-6 py-3">
                   <span className="text-2xl font-bold text-white">{locations.length}+</span>
-                  <span className="text-white/70 text-sm ml-2">Locations</span>
+                  <span className="text-white/70 text-sm ml-2">Ubicaciones</span>
                 </div>
                 <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-6 py-3">
                   <span className="text-2xl font-bold text-white">32</span>
-                  <span className="text-white/70 text-sm ml-2">States</span>
+                  <span className="text-white/70 text-sm ml-2">Estados</span>
                 </div>
               </div>
             </div>
@@ -223,7 +223,7 @@ const CourtsVenuesMap = () => {
               <div className="grid grid-cols-2 gap-3 mb-3">
                 <div>
                   <label className="text-xs font-semibold text-slate-200 mb-1.5 block uppercase tracking-wide">
-                    View Type
+                    Tipo de Vista
                   </label>
                   <Select value={viewType} onValueChange={(v) => setViewType(v as 'courts' | 'venues')}>
                     <SelectTrigger className="h-10 bg-slate-800 border-slate-600 text-white text-sm rounded-lg">
@@ -233,13 +233,13 @@ const CourtsVenuesMap = () => {
                       <SelectItem value="courts" className="text-white">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full bg-green-500" />
-                          Courts
+                          Canchas
                         </div>
                       </SelectItem>
                       <SelectItem value="venues" className="text-white">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full bg-purple-500" />
-                          Venues
+                          Espacios
                         </div>
                       </SelectItem>
                     </SelectContent>
@@ -247,14 +247,14 @@ const CourtsVenuesMap = () => {
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-200 mb-1.5 block uppercase tracking-wide">
-                    State / Region
+                    Estado / Región
                   </label>
                   <Select value={selectedState} onValueChange={setSelectedState}>
                     <SelectTrigger className="h-10 bg-slate-800 border-slate-600 text-white text-sm rounded-lg">
-                      <SelectValue placeholder="All States" />
+                      <SelectValue placeholder="Todos los Estados" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-600 max-h-64">
-                      <SelectItem value="all" className="text-white">All States</SelectItem>
+                      <SelectItem value="all" className="text-white">Todos los Estados</SelectItem>
                       {MEXICO_STATES.map((state) => (
                         <SelectItem key={state} value={state} className="text-white">{state}</SelectItem>
                       ))}
@@ -267,14 +267,14 @@ const CourtsVenuesMap = () => {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-green-500" />
-                  <span className="text-xs text-slate-200">Courts</span>
+                  <span className="text-xs text-slate-200">Canchas</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-purple-500" />
-                  <span className="text-xs text-slate-200">Venues</span>
+                  <span className="text-xs text-slate-200">Espacios</span>
                 </div>
                 <div className="ml-auto">
-                  <span className="text-xs text-slate-300">{locations.length} found</span>
+                  <span className="text-xs text-slate-300">{locations.length} encontrados</span>
                 </div>
               </div>
             </div>
@@ -284,7 +284,7 @@ const CourtsVenuesMap = () => {
               {loading && (
                 <div className="flex flex-col items-center justify-center py-16 gap-3">
                   <Loader className="w-7 h-7 text-primary animate-spin" />
-                  <p className="text-slate-200 text-sm">Loading locations...</p>
+                  <p className="text-slate-200 text-sm">Cargando ubicaciones...</p>
                 </div>
               )}
 
@@ -303,8 +303,8 @@ const CourtsVenuesMap = () => {
                   <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center">
                     <MapPin className="w-7 h-7 text-slate-300" />
                   </div>
-                  <p className="text-slate-200 font-semibold">No locations found</p>
-                  <p className="text-slate-300 text-sm">Try adjusting your filters</p>
+                  <p className="text-slate-200 font-semibold">No se encontraron ubicaciones</p>
+                  <p className="text-slate-300 text-sm">Intenta ajustar tus filtros</p>
                 </div>
               )}
 
@@ -349,7 +349,7 @@ const CourtsVenuesMap = () => {
                         <Badge variant="outline" className={`text-xs py-0 h-5 ${
                           location.type === 'court' ? 'border-green-500/40 text-green-400' : 'border-purple-500/40 text-purple-400'
                         }`}>
-                          {location.type === 'court' ? 'Court' : 'Venue'}
+                          {location.type === 'court' ? 'Cancha' : 'Espacio'}
                         </Badge>
                         {location.type === 'court' && location.details && (
                           <span className="text-xs text-slate-300">
@@ -370,7 +370,7 @@ const CourtsVenuesMap = () => {
                         onClick={(e) => { e.stopPropagation(); openDirections(location); }}
                       >
                         <ExternalLink className="w-3 h-3 mr-1" />
-                        Directions
+                        Direcciones
                       </Button>
                       <Button
                         size="sm"
@@ -379,7 +379,7 @@ const CourtsVenuesMap = () => {
                         }`}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        Book Now
+                        Reservar Ahora
                       </Button>
                     </div>
                   )}
@@ -434,7 +434,7 @@ const CourtsVenuesMap = () => {
                               backgroundColor: location.type === 'court' ? '#22C55E20' : '#8B5CF620',
                               color: location.type === 'court' ? '#22C55E' : '#8B5CF6',
                             }}>
-                              {location.type === 'court' ? 'Court' : 'Venue'}
+                              {location.type === 'court' ? 'Cancha' : 'Espacio'}
                             </span>
                           </div>
                         </div>
@@ -470,13 +470,13 @@ const CourtsVenuesMap = () => {
                             onClick={() => openDirections(location)}
                             style={{ flex: 1, padding: '6px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', color: '#0f172a' }}
                           >
-                            Directions
+                            Direcciones
                           </button>
                           <button style={{
                             flex: 1, padding: '6px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', border: 'none', cursor: 'pointer', color: 'white',
                             backgroundColor: location.type === 'court' ? '#22C55E' : '#8B5CF6',
                           }}>
-                            Book Now
+                            Reservar Ahora
                           </button>
                         </div>
                       </div>
@@ -491,12 +491,12 @@ const CourtsVenuesMap = () => {
               <div className="bg-slate-900/90 backdrop-blur-sm border border-slate-700/50 rounded-xl p-3 flex items-center gap-2">
                 <Layers className="w-4 h-4 text-green-400" />
                 <span className="text-white text-sm font-bold">{locations.filter(l => l.type === 'court').length}</span>
-                <span className="text-slate-200 text-xs">courts</span>
+                <span className="text-slate-200 text-xs">canchas</span>
               </div>
               <div className="bg-slate-900/90 backdrop-blur-sm border border-slate-700/50 rounded-xl p-3 flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-purple-400" />
                 <span className="text-white text-sm font-bold">{locations.filter(l => l.type === 'venue').length}</span>
-                <span className="text-slate-200 text-xs">venues</span>
+                <span className="text-slate-200 text-xs">espacios</span>
               </div>
             </div>
 

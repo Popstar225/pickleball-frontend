@@ -1,13 +1,13 @@
 /**
- * Coach Team Registration Page
+ * Página de Registro de Equipos de Entrenadores
  *
- * Allows coaches to:
- * - Browse available tournaments open for registration
- * - View tournament details and events
- * - Register players/teams for specific events
- * - View their existing registrations
+ * Permite a los entrenadores:
+ * - Explorar torneos disponibles abiertos para registro
+ * - Ver detalles y eventos de torneos
+ * - Registrar jugadores/equipos para eventos específicos
+ * - Ver sus registraciones existentes
  *
- * Backend endpoints:
+ * Endpoints backend:
  *   GET  /coach/tournaments/available
  *   GET  /coach/tournaments/:tournamentId/details
  *   POST /coach/teams/register
@@ -36,7 +36,7 @@ import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Types
+// Tipos
 // ─────────────────────────────────────────────────────────────────────────────
 
 interface TournamentEvent {
@@ -89,7 +89,7 @@ interface PlayerOption {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Helpers
+// Funciones auxiliares
 // ─────────────────────────────────────────────────────────────────────────────
 
 function typeColor(type: string) {
@@ -130,7 +130,7 @@ function modalityPlayers(modality: string): number {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Registration Modal
+// Modal de Registro
 // ─────────────────────────────────────────────────────────────────────────────
 
 function RegisterModal({
@@ -153,7 +153,7 @@ function RegisterModal({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Search players from the coach's roster / all players
+  // Buscar jugadores del equipo del entrenador / todos los jugadores
   useEffect(() => {
     if (playerSearch.length < 2) { setPlayers([]); return; }
     const t = setTimeout(async () => {
@@ -347,7 +347,7 @@ function RegisterModal({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Tournament Card
+// Tarjeta de Torneo
 // ─────────────────────────────────────────────────────────────────────────────
 
 function TournamentCard({
@@ -440,7 +440,7 @@ function TournamentCard({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// My Registrations Tab
+// Pestaña de Mis Registraciones
 // ─────────────────────────────────────────────────────────────────────────────
 
 function MyRegistrationsTab() {
@@ -529,7 +529,7 @@ function MyRegistrationsTab() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Main Page
+// Página Principal
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function CoachTeamRegistrationPage() {

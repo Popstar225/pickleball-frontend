@@ -348,7 +348,7 @@ const CoachTournamentView: React.FC = () => {
   // ── Team overview ────────────────────────────────────────────────────────────
   // show loading indicator if registrations are being fetched
   if (teamRegistrationsLoading) {
-    return <p className="text-white/40">Loading jugadores...</p>;
+    return <p className="text-white/40">Cargando jugadores...</p>;
   }
 
   return (

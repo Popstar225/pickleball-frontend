@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { fetchCourts, deleteCourt, fetchCourtsByVenue } from '@/store/slices/courtsSlice';
+import { COURT_SURFACES, COURT_SURFACE_COLORS, COURT_SURFACE_OPTIONS } from '@/constants/constants';
 import { fetchVenuesByClub } from '@/store/slices/venuesSlice';
 import { fetchClubProfile } from '@/store/slices/clubDashboardSlice';
 import type { Court } from '../../../types/api';
@@ -27,19 +28,13 @@ const selItem    = 'text-white/60 focus:bg-white/[0.06] focus:text-white rounded
 const COURT_TYPE_LABEL: Record<string, string> = {
   indoor: 'Cubierta', outdoor: 'Abierta', covered: 'Techada',
 };
-const SURFACE_LABEL: Record<string, string> = {
-  concrete: 'Concreto', asphalt: 'Asfalto', synthetic: 'Sintético',
-  grass: 'Pasto', clay: 'Arcilla',
-};
+const SURFACE_LABEL = COURT_SURFACES;
 const TYPE_STYLES: Record<string, { bg: string; border: string; text: string }> = {
   indoor:  { bg: 'bg-violet-500/10', border: 'border-violet-500/20', text: 'text-violet-400' },
   outdoor: { bg: 'bg-amber-500/10',  border: 'border-amber-500/20',  text: 'text-amber-400'  },
   covered: { bg: 'bg-sky-500/10',    border: 'border-sky-500/20',    text: 'text-sky-400'    },
 };
-const SURFACE_DOT: Record<string, string> = {
-  concrete: 'bg-slate-400', asphalt: 'bg-slate-500', synthetic: 'bg-sky-400',
-  grass: 'bg-emerald-400', clay: 'bg-orange-400',
-};
+const SURFACE_DOT = COURT_SURFACE_COLORS;
 
 // ─── Atoms ────────────────────────────────────────────────────────────────────
 function TypePill({ type }: { type?: string }) {
@@ -257,12 +252,10 @@ export default function ClubsCourtManagement() {
         <Select value={filterSurface || 'all'} onValueChange={v => { setFilterSurface(v === 'all' ? '' : v); setCurrentPage(1); }}>
           <SelectTrigger className={cn(selTrigger, 'sm:w-44')}><SelectValue placeholder="Superficie" /></SelectTrigger>
           <SelectContent className={selContent}>
-            <SelectItem value="all"       className={selItem}>Todas las superficies</SelectItem>
-            <SelectItem value="concrete"  className={selItem}>Concreto</SelectItem>
-            <SelectItem value="asphalt"   className={selItem}>Asfalto</SelectItem>
-            <SelectItem value="synthetic" className={selItem}>Sintético</SelectItem>
-            <SelectItem value="grass"     className={selItem}>Pasto</SelectItem>
-            <SelectItem value="clay"      className={selItem}>Arcilla</SelectItem>
+            <SelectItem value="all" className={selItem}>Todas las superficies</SelectItem>
+            {COURT_SURFACE_OPTIONS.map(({ value, label }) => (
+              <SelectItem key={value} value={value} className={selItem}>{label}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
 

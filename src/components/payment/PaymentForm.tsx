@@ -24,6 +24,9 @@ interface PaymentFormProps {
   description: string;
   onSuccess?: (paymentIntentId: string) => void;
   onError?: (error: string) => void;
+  /** When true, skips the generic /payments/{id}/confirm call so the caller can
+   *  handle confirmation with its own domain-specific endpoint (e.g. digital-credential). */
+  skipBackendConfirm?: boolean;
 }
 
 export const PaymentForm = ({
@@ -34,6 +37,7 @@ export const PaymentForm = ({
   description,
   onSuccess,
   onError,
+  skipBackendConfirm = false,
 }: PaymentFormProps) => {
   const stripe = useStripe();
   const elements = useElements();
@@ -68,29 +72,35 @@ export const PaymentForm = ({
       }
 
       if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Confirm payment with backend
-        try {
-          const response = await PaymentService.confirmPayment(paymentId, {
-            payment_intent_id: paymentIntent.id,
-          });
+        if (skipBackendConfirm) {
+          // Let the caller handle domain-specific confirmation (e.g. digital-credential)
+          setSuccess(true);
+          onSuccess?.(paymentIntent.id);
+        } else {
+          // Generic payment confirmation
+          try {
+            const response = await PaymentService.confirmPayment(paymentId, {
+              payment_intent_id: paymentIntent.id,
+            });
 
-          if (response.success) {
-            setSuccess(true);
-            onSuccess?.(paymentIntent.id);
-          } else {
-            throw new Error('Failed to confirm payment on server');
+            if (response.success) {
+              setSuccess(true);
+              onSuccess?.(paymentIntent.id);
+            } else {
+              throw new Error('Failed to confirm payment on server');
+            }
+          } catch (backendError) {
+            setError(
+              backendError instanceof Error
+                ? backendError.message
+                : 'Payment confirmation failed'
+            );
+            onError?.(
+              backendError instanceof Error
+                ? backendError.message
+                : 'Payment confirmation failed'
+            );
           }
-        } catch (backendError) {
-          setError(
-            backendError instanceof Error
-              ? backendError.message
-              : 'Payment confirmation failed'
-          );
-          onError?.(
-            backendError instanceof Error
-              ? backendError.message
-              : 'Payment confirmation failed'
-          );
         }
       }
     } catch (err) {

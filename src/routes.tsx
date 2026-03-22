@@ -377,6 +377,12 @@ export const routes = [
     public: true,
   },
   {
+    key: 'credential-verify-alt',
+    path: '/verify-credential/:code',
+    element: <CredentialVerifyPage />,
+    public: true,
+  },
+  {
     key: 'login',
     path: '/login',
     element: <LoginPage />,

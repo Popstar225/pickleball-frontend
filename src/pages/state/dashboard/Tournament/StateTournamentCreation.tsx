@@ -284,12 +284,12 @@ const StateTournamentCreation: React.FC<StateTournamentCreationProps> = ({
         <div className="w-14 h-14 rounded-2xl bg-yellow-500/8 border border-yellow-500/15 flex items-center justify-center mb-5">
           <AlertTriangle className="w-6 h-6 text-yellow-500" />
         </div>
-        <h3 className="text-lg font-semibold text-white mb-2">Access Restricted</h3>
+        <h3 className="text-lg font-semibold text-white mb-2">Acceso Restringido</h3>
         <p className="text-white/30 text-sm max-w-xs leading-relaxed">
-          Only state organizations and administrators can create state-level tournaments.
+          Solo las organizaciones estatales y los administradores pueden crear torneos a nivel estatal.
         </p>
         <span className="mt-5 text-[11px] text-white/25 bg-white/[0.03] border border-white/[0.06] px-3 py-1.5 rounded-full">
-          Role: {user?.user_type || 'unknown'}
+          Rol: {user?.user_type || 'desconocido'}
         </span>
       </div>
     );
@@ -305,19 +305,19 @@ const StateTournamentCreation: React.FC<StateTournamentCreationProps> = ({
               <Trophy className="w-2.5 h-2.5 text-white/40" />
             </div>
             <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/30">
-              Your Permissions
+              Tus Permisos
             </span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
             {[
-              { label: 'Role', value: user?.user_type ?? '—', cap: true },
-              { label: 'Max Participants', value: String(permissions.max_participants_limit) },
+              { label: 'Rol', value: user?.user_type ?? '—', cap: true },
+              { label: 'Máximo de Participantes', value: String(permissions.max_participants_limit) },
               {
-                label: 'Paid Events',
-                value: permissions.can_create_paid_events ? 'Allowed' : 'Disabled',
+                label: 'Eventos Pagados',
+                value: permissions.can_create_paid_events ? 'Permitido' : 'Deshabilitado',
               },
-              { label: 'Needs Approval', value: permissions.requires_approval ? 'Yes' : 'No' },
+              { label: 'Requiere Aprobación', value: permissions.requires_approval ? 'Sí' : 'No' },
             ].map(({ label, value, cap }) => (
               <div
                 key={label}

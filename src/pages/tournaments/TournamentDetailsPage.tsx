@@ -255,7 +255,7 @@ const EventPaymentDialog: React.FC<EventPaymentDialogProps> = ({
             <div className="relative rounded-2xl p-5 border bg-[#ace600]/[0.05] border-[#ace600]/[0.3] overflow-hidden">
               {/* Ribbon */}
               <div className="absolute top-3 right-[-34px] bg-[#ace600] text-black px-10 py-0.5 rotate-45 font-sans text-[9px] font-extrabold tracking-[1px]">
-                EVENT
+                EVENTO
               </div>
 
               {/* Icon + type label */}
@@ -291,7 +291,7 @@ const EventPaymentDialog: React.FC<EventPaymentDialogProps> = ({
               <ul className="space-y-2.5 mb-5">
                 {[
                   `Categoría: ${event.skill_block}`,
-                  `Modalidad: ${event.modality}`,
+                  `Modalidad: ${translateModality(event.modality)}`,
                   'Inscripción oficial al torneo',
                   isFull ? 'Lugar en lista de espera' : 'Lugar confirmado al pagar',
                 ].map((feat) => (
@@ -338,6 +338,15 @@ const modalityColor: Record<string, string> = {
   Singles: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
   Doubles: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
   Mixed: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+};
+
+const translateModality = (modality: string): string => {
+  const translations: Record<string, string> = {
+    Singles: 'Individual',
+    Doubles: 'Dobles',
+    Mixed: 'Mixto',
+  };
+  return translations[modality] || modality;
 };
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -585,7 +594,7 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
                               'bg-white/[0.05] text-white/35 border-white/[0.08]',
                           )}
                         >
-                          {ev.modality}
+                          {translateModality(ev.modality)}
                         </Badge>
                       </div>
                       <Badge
@@ -662,7 +671,7 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
                           'bg-white/[0.05] text-white/35 border-white/[0.08]',
                       )}
                     >
-                      {selected.modality}
+                      {translateModality(selected.modality)}
                     </Badge>
                   </div>
                   <p className="text-[10px] text-white/25 font-mono">{selected.skill_block}</p>

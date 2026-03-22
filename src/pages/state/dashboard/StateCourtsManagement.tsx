@@ -46,20 +46,13 @@ import { useToast } from '@/hooks/use-toast';
 import { AppDispatch, RootState } from '@/store';
 import { fetchStateCourts, deleteStateCourt } from '@/store/slices/stateDashboardSlice';
 import CourtActionModal from '@/pages/admin/dashboard/ActionModals/CourtActionModal';
+import { COURT_SURFACES, COURT_SURFACE_COLORS, COURT_SURFACE_OPTIONS } from '@/constants/constants';
 
 /* ─── constants ── */
 const COURT_TYPES: Record<string, string> = {
   indoor: 'Interior',
   outdoor: 'Exterior',
   covered: 'Techado',
-};
-
-const COURT_SURFACES: Record<string, string> = {
-  concrete: 'Concreto',
-  acrylic: 'Acrílico',
-  clay: 'Arcilla',
-  synthetic: 'Sintético',
-  wooden: 'Madera',
 };
 
 /* ─── shared styles ── */
@@ -88,13 +81,7 @@ function TypeBadge({ type }: { type: string }) {
 }
 
 /* ─── surface badge ── */
-const SURFACE_DOT: Record<string, string> = {
-  concrete: 'bg-slate-400',
-  acrylic: 'bg-sky-400',
-  clay: 'bg-red-400',
-  synthetic: 'bg-violet-400',
-  wooden: 'bg-amber-700',
-};
+const SURFACE_DOT = COURT_SURFACE_COLORS;
 
 function SurfaceBadge({ surface }: { surface: string }) {
   const dot = SURFACE_DOT[surface] ?? 'bg-white/20';
@@ -324,24 +311,10 @@ export default function StateCourtsManagement() {
             <SelectValue placeholder="Superficie" />
           </SelectTrigger>
           <SelectContent className={selContent}>
-            <SelectItem value="all" className={selItem}>
-              Todas
-            </SelectItem>
-            <SelectItem value="concrete" className={selItem}>
-              Concreto
-            </SelectItem>
-            <SelectItem value="acrylic" className={selItem}>
-              Acrílico
-            </SelectItem>
-            <SelectItem value="clay" className={selItem}>
-              Arcilla
-            </SelectItem>
-            <SelectItem value="synthetic" className={selItem}>
-              Sintético
-            </SelectItem>
-            <SelectItem value="wooden" className={selItem}>
-              Madera
-            </SelectItem>
+            <SelectItem value="all" className={selItem}>Todas</SelectItem>
+            {COURT_SURFACE_OPTIONS.map(({ value, label }) => (
+              <SelectItem key={value} value={value} className={selItem}>{label}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
 

@@ -29,7 +29,8 @@ interface TournamentSetupData {
   format_config: Record<string, any>;
   events: TournamentEvent[];
   tournament_type?: 'club' | 'state' | 'admin';
-  judges?: Array<{ name: string; email: string }>; // optional array of judge objects with name and email
+  judges?: Array<{ code: string; name: string }>;
+  coach?: { code: string; name: string } | null;
 }
 
 interface TournamentSetupState {

@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
+import { COURT_SURFACE_OPTIONS, type CourtSurface } from '@/constants/constants';
 
 const ACCENT = '#ace600';
 const labelCls = 'block text-[11px] font-semibold text-[#4a5a72] uppercase tracking-widest mb-1.5';
@@ -183,7 +184,7 @@ export default function CourtActionModal({
         photos: formData.photos || [],
         is_featured: formData.is_featured,
         is_active: formData.is_active,
-        settings: formData.settings || {},
+        settings: formData.settings,
         notes: formData.notes || null,
       };
 
@@ -447,7 +448,7 @@ export default function CourtActionModal({
                       onValueChange={(value) =>
                         setFormData({
                           ...formData,
-                          surface: value as 'concrete' | 'asphalt' | 'synthetic' | 'grass' | 'clay',
+                          surface: value as CourtSurface,
                         })
                       }
                     >
@@ -455,11 +456,9 @@ export default function CourtActionModal({
                         <SelectValue placeholder="Selecciona superficie" />
                       </SelectTrigger>
                       <SelectContent className="bg-[#111827] text-white border-white/10">
-                        <SelectItem value="concrete">Concreto</SelectItem>
-                        <SelectItem value="asphalt">Asfalto</SelectItem>
-                        <SelectItem value="synthetic">Sintético</SelectItem>
-                        <SelectItem value="grass">Pasto</SelectItem>
-                        <SelectItem value="clay">Arcilla</SelectItem>
+                        {COURT_SURFACE_OPTIONS.map(({ value, label }) => (
+                          <SelectItem key={value} value={value}>{label}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>

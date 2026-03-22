@@ -44,7 +44,7 @@ function PositionBadge({ pos }: { pos: number }) {
         variant="outline"
         className="bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600] text-[10px] font-bold hover:bg-[#ace600]/10"
       >
-        <Star className="w-3 h-3 mr-1 fill-[#ace600]" /> Champion
+        <Star className="w-3 h-3 mr-1 fill-[#ace600]" /> Campeón
       </Badge>
     );
   if (pos === 2)
@@ -53,7 +53,7 @@ function PositionBadge({ pos }: { pos: number }) {
         variant="outline"
         className="bg-sky-500/10 border-sky-500/20 text-sky-400 text-[10px] font-bold hover:bg-sky-500/10"
       >
-        <Star className="w-3 h-3 mr-1" /> Runner-up
+        <Star className="w-3 h-3 mr-1" /> Subcampeón
       </Badge>
     );
   if (pos <= 4)
@@ -62,7 +62,7 @@ function PositionBadge({ pos }: { pos: number }) {
         variant="outline"
         className="bg-violet-500/10 border-violet-500/20 text-violet-400 text-[10px] font-bold hover:bg-violet-500/10"
       >
-        <Medal className="w-3 h-3 mr-1" /> Finalist
+        <Medal className="w-3 h-3 mr-1" /> Finalista
       </Badge>
     );
   return (
@@ -70,7 +70,7 @@ function PositionBadge({ pos }: { pos: number }) {
       variant="outline"
       className="bg-white/[0.05] border-white/[0.08] text-white/35 text-[10px] font-bold hover:bg-white/[0.05]"
     >
-      In Groups
+      En Grupos
     </Badge>
   );
 }
@@ -165,8 +165,8 @@ const PlayerTournamentView: React.FC = () => {
   };
 
   const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
-    { id: 'tournaments', label: 'Active Tournaments', icon: Trophy },
-    { id: 'details', label: 'Details', icon: Layers },
+    { id: 'tournaments', label: 'Torneos Activos', icon: Trophy },
+    { id: 'details', label: 'Detalles', icon: Layers },
   ];
 
   return (

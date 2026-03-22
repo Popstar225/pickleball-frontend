@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
@@ -13,6 +13,7 @@ import {
   TrendingUp,
   ArrowUpRight,
   GraduationCap,
+  RefreshCcw,
 } from 'lucide-react';
 import { AppDispatch, RootState } from '@/store';
 import {
@@ -20,7 +21,10 @@ import {
   fetchCoachStudents,
   fetchCoachMessages,
   fetchCoachEarnings,
+  fetchMyCoachCredential,
+  setMyCredential,
 } from '@/store/slices/coachDashboardSlice';
+import { DigitalCredentialPaymentModal } from '@/components/payment/DigitalCredentialPaymentModal';
 import { cn } from '@/lib/utils';
 
 // ─── Atoms ────────────────────────────────────────────────────────────────────
@@ -123,21 +127,32 @@ function StudentInitials({ name }: { name: string }) {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function CoachDashboardHome() {
   const dispatch = useDispatch<AppDispatch>();
-  const { profile, students, messages, earnings, studentsLoading } = useSelector(
+  const { profile, students, messages, earnings, studentsLoading, myCredential, myCredentialLoading } = useSelector(
     (s: RootState) => s.coachDashboard,
   );
+
+  const [paymentModal, setPaymentModal] = useState<{
+    open: boolean;
+    planType: 'basic' | 'membership' | 'premium';
+    planName: string;
+    amount: number;
+  } | null>(null);
 
   useEffect(() => {
     dispatch(fetchCoachProfile());
     dispatch(fetchCoachStudents({ limit: 5 }));
     dispatch(fetchCoachMessages({ limit: 20 }));
     dispatch(fetchCoachEarnings());
+    dispatch(fetchMyCoachCredential());
   }, [dispatch]);
 
   const firstName = profile?.fullName?.split(' ')[0] ?? 'Coach';
-  const certLevel = Array.isArray(profile?.certifications)
-    ? (profile.certifications[0] ?? 'Nivel 1')
-    : (profile?.certifications ?? 'Nivel 1');
+  const credentialActive = myCredential?.affiliation_status === 'active';
+  const credIssuedDate = myCredential?.issued_date
+    ? new Date(myCredential.issued_date).toLocaleDateString('es-MX', {
+        day: 'numeric', month: 'long', year: 'numeric',
+      })
+    : null;
   const joinDate = profile?.joinedDate
     ? new Date(profile.joinedDate).toLocaleDateString('en-US', {
         day: 'numeric',
@@ -145,6 +160,24 @@ export default function CoachDashboardHome() {
         year: 'numeric',
       })
     : 'N/A';
+
+  const handleRenewClick = () => {
+    setPaymentModal({
+      open: true,
+      planType: 'membership',
+      planName: 'Licencia Profesional',
+      amount: 350,
+    });
+  };
+
+  const handlePaymentSuccess = (credential?: any) => {
+    setPaymentModal(null);
+    if (credential) {
+      dispatch(setMyCredential(credential));
+    } else {
+      dispatch(fetchMyCoachCredential());
+    }
+  };
 
   const QUICK_ACTIONS = [
     {
@@ -220,41 +253,63 @@ export default function CoachDashboardHome() {
       </div>
 
       {/* ── NRTP certification banner ────────────────────────────────────────── */}
-      <div className="bg-[#0d1117] border border-sky-500/20 rounded-2xl overflow-hidden">
-        <div className="h-0.5 bg-gradient-to-r from-sky-500/60 via-sky-400 to-sky-500/60" />
-        <div className="flex items-center justify-between gap-4 p-5 flex-wrap">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center shrink-0">
-              <Award className="w-5 h-5 text-sky-400" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-0.5">
-                <p className="text-sm font-bold text-white/80">Certificación NRTP</p>
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  Activa
-                </span>
+      {myCredential && (
+        <div className="bg-[#0d1117] border border-sky-500/20 rounded-2xl overflow-hidden">
+          <div className="h-0.5 bg-gradient-to-r from-sky-500/60 via-sky-400 to-sky-500/60" />
+          <div className="flex items-center justify-between gap-4 p-5 flex-wrap">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center shrink-0">
+                <Award className="w-5 h-5 text-sky-400" />
               </div>
-              <p className="text-xs text-white/30">Miembro desde {joinDate}</p>
+              <div>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <p className="text-sm font-bold text-white/80">Certificación NRTP</p>
+                  {credentialActive ? (
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      Activa
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-red-500/10 border-red-500/20 text-red-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                      Expirada
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-white/30">
+                  {credIssuedDate ? `Emitida el ${credIssuedDate}` : `Miembro desde ${joinDate}`}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-0.5">
-                Nivel
-              </p>
-              <p className="text-lg font-black text-sky-400">{certLevel}</p>
+            <div className="flex items-center gap-3">
+              <div className="text-right hidden sm:block">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-0.5">
+                  Nivel
+                </p>
+                <p className={cn('text-lg font-black', credentialActive ? 'text-sky-400' : 'text-red-400')}>
+                  {myCredential.nrtp_level}
+                </p>
+              </div>
+              <div className="w-px h-10 bg-white/[0.06] hidden sm:block" />
+              {credentialActive ? (
+                <Link
+                  to="/coaches/dashboard/credentials"
+                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[11px] font-bold border border-sky-500/20 bg-sky-500/[0.07] text-sky-400 hover:bg-sky-500/[0.14] transition-all"
+                >
+                  Gestionar <ArrowUpRight className="w-3 h-3" />
+                </Link>
+              ) : (
+                <button
+                  onClick={handleRenewClick}
+                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[11px] font-bold border border-red-500/30 bg-red-500/[0.08] text-red-400 hover:bg-red-500/[0.18] transition-all"
+                >
+                  <RefreshCcw className="w-3 h-3" /> Renovar Ahora
+                </button>
+              )}
             </div>
-            <div className="w-px h-10 bg-white/[0.06] hidden sm:block" />
-            <Link
-              to="/coaches/dashboard/credentials"
-              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-[11px] font-bold border border-sky-500/20 bg-sky-500/[0.07] text-sky-400 hover:bg-sky-500/[0.14] transition-all"
-            >
-              Gestionar <ArrowUpRight className="w-3 h-3" />
-            </Link>
           </div>
         </div>
-      </div>
+      )}
 
       {/* ── Stat strip ──────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -269,8 +324,8 @@ export default function CoachDashboardHome() {
         <StatCard
           icon={Award}
           label="Certificaciones"
-          value={Array.isArray(profile?.certifications) ? profile.certifications.length : 1}
-          sub="Activas"
+          value={myCredential ? 1 : 0}
+          sub={myCredential ? 'Activa' : 'Sin credencial'}
           color="text-sky-400"
           bg="bg-sky-500/10 border-sky-500/20"
         />
@@ -387,30 +442,90 @@ export default function CoachDashboardHome() {
         </div>
 
         <div className="p-5">
-          {/* NRTP cert card */}
-          <div className="flex items-center justify-between p-4 bg-white/[0.03] border border-white/[0.06] rounded-xl">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
-                <Award className="w-4 h-4 text-amber-400" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-white/75">Certificación NRTP</p>
-                <p className="text-xs text-white/30">{certLevel} · USA Pickleball</p>
-              </div>
+          {myCredentialLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-5 h-5 text-[#ace600] animate-spin" />
             </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-[10px] text-white/20">Desde</p>
-                <p className="text-xs font-semibold text-white/45">{joinDate}</p>
+          ) : myCredential?.nrtp_level ? (
+            <div className="space-y-3">
+              <div className={cn(
+                'flex items-center justify-between p-4 rounded-xl border',
+                credentialActive
+                  ? 'bg-white/[0.03] border-white/[0.06]'
+                  : 'bg-red-500/[0.04] border-red-500/20',
+              )}>
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    'w-9 h-9 rounded-xl border flex items-center justify-center shrink-0',
+                    credentialActive
+                      ? 'bg-amber-500/10 border-amber-500/20'
+                      : 'bg-red-500/10 border-red-500/20',
+                  )}>
+                    <Award className={cn('w-4 h-4', credentialActive ? 'text-amber-400' : 'text-red-400')} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-white/75">Certificación NRTP</p>
+                    <p className="text-xs text-white/30">{myCredential.nrtp_level} · USA Pickleball</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  {credIssuedDate && (
+                    <div className="text-right hidden sm:block">
+                      <p className="text-[10px] text-white/20">Desde</p>
+                      <p className="text-xs font-semibold text-white/45">{credIssuedDate}</p>
+                    </div>
+                  )}
+                  {credentialActive ? (
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                      Activa
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-red-500/10 border-red-500/20 text-red-400">
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                      Expirada
+                    </span>
+                  )}
+                </div>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                Activa
-              </span>
+
+              {/* Renewal CTA — only when expired */}
+              {!credentialActive && (
+                <div className="flex items-center justify-between gap-4 px-4 py-3 rounded-xl bg-red-500/[0.05] border border-red-500/15">
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-red-400">Tu certificación ha expirado</p>
+                    <p className="text-[10px] text-white/25 mt-0.5">Renueva para seguir operando como entrenador certificado</p>
+                  </div>
+                  <button
+                    onClick={handleRenewClick}
+                    className="inline-flex items-center gap-1.5 h-8 px-4 rounded-xl text-[11px] font-black border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all shrink-0"
+                  >
+                    <RefreshCcw className="w-3 h-3" /> Renovar Licencia
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8 gap-2">
+              <Award className="w-7 h-7 text-white/[0.07]" />
+              <p className="text-xs text-white/20">Sin certificaciones</p>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* ── Payment modal ────────────────────────────────────────────────────── */}
+      {paymentModal && (
+        <DigitalCredentialPaymentModal
+          isOpen={paymentModal.open}
+          onClose={() => setPaymentModal(null)}
+          planType={paymentModal.planType}
+          planName={paymentModal.planName}
+          amount={paymentModal.amount}
+          userType="coach"
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
 
       {/* ── Quick actions ────────────────────────────────────────────────────── */}
       <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-5">

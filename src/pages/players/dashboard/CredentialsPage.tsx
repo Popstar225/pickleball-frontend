@@ -89,7 +89,6 @@ export default function PlayerCredentialsPage() {
     (state: RootState) => state.digitalCredentials,
   );
   const playerProfile = useSelector((state: RootState) => state.playerDashboard.profile);
-  const [isRenewing, setIsRenewing] = useState(false);
   const [paymentModal, setPaymentModal] = useState<{
     open: boolean;
     planType: 'basic' | 'membership' | 'premium';
@@ -166,9 +165,15 @@ export default function PlayerCredentialsPage() {
   };
 
   const handleRenew = () => {
-    setIsRenewing(true);
-    setTimeout(() => { setIsRenewing(false); }, 2000);
+    setPaymentModal({
+      open: true,
+      planType: 'membership',
+      planName: 'Membresía Anual',
+      amount: 250,
+    });
   };
+
+  const isExpired = myCredential ? getExpiryDate(myCredential) < new Date() : false;
 
   const paymentHistory = [{
     id: 'PAY-001',
@@ -233,6 +238,28 @@ export default function PlayerCredentialsPage() {
               </Button>
             </div>
           </div>
+
+          {/* Expired banner */}
+          {isExpired && (
+            <div className="flex items-center justify-between gap-4 bg-[#ff6b6b]/[0.07] border border-[#ff6b6b]/[0.25] rounded-2xl px-5 py-4 mb-8 flex-wrap">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[#ff6b6b]/[0.12] border border-[#ff6b6b]/[0.25] flex items-center justify-center shrink-0">
+                  <AlertCircle className="w-4 h-4 text-[#ff6b6b]" />
+                </div>
+                <div>
+                  <p className="text-sm font-extrabold text-[#ff6b6b]">Tu credencial ha expirado</p>
+                  <p className="text-[11px] text-white/40 mt-0.5">Renueva tu membresía para seguir participando en torneos oficiales</p>
+                </div>
+              </div>
+              <Button
+                onClick={handleRenew}
+                className="rounded-xl text-[12px] font-extrabold font-sans gap-1.5 bg-[#ff6b6b] text-white hover:bg-[#ff5252] shadow-[0_3px_14px_rgba(255,107,107,0.3)]"
+              >
+                <RefreshCcw className="w-3.5 h-3.5" />
+                Renovar Membresía
+              </Button>
+            </div>
+          )}
 
           {/* Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-7 items-start">
@@ -376,17 +403,11 @@ export default function PlayerCredentialsPage() {
                 action={
                   <Button
                     onClick={handleRenew}
-                    disabled={isRenewing}
                     size="sm"
-                    className={cn(
-                      'rounded-[9px] text-[12px] font-extrabold font-sans gap-1.5 h-8 px-3.5',
-                      isRenewing
-                        ? 'bg-[#C8FF00]/[0.1] text-[#C8FF00] border border-[#C8FF00]/[0.25] shadow-none hover:bg-[#C8FF00]/[0.1]'
-                        : 'bg-[#C8FF00] text-black shadow-[0_3px_14px_rgba(200,255,0,0.28)] hover:bg-[#d6ff26]',
-                    )}
+                    className="rounded-[9px] text-[12px] font-extrabold font-sans gap-1.5 h-8 px-3.5 bg-[#C8FF00] text-black shadow-[0_3px_14px_rgba(200,255,0,0.28)] hover:bg-[#d6ff26]"
                   >
-                    <RefreshCcw className={cn('w-3 h-3', isRenewing && 'animate-spin')} />
-                    {isRenewing ? 'Procesando...' : 'Renovar $500 MXN'}
+                    <RefreshCcw className="w-3 h-3" />
+                    Renovar $250 MXN
                   </Button>
                 }
               >
@@ -418,6 +439,18 @@ export default function PlayerCredentialsPage() {
             </div>
           </div>
         </div>
+
+        {paymentModal && (
+          <DigitalCredentialPaymentModal
+            isOpen={paymentModal.open}
+            onClose={() => setPaymentModal(null)}
+            planType={paymentModal.planType}
+            planName={paymentModal.planName}
+            amount={paymentModal.amount}
+            userType="player"
+            onSuccess={handlePaymentSuccess}
+          />
+        )}
       </div>
     );
   }

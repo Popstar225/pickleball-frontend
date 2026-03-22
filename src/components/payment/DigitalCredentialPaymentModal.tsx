@@ -104,13 +104,16 @@ export const DigitalCredentialPaymentModal = ({
 
   const handlePaymentSuccess = async (paymentIntentId: string) => {
     if (!paymentData) return;
+    setLoading(true);
+    setError(null);
     try {
       const result = await PaymentService.confirmDigitalCredentialPayment(paymentData.paymentId, paymentIntentId);
       const credential = result?.data?.credential ?? null;
       onSuccess?.(credential);
       handleClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al confirmar el pago');
+      setError(err instanceof Error ? err.message : 'Error al confirmar el pago. Contacta soporte con tu comprobante de pago.');
+      setLoading(false);
     }
   };
 
@@ -124,7 +127,7 @@ export const DigitalCredentialPaymentModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md p-0 gap-0 bg-[#13131A] border border-[#2A2A3E] rounded-2xl overflow-hidden font-['DM_Sans',sans-serif] text-white [&>button]:hidden">
+      <DialogContent className="max-w-md p-0 gap-0 bg-[#13131A] border border-[#2A2A3E] rounded-2xl overflow-hidden font-['DM_Sans',sans-serif] text-white [&>button]:hidden flex flex-col max-h-[90vh]">
 
         {/* Header */}
         <DialogHeader className="px-6 pt-6 pb-5 border-b border-[#2A2A3E]">
@@ -158,7 +161,7 @@ export const DigitalCredentialPaymentModal = ({
           </div>
         </DialogHeader>
 
-        <div className="px-6 py-5 space-y-5">
+        <div className="px-6 py-5 space-y-5 overflow-y-auto flex-1">
           {/* Error */}
           {error && (
             <div className="flex items-center gap-3 p-3.5 bg-[rgba(226,75,74,0.08)] border border-[rgba(226,75,74,0.2)] rounded-xl">
@@ -256,6 +259,7 @@ export const DigitalCredentialPaymentModal = ({
                   amount={amount * 100}
                   currency="mxn"
                   description={`Credencial Digital — ${planName}`}
+                  skipBackendConfirm
                   onSuccess={handlePaymentSuccess}
                   onError={(err) => {
                     setError(err);

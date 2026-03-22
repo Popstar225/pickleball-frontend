@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import { adminTranslations } from '../../utils/adminTranslations';
 
 const SystemManagement = () => {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -108,9 +109,9 @@ const SystemManagement = () => {
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4 animate-on-scroll">System Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4 animate-on-scroll">{adminTranslations.system.general}</h1>
           <p className="text-gray-300 mb-6 animate-on-scroll">
-            Monitor and configure system settings, performance, and health
+            {adminTranslations.system.monitorAndConfigure}
           </p>
           <div className="flex space-x-3">
             {isEditing ? (
@@ -122,13 +123,13 @@ const SystemManagement = () => {
                   <svg className="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                   </svg>
-                  Save Changes
+                  {adminTranslations.system.saveChanges}
                 </button>
                 <button
                   onClick={handleCancel}
                   className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors animate-on-scroll"
                 >
-                  Cancel
+                  {adminTranslations.actions.cancel}
                 </button>
               </>
             ) : (
@@ -139,7 +140,7 @@ const SystemManagement = () => {
                 <svg className="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
-                Edit Settings
+                {adminTranslations.system.editSettings}
               </button>
             )}
             <button
@@ -149,20 +150,20 @@ const SystemManagement = () => {
               <svg className="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
-              Reset
+              {adminTranslations.actions.reset}
             </button>
           </div>
         </div>
 
         {/* System Health Overview */}
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6 animate-on-scroll">System Health</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6 animate-on-scroll">Salud del Sistema</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-300 animate-on-scroll">Status</p>
-                  <p className="text-2xl font-bold text-gray-900 animate-on-scroll">{systemHealth.status}</p>
+                  <p className="text-sm font-medium text-gray-300 animate-on-scroll">{adminTranslations.health.status}</p>
+                  <p className="text-2xl font-bold text-gray-900 animate-on-scroll">{adminTranslations.status[systemHealth.status as keyof typeof adminTranslations.status] || systemHealth.status}</p>
                 </div>
                 <div className={`p-2 rounded-full ${getStatusColor(systemHealth.status)} animate-on-scroll`}>
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,7 +176,7 @@ const SystemManagement = () => {
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-300 animate-on-scroll">Uptime</p>
+                  <p className="text-sm font-medium text-gray-300 animate-on-scroll">{adminTranslations.health.uptime}</p>
                   <p className="text-2xl font-bold text-gray-900 animate-on-scroll">{systemHealth.uptime}</p>
                 </div>
                 <div className="p-2 rounded-full bg-blue-100 text-blue-600 animate-on-scroll">
@@ -189,7 +190,7 @@ const SystemManagement = () => {
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-300 animate-on-scroll">Response Time</p>
+                  <p className="text-sm font-medium text-gray-300 animate-on-scroll">{adminTranslations.health.responseTime}</p>
                   <p className="text-2xl font-bold text-gray-900 animate-on-scroll">{systemHealth.responseTime}</p>
                 </div>
                 <div className="p-2 rounded-full bg-green-100 text-green-600 animate-on-scroll">
@@ -203,7 +204,7 @@ const SystemManagement = () => {
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-300 animate-on-scroll">Active Users</p>
+                  <p className="text-sm font-medium text-gray-300 animate-on-scroll">{adminTranslations.health.activeUsers}</p>
                   <p className="text-2xl font-bold text-gray-900 animate-on-scroll">{systemHealth.activeUsers}</p>
                 </div>
                 <div className="p-2 rounded-full bg-purple-100 text-purple-600 animate-on-scroll">
@@ -218,18 +219,18 @@ const SystemManagement = () => {
 
         {/* Performance Metrics */}
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-6 animate-on-scroll">Performance Metrics</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6 animate-on-scroll">Métricas de Rendimiento</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">CPU Usage</h3>
+                <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">{adminTranslations.health.cpuUsage}</h3>
                 <svg className="w-6 h-6 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
                 </svg>
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-300 animate-on-scroll">Current</span>
+                  <span className="text-gray-300 animate-on-scroll">Actual</span>
                   <span className={`font-medium ${getUsageColor(systemHealth.cpuUsage)} animate-on-scroll`}>
                     {systemHealth.cpuUsage}
                   </span>
@@ -248,7 +249,7 @@ const SystemManagement = () => {
 
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">Memory Usage</h3>
+                <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">{adminTranslations.health.memoryUsage}</h3>
                 <svg className="w-6 h-6 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
@@ -274,7 +275,7 @@ const SystemManagement = () => {
 
             <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6 animate-on-scroll">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">Disk Usage</h3>
+                <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">{adminTranslations.health.diskUsage}</h3>
                 <svg className="w-6 h-6 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
                 </svg>
@@ -305,13 +306,13 @@ const SystemManagement = () => {
           {/* General Settings */}
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm animate-on-scroll">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">General Settings</h3>
+              <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">Configuración General</h3>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">
-                    System Name
+                    {adminTranslations.system.systemName}
                   </label>
                   <input
                     type="text"
@@ -326,7 +327,7 @@ const SystemManagement = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">
-                    Version
+                    {adminTranslations.system.version}
                   </label>
                   <input
                     type="text"
@@ -341,7 +342,7 @@ const SystemManagement = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">
-                    Environment
+                    {adminTranslations.system.environment}
                   </label>
                   <select
                     value={editedConfig.general.environment}
@@ -352,14 +353,14 @@ const SystemManagement = () => {
                     disabled={!isEditing}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   >
-                    <option value="development">Development</option>
+                    <option value="development">Desarrollo</option>
                     <option value="staging">Staging</option>
-                    <option value="production">Production</option>
+                    <option value="production">Producción</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">
-                    Timezone
+                    {adminTranslations.system.timezone}
                   </label>
                   <select
                     value={editedConfig.general.timezone}
@@ -371,10 +372,10 @@ const SystemManagement = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   >
                     <option value="UTC">UTC</option>
-                    <option value="America/New_York">Eastern Time</option>
-                    <option value="America/Chicago">Central Time</option>
-                    <option value="America/Denver">Mountain Time</option>
-                    <option value="America/Los_Angeles">Pacific Time</option>
+                    <option value="America/New_York">Hora del Este</option>
+                    <option value="America/Chicago">Hora Central</option>
+                    <option value="America/Denver">Hora de las Montañas</option>
+                    <option value="America/Los_Angeles">Hora del Pacífico</option>
                   </select>
                 </div>
               </div>
@@ -391,7 +392,7 @@ const SystemManagement = () => {
                     disabled={!isEditing}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
                   />
-                  <span className="ml-2 text-sm text-gray-700 animate-on-scroll">Maintenance Mode</span>
+                  <span className="ml-2 text-sm text-gray-700 animate-on-scroll">{adminTranslations.system.maintenanceMode}</span>
                 </label>
                 <label className="flex items-center animate-on-scroll">
                   <input
@@ -404,7 +405,7 @@ const SystemManagement = () => {
                     disabled={!isEditing}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
                   />
-                  <span className="ml-2 text-sm text-gray-700 animate-on-scroll">Debug Mode</span>
+                  <span className="ml-2 text-sm text-gray-700 animate-on-scroll">{adminTranslations.system.debugMode}</span>
                 </label>
               </div>
             </div>
@@ -413,13 +414,13 @@ const SystemManagement = () => {
           {/* Security Settings */}
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm animate-on-scroll">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">Security Settings</h3>
+              <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">Configuración de Seguridad</h3>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">
-                    Session Timeout (seconds)
+                    Timeout de Sesión (segundos)
                   </label>
                   <input
                     type="number"
@@ -434,7 +435,7 @@ const SystemManagement = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">
-                    Max Login Attempts
+                    Intentos de Login Máximos
                   </label>
                   <input
                     type="number"
@@ -449,7 +450,7 @@ const SystemManagement = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">
-                    Password Min Length
+                    Longitud Mínima de Contraseña
                   </label>
                   <input
                     type="number"
@@ -464,7 +465,7 @@ const SystemManagement = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">
-                    Rate Limit Requests
+                    Solicitudes por Límite de Velocidad
                   </label>
                   <input
                     type="number"
@@ -491,7 +492,7 @@ const SystemManagement = () => {
                     disabled={!isEditing}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
                   />
-                  <span className="ml-2 text-sm text-gray-700 animate-on-scroll">Require Two-Factor</span>
+                  <span className="ml-2 text-sm text-gray-700 animate-on-scroll">Requerir Autenticación de Dos Factores</span>
                 </label>
                 <label className="flex items-center animate-on-scroll">
                   <input
@@ -504,7 +505,7 @@ const SystemManagement = () => {
                     disabled={!isEditing}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
                   />
-                  <span className="ml-2 text-sm text-gray-700 animate-on-scroll">SSL Enabled</span>
+                  <span className="ml-2 text-sm text-gray-700 animate-on-scroll">SSL Habilitado</span>
                 </label>
                 <label className="flex items-center animate-on-scroll">
                   <input
@@ -517,7 +518,7 @@ const SystemManagement = () => {
                     disabled={!isEditing}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
                   />
-                  <span className="ml-2 text-sm text-gray-700 animate-on-scroll">Rate Limiting</span>
+                  <span className="ml-2 text-sm text-gray-700 animate-on-scroll">Limitador de Velocidad</span>
                 </label>
               </div>
             </div>
@@ -526,7 +527,7 @@ const SystemManagement = () => {
           {/* Database Settings */}
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm animate-on-scroll">
             <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">Database Settings</h3>
+              <h3 className="text-lg font-semibold text-gray-900 animate-on-scroll">Configuración de Base de Datos</h3>
             </div>
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -547,7 +548,7 @@ const SystemManagement = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">
-                    Port
+                    Puerto
                   </label>
                   <input
                     type="number"
@@ -562,7 +563,7 @@ const SystemManagement = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">
-                    Database Name
+                    Nombre de la Base de Datos
                   </label>
                   <input
                     type="text"
@@ -577,7 +578,7 @@ const SystemManagement = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">
-                    Max Connections
+                    Conexiones Máximas
                   </label>
                   <input
                     type="number"
@@ -604,11 +605,11 @@ const SystemManagement = () => {
                     disabled={!isEditing}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
                   />
-                  <span className="ml-2 text-sm text-gray-700 animate-on-scroll">Backup Enabled</span>
+                  <span className="ml-2 text-sm text-gray-700 animate-on-scroll">Respaldo Habilitado</span>
                 </label>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2 animate-on-scroll">
-                    Backup Frequency
+                    Frecuencia de Respaldo
                   </label>
                   <select
                     value={editedConfig.database.backupFrequency}
@@ -619,17 +620,17 @@ const SystemManagement = () => {
                     disabled={!isEditing}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-300 animate-on-scroll"
                   >
-                    <option value="hourly">Hourly</option>
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
+                    <option value="hourly">Cada Hora</option>
+                    <option value="daily">Diaria</option>
+                    <option value="weekly">Semanal</option>
+                    <option value="monthly">Mensual</option>
                   </select>
                 </div>
               </div>
 
               <div className="mt-4 p-4 bg-gray-50 rounded-md animate-on-scroll">
                 <p className="text-sm text-gray-300 animate-on-scroll">
-                  <span className="font-medium">Last Backup:</span> {editedConfig.database.lastBackup}
+                  <span className="font-medium">Último Respaldo:</span> {editedConfig.database.lastBackup}
                 </p>
               </div>
             </div>

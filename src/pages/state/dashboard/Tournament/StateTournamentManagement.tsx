@@ -54,45 +54,45 @@ import type { Tournament, TournamentsQueryParams } from '@/types/api';
 /* ─── status config ───────────────────────────────────────────────────────── */
 
 const STATUS_CONFIG: Record<string, { label: string; dot: string; text: string; bg: string }> = {
-  draft: { label: 'Draft', dot: 'bg-white/30', text: 'text-white/50', bg: 'bg-white/[0.06]' },
+  draft: { label: 'Borrador', dot: 'bg-white/30', text: 'text-white/50', bg: 'bg-white/[0.06]' },
   pending_validation: {
-    label: 'Awaiting Approval',
+    label: 'Pendiente de Aprobación',
     dot: 'bg-amber-400',
     text: 'text-amber-400',
     bg: 'bg-amber-500/[0.08]',
   },
   approved: {
-    label: 'Approved',
+    label: 'Aprobado',
     dot: 'bg-blue-400',
     text: 'text-blue-300',
     bg: 'bg-blue-500/[0.08]',
   },
   rejected: {
-    label: 'Rejected',
+    label: 'Rechazado',
     dot: 'bg-red-400',
     text: 'text-red-400',
     bg: 'bg-red-500/[0.08]',
   },
   published: {
-    label: 'Published',
+    label: 'Publicado',
     dot: 'bg-sky-400',
     text: 'text-sky-300',
     bg: 'bg-sky-500/[0.08]',
   },
   in_progress: {
-    label: 'In Progress',
+    label: 'En Curso',
     dot: 'bg-[#ace600]',
     text: 'text-[#ace600]',
     bg: 'bg-[#ace600]/[0.08]',
   },
   completed: {
-    label: 'Completed',
+    label: 'Completado',
     dot: 'bg-emerald-400',
     text: 'text-emerald-400',
     bg: 'bg-emerald-500/[0.08]',
   },
   cancelled: {
-    label: 'Cancelled',
+    label: 'Cancelado',
     dot: 'bg-red-400',
     text: 'text-red-400',
     bg: 'bg-red-500/[0.08]',

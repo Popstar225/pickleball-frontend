@@ -18,7 +18,7 @@ export const StateTournamentCreationPage: React.FC = () => {
   const handleSuccess = (tournament: any) => {
     navigate(`/state/dashboard/tournaments/${tournament.id}`, {
       state: {
-        message: 'State tournament created successfully and is pending federation validation.',
+        message: 'Torneo estatal creado exitosamente y está pendiente de validación de la federación.',
       },
     });
   };

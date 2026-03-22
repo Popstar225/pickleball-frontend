@@ -18,15 +18,11 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { COURT_SURFACES as SURFACE_LABEL, COURT_SURFACE_OPTIONS } from '@/constants/constants';
 
 // ─── constants ────────────────────────────────────────────────────────────────
 const COURT_TYPE_LABEL: Record<string, string> = {
   indoor: 'Cubierta', outdoor: 'Abierta', covered: 'Techada',
-};
-const SURFACE_LABEL: Record<string, string> = {
-  concrete: 'Concreto', asphalt: 'Asfalto', synthetic: 'Sintético',
-  grass: 'Pasto', clay: 'Arcilla', wood: 'Madera', acrylic: 'Acrílico',
-  tartan: 'Tartán', other: 'Otro',
 };
 
 const inputCls =
@@ -188,12 +184,10 @@ export default function PartnerCourtsManagement() {
             <SelectValue placeholder="Superficie" />
           </SelectTrigger>
           <SelectContent className="bg-[#161c25] border-white/[0.08] rounded-xl shadow-2xl">
-            <SelectItem value="all"       className="text-white/70 focus:bg-white/[0.06] focus:text-white">Todas</SelectItem>
-            <SelectItem value="concrete"  className="text-white/70 focus:bg-white/[0.06] focus:text-white">Concreto</SelectItem>
-            <SelectItem value="asphalt"   className="text-white/70 focus:bg-white/[0.06] focus:text-white">Asfalto</SelectItem>
-            <SelectItem value="synthetic" className="text-white/70 focus:bg-white/[0.06] focus:text-white">Sintético</SelectItem>
-            <SelectItem value="grass"     className="text-white/70 focus:bg-white/[0.06] focus:text-white">Pasto</SelectItem>
-            <SelectItem value="clay"      className="text-white/70 focus:bg-white/[0.06] focus:text-white">Arcilla</SelectItem>
+            <SelectItem value="all" className="text-white/70 focus:bg-white/[0.06] focus:text-white">Todas</SelectItem>
+            {COURT_SURFACE_OPTIONS.map(({ value, label }) => (
+              <SelectItem key={value} value={value} className="text-white/70 focus:bg-white/[0.06] focus:text-white">{label}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

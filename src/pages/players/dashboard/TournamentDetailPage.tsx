@@ -371,7 +371,7 @@ const EventCard: React.FC<{
             {event.registered ? (
               <Badge className="bg-[#ace600]/10 text-[#ace600] border-[#ace600]/20">
                 <CheckCircle2 className="w-3 h-3 mr-1" />
-                Registered
+                Registrado
               </Badge>
             ) : isFull ? (
               <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/20">
@@ -429,7 +429,7 @@ const EventCard: React.FC<{
                 size="sm"
                 className="w-full h-8 bg-white/[0.05] text-white/50 text-xs font-semibold"
               >
-                Already Registered
+                Ya Registrado
               </Button>
             ) : (
               <Button
@@ -442,7 +442,7 @@ const EventCard: React.FC<{
                   event.eligible && !isFull ? 'bg-[#ace600] hover:bg-[#c0f000] text-black' : '',
                 )}
               >
-                {isRegistering ? 'Registering...' : isFull ? 'Join Waitlist' : 'Register'}
+                {isRegistering ? 'Registrando...' : isFull ? 'Unirse a Lista de Espera' : 'Registrarse'}
               </Button>
             )}
           </div>

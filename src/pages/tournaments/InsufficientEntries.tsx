@@ -50,25 +50,25 @@ export default function InsufficientEntries() {
           className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
-          Back to All Demos
+          Volver a Todos los Demos
         </button>
 
         <div>
-          <h1 className="text-3xl font-bold text-white">Insufficient Entries Modal</h1>
-          <p className="text-white/40 mt-2">Handle events with below-minimum registration count</p>
+          <h1 className="text-3xl font-bold text-white">Modal de Inscripciones Insuficientes</h1>
+          <p className="text-white/40 mt-2">Maneja eventos con un recuento de inscripciones por debajo del mínimo</p>
         </div>
 
         {/* State Info */}
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-2">
           <p className="text-sm text-white/70">
-            Modal Status:{' '}
+            Estado del Modal:{' '}
             <span className={isOpen ? 'text-blue-400' : 'text-white/50'}>
-              {isOpen ? 'Open' : 'Closed'}
+              {isOpen ? 'Abierto' : 'Cerrado'}
             </span>
           </p>
           {selectedAction && (
             <p className="text-sm text-[#ace600]">
-              Last Action: <span className="font-mono">{selectedAction}</span>
+              Última Acción: <span className="font-mono">{selectedAction}</span>
             </p>
           )}
           {!isOpen && (
@@ -79,7 +79,7 @@ export default function InsufficientEntries() {
               }}
               className="text-blue-400 hover:text-blue-300 text-sm"
             >
-              Reopen Modal
+              Reabrir Modal
             </button>
           )}
         </div>
@@ -98,47 +98,45 @@ export default function InsufficientEntries() {
 
         {/* Info Section */}
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 space-y-4">
-          <h3 className="text-lg font-bold text-white">Component Features</h3>
+          <h3 className="text-lg font-bold text-white">Características del Componente</h3>
           <ul className="space-y-2 text-sm">
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
-              <span className="text-white/70">Tab selection for multiple insufficient events</span>
+              <span className="text-white/70">Selección de pestañas para múltiples eventos con inscripciones insuficientes</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
               <span className="text-white/70">
-                Displays current entries and minimum requirement
+                Muestra las inscripciones actuales y el requisito mínimo
               </span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
-              <span className="text-white/70">Shows shortfall calculation</span>
+              <span className="text-white/70">Muestra el cálculo del déficit</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
-              <span className="text-white/70">Three action options:</span>
+              <span className="text-white/70">Tres opciones de acción:</span>
             </li>
             <li className="flex gap-6 ml-6">
               <div className="text-white/70">
-                <span className="font-semibold">1. Cancel Event</span> - Refund all entries
+                <span className="font-semibold">1. Cancelar Evento</span> - Devolver todas las inscripciones
               </div>
             </li>
             <li className="flex gap-6 ml-6">
               <div className="text-white/70">
-                <span className="font-semibold">2. Change Format</span> - Switch modality with
-                validation
+                <span className="font-semibold">2. Cambiar Formato</span> - Cambiar modalidad con validación
               </div>
             </li>
             <li className="flex gap-6 ml-6">
               <div className="text-white/70">
-                <span className="font-semibold">3. Merge Events</span> - Combine with similar skill
-                level
+                <span className="font-semibold">3. Fusionar Eventos</span> - Combinar con nivel de habilidad similar
               </div>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
               <span className="text-white/70">
-                Format options include minimum player validation
+                Las opciones de formato incluyen validación del número mínimo de jugadores
               </span>
             </li>
           </ul>
@@ -146,7 +144,7 @@ export default function InsufficientEntries() {
 
         {/* Test Scenario */}
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 space-y-4">
-          <h3 className="text-lg font-bold text-white">Try It Out</h3>
+          <h3 className="text-lg font-bold text-white">Vamos Allá</h3>
           <ol className="space-y-3 text-sm text-white/70">
             <li>
               <span className="font-semibold text-white">1. Switch Tabs</span> — Click the tabs to

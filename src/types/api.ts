@@ -1,3 +1,5 @@
+import type { CourtSurface } from '@/constants/constants';
+
 // Base API Response
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -236,7 +238,7 @@ export interface Court {
   id: string;
   name: string;
   court_type: 'indoor' | 'outdoor' | 'covered';
-  surface: 'concrete' | 'asphalt' | 'synthetic' | 'grass' | 'clay';
+  surface: CourtSurface;
   description?: string;
   dimensions?: CourtDimensions;
   capacity?: number;
@@ -1105,7 +1107,7 @@ export interface CourtsQueryParams {
   club_id?: string;
   venue_id?: string;
   court_type?: 'indoor' | 'outdoor' | 'covered';
-  surface?: 'concrete' | 'asphalt' | 'synthetic' | 'grass' | 'clay';
+  surface?: CourtSurface;
   is_available?: boolean;
   search?: string;
 }
@@ -1113,23 +1115,32 @@ export interface CourtsQueryParams {
 export interface CreateCourtRequest {
   name: string;
   court_type: 'indoor' | 'outdoor' | 'covered';
-  surface: 'concrete' | 'asphalt' | 'synthetic' | 'grass' | 'clay';
-  description?: string;
-  dimensions?: string;
+  surface: CourtSurface;
+  description?: string | null;
+  dimensions?: CourtDimensions | null;
   capacity?: number;
   club_id?: string;
   is_available?: boolean;
+  is_active?: boolean;
+  is_featured?: boolean;
   is_maintenance?: boolean;
-  maintenance_notes?: string;
-  maintenance_start?: string;
-  maintenance_end?: string;
-  operating_hours?: object;
-  hourly_rate?: number;
-  daily_rate?: number;
-  member_discount?: number;
-  member_rate?: number;
+  maintenance_notes?: string | null;
+  maintenance_start?: string | null;
+  maintenance_end?: string | null;
+  operating_hours?: object | null;
+  hourly_rate?: number | string;
+  daily_rate?: number | string;
+  member_discount?: number | string;
+  member_rate?: number | string;
   equipment?: object;
-  amenities?: object;
+  equipment_included?: string[];
+  amenities?: object | string[];
+  has_lighting?: boolean;
+  has_net?: boolean;
+  has_equipment?: boolean;
+  photos?: string[];
+  settings?: object;
+  notes?: string | null;
 }
 
 export interface BookCourtRequest {

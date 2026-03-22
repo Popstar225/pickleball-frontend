@@ -3,6 +3,7 @@
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import type { Court } from '@/types/api';
 import { cn } from '@/lib/utils';
+import { COURT_SURFACES as SURFACE_LABEL } from '@/constants/constants';
 import {
   X, Star, Clock, DollarSign, Users, Ruler, Layers,
   Zap, ShieldCheck, Package, CheckCircle2, XCircle,
@@ -13,11 +14,6 @@ import {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const COURT_TYPE_LABEL: Record<string, string> = {
   indoor: 'Cubierta', outdoor: 'Abierta', covered: 'Techada',
-};
-const SURFACE_LABEL: Record<string, string> = {
-  concrete: 'Concreto', asphalt: 'Asfalto', synthetic: 'Sintético',
-  grass: 'Pasto', clay: 'Arcilla', wood: 'Madera', acrylic: 'Acrílico',
-  tartan: 'Tartán', other: 'Otro',
 };
 const DAY_LABEL: Record<string, string> = {
   monday: 'Lun', tuesday: 'Mar', wednesday: 'Mié', thursday: 'Jue',

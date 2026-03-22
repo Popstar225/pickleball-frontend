@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/store';
 import { fetchCoachCourts, Court } from '@/store/slices/coachDashboardSlice';
+import { coachTranslations } from '@/utils/coachTranslations';
+import { COURT_SURFACE_OPTIONS } from '@/constants/constants';
 import CourtActionModal from './ActionModals/CourtActionModal';
 import {
   Plus,
@@ -253,8 +255,8 @@ export default function CoachCourtsManagement() {
             </SelectTrigger>
             <SelectContent className="bg-[#111827] border-white/10">
               <SelectItem value="">Todos los tipos</SelectItem>
-              <SelectItem value="indoor">Indoor</SelectItem>
-              <SelectItem value="outdoor">Outdoor</SelectItem>
+              <SelectItem value="indoor">Cubierta</SelectItem>
+              <SelectItem value="outdoor">Abierta</SelectItem>
               <SelectItem value="semi-covered">Semi-Cubierta</SelectItem>
             </SelectContent>
           </Select>
@@ -270,11 +272,9 @@ export default function CoachCourtsManagement() {
             </SelectTrigger>
             <SelectContent className="bg-[#111827] border-white/10">
               <SelectItem value="">Todas las superficies</SelectItem>
-              <SelectItem value="hard-court">Hard Court</SelectItem>
-              <SelectItem value="clay">Clay</SelectItem>
-              <SelectItem value="grass">Grass</SelectItem>
-              <SelectItem value="acrylic">Acrylic</SelectItem>
-              <SelectItem value="concrete">Concrete</SelectItem>
+              {COURT_SURFACE_OPTIONS.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>{label}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -288,7 +288,7 @@ export default function CoachCourtsManagement() {
           </div>
         ) : courts.length === 0 ? (
           <div className="bg-[#111827] border border-white/[0.06] rounded-2xl p-12 text-center">
-            <p className="text-[#4a5a72] mb-4">No hay canchas registradas</p>
+            <p className="text-[#4a5a72] mb-4">No tienes canchas registradas</p>
             <Button
               onClick={handleCreateCourt}
               className="text-black font-semibold"

@@ -14,12 +14,12 @@ export default function Validation() {
           className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors mb-4"
         >
           <ChevronLeft className="w-4 h-4" />
-          Back to All Demos
+          Volver a Todos los Demos
         </button>
 
         <div>
-          <h1 className="text-3xl font-bold text-white">Pre-Flight Validation</h1>
-          <p className="text-white/40 mt-2">Verify all tournament requirements before starting</p>
+          <h1 className="text-3xl font-bold text-white">Validación Previa</h1>
+          <p className="text-white/40 mt-2">Verifica todos los requisitos del torneo antes de iniciar</p>
         </div>
 
         {/* Component */}
@@ -31,29 +31,29 @@ export default function Validation() {
 
         {/* Info Section */}
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 space-y-4">
-          <h3 className="text-lg font-bold text-white">Component Features</h3>
+          <h3 className="text-lg font-bold text-white">Características del Componente</h3>
           <ul className="space-y-2 text-sm">
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
               <span className="text-white/70">
-                Pre-flight validation checklist with multiple checks
+                Lista de verificación de validación previa con múltiples controles
               </span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
-              <span className="text-white/70">Status indicators: pass, fail, warning, pending</span>
+              <span className="text-white/70">Indicadores de estado: aprobado, fallido, advertencia, pendiente</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
-              <span className="text-white/70">Summary statistics (total, passed, warnings)</span>
+              <span className="text-white/70">Estadísticas resumidas (total, aprobados, advertencias)</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
-              <span className="text-white/70">Button disabled until all checks pass</span>
+              <span className="text-white/70">Botón deshabilitado hasta que todos los controles pasen</span>
             </li>
             <li className="flex gap-2">
               <span className="text-[#ace600]">✓</span>
-              <span className="text-white/70">Loading state while validating</span>
+              <span className="text-white/70">Estado de carga durante la validación</span>
             </li>
           </ul>
         </div>

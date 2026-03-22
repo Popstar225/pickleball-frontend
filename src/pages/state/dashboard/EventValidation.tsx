@@ -194,7 +194,7 @@ export default function TournamentValidationPage() {
                       variant="outline"
                       className="text-[10px] font-bold uppercase tracking-wider rounded-full bg-amber-500/10 border-amber-500/20 text-amber-400"
                     >
-                      Pending Validation
+                      Validación Pendiente
                     </Badge>
                   </div>
 
@@ -208,7 +208,7 @@ export default function TournamentValidationPage() {
                       <p className="truncate">{tournament.city}</p>
                     </div>
                     <div>
-                      <p className="font-bold text-white/40 mb-0.5">Venue</p>
+                      <p className="font-bold text-white/40 mb-0.5">Lugar</p>
                       <p className="truncate">{tournament.venue_name}</p>
                     </div>
                     <div>
@@ -232,7 +232,7 @@ export default function TournamentValidationPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-5">
                     {[
                       { label: 'Director', value: tournament.organizer_name },
-                      { label: 'Venue', value: tournament.venue_name },
+                      { label: 'Lugar', value: tournament.venue_name },
                       { label: 'Ciudad', value: tournament.city },
                       {
                         label: 'Creado',

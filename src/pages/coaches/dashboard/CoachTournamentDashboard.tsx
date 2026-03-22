@@ -487,7 +487,7 @@ export default function CoachTournamentDashboard() {
             </div>
 
             <button className="w-full bg-[#ace600] text-black font-bold py-3 rounded-lg hover:bg-[#b8e500] transition-colors">
-              Ver Mis Asignaciones ComplEtas
+              Ver Mis Asignaciones Completas
             </button>
           </div>
         </div>

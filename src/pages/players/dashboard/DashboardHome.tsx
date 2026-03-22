@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
@@ -7,11 +7,13 @@ import {
   Building2,
   CreditCard,
   MessageSquare,
-  TrendingUp,
   ChevronRight,
   Loader2,
   ArrowUpRight,
   Star,
+  Shield,
+  RefreshCcw,
+  AlertCircle,
 } from 'lucide-react';
 import { AppDispatch, RootState } from '@/store';
 import {
@@ -19,7 +21,16 @@ import {
   fetchPlayerTournaments,
   fetchPlayerMessages,
 } from '@/store/slices/playerDashboardSlice';
+import { fetchMyDigitalCredential } from '@/store/slices/digitalCredentialsSlice';
+import { DigitalCredentialPaymentModal } from '@/components/payment/DigitalCredentialPaymentModal';
 import { cn } from '@/lib/utils';
+
+function getExpiryDate(credential: any): Date {
+  if (credential.expiry_date) return new Date(credential.expiry_date);
+  const d = new Date(credential.issued_date || credential.created_at);
+  d.setFullYear(d.getFullYear() + 1);
+  return d;
+}
 
 // ─── Atoms ────────────────────────────────────────────────────────────────────
 function StatCard({
@@ -125,12 +136,35 @@ export default function PlayerDashboardHome() {
   const dispatch = useDispatch<AppDispatch>();
   const { profile, tournaments, messages, profileLoading, tournamentsLoading, messagesLoading } =
     useSelector((s: RootState) => s.playerDashboard);
+  const { myCredential, loading: credentialLoading } = useSelector(
+    (s: RootState) => s.digitalCredentials,
+  );
+
+  const [paymentModal, setPaymentModal] = useState<{
+    open: boolean;
+    planType: 'basic' | 'membership' | 'premium';
+    planName: string;
+    amount: number;
+  } | null>(null);
 
   useEffect(() => {
     dispatch(fetchPlayerProfile());
     dispatch(fetchPlayerTournaments());
     dispatch(fetchPlayerMessages({ limit: 10 }));
+    dispatch(fetchMyDigitalCredential());
   }, [dispatch]);
+
+  const isExpired = myCredential ? getExpiryDate(myCredential) < new Date() : false;
+  const credentialActive = !!myCredential && !isExpired;
+
+  const handleRenewClick = () => {
+    setPaymentModal({ open: true, planType: 'membership', planName: 'Membresía Anual', amount: 250 });
+  };
+
+  const handlePaymentSuccess = () => {
+    setPaymentModal(null);
+    dispatch(fetchMyDigitalCredential());
+  };
 
   const firstName = profile?.fullName?.split(' ')[0] ?? 'Jugador';
   const greeting = profile?.gender === 'female' ? 'Bienvenida' : 'Bienvenido';
@@ -233,13 +267,78 @@ export default function PlayerDashboardHome() {
           icon={CreditCard}
           label="Credencial"
           value={
-            <span className="text-emerald-400 text-[15px] font-black tracking-wide">ACTIVA</span>
+            credentialLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin text-white/40" />
+            ) : credentialActive ? (
+              <span className="text-emerald-400 text-[15px] font-black tracking-wide">ACTIVA</span>
+            ) : myCredential ? (
+              <span className="text-red-400 text-[15px] font-black tracking-wide">EXPIRADA</span>
+            ) : (
+              <span className="text-white/30 text-[15px] font-black tracking-wide">SIN CRED.</span>
+            )
           }
-          sub="Credencial federada"
-          color="text-emerald-400"
-          bg="bg-emerald-500/10 border-emerald-500/20"
+          sub={credentialActive ? `NTPR ${myCredential?.nrtp_level ?? '—'}` : 'Credencial federada'}
+          color={credentialActive ? 'text-emerald-400' : myCredential ? 'text-red-400' : 'text-white/30'}
+          bg={credentialActive ? 'bg-emerald-500/10 border-emerald-500/20' : myCredential ? 'bg-red-500/10 border-red-500/20' : 'bg-white/[0.04] border-white/[0.07]'}
         />
       </div>
+
+      {/* ── Credential banner ───────────────────────────────────────────────── */}
+      {!credentialLoading && myCredential && (
+        <div className={cn(
+          'bg-[#0d1117] rounded-2xl border overflow-hidden',
+          credentialActive ? 'border-[#ace600]/20' : 'border-red-500/20',
+        )}>
+          <div className={cn(
+            'h-0.5 bg-gradient-to-r via-transparent to-transparent',
+            credentialActive ? 'from-[#ace600]/40' : 'from-red-500/40',
+          )} />
+          <div className="px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                'w-9 h-9 rounded-xl border flex items-center justify-center shrink-0',
+                credentialActive ? 'bg-[#ace600]/10 border-[#ace600]/20' : 'bg-red-500/10 border-red-500/20',
+              )}>
+                {credentialActive
+                  ? <Shield className="w-4 h-4 text-[#ace600]" />
+                  : <AlertCircle className="w-4 h-4 text-red-400" />
+                }
+              </div>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-0.5">
+                  {credentialActive ? 'Credencial Activa' : 'Credencial Expirada'}
+                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-black text-white">
+                    NTPR {myCredential.nrtp_level ?? '—'}
+                  </p>
+                  <span className={cn(
+                    'text-[10px] font-bold uppercase tracking-widest',
+                    credentialActive ? 'text-emerald-400' : 'text-red-400',
+                  )}>
+                    · {credentialActive ? 'Vigente' : `Expiró ${getExpiryDate(myCredential).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}`}
+                  </span>
+                </div>
+              </div>
+            </div>
+            {credentialActive ? (
+              <Link
+                to="/players/dashboard/credentials"
+                className="inline-flex items-center gap-1.5 text-[11px] font-bold text-sky-400 hover:text-sky-300 transition-colors"
+              >
+                Gestionar <ArrowUpRight className="w-3 h-3" />
+              </Link>
+            ) : (
+              <button
+                onClick={handleRenewClick}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-bold bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 transition-all"
+              >
+                <RefreshCcw className="w-3 h-3" /> Renovar Ahora
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── Tournaments + Messages ───────────────────────────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -364,6 +463,18 @@ export default function PlayerDashboardHome() {
           ))}
         </div>
       </div>
+
+      {paymentModal && (
+        <DigitalCredentialPaymentModal
+          isOpen={paymentModal.open}
+          onClose={() => setPaymentModal(null)}
+          planType={paymentModal.planType}
+          planName={paymentModal.planName}
+          amount={paymentModal.amount}
+          userType="player"
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 }

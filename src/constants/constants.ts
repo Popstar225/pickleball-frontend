@@ -1,3 +1,28 @@
+// Court surface types — matches backend COURT_SURFACES constants
+export const COURT_SURFACES = {
+  concrete: 'Concreto',
+  asphalt: 'Asfalto',
+  synthetic: 'Sintético',
+  grass: 'Pasto',
+  clay: 'Arcilla',
+} as const;
+
+export type CourtSurface = keyof typeof COURT_SURFACES;
+
+export const COURT_SURFACE_OPTIONS = Object.entries(COURT_SURFACES).map(([value, label]) => ({
+  value: value as CourtSurface,
+  label,
+}));
+
+// Badge colors per surface (for management list views)
+export const COURT_SURFACE_COLORS: Record<CourtSurface, string> = {
+  concrete: 'bg-slate-400',
+  asphalt: 'bg-slate-500',
+  synthetic: 'bg-sky-400',
+  grass: 'bg-emerald-400',
+  clay: 'bg-orange-400',
+};
+
 export const userTypes = [
   {
     type: 'player',

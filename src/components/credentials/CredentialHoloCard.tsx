@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { cn } from '@/lib/utils';
-import { getFullImageUrl } from '@/common/tools';
+import { cn, getImageUrl } from '@/lib/utils';
 import { Mexico } from '@/constants/constants';
 
 import MXFlag from '@/assets/images/flag/MX.png';
@@ -45,12 +44,21 @@ export function CredentialHoloCard({ credential, photoUrl }: Props) {
   }, []);
 
   const isActive = credential.affiliation_status === 'active';
-  const isCoach = !!credential.coach_name;
-  const displayName = credential.player_name || credential.coach_name || '—';
+  const isCoach = credential.credential_type === 'coach';
+  const displayName = credential.player_name || '—';
   const roleLabel = isCoach ? 'ENTRENADOR' : 'JUGADOR';
-  const photo = credential?.user?.profile_photo || photoUrl;
+  const photo =
+    credential?.user?.profile_photo ||
+    credential?.photo_url ||
+    photoUrl ||
+    null;
+  const initials = displayName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w: string) => w[0].toUpperCase())
+    .join('');
   const ntprLabel = isCoach ? 'NRTP' : 'NTPR';
-console.log('xxxxxxxx', credential)
   return (
     <div
       ref={ref}
@@ -95,17 +103,37 @@ console.log('xxxxxxxx', credential)
       </div>
 
       {/* Photo zone */}
-      <div className="relative h-[300px] overflow-hidden bg-gradient-to-b from-[#0A1A06] to-[#050D03]">
+      <div className="relative h-[260px] overflow-hidden bg-gradient-to-b from-[#0A1A06] to-[#050D03]">
         <div className="absolute inset-0 [background-image:linear-gradient(rgba(200,255,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(200,255,0,0.03)_1px,transparent_1px)] [background-size:24px_24px]" />
         <p className="absolute top-3 inset-x-0 text-center font-sans text-[12px] font-bold tracking-[1.5px] text-white uppercase">
           {roleLabel}
         </p>
-        <div className="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 w-36 h-36 rounded-[12px] border-2 border-white/80 bg-[#12152A] overflow-hidden flex items-center justify-center text-5xl shadow-[0_6px_32px_rgba(0,0,0,0.7),0_0_0_5px_rgba(255,255,255,0.06)]">
-          {photo
-            ? <img src={getFullImageUrl(photo)} alt={displayName} className="w-full h-full object-cover" />
-            : (isCoach ? '👨‍🏫' : '👤')}
+        <div className="absolute left-1/2 top-[50%] -translate-x-1/2 -translate-y-1/2 w-[200px] h-[150px] rounded-[12px] border-2 border-white/80 bg-[#12152A] overflow-hidden flex items-center justify-center shadow-[0_6px_32px_rgba(0,0,0,0.7),0_0_0_5px_rgba(255,255,255,0.06)]">
+          {photo ? (
+            <img
+              src={getImageUrl(photo)}
+              alt={displayName}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent && !parent.querySelector('.initials-fallback')) {
+                  const div = document.createElement('div');
+                  div.className = 'initials-fallback';
+                  div.style.cssText = 'width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1A3010,#0A1A06);color:#C8FF00;font-size:2.5rem;font-weight:900;letter-spacing:2px;';
+                  div.textContent = initials || (isCoach ? 'EC' : 'JP');
+                  parent.appendChild(div);
+                }
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1A3010] to-[#0A1A06] text-[#C8FF00] font-black text-5xl tracking-widest">
+              {initials || (isCoach ? 'EC' : 'JP')}
+            </div>
+          )}
         </div>
-        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[rgba(5,9,3,0.97)] via-[rgba(5,9,3,0.7)] to-transparent pb-3 pt-10 px-3 text-center">
+        <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[rgba(5,9,3,0.97)] via-[rgba(5,9,3,0.7)] to-transparent pb-2 pt-2 px-3 text-center">
           <p className="font-sans font-extrabold text-[18px] tracking-[1.5px] text-white leading-tight">
             {displayName}
           </p>
@@ -152,12 +180,12 @@ console.log('xxxxxxxx', credential)
       <div className="bg-white flex items-center justify-center py-4 px-5">
         <div className="p-2 bg-white border-2 border-[#E0E0E0] rounded-md shadow-md">
           {credential.qr_code_url ? (
-            <img src={getFullImageUrl(credential.qr_code_url)} alt="QR" className="w-[200px] h-[200px] block" />
+            <img src={getImageUrl(credential.qr_code_url)} alt="QR" className="w-[240px] h-[240px] object-contain block" />
           ) : (
             <img
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${import.meta.env.VITE_BASIC_URI || window.location.origin}/verify-credential/${credential.verification_code}`)}&margin=4`}
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(`${window.location.origin}/verify-credential/${credential.verification_code}`)}&margin=4`}
               alt="QR"
-              className="w-[200px] h-[200px] block"
+              className="w-[240px] h-[240px] object-contain block"
             />
           )}
         </div>

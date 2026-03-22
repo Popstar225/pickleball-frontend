@@ -40,7 +40,7 @@ function StripePaymentForm({
         elements,
         redirect: 'if_required',
       });
-      if (error) { onError(error.message || 'Payment failed'); return; }
+      if (error) { onError(error.message || 'El pago falló'); return; }
       if (paymentIntent?.status === 'succeeded') {
         await EquipmentService.confirmEquipmentCheckout(paymentId, paymentIntent.id, orderId);
         onSuccess();

@@ -29,45 +29,45 @@ interface StateTournamentDetailsProps {
 
 /* ─── shared with the rest of the design system ── */
 const STATUS_CONFIG: Record<string, { label: string; dot: string; text: string; bg: string }> = {
-  draft: { label: 'Draft', dot: 'bg-white/30', text: 'text-white/50', bg: 'bg-white/[0.06]' },
+  draft: { label: 'Borrador', dot: 'bg-white/30', text: 'text-white/50', bg: 'bg-white/[0.06]' },
   pending_validation: {
-    label: 'Awaiting Approval',
+    label: 'Pendiente de Aprobación',
     dot: 'bg-amber-400',
     text: 'text-amber-400',
     bg: 'bg-amber-500/[0.08]',
   },
   approved: {
-    label: 'Approved',
+    label: 'Aprobado',
     dot: 'bg-blue-400',
     text: 'text-blue-300',
     bg: 'bg-blue-500/[0.08]',
   },
   rejected: {
-    label: 'Rejected',
+    label: 'Rechazado',
     dot: 'bg-red-400',
     text: 'text-red-400',
     bg: 'bg-red-500/[0.08]',
   },
   published: {
-    label: 'Published',
+    label: 'Publicado',
     dot: 'bg-sky-400',
     text: 'text-sky-300',
     bg: 'bg-sky-500/[0.08]',
   },
   in_progress: {
-    label: 'In Progress',
+    label: 'En Curso',
     dot: 'bg-[#ace600]',
     text: 'text-[#ace600]',
     bg: 'bg-[#ace600]/[0.08]',
   },
   completed: {
-    label: 'Completed',
+    label: 'Completado',
     dot: 'bg-emerald-400',
     text: 'text-emerald-400',
     bg: 'bg-emerald-500/[0.08]',
   },
   cancelled: {
-    label: 'Cancelled',
+    label: 'Cancelado',
     dot: 'bg-red-400',
     text: 'text-red-400',
     bg: 'bg-red-500/[0.08]',
@@ -76,8 +76,8 @@ const STATUS_CONFIG: Record<string, { label: string; dot: string; text: string; 
 
 const TYPE_CONFIG: Record<string, { label: string; color: string }> = {
   local: { label: 'Local', color: 'text-emerald-400 bg-emerald-500/[0.08] border-emerald-500/20' },
-  state: { label: 'State', color: 'text-sky-400 bg-sky-500/[0.08] border-sky-500/20' },
-  national: { label: 'National', color: 'text-[#ace600] bg-[#ace600]/[0.08] border-[#ace600]/20' },
+  state: { label: 'Estatal', color: 'text-sky-400 bg-sky-500/[0.08] border-sky-500/20' },
+  national: { label: 'Nacional', color: 'text-[#ace600] bg-[#ace600]/[0.08] border-[#ace600]/20' },
 };
 
 function StatusPill({ status }: { status: string }) {

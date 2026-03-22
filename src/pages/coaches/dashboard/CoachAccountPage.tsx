@@ -1,11 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useToast } from '@/hooks/use-toast';
 import { AppDispatch, RootState } from '@/store';
 import {
   fetchCoachProfile, updateCoachProfile, deleteCoachAccount,
   fetchCoachStudents, addCoachStudent, updateCoachStudent,
+  fetchMyCoachCredential,
 } from '@/store/slices/coachDashboardSlice';
+import { compressImage } from '@/lib/imageCompress';
+import { AvatarCropDialog } from '@/components/ui/AvatarCropDialog';
+import { getFullImageUrl } from '@/common/tools';
 import { Input } from '@/components/ui/input';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -19,7 +24,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import {
   User, Award, Users, Edit2, Trash2, Plus, AlertTriangle,
-  Loader2, CheckCircle2, X, Save, ShieldCheck, Star,
+  Loader2, CheckCircle2, X, Save, ShieldCheck, Star, Camera, Upload, Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -90,6 +95,104 @@ function Tag({ label, color = 'lime' }: { label: string; color?: 'lime' | 'muted
   );
 }
 
+function TagEditor({
+  label, values, options, color = 'lime', onChange,
+}: {
+  label: string;
+  values: string[];
+  options: string[];
+  color?: 'lime' | 'muted';
+  onChange: (next: string[]) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [rect, setRect] = useState<DOMRect | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const available = options.filter(o => !values.includes(o));
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (!btnRef.current?.contains(target) && !panelRef.current?.contains(target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const handleOpen = () => {
+    if (btnRef.current) setRect(btnRef.current.getBoundingClientRect());
+    setOpen(o => !o);
+  };
+
+  const handleSelect = (o: string) => {
+    onChange([...values, o]);
+    setOpen(false);
+  };
+
+  return (
+    <div>
+      <label className={labelCls}>{label}</label>
+      <div className="flex flex-wrap gap-1.5 mt-1 items-center">
+        {values.map(v => (
+          <span key={v} className={cn(
+            'inline-flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest',
+            color === 'lime'
+              ? 'bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]'
+              : 'bg-white/[0.04] border-white/[0.08] text-white/35',
+          )}>
+            {v}
+            <button type="button" onClick={() => onChange(values.filter(x => x !== v))}
+              className="ml-0.5 hover:opacity-60 transition-opacity">
+              <X className="w-2.5 h-2.5" />
+            </button>
+          </span>
+        ))}
+        {available.length > 0 && (
+          <>
+            <button
+              ref={btnRef}
+              type="button"
+              onClick={handleOpen}
+              className="h-7 px-3 rounded-full border border-white/[0.09] bg-white/[0.04] text-white/40 text-[10px] font-bold uppercase tracking-widest hover:border-[#ace600]/40 hover:text-white/60 transition-all flex items-center gap-1"
+            >
+              <Plus className="w-2.5 h-2.5" /> Agregar
+            </button>
+            {open && rect && createPortal(
+              <div
+                ref={panelRef}
+                style={{ position: 'fixed', top: rect.bottom + 6, left: rect.left, zIndex: 9999, width: 'fit-content', minWidth: 160, maxWidth: 220 }}
+                className="rounded-xl border border-white/[0.09] bg-[#0d1117] shadow-[0_8px_32px_rgba(0,0,0,0.8)] overflow-hidden"
+              >
+                {available.map(o => (
+                  <button
+                    key={o}
+                    type="button"
+                    onMouseDown={e => e.stopPropagation()}
+                    onClick={() => handleSelect(o)}
+                    className="w-full text-left px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-white/50 hover:bg-[#ace600]/10 hover:text-[#ace600] transition-colors"
+                  >
+                    {o}
+                  </button>
+                ))}
+              </div>,
+              document.body,
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const SPECIALIZATION_OPTIONS = [
+  'Principiante', 'Intermedio', 'Avanzado', 'Singles', 'Dobles', 'Mixto',
+  'Juvenil', 'Senior', 'Estrategia', 'Técnica', 'Mental', 'Competitivo',
+];
+const LANGUAGE_OPTIONS = ['Español', 'Inglés', 'Francés', 'Portugués', 'Alemán', 'Italiano'];
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function CoachAccountPage() {
   const { toast } = useToast();
@@ -104,6 +207,11 @@ export default function CoachAccountPage() {
   const [formData,            setFormData]            = useState<any>(null);
   const [newStudent,          setNewStudent]          = useState({ playerId: '', notes: '' });
   const [addingStudentLoading,setAddingStudentLoading]= useState(false);
+  const [selectedFile,        setSelectedFile]        = useState<File | null>(null);
+  const [previewUrl,          setPreviewUrl]          = useState<string | null>(null);
+  const [cropSrc,             setCropSrc]             = useState<string | null>(null);
+  const [cropFileName,        setCropFileName]        = useState('');
+  const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     dispatch(fetchCoachProfile());
@@ -132,6 +240,7 @@ export default function CoachAccountPage() {
         specialization:  profile?.specializations || 'N/A',
         experience:      profile?.experienceYears || 'N/A',
       });
+      if (profile.profilePhoto) setPreviewUrl(getFullImageUrl(profile.profilePhoto));
     }
   }, [profile]);
 
@@ -139,19 +248,44 @@ export default function CoachAccountPage() {
 
   const handleSaveProfile = async () => {
     try {
-      await dispatch(updateCoachProfile({
-        fullName: formData.fullName, email: formData.email, phone: formData.phone,
-        username: formData.username, dateOfBirth: formData.dateOfBirth, gender: formData.gender,
+      const fd = new FormData();
+      const data: Record<string, any> = {
+        full_name: formData.fullName, email: formData.email, phone: formData.phone,
+        username: formData.username, date_of_birth: formData.dateOfBirth, gender: formData.gender,
         state: formData.state, city: formData.city, bio: formData.bio,
-        skillLevel: formData.skillLevel, experienceYears: formData.experienceYears,
-        hourlyRate: formData.hourlyRate, specializations: formData.specializations,
-        certifications: formData.certifications, languages: formData.languages,
-      })).unwrap();
+        skill_level: formData.skillLevel, experience_years: formData.experienceYears,
+        hourly_rate: formData.hourlyRate,
+      };
+      Object.entries(data).forEach(([k, v]) => { if (v !== undefined && v !== null && v !== '') fd.append(k, v as any); });
+      fd.append('specializations', JSON.stringify(formData.specializations || []));
+      fd.append('coaching_languages', JSON.stringify(formData.languages || []));
+      if (selectedFile) fd.set('profile_photo', selectedFile);
+      await dispatch(updateCoachProfile(fd)).unwrap();
+      setSelectedFile(null);
       setIsEditing(false);
+      dispatch(fetchMyCoachCredential());
       toast({ title: 'Perfil actualizado', description: 'Cambios guardados exitosamente.' });
     } catch (error: any) {
       toast({ title: 'Error', description: error?.message || 'No se pudo actualizar', variant: 'destructive' });
     }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) { toast({ title: 'Archivo inválido', variant: 'destructive' }); return; }
+    setCropSrc(URL.createObjectURL(file));
+    setCropFileName(file.name);
+    e.target.value = '';
+  };
+
+  const handleCropComplete = async (croppedFile: File) => {
+    setCropSrc(null);
+    const compressed = await compressImage(croppedFile);
+    setSelectedFile(compressed);
+    const reader = new FileReader();
+    reader.onload = ev => setPreviewUrl(ev.target?.result as string);
+    reader.readAsDataURL(compressed);
   };
 
   const handleDeleteAccount = async () => {
@@ -227,8 +361,27 @@ export default function CoachAccountPage() {
           {/* Identity */}
           <div className="flex items-center gap-4">
             <div className="relative shrink-0">
-              <Initials name={formData.fullName || '??'} size="lg" />
-              <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-400 border-2 border-[#0d1117]" />
+              <div className="w-16 h-16 rounded-2xl border-2 border-[#0d1117] overflow-hidden shadow-xl bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center text-xl font-black text-[#ace600] select-none">
+                {previewUrl
+                  ? <img src={previewUrl} alt="Foto de perfil" className="w-full h-full object-cover" />
+                  : (formData.fullName || '??').trim().split(/\s+/).map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()
+                }
+              </div>
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#0d1117] border border-white/[0.15] flex items-center justify-center text-white/50 hover:text-[#ace600] transition-colors"
+                title="Cambiar foto">
+                {selectedFile ? <Upload className="w-3 h-3" /> : <Camera className="w-3 h-3" />}
+              </button>
+              {selectedFile && (
+                <button
+                  onClick={handleSaveProfile}
+                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#ace600] flex items-center justify-center"
+                  title="Guardar foto">
+                  <Check className="w-3 h-3 text-black" />
+                </button>
+              )}
+              <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileSelect} />
             </div>
             <div>
               <div className="flex items-center gap-2 mb-0.5">
@@ -343,7 +496,15 @@ export default function CoachAccountPage() {
           </Field>
 
           {/* Specializations */}
-          {formData.specializations?.length > 0 && (
+          {isEditing ? (
+            <TagEditor
+              label="Especializaciones"
+              values={formData.specializations || []}
+              options={SPECIALIZATION_OPTIONS}
+              color="lime"
+              onChange={v => set('specializations', v)}
+            />
+          ) : formData.specializations?.length > 0 && (
             <div>
               <label className={labelCls}>Especializaciones</label>
               <div className="flex flex-wrap gap-1.5 mt-1">
@@ -353,7 +514,15 @@ export default function CoachAccountPage() {
           )}
 
           {/* Languages */}
-          {formData.languages?.length > 0 && (
+          {isEditing ? (
+            <TagEditor
+              label="Idiomas"
+              values={formData.languages || []}
+              options={LANGUAGE_OPTIONS}
+              color="muted"
+              onChange={v => set('languages', v)}
+            />
+          ) : formData.languages?.length > 0 && (
             <div>
               <label className={labelCls}>Idiomas</label>
               <div className="flex flex-wrap gap-1.5 mt-1">
@@ -403,14 +572,16 @@ export default function CoachAccountPage() {
             ))}
           </div>
 
-          {formData.certifications?.length > 0 && (
-            <div>
-              <label className={labelCls}>Certificaciones</label>
+          <div>
+            <label className={labelCls}>Certificaciones</label>
+            {formData.certifications?.length > 0 ? (
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {formData.certifications.map((c: string) => <Tag key={c} label={c} color="lime" />)}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-xs text-white/20 mt-1">Sin certificaciones</p>
+            )}
+          </div>
         </div>
       </SectionCard>
 
@@ -548,6 +719,16 @@ export default function CoachAccountPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* ── Crop dialog ──────────────────────────────────────────────────────── */}
+      {cropSrc && (
+        <AvatarCropDialog
+          imageSrc={cropSrc}
+          originalFileName={cropFileName}
+          onCropComplete={handleCropComplete}
+          onCancel={() => setCropSrc(null)}
+        />
+      )}
 
       {/* ── Delete confirm ───────────────────────────────────────────────────── */}
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>

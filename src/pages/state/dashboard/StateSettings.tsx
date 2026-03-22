@@ -20,7 +20,7 @@ export default function StateSettings() {
         </CardHeader>
         <CardContent className="min-h-[400px] space-y-6">
           <div className="flex items-center justify-center text-slate-200">
-            <p>Las opciones de configuración estarán disponibles pronto...</p>
+            <p>Las opciones de configuración estarán disponibles pronto…</p>
           </div>
         </CardContent>
       </Card>

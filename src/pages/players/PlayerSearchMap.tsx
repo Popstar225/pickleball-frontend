@@ -313,7 +313,7 @@ const PlayerSearchMap = () => {
         setMapZoom(10);
       })
       .catch(() => {
-        setLocationError('Location access denied. Showing all players in Mexico.');
+        setLocationError('Acceso a ubicación denegado. Mostrando todos los jugadores en México.');
       });
   }, [accessState]);
 
@@ -471,7 +471,7 @@ const PlayerSearchMap = () => {
                 {userLocation ? (
                   <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-5 py-2">
                     <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-sm text-green-300">Location detected</span>
+                    <span className="text-sm text-green-300">Ubicación detectada</span>
                   </div>
                 ) : locationError ? (
                   <div className="inline-flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 rounded-full px-5 py-2">
@@ -481,12 +481,12 @@ const PlayerSearchMap = () => {
                 ) : (
                   <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-5 py-2">
                     <Navigation2 className="w-4 h-4 text-blue-400 animate-pulse" />
-                    <span className="text-sm text-blue-300">Detecting location...</span>
+                    <span className="text-sm text-blue-300">Detectando ubicación...</span>
                   </div>
                 )}
                 <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-5 py-2">
                   <Trophy className="w-4 h-4 text-primary" />
-                  <span className="text-sm text-primary font-semibold">{players.length} players found</span>
+                  <span className="text-sm text-primary font-semibold">{players.length} jugadores encontrados</span>
                 </div>
               </div>
             </div>
@@ -574,7 +574,7 @@ const PlayerSearchMap = () => {
                   <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center">
                     <Search className="w-7 h-7 text-slate-300" />
                   </div>
-                  <p className="text-slate-200 font-semibold">No players found</p>
+                  <p className="text-slate-200 font-semibold">No se encontraron jugadores</p>
                   <p className="text-slate-300 text-sm">Try increasing the search radius</p>
                 </div>
               )}

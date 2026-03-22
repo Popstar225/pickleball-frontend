@@ -141,7 +141,7 @@ const Showcase = () => {
               <div className="text-center max-w-3xl mx-auto mb-12 lg:mb-16">
                 <div className="inline-block mb-4">
                   <span className="text-primary text-xs sm:text-sm font-bold uppercase tracking-wider bg-primary/10 px-4 sm:px-5 lg:px-6 py-1.5 sm:py-2 rounded-full border border-primary/20">
-                    Hall of Fame
+                    Salón de la Fama
                   </span>
                 </div>
                 <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold bg-gradient-to-r from-white via-white to-slate-300 bg-clip-text text-transparent mb-4 sm:mb-6">

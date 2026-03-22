@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
+import { COURT_SURFACE_OPTIONS } from '@/constants/constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AppDispatch, RootState } from '@/store';
@@ -1001,24 +1002,9 @@ export default function CourtDetails() {
                         <SelectValue placeholder="Seleccionar superficie" />
                       </SelectTrigger>
                       <SelectContent className="bg-slate-800 border-primary/30">
-                        <SelectItem value="concrete" className="text-white">
-                          Concreto
-                        </SelectItem>
-                        <SelectItem value="grass" className="text-white">
-                          Pasto Natural
-                        </SelectItem>
-                        <SelectItem value="synthetic" className="text-white">
-                          Pasto Sintético
-                        </SelectItem>
-                        <SelectItem value="clay" className="text-white">
-                          Arcilla
-                        </SelectItem>
-                        <SelectItem value="wood" className="text-white">
-                          Madera
-                        </SelectItem>
-                        <SelectItem value="rubber" className="text-white">
-                          Caucho
-                        </SelectItem>
+                        {COURT_SURFACE_OPTIONS.map(({ value, label }) => (
+                          <SelectItem key={value} value={value} className="text-white">{label}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </CardContent>
