@@ -44,7 +44,7 @@ export const fetchCourts = createAsyncThunk(
   'courts/fetchCourts',
   async (params: CourtsQueryParams) => {
     const queryString = new URLSearchParams(params as Record<string, string>).toString();
-    return await api.get(`/clubs/my-courts?${queryString}`);
+    return await api.get(`/courts?${queryString}`);
   },
 );
 
@@ -182,11 +182,14 @@ const courtsSlice = createSlice({
       .addCase(fetchCourts.fulfilled, (state, action) => {
         state.loading = false;
         const payload = action.payload as any;
-        console.log('📦 fetchCourts response:', payload);
-        // Match backend response format: { success, message, data: { club: {...}, courts: [...] } }
-        const responseData = payload?.data;
-        state.courts = responseData?.courts || [];
-        state.club = responseData?.club || null;
+        // GET /courts returns: { success, data: { data: courts[] }, pagination }
+        const raw: any[] = payload?.data?.data || payload?.data?.courts || [];
+        state.courts = raw.map((c: any) => ({
+          ...c,
+          club_name: c.club?.name || c.club_name || null,
+          club_id: c.club_id || c.club?.id || null,
+        }));
+        state.club = null;
         state.pagination = payload?.pagination || null;
       })
       .addCase(fetchCourts.rejected, (state, action) => {
