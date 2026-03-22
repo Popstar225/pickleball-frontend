@@ -285,7 +285,7 @@ function NewChatDialog({
   );
 }
 
-function BroadcastPanel({ role }: { role: BroadcastRole }) {
+function BroadcastPanel({ role, onSent }: { role: BroadcastRole; onSent?: () => void }) {
   const [selectedTarget, setSelectedTarget] = useState('');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
@@ -329,6 +329,7 @@ function BroadcastPanel({ role }: { role: BroadcastRole }) {
       setBody('');
       setSelectedTarget('');
       setAttachmentFile(null);
+      onSent?.();
       setTimeout(() => setSent(false), 3000);
     } catch {
       /* handled silently */
@@ -924,7 +925,13 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
           {/* Chat or Broadcast or Announcement detail panel */}
           {activeTab === 'broadcast' && canBroadcast ? (
             <div className="flex-1 min-h-0">
-              <BroadcastPanel role={role!} />
+              <BroadcastPanel
+                role={role!}
+                onSent={() => {
+                  dispatch(fetchAnnouncements());
+                  setSidebarTab('announcements');
+                }}
+              />
             </div>
           ) : sidebarTab === 'announcements' && selectedAnnouncement ? (
             /* ── ANNOUNCEMENT DETAIL ──────────────────────────────────────── */
