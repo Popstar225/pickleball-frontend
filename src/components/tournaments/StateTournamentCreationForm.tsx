@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { translateEventLabel } from '@/utils/formatters';
+import { api } from '@/lib/api';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface TournamentEvent {
@@ -65,7 +66,8 @@ interface TournamentFormData {
   format: 'hybrid' | 'single_elimination';
   format_config: { groupSize?: number; qualifiersPerGroup?: number; groupsStaged?: boolean };
   events: TournamentEvent[];
-  judges?: Array<{ name: string; email: string }>; // optional array of judge objects
+  judges?: Array<{ code: string; name: string }>;
+  coach?: { code: string; name: string } | null;
 }
 interface Props {
   stateCode?: string;
@@ -154,9 +156,12 @@ export const StateTournamentCreationForm: React.FC<Props> = ({
   );
 
   const [step, setStep] = useState<StepKey>('general');
-  const [judges, setJudges] = useState<Array<{ name: string; email: string }>>([]);
-  const [judgeName, setJudgeName] = useState('');
-  const [judgeEmail, setJudgeEmail] = useState('');
+  const [judges, setJudges] = useState<Array<{ code: string; name: string }>>([]);
+  const [judgeCode, setJudgeCode] = useState('');
+  const [judgeLoading, setJudgeLoading] = useState(false);
+  const [coach, setCoach] = useState<{ code: string; name: string } | null>(null);
+  const [coachCode, setCoachCode] = useState('');
+  const [coachLoading, setCoachLoading] = useState(false);
 
   const {
     register,
@@ -174,7 +179,7 @@ export const StateTournamentCreationForm: React.FC<Props> = ({
       state: stateCode ?? '',
       entry_fee: 0,
       format_config: { groupSize: 4, qualifiersPerGroup: 2, groupsStaged: true },
-      judges: [] as Array<{ name: string; email: string }>,
+      judges: [] as Array<{ code: string; name: string }>,
     },
   });
 
@@ -217,24 +222,45 @@ export const StateTournamentCreationForm: React.FC<Props> = ({
     if (stepIdx > 0) setStep(STEP_KEYS[stepIdx - 1]);
   };
 
-  const addJudge = () => {
-    if (
-      judgeName.trim() &&
-      judgeEmail.trim() &&
-      !judges.some((j) => j.email === judgeEmail.trim())
-    ) {
-      setJudges([...judges, { name: judgeName.trim(), email: judgeEmail.trim() }]);
-      setJudgeName('');
-      setJudgeEmail('');
+  const lookupCredential = async (code: string): Promise<{ code: string; name: string } | null> => {
+    try {
+      const res: any = await api.get(`/digital-credentials/verify/${code.trim().toUpperCase()}`);
+      const cred = res?.data?.credential ?? res?.data ?? res;
+      if (!cred?.player_name) return null;
+      return { code: code.trim().toUpperCase(), name: cred.player_name };
+    } catch {
+      return null;
     }
   };
 
-  const removeJudge = (email: string) => {
-    setJudges(judges.filter((j) => j.email !== email));
+  const addJudge = async () => {
+    const code = judgeCode.trim().toUpperCase();
+    if (!code || judges.some((j) => j.code === code)) return;
+    setJudgeLoading(true);
+    const found = await lookupCredential(code);
+    setJudgeLoading(false);
+    if (!found) { toast.error('Código de árbitro no encontrado'); return; }
+    setJudges([...judges, found]);
+    setJudgeCode('');
+  };
+
+  const removeJudge = (code: string) => {
+    setJudges(judges.filter((j) => j.code !== code));
+  };
+
+  const addCoach = async () => {
+    const code = coachCode.trim().toUpperCase();
+    if (!code) return;
+    setCoachLoading(true);
+    const found = await lookupCredential(code);
+    setCoachLoading(false);
+    if (!found) { toast.error('Código de entrenador no encontrado'); return; }
+    setCoach(found);
+    setCoachCode('');
   };
 
   const onSubmit = (data: TournamentFormData) => {
-    dispatch(createTournamentWithSetup({ ...data, tournament_type: 'state', judges }));
+    dispatch(createTournamentWithSetup({ ...data, tournament_type: 'state', judges, coach }));
   };
 
   // ── Loading events ───────────────────────────────────────────────────────────
@@ -548,52 +574,81 @@ export const StateTournamentCreationForm: React.FC<Props> = ({
               <div className="h-px bg-white/[0.05]" />
               <SectionHeading icon={Users}>Árbitros (Jueces)</SectionHeading>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="flex gap-2">
                 <Input
                   className={inputCls}
-                  placeholder="Nombre del árbitro"
-                  value={judgeName}
-                  onChange={(e) => setJudgeName(e.target.value)}
+                  placeholder="Código de credencial del árbitro"
+                  value={judgeCode}
+                  onChange={(e) => setJudgeCode(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addJudge())}
                 />
-                <div className="flex gap-2">
-                  <Input
-                    className={inputCls}
-                    placeholder="Email del árbitro"
-                    type="email"
-                    value={judgeEmail}
-                    onChange={(e) => setJudgeEmail(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addJudge())}
-                  />
-                  <Button
-                    type="button"
-                    onClick={addJudge}
-                    className="px-3 bg-[#ace600]/20 border border-[#ace600]/30 text-[#ace600] rounded-lg hover:bg-[#ace600]/30 transition-all"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
+                <Button
+                  type="button"
+                  onClick={addJudge}
+                  disabled={judgeLoading || !judgeCode.trim()}
+                  className="px-3 bg-[#ace600]/20 border border-[#ace600]/30 text-[#ace600] rounded-lg hover:bg-[#ace600]/30 transition-all disabled:opacity-40"
+                >
+                  {judgeLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                </Button>
               </div>
 
               {judges.length > 0 && (
                 <div className="flex flex-wrap gap-2">
                   {judges.map((judge) => (
                     <div
-                      key={judge.email}
+                      key={judge.code}
                       className="flex items-center gap-2 px-3 py-1.5 bg-[#ace600]/10 border border-[#ace600]/20 rounded-lg text-xs text-[#ace600]"
                     >
                       <div className="flex flex-col">
                         <span className="font-semibold">{judge.name}</span>
-                        <span className="text-[#ace600]/60 text-[10px]">{judge.email}</span>
+                        <span className="text-[#ace600]/60 text-[10px] font-mono">{judge.code}</span>
                       </div>
                       <button
                         type="button"
-                        onClick={() => removeJudge(judge.email)}
+                        onClick={() => removeJudge(judge.code)}
                         className="text-[#ace600]/60 hover:text-[#ace600] transition-colors ml-1"
                       >
                         <X className="w-3 h-3" />
                       </button>
                     </div>
                   ))}
+                </div>
+              )}
+
+              <div className="h-px bg-white/[0.05]" />
+              <SectionHeading icon={Users}>Datos del Entrenador</SectionHeading>
+
+              <div className="flex gap-2">
+                <Input
+                  className={inputCls}
+                  placeholder="Código de credencial del entrenador"
+                  value={coachCode}
+                  onChange={(e) => setCoachCode(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addCoach())}
+                />
+                <Button
+                  type="button"
+                  onClick={addCoach}
+                  disabled={coachLoading || !coachCode.trim()}
+                  className="px-3 bg-[#ace600]/20 border border-[#ace600]/30 text-[#ace600] rounded-lg hover:bg-[#ace600]/30 transition-all disabled:opacity-40"
+                >
+                  {coachLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+                </Button>
+              </div>
+
+              {coach && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-violet-500/10 border border-violet-500/20 rounded-lg text-xs text-violet-400 w-fit">
+                  <div className="flex flex-col">
+                    <span className="font-semibold">{coach.name}</span>
+                    <span className="text-violet-400/60 text-[10px] font-mono">{coach.code}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCoach(null)}
+                    className="text-violet-400/60 hover:text-violet-400 transition-colors ml-1"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
                 </div>
               )}
             </div>

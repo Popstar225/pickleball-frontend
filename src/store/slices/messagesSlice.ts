@@ -137,7 +137,7 @@ export const findUserByEmail = createAsyncThunk(
 export const markThreadAsRead = createAsyncThunk(
   'messages/markThreadAsRead',
   async (partnerId: string) => {
-    await api.put('/messages/read-all', {});
+    await api.put(`/messages/thread/${partnerId}/read`, {});
     return partnerId;
   },
 );
@@ -242,6 +242,21 @@ const messagesSlice = createSlice({
       if (thread) {
         const msg = thread.find((m) => m.id === message_id);
         if (msg) msg.status = status;
+      }
+    },
+
+    // Search all threads for message_id (used when partnerId is unknown, e.g. from socket events)
+    updateMessageStatusById(
+      state,
+      action: PayloadAction<{ message_id: string; status: 'delivered' | 'read' }>,
+    ) {
+      const { message_id, status } = action.payload;
+      for (const thread of Object.values(state.messagesByPartner)) {
+        const msg = thread.find((m) => m.id === message_id);
+        if (msg) {
+          msg.status = status;
+          break;
+        }
       }
     },
 
@@ -398,6 +413,7 @@ export const {
   receiveMessage,
   confirmSentMessage,
   updateMessageStatus,
+  updateMessageStatusById,
   setTyping,
   setOnlineStatus,
   clearUnreadForPartner,

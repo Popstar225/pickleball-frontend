@@ -6,6 +6,7 @@ import {
   receiveMessage,
   confirmSentMessage,
   updateMessageStatus,
+  updateMessageStatusById,
   setTyping,
   setOnlineStatus,
   upsertConversation,
@@ -112,14 +113,16 @@ export function useMessagingSocket(): UseMessagingSocketReturn {
 
     // ─── Message delivered ────────────────────────────────────────────────────
     socket.on('message:delivered', (data: any) => {
-      // We need to know which partner this belongs to - best effort with activeConversationId
-      // The slice will handle it if partnerId is provided
+      if (data?.message_id) {
+        dispatch(updateMessageStatusById({ message_id: data.message_id, status: 'delivered' }));
+      }
     });
 
     // ─── Message read ─────────────────────────────────────────────────────────
     socket.on('message:read', (data: any) => {
-      // Update status for all threads (we don't know which partner without more info)
-      dispatch(fetchConversations());
+      if (data?.message_id) {
+        dispatch(updateMessageStatusById({ message_id: data.message_id, status: 'read' }));
+      }
     });
 
     // ─── Typing indicator ─────────────────────────────────────────────────────

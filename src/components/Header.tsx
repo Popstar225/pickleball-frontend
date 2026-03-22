@@ -64,8 +64,8 @@ const Header = () => {
         break;
       case 'coach':
         links.push(
-          { label: t('header.my_account'), href: '/coach/dashboard/account', icon: User },
-          { label: t('header.my_dashboard'), href: '/coach/dashboard', icon: User },
+          { label: t('header.my_account'), href: '/coaches/dashboard/account', icon: User },
+          { label: t('header.my_dashboard'), href: '/coaches/dashboard', icon: User },
         );
         break;
       case 'club':
@@ -76,19 +76,18 @@ const Header = () => {
         break;
       case 'partner':
         links.push(
-          { label: t('header.my_account'), href: '/partner/dashboard/account', icon: User },
-          { label: t('header.my_dashboard'), href: '/partner/dashboard', icon: User },
+          { label: t('header.my_account'), href: '/partners/dashboard/account', icon: User },
+          { label: t('header.my_dashboard'), href: '/partners/dashboard', icon: User },
         );
         break;
       case 'state':
         links.push(
           { label: t('header.my_account'), href: '/state/dashboard/account', icon: User },
-          { label: t('header.my_dashboard'), href: '/state/dashboard', icon: User },
+          { label: t('header.my_dashboard'), href: '/state/dashboard/home', icon: User },
         );
         break;
       case 'admin':
         links.push(
-          { label: t('header.my_account'), href: '/admin/dashboard/account', icon: User },
           { label: t('header.my_dashboard'), href: '/admin/dashboard', icon: User },
         );
         break;
@@ -149,12 +148,12 @@ const Header = () => {
                       </button>
 
                       {activeDropdown === item.label && item.items && (
-                        <div className="absolute top-full left-0 mt-1 bg-card border border-border rounded-lg shadow-xl py-2 min-w-[200px] z-50">
+                        <div className="absolute top-full left-0 mt-2 bg-[#0d1117] border border-white/[0.08] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.6)] py-1.5 min-w-[200px] z-50">
                           {item.items.map((subItem) => (
                             <Link
                               key={subItem.label}
                               to={subItem.href}
-                              className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition-colors"
+                              className="block px-4 py-2.5 text-sm text-white/70 hover:bg-white/[0.05] hover:text-white transition-colors"
                               onClick={() => setActiveDropdown(null)}
                             >
                               {subItem.label}
@@ -212,10 +211,10 @@ const Header = () => {
                     />
                   </button>
                   {userDropdownOpen && (
-                    <div className="absolute top-full right-0 mt-1 bg-card border border-border rounded-lg shadow-xl py-2 min-w-[200px] z-50">
-                      <div className="px-4 py-2 border-b border-border">
-                        <p className="text-xs text-slate-200">{t('header.account_type')}</p>
-                        <p className="text-sm font-medium text-white capitalize">
+                    <div className="absolute top-full right-0 mt-2 bg-[#0d1117] border border-white/[0.08] rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.6)] py-1.5 min-w-[200px] z-50">
+                      <div className="px-4 py-2.5 border-b border-white/[0.07]">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">{t('header.account_type')}</p>
+                        <p className="text-sm font-semibold text-white capitalize mt-0.5">
                           {user?.user_type}
                         </p>
                       </div>
@@ -223,17 +222,17 @@ const Header = () => {
                         <Link
                           key={link.label}
                           to={link.href}
-                          className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary transition-colors"
+                          className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-white/70 hover:bg-white/[0.05] hover:text-white transition-colors"
                           onClick={() => setUserDropdownOpen(false)}
                         >
-                          <link.icon className="w-4 h-4" />
+                          <link.icon className="w-4 h-4 text-white/40" />
                           <span>{link.label}</span>
                         </Link>
                       ))}
-                      <div className="border-t border-border my-1"></div>
+                      <div className="border-t border-white/[0.07] my-1" />
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 transition-colors"
+                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/[0.08] transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>{t('header.logout')}</span>
