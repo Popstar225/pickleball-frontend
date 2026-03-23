@@ -42,6 +42,8 @@ import {
   FileText,
   Download,
   Smile,
+  History,
+  Trash2,
 } from 'lucide-react';
 import { RootState, AppDispatch } from '@/store';
 import {
@@ -57,6 +59,7 @@ import {
   fetchAnnouncements,
   markAnnouncementRead,
   upsertConversation,
+  removeConversation,
   Conversation,
   ChatMessage,
   Announcement,
@@ -285,6 +288,16 @@ function NewChatDialog({
   );
 }
 
+interface SentLogEntry {
+  id: string;
+  subject: string;
+  target_audience: string;
+  target_label: string;
+  content: string;
+  sent_at: string;
+  has_attachment: boolean;
+}
+
 function BroadcastPanel({ role, onSent }: { role: BroadcastRole; onSent?: () => void }) {
   const [selectedTarget, setSelectedTarget] = useState('');
   const [subject, setSubject] = useState('');
@@ -292,8 +305,8 @@ function BroadcastPanel({ role, onSent }: { role: BroadcastRole; onSent?: () => 
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [showEmoji, setShowEmoji] = useState(false);
-  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
-  const broadcastFileRef = useRef<HTMLInputElement>(null);
+  const [sentLog, setSentLog] = useState<SentLogEntry[]>([]);
+  const [expandedLogId, setExpandedLogId] = useState<string | null>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
 
   const options = BROADCAST_OPTIONS[role] ?? [];
@@ -304,31 +317,28 @@ function BroadcastPanel({ role, onSent }: { role: BroadcastRole; onSent?: () => 
     try {
       const { api } = await import('@/lib/api');
 
-      let attachmentMetadata: { attachment?: { url: string; name: string; type: string; size: number } } | null = null;
-      if (attachmentFile) {
-        const formData = new FormData();
-        formData.append('message_attachment', attachmentFile);
-        try {
-          const res = await api.post<any, FormData>('/messages/upload-attachment', formData);
-          if ((res as any)?.data) {
-            attachmentMetadata = { attachment: (res as any).data };
-          }
-        } catch { /* skip attachment on failure */ }
-      }
-
       await api.post('/messages/broadcast', {
         target_audience: selectedTarget,
         subject: subject.trim(),
         content: body.trim(),
         category: 'announcement',
         priority: 'medium',
-        metadata: attachmentMetadata,
       });
+      const targetLabel = options.find(o => o.value === selectedTarget)?.label ?? selectedTarget;
+      const logEntry: SentLogEntry = {
+        id: Date.now().toString(),
+        subject: subject.trim(),
+        target_audience: selectedTarget,
+        target_label: targetLabel,
+        content: body.trim(),
+        sent_at: new Date().toISOString(),
+        has_attachment: false,
+      };
       setSent(true);
+      setSentLog(prev => [logEntry, ...prev]);
       setSubject('');
       setBody('');
       setSelectedTarget('');
-      setAttachmentFile(null);
       onSent?.();
       setTimeout(() => setSent(false), 3000);
     } catch {
@@ -355,7 +365,8 @@ function BroadcastPanel({ role, onSent }: { role: BroadcastRole; onSent?: () => 
         </div>
       </div>
 
-      <div className="flex-1 px-5 py-4 space-y-4 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-5 py-4 space-y-4">
         {/* Target selector */}
         <div>
           <label className={labelCls}>Destinatarios <span className="text-[#ace600]">*</span></label>
@@ -432,51 +443,72 @@ function BroadcastPanel({ role, onSent }: { role: BroadcastRole; onSent?: () => 
               >
                 <Smile className="h-3.5 w-3.5" /> Emoji
               </button>
-              <button
-                onClick={() => broadcastFileRef.current?.click()}
-                className="flex items-center gap-1 text-[10px] text-white/25 hover:text-white/50 transition-colors px-2 py-1 rounded-lg hover:bg-white/[0.04]"
-              >
-                <Paperclip className="h-3.5 w-3.5" /> Adjuntar
-              </button>
-              <input
-                ref={broadcastFileRef}
-                type="file"
-                accept="image/*,.pdf,.doc,.docx,.txt"
-                className="hidden"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) setAttachmentFile(f);
-                  e.target.value = '';
-                }}
-              />
               {body.length > 0 && (
                 <span className="text-[10px] text-white/20 ml-auto">{body.length} caracteres</span>
               )}
             </div>
-            {/* Attachment preview */}
-            {attachmentFile && (
-              <div className="mt-2 flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2">
-                {attachmentFile.type.startsWith('image/') ? (
-                  <img
-                    src={URL.createObjectURL(attachmentFile)}
-                    alt={attachmentFile.name}
-                    className="h-8 w-8 rounded-lg object-cover shrink-0"
-                  />
-                ) : (
-                  <FileText className="h-4 w-4 text-white/40 shrink-0" />
-                )}
-                <span className="text-xs text-white/60 truncate flex-1">{attachmentFile.name}</span>
-                <button
-                  onClick={() => setAttachmentFile(null)}
-                  className="text-white/30 hover:text-white/60 transition-colors shrink-0"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            )}
           </div>
         </div>
-      </div>
+        </div>{/* closes px-5 py-4 space-y-4 form */}
+
+        {/* ── Sent log ──────────────────────────────────────────────────────── */}
+        {sentLog.length > 0 && (
+          <div className="border-t border-white/[0.05] px-5 py-4">
+            <div className="flex items-center gap-2 mb-3">
+              <History className="h-3.5 w-3.5 text-white/25" />
+              <p className="text-[10px] font-black uppercase tracking-widest text-white/25">
+                Historial de Envíos
+              </p>
+              <span className="ml-auto inline-flex items-center justify-center h-4 min-w-[1rem] px-1 rounded-full bg-white/[0.07] text-[9px] font-black text-white/40">
+                {sentLog.length}
+              </span>
+            </div>
+            <div className="space-y-2">
+              {sentLog.map((entry) => {
+                const isExpanded = expandedLogId === entry.id;
+                const opt = options.find(o => o.value === entry.target_audience);
+                const EntryIcon = opt?.icon ?? Megaphone;
+                const color = opt?.color ?? 'text-white/40';
+                const bg = opt?.bg ?? 'bg-white/[0.04] border-white/[0.08]';
+                return (
+                  <div
+                    key={entry.id}
+                    className="bg-white/[0.03] border border-white/[0.06] rounded-xl overflow-hidden"
+                  >
+                    <button
+                      onClick={() => setExpandedLogId(isExpanded ? null : entry.id)}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/[0.03] transition-colors text-left"
+                    >
+                      <div className={cn('w-6 h-6 rounded-lg flex items-center justify-center shrink-0 border', bg)}>
+                        <EntryIcon className={cn('h-3 w-3', color)} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-white/70 truncate">{entry.subject}</p>
+                        <p className={cn('text-[10px] truncate', color)}>{entry.target_label}</p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {entry.has_attachment && <Paperclip className="h-3 w-3 text-white/25" />}
+                        <span className="text-[10px] text-white/25">
+                          {format(new Date(entry.sent_at), 'HH:mm')}
+                        </span>
+                        <CheckCheck className="h-3.5 w-3.5 text-[#ace600]" />
+                        <ChevronRight className={cn('h-3 w-3 text-white/25 transition-transform', isExpanded && 'rotate-90')} />
+                      </div>
+                    </button>
+                    {isExpanded && (
+                      <div className="px-3 pb-3 border-t border-white/[0.05]">
+                        <p className="text-[11px] text-white/40 leading-relaxed pt-2.5 whitespace-pre-wrap">
+                          {entry.content}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>{/* closes flex-1 overflow-y-auto */}
 
       <div className="px-5 py-4 border-t border-white/[0.05] flex items-center justify-between">
         {sent ? (
@@ -536,11 +568,7 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
   const [sidebarTab, setSidebarTab] = useState<'chats' | 'announcements'>('chats');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const typingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
-  const [attachmentUploading, setAttachmentUploading] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const broadcastFileInputRef = useRef<HTMLInputElement>(null);
 
   const canBroadcast = role && BROADCAST_OPTIONS[role]?.length > 0;
   const selectedAnnouncement = announcements.find((a: Announcement) => a.id === selectedAnnouncementId) ?? null;
@@ -556,11 +584,18 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
 
   useEffect(() => {
     if (!activeConversationId) return;
-    dispatch(fetchThread(activeConversationId));
+    // Load thread, then emit socket read-receipts for any unread messages
+    // from the partner that came back from the server (not yet in local state).
+    dispatch(fetchThread(activeConversationId)).then((result: any) => {
+      const msgs: ChatMessage[] = result?.payload?.data?.data?.messages ?? [];
+      msgs
+        .filter((m) => m.sender_id === activeConversationId && !m.is_read)
+        .forEach((m) => markRead(m.id));
+    });
     dispatch(clearUnreadForPartner(activeConversationId));
     dispatch(markThreadAsRead(activeConversationId));
     checkUserStatus(activeConversationId);
-  }, [activeConversationId, dispatch, checkUserStatus]);
+  }, [activeConversationId, dispatch, checkUserStatus, markRead]);
 
   // ─── Auto-scroll to bottom ────────────────────────────────────────────────
 
@@ -571,41 +606,20 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
   // ─── Send message ─────────────────────────────────────────────────────────
 
   const handleSend = useCallback(async () => {
-    if ((!messageInput.trim() && !attachmentFile) || !activeConversationId || !user) return;
+    if (!messageInput.trim() || !activeConversationId || !user) return;
 
-    const content = messageInput.trim() || ' ';
     const activeConv = conversations.find((c) => c.partner_id === activeConversationId);
-
-    let attachmentMetadata: { attachment?: { url: string; name: string; type: string; size: number } } | null = null;
-
-    if (attachmentFile) {
-      setAttachmentUploading(true);
-      try {
-        const formData = new FormData();
-        formData.append('message_attachment', attachmentFile);
-        const { api } = await import('@/lib/api');
-        const res = await api.post<any, FormData>('/messages/upload-attachment', formData);
-        if ((res as any)?.data) {
-          attachmentMetadata = { attachment: (res as any).data };
-        }
-      } catch {
-        // attachment upload failed, send without
-      } finally {
-        setAttachmentUploading(false);
-        setAttachmentFile(null);
-      }
-    }
 
     const optimistic: ChatMessage = {
       id: `opt-${Date.now()}`,
       sender_id: user.id,
       recipient_id: activeConversationId,
-      content: messageInput.trim() || '',
+      content: messageInput.trim(),
       message_type: 'direct_message',
       status: 'sent',
       is_read: false,
       created_at: new Date().toISOString(),
-      metadata: attachmentMetadata,
+      metadata: null,
       sender: {
         id: user.id,
         full_name: user.full_name || user.username,
@@ -620,11 +634,10 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
 
     sendSocketMessage({
       recipient_id: activeConversationId,
-      content: optimistic.content || ' ',
+      content: optimistic.content,
       subject: activeConv ? `Chat con ${activeConv.partner_name}` : 'Mensaje directo',
-      metadata: attachmentMetadata,
     });
-  }, [messageInput, attachmentFile, activeConversationId, user, conversations, sendSocketMessage, dispatch]);
+  }, [messageInput, activeConversationId, user, conversations, sendSocketMessage, dispatch]);
 
   // ─── Typing indicator ─────────────────────────────────────────────────────
 
@@ -669,6 +682,12 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
 
   const handleSelectConversation = (conv: Conversation) => {
     dispatch(setActiveConversation(conv.partner_id));
+    // Emit socket read-receipt for every unread message from this partner
+    // already in state so the sender's UI updates in real-time.
+    const existing = messagesByPartner[conv.partner_id] ?? [];
+    existing
+      .filter((m) => m.sender_id === conv.partner_id && !m.is_read)
+      .forEach((m) => markRead(m.id));
   };
 
   // ─── Filtered conversations ───────────────────────────────────────────────
@@ -783,13 +802,13 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
                     const isActive = activeConversationId === conv.partner_id;
                     const Icon = USER_TYPE_ICON[conv.partner_type] ?? UserCircle;
                     return (
-                      <button
+                      <div
                         key={conv.partner_id}
-                        onClick={() => handleSelectConversation(conv)}
                         className={cn(
-                          'w-full flex items-start gap-3 px-3.5 py-3 text-left transition-all',
+                          'relative flex items-start gap-3 px-3.5 py-3 transition-all group/conv cursor-pointer',
                           isActive ? 'bg-[#ace600]/[0.06]' : 'hover:bg-white/[0.025]',
                         )}
+                        onClick={() => handleSelectConversation(conv)}
                       >
                         <div className="relative shrink-0 mt-0.5">
                           <Avatar className="h-9 w-9">
@@ -810,9 +829,20 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
                             <span className={cn('text-xs font-semibold truncate', isActive ? 'text-white' : 'text-white/70')}>
                               {conv.partner_name}
                             </span>
-                            <span className="text-[10px] text-white/25 shrink-0 ml-2">
+                            <span className="text-[10px] text-white/25 shrink-0 ml-2 group-hover/conv:hidden">
                               {formatMessageTime(conv.last_message_at)}
                             </span>
+                            {/* Remove button — visible on hover */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                dispatch(removeConversation(conv.partner_id));
+                              }}
+                              className="hidden group-hover/conv:flex shrink-0 ml-2 items-center justify-center w-5 h-5 rounded-md hover:bg-red-500/20 text-white/25 hover:text-red-400 transition-all"
+                              title="Eliminar conversación"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
                           </div>
                           <div className="flex items-center gap-1">
                             <Icon className="h-2.5 w-2.5 text-white/20 shrink-0" />
@@ -827,7 +857,7 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
                             )}
                           </div>
                         </div>
-                      </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -857,33 +887,41 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
                 <div className="divide-y divide-white/[0.04]">
                   {(announcements as Announcement[]).map((ann) => {
                     const isSelected = selectedAnnouncementId === ann.id;
+                    const isMine = ann.sender_id === user?.id;
                     const senderName = ann.sender?.full_name || ann.sender?.username || ann.sender_name || 'Sistema';
                     return (
                       <button
                         key={ann.id}
                         onClick={() => {
                           dispatch(setSelectedAnnouncement(ann.id));
-                          if (!ann.is_read) dispatch(markAnnouncementRead(ann.id));
+                          if (!ann.is_read && !isMine) dispatch(markAnnouncementRead(ann.id));
                         }}
                         className={cn(
                           'w-full flex items-start gap-3 px-3.5 py-3 text-left transition-all',
                           isSelected ? 'bg-amber-500/[0.06]' : 'hover:bg-white/[0.025]',
                         )}
                       >
-                        <div className="shrink-0 mt-0.5 w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                          <Megaphone className="h-3.5 w-3.5 text-amber-400" />
+                        <div className={cn(
+                          'shrink-0 mt-0.5 w-8 h-8 rounded-lg flex items-center justify-center',
+                          isMine
+                            ? 'bg-[#ace600]/10 border border-[#ace600]/20'
+                            : 'bg-amber-500/10 border border-amber-500/20',
+                        )}>
+                          <Megaphone className={cn('h-3.5 w-3.5', isMine ? 'text-[#ace600]' : 'text-amber-400')} />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between mb-0.5">
-                            <span className={cn('text-xs font-semibold truncate', !ann.is_read ? 'text-white' : 'text-white/60')}>
+                            <span className={cn('text-xs font-semibold truncate', (!ann.is_read && !isMine) ? 'text-white' : 'text-white/60')}>
                               {ann.subject || 'Anuncio'}
                             </span>
                             <span className="text-[10px] text-white/25 shrink-0 ml-2">
                               {formatMessageTime(ann.created_at)}
                             </span>
                           </div>
-                          <p className="text-[11px] text-white/35 truncate">{senderName}</p>
-                          {!ann.is_read && (
+                          <p className="text-[11px] text-white/35 truncate">
+                            {isMine ? <span className="text-[#ace600]/60">Tú (enviado)</span> : senderName}
+                          </p>
+                          {!ann.is_read && !isMine && (
                             <span className="inline-block mt-1 h-1.5 w-1.5 rounded-full bg-amber-400" />
                           )}
                         </div>
@@ -1037,51 +1075,71 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
                       </div>
                     ) : (
                       <>
-                        {activeMessages.map((msg) => {
-                          const isMine = msg.sender_id === user?.id;
-                          return (
-                            <div key={msg.id} className={cn('flex', isMine ? 'justify-end' : 'justify-start')}>
-                              {!isMine && (
-                                <Avatar className="h-6 w-6 mr-2 shrink-0 self-end mb-1">
-                                  <AvatarImage src={msg.sender?.profile_photo ?? undefined} />
-                                  <AvatarFallback className="bg-white/[0.06] text-white/50 text-[9px]">
-                                    {getInitials(msg.sender?.full_name ?? '?')}
-                                  </AvatarFallback>
-                                </Avatar>
-                              )}
-                              <div
-                                className={cn(
-                                  'max-w-[70%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed',
-                                  isMine
-                                    ? 'bg-[#ace600] text-black rounded-br-sm'
-                                    : 'bg-white/[0.07] text-white/85 rounded-bl-sm',
-                                )}
-                              >
-                                <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                                {msg.metadata?.attachment && (
-                                  <AttachmentDisplay attachment={msg.metadata.attachment} />
-                                )}
-                                <div
-                                  className={cn(
-                                    'flex items-center justify-end gap-1 mt-1 text-[10px]',
-                                    isMine ? 'text-black/40' : 'text-white/25',
+                        {(() => {
+                          // Find the index of the last sent message that was read,
+                          // so we show "Visto" only once — on the most recent read msg.
+                          const lastReadIdx = activeMessages.reduce((acc, m, i) => {
+                            const isRead = m.status === 'read' || m.is_read;
+                            return m.sender_id === user?.id && isRead ? i : acc;
+                          }, -1);
+
+                          return activeMessages.map((msg, idx) => {
+                            const isMine = msg.sender_id === user?.id;
+                            const isRead = msg.status === 'read' || msg.is_read;
+                            const showSeenLabel = isMine && idx === lastReadIdx;
+                            return (
+                              <div key={msg.id} className={cn('flex flex-col', isMine ? 'items-end' : 'items-start')}>
+                                <div className={cn('flex', isMine ? 'justify-end' : 'justify-start', 'w-full')}>
+                                  {!isMine && (
+                                    <Avatar className="h-6 w-6 mr-2 shrink-0 self-end mb-1">
+                                      <AvatarImage src={msg.sender?.profile_photo ?? undefined} />
+                                      <AvatarFallback className="bg-white/[0.06] text-white/50 text-[9px]">
+                                        {getInitials(msg.sender?.full_name ?? '?')}
+                                      </AvatarFallback>
+                                    </Avatar>
                                   )}
-                                >
-                                  <span>{formatThreadTime(msg.created_at)}</span>
-                                  {isMine && (
-                                    msg.status === 'read' ? (
-                                      <CheckCheck className="h-3 w-3 text-sky-400" />
-                                    ) : msg.status === 'delivered' ? (
-                                      <CheckCheck className="h-3 w-3" />
-                                    ) : (
-                                      <Check className="h-3 w-3" />
-                                    )
-                                  )}
+                                  <div
+                                    className={cn(
+                                      'max-w-[70%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed',
+                                      isMine
+                                        ? 'bg-[#ace600] text-black rounded-br-sm'
+                                        : 'bg-white/[0.07] text-white/85 rounded-bl-sm',
+                                    )}
+                                  >
+                                    <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                                    {msg.metadata?.attachment && (
+                                      <AttachmentDisplay attachment={msg.metadata.attachment} />
+                                    )}
+                                    <div
+                                      className={cn(
+                                        'flex items-center justify-end gap-1 mt-1 text-[10px]',
+                                        isMine ? 'text-black/40' : 'text-white/25',
+                                      )}
+                                    >
+                                      <span>{formatThreadTime(msg.created_at)}</span>
+                                      {isMine && (
+                                        isRead ? (
+                                          <CheckCheck className="h-3 w-3 text-sky-400" />
+                                        ) : msg.status === 'delivered' ? (
+                                          <CheckCheck className="h-3 w-3" />
+                                        ) : (
+                                          <Check className="h-3 w-3" />
+                                        )
+                                      )}
+                                    </div>
+                                  </div>
                                 </div>
+                                {/* "Visto" label — shown only on the last read sent message */}
+                                {showSeenLabel && (
+                                  <div className="flex items-center gap-1 mt-0.5 mr-0.5">
+                                    <CheckCheck className="h-3 w-3 text-sky-400" />
+                                    <span className="text-[10px] font-semibold text-sky-400">Visto</span>
+                                  </div>
+                                )}
                               </div>
-                            </div>
-                          );
-                        })}
+                            );
+                          });
+                        })()}
 
                         {partnerIsTyping && (
                           <div className="flex justify-start">
@@ -1097,27 +1155,6 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
 
                   {/* Message input */}
                   <div className="px-4 py-3.5 border-t border-white/[0.05] shrink-0">
-                    {/* Attachment preview */}
-                    {attachmentFile && (
-                      <div className="mb-2 flex items-center gap-2 bg-white/[0.04] border border-white/[0.08] rounded-xl px-3 py-2">
-                        {attachmentFile.type.startsWith('image/') ? (
-                          <img
-                            src={URL.createObjectURL(attachmentFile)}
-                            alt={attachmentFile.name}
-                            className="h-10 w-10 rounded-lg object-cover shrink-0"
-                          />
-                        ) : (
-                          <FileText className="h-5 w-5 text-white/40 shrink-0" />
-                        )}
-                        <span className="text-xs text-white/60 truncate flex-1">{attachmentFile.name}</span>
-                        <button
-                          onClick={() => setAttachmentFile(null)}
-                          className="text-white/30 hover:text-white/60 transition-colors shrink-0"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    )}
                     <div className="relative flex items-end gap-2">
                       {showEmojiPicker && (
                         <EmojiPicker
@@ -1132,24 +1169,6 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
                       >
                         <Smile className="h-5 w-5" />
                       </button>
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="h-9 w-9 flex items-center justify-center rounded-xl text-white/30 hover:text-white/60 hover:bg-white/[0.05] transition-colors shrink-0"
-                        title="Adjuntar archivo"
-                      >
-                        <Paperclip className="h-5 w-5" />
-                      </button>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*,.pdf,.doc,.docx,.txt"
-                        className="hidden"
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          if (f) setAttachmentFile(f);
-                          e.target.value = '';
-                        }}
-                      />
                       <textarea
                         rows={1}
                         placeholder="Escribe un mensaje…"
@@ -1168,10 +1187,10 @@ export default function MessagingLayout({ role }: MessagingLayoutProps) {
                       />
                       <button
                         onClick={handleSend}
-                        disabled={(!messageInput.trim() && !attachmentFile) || sending || attachmentUploading}
+                        disabled={!messageInput.trim() || sending}
                         className="h-10 w-10 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed transition-all shrink-0"
                       >
-                        {sending || attachmentUploading ? (
+                        {sending ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           <Send className="h-4 w-4" />

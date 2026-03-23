@@ -115,7 +115,9 @@ interface PlayerDashboardState {
   credentials: PlayerCredential[];
   myClubs: PlayerClub[];
   tournaments: PlayerTournament[];
+  tournamentsPlayedCount: number;
   messages: PlayerMessage[];
+  unreadMessages: number;
   payments: PlayerPayment[];
 
   // Loading states
@@ -140,7 +142,9 @@ const initialState: PlayerDashboardState = {
   credentials: [],
   myClubs: [],
   tournaments: [],
+  tournamentsPlayedCount: 0,
   messages: [],
+  unreadMessages: 0,
   payments: [],
 
   profileLoading: false,
@@ -306,12 +310,55 @@ export const fetchPlayerClubs = createAsyncThunk(
   },
 );
 
+// Map a raw tournament-dashboard item to the flat shape the UI expects
+function mapTournamentItem(item: any, isHistory: boolean): PlayerTournament & Record<string, any> {
+  const modality = item.event?.modality ?? '';
+  const skillBlock = item.event?.skill_block ?? '';
+  const category = [modality, skillBlock].filter(Boolean).join(' ') || '—';
+
+  let statusUI: string;
+  if (isHistory) {
+    statusUI = 'completed';
+  } else if (item.status === 'confirmed') {
+    statusUI = 'registered';
+  } else {
+    statusUI = 'pending';
+  }
+
+  return {
+    id: item.registrationId,
+    playerId: item.user_id ?? '',
+    tournamentId: item.tournament?.id ?? '',
+    tournamentName: item.tournament?.name ?? '—',
+    category,
+    registrationDate: item.registered_at ?? '',
+    status: statusUI,
+    paymentStatus: item.payment_status ?? '',
+    registrationFee: item.entry_fee ?? 0,
+    // Extra fields useful in detail pages
+    tournament: item.tournament,
+    event: item.event,
+    phase: item.phase,
+    standing: item.standing,
+    upcoming_match: item.upcoming_match,
+    recent_matches: item.recent_matches,
+    result: item.result,
+    final_position: item.final_position,
+    points_earned: item.points_earned,
+  };
+}
+
 export const fetchPlayerTournaments = createAsyncThunk(
   'playerDashboard/fetchTournaments',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/players/tournaments');
-      return (response as any).data.data.registrations;
+      const response = await api.get('/players/tournament-dashboard');
+      const { active = [], history = [], stats = {} } = (response as any).data ?? {};
+      const items = [
+        ...active.map((t: any) => mapTournamentItem(t, false)),
+        ...history.map((t: any) => mapTournamentItem(t, true)),
+      ];
+      return { items, playedCount: (stats.history_count ?? 0) + (stats.active_count ?? 0) };
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || error.message || 'Failed to fetch player tournaments',
@@ -347,8 +394,20 @@ export const fetchPlayerMessages = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
+      // api.get returns res.data directly, so response = { success, data: { messages, pagination } }
       const response = await api.get(`/messages?type=inbox&limit=${limit}&offset=${offset}`);
-      return (response as any).data.data.messages;
+      const raw: any[] = (response as any).data?.messages ?? [];
+      const mapped: PlayerMessage[] = raw.map((m: any) => ({
+        id: m.id,
+        senderId: m.sender_id ?? '',
+        senderName: m.sender?.full_name || m.sender?.username || m.sender_name || 'Sistema',
+        subject: m.subject ?? '',
+        body: m.content ?? '',
+        date: m.created_at ?? '',
+        read: m.is_read ?? false,
+      }));
+      const unread = mapped.filter((m) => !m.read).length;
+      return { messages: mapped, unread };
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || error.message || 'Failed to fetch player messages',
@@ -517,7 +576,9 @@ const playerDashboardSlice = createSlice({
       })
       .addCase(fetchPlayerTournaments.fulfilled, (state, action) => {
         state.tournamentsLoading = false;
-        state.tournaments = action.payload;
+        const { items, playedCount } = action.payload as any;
+        state.tournaments = items;
+        state.tournamentsPlayedCount = playedCount;
       })
       .addCase(fetchPlayerTournaments.rejected, (state, action) => {
         state.tournamentsLoading = false;
@@ -545,7 +606,9 @@ const playerDashboardSlice = createSlice({
       })
       .addCase(fetchPlayerMessages.fulfilled, (state, action) => {
         state.messagesLoading = false;
-        state.messages = action.payload;
+        const { messages, unread } = action.payload as any;
+        state.messages = messages;
+        state.unreadMessages = unread;
       })
       .addCase(fetchPlayerMessages.rejected, (state, action) => {
         state.messagesLoading = false;

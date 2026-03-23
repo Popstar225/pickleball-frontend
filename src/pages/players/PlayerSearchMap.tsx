@@ -102,6 +102,7 @@ interface PaymentGateModalProps {
 }
 
 function PaymentGateModal({ open, onClose, onSuccess }: PaymentGateModalProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<'info' | 'payment'>('info');
   const [paymentData, setPaymentData] = useState<{ paymentId: string; clientSecret: string } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -147,10 +148,10 @@ function PaymentGateModal({ open, onClose, onSuccess }: PaymentGateModalProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-white">
             <Zap className="w-5 h-5 text-primary" />
-            Desbloquear Buscador de Jugadores
+            {t('pages.playerSearchMap.paymentModal.title')}
           </DialogTitle>
           <DialogDescription className="text-slate-200">
-            Accede al mapa interactivo y encuentra jugadores cercanos a ti
+            {t('pages.playerSearchMap.paymentModal.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -164,8 +165,8 @@ function PaymentGateModal({ open, onClose, onSuccess }: PaymentGateModalProps) {
         {step === 'payment' && paymentData ? (
           <div className="space-y-4">
             <div className="p-4 bg-primary/10 border border-primary/30 rounded-xl">
-              <p className="font-semibold text-white">Buscador de Jugadores — ${FEATURE_PRICE} MXN</p>
-              <p className="text-sm text-slate-200">Pago único, acceso permanente</p>
+              <p className="font-semibold text-white">{t('pages.playerSearchMap.paymentModal.paymentLabel', { price: FEATURE_PRICE })}</p>
+              <p className="text-sm text-slate-200">{t('pages.playerSearchMap.paymentModal.paymentSub')}</p>
             </div>
             <Elements stripe={stripePromise} options={{ clientSecret: paymentData.clientSecret }}>
               <PaymentForm
@@ -173,13 +174,13 @@ function PaymentGateModal({ open, onClose, onSuccess }: PaymentGateModalProps) {
                 clientSecret={paymentData.clientSecret}
                 amount={FEATURE_PRICE * 100}
                 currency="mxn"
-                description={`Buscador de Jugadores — $${FEATURE_PRICE} MXN`}
+                description={t('pages.playerSearchMap.paymentModal.paymentLabel', { price: FEATURE_PRICE })}
                 onSuccess={handlePaymentSuccess}
                 onError={(err) => { setError(err); setStep('info'); }}
               />
             </Elements>
             <Button onClick={() => setStep('info')} variant="outline" className="w-full border-slate-600 text-slate-300">
-              Volver
+              {t('pages.playerSearchMap.paymentModal.back')}
             </Button>
           </div>
         ) : (
@@ -190,15 +191,15 @@ function PaymentGateModal({ open, onClose, onSuccess }: PaymentGateModalProps) {
                 <span className="text-4xl font-bold text-white">${FEATURE_PRICE}</span>
                 <span className="text-slate-200">MXN</span>
               </div>
-              <p className="text-sm text-primary font-semibold">Pago único — acceso permanente</p>
+              <p className="text-sm text-primary font-semibold">{t('pages.playerSearchMap.paymentModal.priceSub')}</p>
             </div>
 
             {/* Features */}
             <div className="space-y-3">
               {[
-                { icon: MapPin, text: 'Mapa interactivo con jugadores en tiempo real' },
-                { icon: Users,  text: 'Filtra por nivel de habilidad y distancia' },
-                { icon: Trophy, text: 'Contáctales directamente para jugar' },
+                { icon: MapPin, text: t('pages.playerSearchMap.paymentModal.feature1') },
+                { icon: Users,  text: t('pages.playerSearchMap.paymentModal.feature2') },
+                { icon: Trophy, text: t('pages.playerSearchMap.paymentModal.feature3') },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-center gap-3 p-3 bg-slate-800/60 rounded-lg border border-slate-700/50">
                   <div className="p-1.5 bg-primary/10 rounded-lg shrink-0">
@@ -211,9 +212,9 @@ function PaymentGateModal({ open, onClose, onSuccess }: PaymentGateModalProps) {
 
             <Button className="w-full bg-primary text-black hover:bg-primary/90 font-bold" size="lg" onClick={handlePay} disabled={loading}>
               {loading ? (
-                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Procesando...</>
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t('pages.playerSearchMap.paymentModal.processing')}</>
               ) : (
-                <><Zap className="w-4 h-4 mr-2" /> Desbloquear por ${FEATURE_PRICE} MXN</>
+                <><Zap className="w-4 h-4 mr-2" /> {t('pages.playerSearchMap.paymentModal.unlockButton', { price: FEATURE_PRICE })}</>
               )}
             </Button>
           </div>
@@ -226,6 +227,7 @@ function PaymentGateModal({ open, onClose, onSuccess }: PaymentGateModalProps) {
 // ─── Lock Gate (full-page overlay) ───────────────────────────────────────────
 
 function LoginGate() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 items-center justify-center p-6">
@@ -234,15 +236,15 @@ function LoginGate() {
           <Lock className="w-9 h-9 text-slate-200" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-white mb-2">Acceso restringido</h2>
-          <p className="text-slate-200">Inicia sesión para usar el Buscador de Jugadores.</p>
+          <h2 className="text-2xl font-bold text-white mb-2">{t('pages.playerSearchMap.loginGate.title')}</h2>
+          <p className="text-slate-200">{t('pages.playerSearchMap.loginGate.subtitle')}</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button className="bg-primary text-black hover:bg-primary/90 font-bold" onClick={() => navigate('/login')}>
-            <LogIn className="w-4 h-4 mr-2" /> Iniciar sesión
+            <LogIn className="w-4 h-4 mr-2" /> {t('pages.playerSearchMap.loginGate.login')}
           </Button>
           <Button variant="outline" className="border-slate-600 text-slate-300" onClick={() => navigate('/register')}>
-            Crear cuenta
+            {t('pages.playerSearchMap.loginGate.register')}
           </Button>
         </div>
       </div>
@@ -377,7 +379,7 @@ const PlayerSearchMap = () => {
       <div className="min-h-screen flex items-center justify-center bg-slate-950">
         <div className="flex flex-col items-center gap-3">
           <Loader className="w-8 h-8 text-primary animate-spin" />
-          <p className="text-slate-200 text-sm">Verificando acceso...</p>
+          <p className="text-slate-200 text-sm">{t('pages.playerSearchMap.checking')}</p>
         </div>
       </div>
     );
@@ -400,17 +402,20 @@ const PlayerSearchMap = () => {
 
             {/* Text */}
             <div>
-              <h2 className="text-2xl font-bold text-white mb-2">Buscador de Jugadores</h2>
+              <h2 className="text-2xl font-bold text-white mb-2">{t('pages.playerSearchMap.lockedScreen.title')}</h2>
               <p className="text-slate-200 leading-relaxed">
-                Esta función requiere un pago único de{' '}
-                <span className="text-primary font-bold">${FEATURE_PRICE} MXN</span>{' '}
-                para desbloquear el acceso permanente.
+                {t('pages.playerSearchMap.lockedScreen.description', { price: FEATURE_PRICE })}
               </p>
             </div>
 
             {/* Feature preview chips */}
             <div className="flex flex-wrap gap-2 justify-center">
-              {['Mapa interactivo', 'Filtro por nivel', 'Buscar por distancia', 'Contacto directo'].map((f) => (
+              {[
+                t('pages.playerSearchMap.lockedScreen.feature1'),
+                t('pages.playerSearchMap.lockedScreen.feature2'),
+                t('pages.playerSearchMap.lockedScreen.feature3'),
+                t('pages.playerSearchMap.lockedScreen.feature4'),
+              ].map((f) => (
                 <span key={f} className="text-xs px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-200">
                   {f}
                 </span>
@@ -422,10 +427,10 @@ const PlayerSearchMap = () => {
               onClick={() => setShowPayModal(true)}
             >
               <Zap className="w-5 h-5 mr-2" />
-              Desbloquear por ${FEATURE_PRICE} MXN
+              {t('pages.playerSearchMap.lockedScreen.unlockButton', { price: FEATURE_PRICE })}
             </Button>
 
-            <p className="text-xs text-slate-300">Pago único · Acceso permanente · Procesado con Stripe</p>
+            <p className="text-xs text-slate-300">{t('pages.playerSearchMap.lockedScreen.paymentInfo')}</p>
           </div>
         </div>
 
@@ -471,7 +476,7 @@ const PlayerSearchMap = () => {
                 {userLocation ? (
                   <div className="inline-flex items-center gap-2 bg-green-500/10 border border-green-500/30 rounded-full px-5 py-2">
                     <CheckCircle className="w-4 h-4 text-green-400" />
-                    <span className="text-sm text-green-300">Ubicación detectada</span>
+                    <span className="text-sm text-green-300">{t('pages.playerSearchMap.locationDetected')}</span>
                   </div>
                 ) : locationError ? (
                   <div className="inline-flex items-center gap-2 bg-yellow-500/10 border border-yellow-500/30 rounded-full px-5 py-2">
@@ -481,12 +486,12 @@ const PlayerSearchMap = () => {
                 ) : (
                   <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/30 rounded-full px-5 py-2">
                     <Navigation2 className="w-4 h-4 text-blue-400 animate-pulse" />
-                    <span className="text-sm text-blue-300">Detectando ubicación...</span>
+                    <span className="text-sm text-blue-300">{t('pages.playerSearchMap.detectingLocation')}</span>
                   </div>
                 )}
                 <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/30 rounded-full px-5 py-2">
                   <Trophy className="w-4 h-4 text-primary" />
-                  <span className="text-sm text-primary font-semibold">{players.length} jugadores encontrados</span>
+                  <span className="text-sm text-primary font-semibold">{t('pages.playerSearchMap.playersFound', { count: players.length })}</span>
                 </div>
               </div>
             </div>
@@ -502,14 +507,14 @@ const PlayerSearchMap = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-slate-200 mb-1.5 block uppercase tracking-wide">
-                    Search Radius
+                    {t('pages.playerSearchMap.searchRadius')}
                   </label>
                   <Select value={selectedRadius} onValueChange={setSelectedRadius}>
                     <SelectTrigger className="h-10 bg-slate-800 border-slate-600 text-white text-sm rounded-lg">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-600">
-                      <SelectItem value="all" className="text-white">All Mexico</SelectItem>
+                      <SelectItem value="all" className="text-white">{t('pages.playerSearchMap.allMexico')}</SelectItem>
                       <SelectItem value="25" className="text-white">25 km</SelectItem>
                       <SelectItem value="50" className="text-white">50 km</SelectItem>
                       <SelectItem value="100" className="text-white">100 km</SelectItem>
@@ -520,14 +525,14 @@ const PlayerSearchMap = () => {
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-200 mb-1.5 block uppercase tracking-wide">
-                    Skill Level
+                    {t('pages.playerSearchMap.skillLevel')}
                   </label>
                   <Select value={selectedSkillLevel} onValueChange={setSelectedSkillLevel}>
                     <SelectTrigger className="h-10 bg-slate-800 border-slate-600 text-white text-sm rounded-lg">
-                      <SelectValue placeholder="All Levels" />
+                      <SelectValue placeholder={t('pages.playerSearchMap.allLevels')} />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-600">
-                      <SelectItem value="all" className="text-white">All Levels</SelectItem>
+                      <SelectItem value="all" className="text-white">{t('pages.playerSearchMap.allLevels')}</SelectItem>
                       <SelectItem value="2.5" className="text-white">2.5</SelectItem>
                       <SelectItem value="3.0" className="text-white">3.0</SelectItem>
                       <SelectItem value="3.5" className="text-white">3.5</SelectItem>
@@ -555,7 +560,7 @@ const PlayerSearchMap = () => {
               {loading && (
                 <div className="flex flex-col items-center justify-center py-16 gap-3">
                   <Loader className="w-7 h-7 text-primary animate-spin" />
-                  <p className="text-slate-200 text-sm">Searching for players...</p>
+                  <p className="text-slate-200 text-sm">{t('pages.playerSearchMap.searching')}</p>
                 </div>
               )}
 
@@ -574,8 +579,8 @@ const PlayerSearchMap = () => {
                   <div className="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center">
                     <Search className="w-7 h-7 text-slate-300" />
                   </div>
-                  <p className="text-slate-200 font-semibold">No se encontraron jugadores</p>
-                  <p className="text-slate-300 text-sm">Try increasing the search radius</p>
+                  <p className="text-slate-200 font-semibold">{t('pages.playerSearchMap.noPlayers')}</p>
+                  <p className="text-slate-300 text-sm">{t('pages.playerSearchMap.noPlayersHint')}</p>
                 </div>
               )}
 
@@ -630,7 +635,7 @@ const PlayerSearchMap = () => {
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <MapPin className="w-3 h-3 text-slate-300 flex-shrink-0" />
                         <p className="text-xs text-slate-200 truncate">
-                          {player.city && player.state ? `${player.city}, ${player.state}` : player.state || 'Unknown'}
+                          {player.city && player.state ? `${player.city}, ${player.state}` : player.state || t('pages.playerSearchMap.unknown')}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 mt-1.5">
@@ -656,7 +661,7 @@ const PlayerSearchMap = () => {
           </div>
 
           {/* Right: Leaflet Map */}
-          <div className="w-full lg:w-3/5 relative" style={{ minHeight: '400px' }}>
+          <div className="w-full lg:w-3/5 relative" style={{ minHeight: '400px', isolation: 'isolate' }}>
             <MapContainer
               center={MEXICO_CENTER}
               zoom={6}
@@ -702,16 +707,16 @@ const PlayerSearchMap = () => {
                           <div>
                             <p style={{ fontWeight: 700, fontSize: '14px', color: '#0f172a', margin: 0 }}>{player.full_name}</p>
                             <p style={{ fontSize: '11px', color: '#64748b', margin: '2px 0 0' }}>
-                              {player.city && player.state ? `${player.city}, ${player.state}` : player.state || 'Unknown'}
+                              {player.city && player.state ? `${player.city}, ${player.state}` : player.state || t('pages.playerSearchMap.unknown')}
                             </p>
                           </div>
                         </div>
                         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '6px' }}>
                           <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: `${color}20`, color, border: `1px solid ${color}40` }}>
-                            Level {player.skill_level}
+                            {t('pages.playerSearchMap.level')} {player.skill_level}
                           </span>
                           <span style={{ fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '20px', backgroundColor: '#f1f5f9', color: '#475569' }}>
-                            {player.distance_km} km away
+                            {t('pages.playerSearchMap.kmAway', { km: player.distance_km })}
                           </span>
                         </div>
                         {player.email && (
@@ -734,10 +739,10 @@ const PlayerSearchMap = () => {
                         )}
                         <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
                           <button style={{ flex: 1, padding: '5px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', color: '#0f172a' }}>
-                            Profile
+                            {t('pages.playerSearchMap.profile')}
                           </button>
                           <button style={{ flex: 1, padding: '5px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', border: 'none', backgroundColor: '#84CC16', cursor: 'pointer', color: '#0f172a' }}>
-                            Connect
+                            {t('pages.playerSearchMap.connect')}
                           </button>
                         </div>
                       </div>
@@ -751,7 +756,7 @@ const PlayerSearchMap = () => {
             <div className="absolute top-4 right-4 z-[1000] bg-slate-900/90 backdrop-blur-sm border border-slate-700/50 rounded-xl p-3 flex items-center gap-2 pointer-events-none">
               <Users className="w-4 h-4 text-primary" />
               <span className="text-white text-sm font-bold">{players.length}</span>
-              <span className="text-slate-200 text-xs">nearby</span>
+              <span className="text-slate-200 text-xs">{t('pages.playerSearchMap.nearby')}</span>
             </div>
           </div>
         </div>

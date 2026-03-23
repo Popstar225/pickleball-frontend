@@ -630,6 +630,57 @@
       "registrations_closed": "Registrations Closed",
       "age": "Age: {{age}}",
       "events_count": "{{count}} events"
+    },
+    "playerSearchMap": {
+      "label": "Player Finder",
+      "title": "Find Nearby Players",
+      "subtitle": "Discover fellow pickleball players on an interactive map.",
+      "checking": "Verifying access...",
+      "locationDetected": "Location detected",
+      "detectingLocation": "Detecting location...",
+      "playersFound": "{{count}} players found",
+      "searchRadius": "Search Radius",
+      "allMexico": "All Mexico",
+      "skillLevel": "Skill Level",
+      "allLevels": "All Levels",
+      "searching": "Searching for players...",
+      "noPlayers": "No players found",
+      "noPlayersHint": "Try increasing the search radius",
+      "unknown": "Unknown",
+      "level": "Level",
+      "kmAway": "{{km}} km away",
+      "profile": "Profile",
+      "connect": "Connect",
+      "nearby": "nearby",
+      "loginGate": {
+        "title": "Restricted access",
+        "subtitle": "Log in to use the Player Finder.",
+        "login": "Log in",
+        "register": "Create account"
+      },
+      "lockedScreen": {
+        "title": "Player Finder",
+        "description": "This feature requires a one-time payment of ${{price}} MXN for permanent access.",
+        "feature1": "Interactive map",
+        "feature2": "Filter by level",
+        "feature3": "Search by distance",
+        "feature4": "Direct contact",
+        "unlockButton": "Unlock for ${{price}} MXN",
+        "paymentInfo": "One-time payment · Permanent access · Processed with Stripe"
+      },
+      "paymentModal": {
+        "title": "Unlock Player Finder",
+        "description": "Access the interactive map and find players near you",
+        "paymentLabel": "Player Finder — ${{price}} MXN",
+        "paymentSub": "One-time payment, permanent access",
+        "priceSub": "One-time payment — permanent access",
+        "feature1": "Interactive map with players in real time",
+        "feature2": "Filter by skill level and distance",
+        "feature3": "Contact them directly to play",
+        "unlockButton": "Unlock for ${{price}} MXN",
+        "processing": "Processing...",
+        "back": "Back"
+      }
     }
   },
   "common": {
@@ -1967,10 +2018,6 @@
       "plan_basic": "Basic",
       "plan_premium": "Premium",
       "select_placeholder": "Select...",
-      "save_bar_unsaved": "Unsaved changes",
-      "save_bar_discard": "Discard",
-      "save_bar_saving": "Saving…",
-      "save_bar_save": "Save",
       "toast_created": "Club created",
       "toast_created_desc": "The club has been created successfully.",
       "toast_updated": "Profile updated",

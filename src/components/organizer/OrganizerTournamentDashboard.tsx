@@ -431,7 +431,7 @@ export function OrganizerTournamentDashboard({
             <p className="text-sm font-semibold text-white/30 mb-1">
               {search || activeStatus !== 'all' ? 'Sin resultados' : 'Sin torneos aún'}
             </p>
-            <p className="text-xs text-white/18 max-w-[200px] leading-relaxed">
+            <p className="text-xs text-white/20 max-w-[200px] leading-relaxed">
               {search || activeStatus !== 'all'
                 ? 'Prueba ajustando los filtros'
                 : 'Crea un torneo para comenzar'}

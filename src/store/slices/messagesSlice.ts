@@ -144,9 +144,10 @@ export const markThreadAsRead = createAsyncThunk(
 
 export const fetchAnnouncements = createAsyncThunk(
   'messages/fetchAnnouncements',
-  async () => {
+  async (_, { getState }) => {
     const res = await api.get<any>('/messages/announcements?limit=50');
-    return res;
+    const currentUserId = (getState() as any)?.auth?.user?.id ?? null;
+    return { res, currentUserId };
   },
 );
 
@@ -305,6 +306,16 @@ const messagesSlice = createSlice({
       }
     },
 
+    removeConversation(state, action: PayloadAction<string>) {
+      const partnerId = action.payload;
+      state.conversations = state.conversations.filter((c) => c.partner_id !== partnerId);
+      // Clear the thread from memory and deselect if active
+      delete state.messagesByPartner[partnerId];
+      if (state.activeConversationId === partnerId) {
+        state.activeConversationId = null;
+      }
+    },
+
     clearError(state) {
       state.error = null;
     },
@@ -320,8 +331,15 @@ const messagesSlice = createSlice({
       .addCase(fetchConversations.fulfilled, (state, action) => {
         state.conversationsLoading = false;
         const payload = action.payload as any;
-        state.conversations = payload?.data ?? [];
-        state.unreadTotal = (payload?.data ?? []).reduce(
+        const rawConvs: any[] = payload?.data ?? [];
+        // Exclude broadcast/announcement conversations from Chats tab.
+        // Broadcasts are shown in the Anuncios tab for both senders and recipients.
+        state.conversations = rawConvs.filter(
+          (c: any) =>
+            !c.last_message_type ||
+            c.last_message_type === 'direct_message',
+        );
+        state.unreadTotal = state.conversations.reduce(
           (sum: number, c: Conversation) => sum + (c.unread_count || 0),
           0,
         );
@@ -371,9 +389,22 @@ const messagesSlice = createSlice({
       })
       .addCase(fetchAnnouncements.fulfilled, (state, action) => {
         state.announcementsLoading = false;
-        const payload = action.payload as any;
-        state.announcements = payload?.data?.announcements ?? [];
-        state.announcementsUnread = payload?.data?.unread_count ?? 0;
+        const { res: payload, currentUserId } = action.payload as any;
+        const raw: any[] = payload?.data?.announcements ?? [];
+        // Deduplicate: backend stores one record per recipient, so a single
+        // broadcast can return N identical entries. Keep only the first per key.
+        const seen = new Set<string>();
+        const announcements = raw.filter((a: any) => {
+          const key = `${a.sender_id ?? ''}|${a.subject ?? ''}|${a.content ?? ''}`;
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        state.announcements = announcements;
+        // Only count unread for received announcements (not ones the current user sent)
+        state.announcementsUnread = announcements.filter(
+          (a: any) => !a.is_read && (!currentUserId || a.sender_id !== currentUserId),
+        ).length;
       })
       .addCase(fetchAnnouncements.rejected, (state) => {
         state.announcementsLoading = false;
@@ -419,6 +450,7 @@ export const {
   clearUnreadForPartner,
   addOptimisticMessage,
   upsertConversation,
+  removeConversation,
   clearError,
 } = messagesSlice.actions;
 

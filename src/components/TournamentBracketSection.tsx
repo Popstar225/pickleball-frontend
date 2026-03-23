@@ -256,11 +256,10 @@ const TournamentBracketSection = () => {
                 const isSelected = selectedMatch?.id === props.match.id;
                 return (
                   <div
-                    onClick={() => {
-                      props.onMatchClick?.(props.match);
+                    onClick={(event) => {
+                      props.onMatchClick?.({ match: props.match, topWon: props.topWon, bottomWon: props.bottomWon, event });
                       handleMatchClick(props.match);
                     }}
-                    onMouseEnter={props.onMouseEnter}
                     onMouseLeave={props.onMouseLeave}
                     style={{
                       display: 'flex',
@@ -352,7 +351,7 @@ const TournamentBracketSection = () => {
                               key={participant.id}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                props.onPartyClick?.(participant, idx);
+                                props.onPartyClick?.(participant, participant.isWinner ?? false);
                                 handlePartyClick(participant, idx);
                               }}
                               style={{

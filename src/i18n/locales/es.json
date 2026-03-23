@@ -630,6 +630,57 @@
       "registrations_closed": "Inscripciones Cerradas",
       "age": "Edad: {{age}}",
       "events_count": "{{count}} eventos"
+    },
+    "playerSearchMap": {
+      "label": "Buscador de Jugadores",
+      "title": "Encuentra Jugadores Cercanos",
+      "subtitle": "Descubre jugadores de píckleball en un mapa interactivo.",
+      "checking": "Verificando acceso...",
+      "locationDetected": "Ubicación detectada",
+      "detectingLocation": "Detectando ubicación...",
+      "playersFound": "{{count}} jugadores encontrados",
+      "searchRadius": "Radio de búsqueda",
+      "allMexico": "Todo México",
+      "skillLevel": "Nivel de habilidad",
+      "allLevels": "Todos los niveles",
+      "searching": "Buscando jugadores...",
+      "noPlayers": "No se encontraron jugadores",
+      "noPlayersHint": "Intenta aumentar el radio de búsqueda",
+      "unknown": "Desconocido",
+      "level": "Nivel",
+      "kmAway": "{{km}} km de distancia",
+      "profile": "Perfil",
+      "connect": "Conectar",
+      "nearby": "cercanos",
+      "loginGate": {
+        "title": "Acceso restringido",
+        "subtitle": "Inicia sesión para usar el Buscador de Jugadores.",
+        "login": "Iniciar sesión",
+        "register": "Crear cuenta"
+      },
+      "lockedScreen": {
+        "title": "Buscador de Jugadores",
+        "description": "Esta función requiere un pago único de ${{price}} MXN para desbloquear el acceso permanente.",
+        "feature1": "Mapa interactivo",
+        "feature2": "Filtro por nivel",
+        "feature3": "Buscar por distancia",
+        "feature4": "Contacto directo",
+        "unlockButton": "Desbloquear por ${{price}} MXN",
+        "paymentInfo": "Pago único · Acceso permanente · Procesado con Stripe"
+      },
+      "paymentModal": {
+        "title": "Desbloquear Buscador de Jugadores",
+        "description": "Accede al mapa interactivo y encuentra jugadores cercanos a ti",
+        "paymentLabel": "Buscador de Jugadores — ${{price}} MXN",
+        "paymentSub": "Pago único, acceso permanente",
+        "priceSub": "Pago único — acceso permanente",
+        "feature1": "Mapa interactivo con jugadores en tiempo real",
+        "feature2": "Filtra por nivel de habilidad y distancia",
+        "feature3": "Contáctales directamente para jugar",
+        "unlockButton": "Desbloquear por ${{price}} MXN",
+        "processing": "Procesando...",
+        "back": "Volver"
+      }
     }
   },
   "common": {
@@ -2201,4 +2252,3 @@
     "check_eligibility": "Por favor, verifica tu información y los requisitos del evento"
   }
 }
-

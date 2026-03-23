@@ -120,9 +120,24 @@ const tournamentStatus: Record<string, { label: string; cls: string; dot: string
     dot: 'bg-emerald-400',
   },
   registered: {
-    label: 'Próximo',
+    label: 'Inscrito',
     cls: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
     dot: 'bg-sky-400 animate-pulse',
+  },
+  confirmed: {
+    label: 'Confirmado',
+    cls: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+    dot: 'bg-sky-400 animate-pulse',
+  },
+  waitlist: {
+    label: 'Lista de espera',
+    cls: 'bg-violet-500/10 text-violet-400 border-violet-500/20',
+    dot: 'bg-violet-400',
+  },
+  cancelled: {
+    label: 'Cancelado',
+    cls: 'bg-red-500/10 text-red-400 border-red-500/20',
+    dot: 'bg-red-400',
   },
   pending: {
     label: 'Pendiente',
@@ -134,8 +149,16 @@ const tournamentStatus: Record<string, { label: string; cls: string; dot: string
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function PlayerDashboardHome() {
   const dispatch = useDispatch<AppDispatch>();
-  const { profile, tournaments, messages, profileLoading, tournamentsLoading, messagesLoading } =
-    useSelector((s: RootState) => s.playerDashboard);
+  const {
+    profile,
+    tournaments,
+    tournamentsPlayedCount,
+    messages,
+    unreadMessages,
+    profileLoading,
+    tournamentsLoading,
+    messagesLoading,
+  } = useSelector((s: RootState) => s.playerDashboard);
   const { myCredential, loading: credentialLoading } = useSelector(
     (s: RootState) => s.digitalCredentials,
   );
@@ -230,7 +253,7 @@ export default function PlayerDashboardHome() {
                 Puntos de Ranking
               </p>
               <p className="text-[22px] font-bold leading-none text-[#ace600]">
-                {profile?.ranking ?? '—'}
+                {(profile?.ranking as any)?.points ?? profile?.ranking ?? '—'}
               </p>
             </div>
           </div>
@@ -242,8 +265,8 @@ export default function PlayerDashboardHome() {
         <StatCard
           icon={Trophy}
           label="Torneos Jugados"
-          value={tournaments?.length ?? 0}
-          sub="+2 este mes"
+          value={tournamentsPlayedCount || tournaments?.length || 0}
+          sub={`${tournaments?.filter((t: any) => t.status !== 'completed').length ?? 0} activos`}
           color="text-[#ace600]"
           bg="bg-[#ace600]/10 border-[#ace600]/20"
         />
@@ -258,8 +281,8 @@ export default function PlayerDashboardHome() {
         <StatCard
           icon={MessageSquare}
           label="Mensajes"
-          value={messages?.length ?? 0}
-          sub="Sin leer"
+          value={unreadMessages}
+          sub={`${messages?.length ?? 0} en total`}
           color="text-amber-400"
           bg="bg-amber-500/10 border-amber-500/20"
         />

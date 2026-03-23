@@ -73,13 +73,19 @@ export function useMessagingSocket(): UseMessagingSocketReturn {
 
     // ─── Incoming direct message ───────────────────────────────────────────────
     socket.on('message:new', (data: any) => {
+      // Skip announcement/broadcast messages — they are handled by announcement:new
+      const msgType = data.message_type || data.type || 'direct_message';
+      if (msgType === 'announcement' || msgType === 'broadcast') {
+        socket.emit('message:delivered', { message_id: data.message_id });
+        return;
+      }
       const msg: ChatMessage = {
         id: data.message_id,
         sender_id: data.sender_id,
         recipient_id: data.recipient_id,
         content: data.content,
         subject: data.subject,
-        message_type: 'direct_message',
+        message_type: msgType,
         status: 'sent',
         is_read: false,
         created_at: data.sent_at,

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Users, Building2, Trophy, ShieldCheck, UserPlus, DollarSign,
   Loader2, type LucideIcon, TrendingUp, AlertTriangle, Clock,
@@ -51,6 +52,7 @@ function SectionHeading({ icon: Icon, label, iconColor, iconBg }: {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function DashboardHome() {
+  const navigate = useNavigate();
   const [stats,          setStats]          = useState<DashboardStats | null>(null);
   const [recentUsers,    setRecentUsers]    = useState<User[]>([]);
   const [pendingActions, setPendingActions] = useState<PendingAction[]>([]);
@@ -232,7 +234,7 @@ export default function DashboardHome() {
 
           {recentUsers.length > 0 && (
             <div className="px-5 py-3 border-t border-white/[0.05]">
-              <button className="w-full flex items-center justify-center gap-1.5 text-[11px] font-bold text-white/25 hover:text-[#ace600] transition-colors">
+              <button onClick={() => navigate('/admin/dashboard/players')} className="w-full flex items-center justify-center gap-1.5 text-[11px] font-bold text-white/25 hover:text-[#ace600] transition-colors">
                 Ver todos los usuarios <ArrowRight className="w-3 h-3" />
               </button>
             </div>

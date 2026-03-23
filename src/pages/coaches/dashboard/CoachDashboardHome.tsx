@@ -423,7 +423,7 @@ export default function CoachDashboardHome() {
 
       {/* ── Certifications ───────────────────────────────────────────────────── */}
       <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+        {/* <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-3">
             <div className="w-7 h-7 rounded-xl bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center">
               <Award className="w-3.5 h-3.5 text-[#ace600]" />
@@ -439,7 +439,7 @@ export default function CoachDashboardHome() {
           >
             Gestionar <ChevronRight className="w-3.5 h-3.5" />
           </Link>
-        </div>
+        </div> */}
 
         <div className="p-5">
           {myCredentialLoading ? (
