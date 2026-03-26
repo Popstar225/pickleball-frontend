@@ -104,7 +104,7 @@ function TypeBadge({ type }: { type: string }) {
 }
 
 function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('en-US', {
+  return new Date(d).toLocaleDateString('es-MX', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -192,7 +192,7 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <Loader2 className="w-6 h-6 text-[#ace600] animate-spin" />
-        <p className="text-sm text-white/25">Loading tournament…</p>
+        <p className="text-sm text-white/25">Cargando torneo…</p>
       </div>
     );
   }
@@ -202,12 +202,12 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-3">
         <AlertTriangle className="w-6 h-6 text-red-400" />
-        <p className="text-sm text-white/25">Tournament not found or no permission</p>
+        <p className="text-sm text-white/25">Torneo no encontrado o sin permiso</p>
         <button
           onClick={() => navigate(-1)}
           className="mt-3 text-[11px] font-medium text-[#ace600] hover:text-[#c0f000] transition-colors"
         >
-          Go Back
+          Volver
         </button>
       </div>
     );
@@ -222,7 +222,7 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
           className="flex items-center gap-2 text-sm text-white/50 hover:text-white/70 transition-colors"
         >
           <ChevronLeft className="w-4 h-4" />
-          Back
+          Volver
         </button>
         {canManage(t) && (
           <div className="flex items-center gap-2">
@@ -231,14 +231,14 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
               className="flex items-center gap-2 px-3 py-1.5 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-white/70 hover:text-white rounded-lg text-[11px] font-semibold transition-all"
             >
               <Edit className="w-3.5 h-3.5" />
-              Edit
+              Editar
             </button>
             <button
               onClick={() => setShowDeleteDialog(true)}
               className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 hover:text-red-300 rounded-lg text-[11px] font-semibold transition-all"
             >
               <Trash2 className="w-3.5 h-3.5" />
-              Delete
+              Eliminar
             </button>
           </div>
         )}
@@ -270,17 +270,17 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {/* Venue */}
             <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-5">
-              <Section icon={MapPin} title="Venue">
+              <Section icon={MapPin} title="Sede">
                 <div className="space-y-2.5">
                   <div>
                     <p className="text-[10px] text-white/40 uppercase tracking-wider mb-0.5">
-                      Name
+                      Nombre
                     </p>
                     <p className="text-sm text-white/80">{t.venue_name}</p>
                   </div>
                   <div>
                     <p className="text-[10px] text-white/40 uppercase tracking-wider mb-0.5">
-                      Location
+                      Ubicación
                     </p>
                     <p className="text-sm text-white/80">
                       {t.city}, {t.state}
@@ -292,11 +292,11 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
 
             {/* Dates */}
             <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-5">
-              <Section icon={Calendar} title="Schedule">
+              <Section icon={Calendar} title="Calendario">
                 <div className="space-y-2.5">
                   <div>
                     <p className="text-[10px] text-white/40 uppercase tracking-wider mb-0.5">
-                      Dates
+                      Fechas
                     </p>
                     <p className="text-sm text-white/80">
                       {formatDate(t.start_date)} — {formatDate(t.end_date)}
@@ -304,7 +304,7 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
                   </div>
                   <div>
                     <p className="text-[10px] text-white/40 uppercase tracking-wider mb-0.5">
-                      Registration Closes
+                      Cierre de Inscripción
                     </p>
                     <p className="text-sm text-white/80">{formatDate(t.registration_deadline)}</p>
                   </div>
@@ -314,12 +314,12 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
 
             {/* Contact */}
             <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-5">
-              <Section icon={Mail} title="Contact">
+              <Section icon={Mail} title="Contacto">
                 <div className="space-y-2.5">
                   {t.contact_email && (
                     <div>
                       <p className="text-[10px] text-white/40 uppercase tracking-wider mb-0.5">
-                        Email
+                        Correo
                       </p>
                       <p className="text-sm text-white/80 break-all">{t.contact_email}</p>
                     </div>
@@ -327,7 +327,7 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
                   {t.contact_phone && (
                     <div>
                       <p className="text-[10px] text-white/40 uppercase tracking-wider mb-0.5">
-                        Phone
+                        Teléfono
                       </p>
                       <p className="text-sm text-white/80">{t.contact_phone}</p>
                     </div>
@@ -338,19 +338,19 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
 
             {/* Financials */}
             <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-5">
-              <Section icon={Trophy} title="Details">
+              <Section icon={Trophy} title="Detalles">
                 <div className="space-y-2.5">
                   <div>
                     <p className="text-[10px] text-white/40 uppercase tracking-wider mb-0.5">
-                      Entry Fee
+                      Cuota de Inscripción
                     </p>
                     <p className="text-sm text-white/80">
-                      {t.entry_fee ? `$${t.entry_fee} MXN` : 'Free'}
+                      {t.entry_fee ? `$${t.entry_fee} MXN` : 'Gratuito'}
                     </p>
                   </div>
                   <div>
                     <p className="text-[10px] text-white/40 uppercase tracking-wider mb-0.5">
-                      Max Participants
+                      Máx. Participantes
                     </p>
                     <p className="text-sm text-white/80">{t.max_participants}</p>
                   </div>
@@ -362,7 +362,7 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
           {/* Rules */}
           {t.rules && (
             <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-5">
-              <Section icon={ScrollText} title="Rules">
+              <Section icon={ScrollText} title="Reglamento">
                 <p className="text-sm text-white/70 leading-relaxed whitespace-pre-wrap">
                   {t.rules}
                 </p>
@@ -377,7 +377,7 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
           <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <span className="text-[10px] font-bold uppercase tracking-widest text-white/25">
-                Registrations
+                Inscripciones
               </span>
               <Users className="w-3.5 h-3.5 text-white/20" />
             </div>
@@ -385,7 +385,7 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
               <div className="text-xl font-bold text-white">
                 {t.current_participants ?? 0}/{t.max_participants}
               </div>
-              <p className="text-[11px] text-white/40 mt-0.5">{Math.round(fillPct)}% Filled</p>
+              <p className="text-[11px] text-white/40 mt-0.5">{Math.round(fillPct)}% Ocupado</p>
             </div>
             <div className="w-full h-1.5 bg-white/[0.05] rounded-full overflow-hidden">
               <div
@@ -398,16 +398,16 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
           {/* Status Timeline */}
           <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-5">
             <div className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-4">
-              Status
+              Estado
             </div>
             <div className="space-y-2">
               {[
-                { status: 'draft', label: 'Draft' },
-                { status: 'pending_validation', label: 'Awaiting Approval' },
-                { status: 'approved', label: 'Approved' },
-                { status: 'published', label: 'Published' },
-                { status: 'in_progress', label: 'In Progress' },
-                { status: 'completed', label: 'Completed' },
+                { status: 'draft', label: 'Borrador' },
+                { status: 'pending_validation', label: 'Pendiente de Aprobación' },
+                { status: 'approved', label: 'Aprobado' },
+                { status: 'published', label: 'Publicado' },
+                { status: 'in_progress', label: 'En Curso' },
+                { status: 'completed', label: 'Completado' },
               ].map(({ status, label }) => {
                 const isActive = t.status === status;
                 return (
@@ -434,22 +434,22 @@ const StateTournamentDetails: React.FC<StateTournamentDetailsProps> = ({ tournam
           <DialogContent className="max-w-md bg-[#0d1117] border border-white/[0.08]">
             <div className="text-center py-6">
               <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-              <h2 className="text-lg font-bold text-white mb-2">Delete Tournament?</h2>
+              <h2 className="text-lg font-bold text-white mb-2">¿Eliminar torneo?</h2>
               <p className="text-sm text-white/60 mb-6">
-                Are you sure you want to delete "{t.name}"? This action cannot be undone.
+                ¿Estás seguro de que deseas eliminar "{t.name}"? Esta acción no se puede deshacer.
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteDialog(false)}
                   className="flex-1 px-4 py-2 bg-white/[0.04] border border-white/[0.08] text-white rounded-lg hover:bg-white/[0.08] transition-colors"
                 >
-                  Cancel
+                  Cancelar
                 </button>
                 <button
                   onClick={handleDelete}
                   className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors font-medium"
                 >
-                  Delete
+                  Eliminar
                 </button>
               </div>
             </div>

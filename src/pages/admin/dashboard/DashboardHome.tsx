@@ -50,6 +50,37 @@ function SectionHeading({ icon: Icon, label, iconColor, iconBg }: {
   );
 }
 
+// ─── Translation maps ──────────────────────────────────────────────────────────
+const ACTION_TYPE_ES: Record<string, string> = {
+  'Club Approval':        'Aprobación de Clubes',
+  'User Verification':    'Verificación de Usuarios',
+  'Payment Disputes':     'Disputas de Pago',
+  'Announcements':        'Anuncios',
+};
+
+const ACTION_DESC_ES: Record<string, string> = {
+  'Clubs awaiting approval':        'Clubes esperando aprobación',
+  'Users need verification':        'Usuarios necesitan verificación',
+  'Payment issues to resolve':      'Problemas de pago por resolver',
+  'Pending announcements to send':  'Anuncios pendientes de enviar',
+};
+
+const PRIORITY_ES: Record<string, string> = {
+  'High':   'Alto',
+  'Medium': 'Medio',
+  'Low':    'Bajo',
+};
+
+const USER_TYPE_ES: Record<string, string> = {
+  'admin':       'Administrador',
+  'player':      'Jugador',
+  'club':        'Club',
+  'coach':       'Entrenador',
+  'state':       'Estado',
+  'organizer':   'Organizador',
+  'partner':     'Socio',
+};
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function DashboardHome() {
   const navigate = useNavigate();
@@ -153,13 +184,13 @@ export default function DashboardHome() {
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div>
         <div className="flex items-center gap-2.5 mb-1">
-          <h1 className="text-[22px] font-black text-white tracking-tight">Panel de Administradora</h1>
+          <h1 className="text-[22px] font-black text-white tracking-tight">Bienvenido</h1>
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600]">
-            <Zap className="w-2.5 h-2.5" /> Administradora
+            <Zap className="w-2.5 h-2.5" /> Administración
           </span>
         </div>
         <p className="text-xs text-white/25">
-          Resumen general de la Federación Mexicana de Pickleball
+          Resumen general de FedMex Pickleball
         </p>
       </div>
 
@@ -175,7 +206,7 @@ export default function DashboardHome() {
             <div className={cn('h-0.5 bg-gradient-to-r', accent)} />
             <div className="px-4 py-4">
               <div className="flex items-start justify-between gap-2 mb-3">
-                <p className="text-[10px] font-black uppercase tracking-widest text-white/20 leading-tight">
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/50 leading-tight">
                   {label}
                 </p>
                 <div className={cn('w-7 h-7 rounded-lg border flex items-center justify-center shrink-0', iconBg)}>
@@ -207,7 +238,7 @@ export default function DashboardHome() {
                       {user.full_name || user.username}
                     </p>
                     <p className="text-[10px] font-semibold uppercase tracking-widest text-white/25 capitalize mt-0.5">
-                      {user.user_type}
+                      {USER_TYPE_ES[user.user_type] ?? user.user_type}
                     </p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -261,9 +292,9 @@ export default function DashboardHome() {
 
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-white/70 group-hover:text-white transition-colors truncate">
-                        {action.type}
+                        {ACTION_TYPE_ES[action.type] ?? action.type}
                       </p>
-                      <p className="text-[10px] text-white/25 truncate mt-0.5">{action.description}</p>
+                      <p className="text-[10px] text-white/25 truncate mt-0.5">{ACTION_DESC_ES[action.description] ?? action.description}</p>
                     </div>
 
                     <div className="shrink-0 text-right">
@@ -280,7 +311,7 @@ export default function DashboardHome() {
                           : 'bg-amber-500/10 border-amber-500/20 text-amber-400',
                       )}>
                         <span className={cn('w-1 h-1 rounded-full', isHigh ? 'bg-red-400' : 'bg-amber-400 animate-pulse')} />
-                        {action.priority}
+                        {PRIORITY_ES[action.priority] ?? action.priority}
                       </span>
                     </div>
                   </div>

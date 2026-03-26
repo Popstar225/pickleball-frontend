@@ -334,7 +334,7 @@ export default function PlayerAccountPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/[0.05] border-t border-white/[0.05]">
           {[
             { label: 'Categoría', value: skillLabel(form.nrtpLevel) || '—' },
-            { label: 'Membresía', value: form.membershipStatus || 'Basic' },
+            { label: 'Afiliación', value: form.membershipStatus || 'Basic' },
             { label: 'Torneos', value: form.totalTournaments },
             { label: 'Último Login', value: form.lastActive ? new Date(form.lastActive).toLocaleDateString('en-US') : '—' },
           ].map(({ label, value }) => (
@@ -426,12 +426,12 @@ export default function PlayerAccountPage() {
               <div>
                 <label className={labelCls}>Género</label>
                 <div className="relative">
-                  <select className={selectCls} value={form.gender}
+                  <select className={`${selectCls} bg-[#0d1117]`} value={form.gender}
                     onChange={e => set('gender', e.target.value)}
                     disabled={!isEditing || profileLoading}>
-                    <option value="">Seleccionar…</option>
-                    <option value="male">Masculino</option>
-                    <option value="female">Femenino</option>
+                    <option value="" className="bg-[#0d1117] text-white">Seleccionar…</option>
+                    <option value="male" className="bg-[#0d1117] text-white">Masculino</option>
+                    <option value="female" className="bg-[#0d1117] text-white">Femenino</option>
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white pointer-events-none" />
                 </div>
@@ -527,7 +527,7 @@ export default function PlayerAccountPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: 'Categoría', value: skillLabel(form.nrtpLevel) || '—', icon: Swords       },
-              { label: 'Membresía',          value: form.membershipStatus || 'Basic', icon: Trophy },
+              { label: 'Afiliación',          value: form.membershipStatus || 'Basic', icon: Trophy },
               { label: 'Verificación',       value: profile?.is_verified ? 'Verificado' : 'Pendiente', icon: Shield },
               { label: 'Torneos',            value: String(form.totalTournaments), icon: Trophy  },
             ].map(({ label, value, icon: Icon }) => (
@@ -545,12 +545,12 @@ export default function PlayerAccountPage() {
             <div className="px-5 py-4 border-b border-white/[0.05]">
               <div className="flex items-center gap-2">
                 <Trophy className="w-4 h-4 text-white" />
-                <span className="text-sm font-semibold text-white">Detalles de Membresía</span>
+                <span className="text-sm font-semibold text-white">Detalles de Afiliación</span>
               </div>
             </div>
             <div className="divide-y divide-white/[0.04]">
               {[
-                { label: 'Estado de Membresía', value: form.membershipStatus || 'Basic', badge: true },
+                { label: 'Estado de Afiliación', value: form.membershipStatus || 'Basic', badge: true },
                 { label: 'Verificado',          value: profile?.is_verified ? 'Sí' : 'No', badge: false },
                 { label: 'Último Login',        value: form.lastActive ? new Date(form.lastActive).toLocaleDateString('en-US') : 'Nunca', badge: false },
                 { label: 'Tipo de Usuario',     value: profile?.user_type || 'player', badge: false },
@@ -593,8 +593,8 @@ export default function PlayerAccountPage() {
             <div>
               <label className={labelCls}>Mano Dominante</label>
               <div className="relative">
-                <select className={`${selectCls} opacity-40 cursor-not-allowed`} disabled>
-                  {['Ambas', 'Derecha', 'Izquierda'].map(g => <option key={g}>{g}</option>)}
+                <select className={`${selectCls} bg-[#0d1117] opacity-40 cursor-not-allowed`} disabled>
+                  {['Ambas', 'Derecha', 'Izquierda'].map(g => <option key={g} className="bg-[#0d1117] text-white">{g}</option>)}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white pointer-events-none" />
               </div>

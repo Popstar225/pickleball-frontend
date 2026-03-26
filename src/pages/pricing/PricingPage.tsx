@@ -66,7 +66,7 @@ const pricingPlans: PricingPlan[] = [
     price: '$500',
     priceNote: 'MXN',
     period: '/año',
-    description: 'Membresía anual para jugadores que desean participar oficialmente en la federación.',
+    description: 'Afiliación anual para jugadores que desean participar oficialmente en la federación.',
     icon: <Users className="w-7 h-7" />,
     accentColor: 'from-blue-500 to-cyan-500',
     features: [
@@ -90,7 +90,7 @@ const pricingPlans: PricingPlan[] = [
     price: '$800',
     priceNote: 'MXN',
     period: '/año',
-    description: 'Membresía anual para entrenadores certificados y activos dentro de la federación.',
+    description: 'Afiliación anual para entrenadores certificados y activos dentro de la federación.',
     icon: <GraduationCap className="w-7 h-7" />,
     accentColor: 'from-violet-500 to-purple-600',
     features: [
@@ -242,19 +242,19 @@ const pricingPlans: PricingPlan[] = [
 
 const faqItems: FaqItem[] = [
   {
-    question: '¿Cuándo se renueva la membresía anual?',
+    question: '¿Cuándo se renueva la Afiliación anual?',
     answer:
-      'La membresía se renueva automáticamente cada año desde la fecha de tu registro. Recibirás un aviso por correo electrónico 30 días antes del vencimiento para que puedas renovar con tiempo.',
+      'La Afiliación se renueva automáticamente cada año desde la fecha de tu registro. Recibirás un aviso por correo electrónico 30 días antes del vencimiento para que puedas renovar con tiempo.',
   },
   {
-    question: '¿Los cargos por inscripción a torneos están incluidos en la membresía?',
+    question: '¿Los cargos por inscripción a torneos están incluidos en la Afiliación?',
     answer:
-      'No. La membresía anual te da acceso a la plataforma y al perfil oficial, pero la inscripción a cada torneo tiene un costo variable que depende del organizador del evento.',
+      'No. La Afiliación anual te da acceso a la plataforma y al perfil oficial, pero la inscripción a cada torneo tiene un costo variable que depende del organizador del evento.',
   },
   {
     question: '¿Puedo cambiar mi plan de Club Básico a Club Premium en cualquier momento?',
     answer:
-      'Sí. Puedes actualizar tu plan en cualquier momento desde el panel de tu club. El costo proporcional se calculará según el tiempo restante de tu membresía actual.',
+      'Sí. Puedes actualizar tu plan en cualquier momento desde el panel de tu club. El costo proporcional se calculará según el tiempo restante de tu Afiliación actual.',
   },
   {
     question: '¿Qué pasa si un club quiere reservar canchas pero tiene plan básico?',
@@ -476,7 +476,7 @@ const PricingPage: React.FC = () => {
             <div className="flex justify-center mb-6">
               <span className="inline-flex items-center gap-2 text-primary text-sm font-semibold uppercase bg-primary/10 px-5 py-2 rounded-full border border-primary/20">
                 <Zap className="w-4 h-4" />
-                Membresías y Cuotas
+                Afiliacións y Cuotas
               </span>
             </div>
 
@@ -534,7 +534,7 @@ const PricingPage: React.FC = () => {
                 Jugadores y Entrenadores
               </h2>
               <p className="mt-3 text-slate-200 max-w-xl mx-auto text-sm sm:text-base">
-                Membresías anuales para participar activamente en la federación.
+                Afiliacións anuales para participar activamente en la federación.
               </p>
             </div>
 
@@ -727,7 +727,7 @@ const PricingPage: React.FC = () => {
                 </h2>
                 <p className="text-slate-200 mb-8 max-w-lg mx-auto text-sm sm:text-base">
                   Regístrate hoy y forma parte de la comunidad oficial de Pickleball en México.
-                  Tu membresía activa acceso inmediato a todos los beneficios de tu plan.
+                  Tu Afiliación activa acceso inmediato a todos los beneficios de tu plan.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link to="/register">
@@ -764,7 +764,7 @@ const PricingPage: React.FC = () => {
                 ¿Tienes dudas sobre los precios?
               </h2>
               <p className="mt-3 text-slate-200 max-w-xl mx-auto text-sm sm:text-base">
-                Respondemos las preguntas más comunes sobre membresías, cuotas y pagos.
+                Respondemos las preguntas más comunes sobre Afiliacións, cuotas y pagos.
               </p>
             </div>
 

@@ -181,7 +181,7 @@ export default function PlayerDashboardHome() {
   const credentialActive = !!myCredential && !isExpired;
 
   const handleRenewClick = () => {
-    setPaymentModal({ open: true, planType: 'membership', planName: 'Membresía Anual', amount: 250 });
+    setPaymentModal({ open: true, planType: 'membership', planName: 'Afiliación Anual', amount: 250 });
   };
 
   const handlePaymentSuccess = () => {

@@ -85,6 +85,12 @@ const LoginPage = () => {
         if (apiResponse?.data?.user && apiResponse?.data?.tokens) {
           toast.success(t('auth.login.toast_success'));
 
+          // Block access until annual payment is completed
+          if (apiResponse.data.needs_payment) {
+            navigate('/register/payment');
+            return;
+          }
+
           const userType = apiResponse.data.user.user_type;
 
           switch (userType) {

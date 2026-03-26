@@ -45,6 +45,7 @@ const OptionalFieldsPage = () => {
     state: '',
     city: '',
     address: '',
+    zipcode: '',
     timezone: '',
     curp: '',
     rfc: '',
@@ -185,6 +186,13 @@ const OptionalFieldsPage = () => {
         icon: MapPin,
       },
       {
+        name: 'zipcode',
+        label: t('auth.optionalFields.field_zipcode', { defaultValue: 'Código Postal' }),
+        type: 'text',
+        placeholder: t('auth.optionalFields.field_zipcode_placeholder', { defaultValue: 'Ej. 64000' }),
+        icon: MapPin,
+      },
+      {
         name: 'website',
         label: t('auth.optionalFields.field_website'),
         type: 'url',
@@ -242,6 +250,7 @@ const OptionalFieldsPage = () => {
           type: 'text',
           placeholder: t('auth.optionalFields.field_rfc_placeholder'),
           icon: FileText,
+          optional: true,
         },
         ...baseFields,
       ];
@@ -338,7 +347,7 @@ const OptionalFieldsPage = () => {
         setRegisteredUserType(type);
 
         if (USER_TYPES_REQUIRING_PAYMENT.includes(type)) {
-          toast.success('¡Registro exitoso! Por favor completa tu membresía.');
+          toast.success('¡Registro exitoso! Por favor completa tu Afiliación.');
           setShowMembershipModal(true);
         } else {
           // Partner — free, navigate immediately
@@ -409,7 +418,7 @@ const OptionalFieldsPage = () => {
         setRegisteredUserType(type);
 
         if (USER_TYPES_REQUIRING_PAYMENT.includes(type)) {
-          toast.success('¡Registro exitoso! Por favor completa tu membresía.');
+          toast.success('¡Registro exitoso! Por favor completa tu Afiliación.');
           setShowMembershipModal(true);
         } else {
           setPendingPayment(false);
@@ -812,21 +821,19 @@ const OptionalFieldsPage = () => {
         </div>
       </main>
 
-      {/* Post-registration membership payment modal */}
+      {/* Post-registration membership payment modal — required, cannot be skipped */}
       {showMembershipModal && (
         <MembershipSelector
           isOpen={showMembershipModal}
+          required
           onClose={() => {
-            // Allow user to skip payment and pay later from dashboard
-            setShowMembershipModal(false);
-            setPendingPayment(false);
-            navigateToDashboard(registeredUserType);
+            toast.error('El pago de afiliación es obligatorio para activar tu cuenta.');
           }}
           userType={registeredUserType}
           onSuccess={() => {
             setShowMembershipModal(false);
             setPendingPayment(false);
-            toast.success('¡Membresía activada! Bienvenido a la Federación Mexicana de Pickleball.');
+            toast.success('¡Afiliación activada! Bienvenido a la Federación Mexicana de Pickleball.');
             navigateToDashboard(registeredUserType);
           }}
         />

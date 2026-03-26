@@ -32,6 +32,7 @@ import LoginPage from './pages/auth/LoginPage';
 import SelectUserTypePage from './pages/auth/SelectUserTypePage';
 import RequiredFieldsPage from './pages/auth/RequiredFieldsPage';
 import OptionalFieldsPage from './pages/auth/OptionalFieldsPage';
+import RegistrationPaymentPage from './pages/auth/RegistrationPaymentPage';
 
 import FederationDashboardLayout from './pages/admin/dashboard/DashboardLayout';
 import MessagesPage from './pages/admin/dashboard/MessagesPage';
@@ -103,6 +104,7 @@ import ClubMembersPage from './pages/clubs/dashboard/ClubMembersPage';
 import ClubCourtsPage from './pages/clubs/dashboard/CourtsManagement';
 import ClubVenuesPage from './pages/clubs/dashboard/VenuesManagement';
 import AdminVenuesManagement from './pages/admin/dashboard/VenuesManagement';
+import VenueDetailPage from './pages/admin/dashboard/VenueDetailPage';
 import TournamentEventManagement from './pages/clubs/dashboard/Tournament/TournamentEventManagement';
 import TournamentManagement from './pages/clubs/dashboard/Tournament/TournamentManagement';
 import ClubTournamentManagementPage from './pages/clubs/dashboard/Tournament/ClubTournamentManagementPage';
@@ -413,6 +415,12 @@ export const routes = [
     element: <OptionalFieldsPage />,
     public: true,
   },
+  {
+    key: 'register-payment',
+    path: '/register/payment',
+    element: <RegistrationPaymentPage />,
+    public: true,
+  },
   // Tournament routes
   {
     key: 'tournaments-list',
@@ -548,6 +556,12 @@ export const routes = [
         public: false,
       },
       {
+        key: 'dashboard-venue-detail',
+        path: '/admin/dashboard/venues/:id',
+        element: <VenueDetailPage />,
+        public: false,
+      },
+      {
         key: 'dashboard-clubs',
         path: '/admin/dashboard/clubs',
         element: <ClubsManagement />,
@@ -676,7 +690,7 @@ export const routes = [
     subroutes: [
       {
         key: 'state-dashboard-home',
-        path: '/state/dashboard/home',
+        path: '/state/dashboard',
         element: <StateDashboardHome />,
         public: false,
       },

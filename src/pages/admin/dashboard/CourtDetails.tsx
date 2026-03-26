@@ -1,1272 +1,848 @@
-import { useEffect, useState, useRef } from 'react';
-import { COURT_SURFACE_OPTIONS } from '@/constants/constants';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AppDispatch, RootState } from '@/store';
-import { fetchCourt, deleteCourt, updateCourt } from '@/store/slices/courtsSlice';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import {
-  ArrowLeft,
-  Loader2,
-  MapPin,
-  DollarSign,
-  Calendar,
-  Clock,
-  Star,
-  Users,
-  Wifi,
-  Droplets,
-  Sun,
-  Moon,
-  Zap,
-  CheckCircle2,
-  Edit,
-  Trash2,
-  Share2,
-  Bookmark,
-  TrendingUp,
-  Activity,
-  Image as ImageIcon,
-  Copy,
-  Check,
-  AlertTriangle,
-  X,
-  ExternalLink,
-  Download,
-  Upload,
-  BarChart3,
-  MessageSquare,
-  Settings,
-  Save,
-  XCircle,
-  Plus,
-  Link as LinkIcon,
-  FileImage,
-} from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch, RootState } from '../../../store';
+import { fetchCourt, updateCourt, deleteCourt } from '../../../store/slices/courtsSlice';
+import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  ArrowLeft, MapPin, DollarSign, LayoutGrid, Star, CalendarDays,
+  Clock, Settings, Users, BarChart3, MessageSquare,
+  Pencil, Trash2, Save, XCircle, Check, CheckCircle2,
+  Loader2, Zap, Image as ImageIcon, Lightbulb,
+  Wifi, Droplets, Package, ChevronRight, X, AlertTriangle,
+  Building2, Store, Activity,
+} from 'lucide-react';
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+const COURT_TYPES: Record<string, string> = {
+  indoor: 'Cubierta', outdoor: 'Aire Libre', covered: 'Techada',
+};
+const COURT_SURFACES: Record<string, string> = {
+  concrete: 'Concreto', asphalt: 'Asfalto', synthetic: 'Sintético',
+  grass: 'Pasto', clay: 'Arcilla',
+};
+const SURFACE_COLORS: Record<string, string> = {
+  concrete: 'bg-slate-400', asphalt: 'bg-stone-500', synthetic: 'bg-sky-400',
+  grass: 'bg-emerald-400', clay: 'bg-orange-400',
+};
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface CourtStats {
+  total_matches: number;
+  completed_matches: number;
+  utilization_rate: number;
+  average_rating: number;
+  total_bookings: number;
+}
+
+interface Booking {
+  id: string;
+  reservation_date: string;
+  start_time: string;
+  end_time: string;
+  status: 'confirmed' | 'pending' | 'cancelled' | 'completed' | 'no_show';
+  user?: { name?: string; email?: string };
+}
+
+interface EditForm {
+  name: string;
+  court_type: string;
+  surface: string;
+  description: string;
+  capacity: number;
+  hourly_rate: number | string;
+  has_lighting: boolean;
+  has_net: boolean;
+  has_equipment: boolean;
+  is_available: boolean;
+  is_active: boolean;
+}
+
+// ─── Atoms ────────────────────────────────────────────────────────────────────
+const cn2 = (...c: (string | undefined | false | null)[]) => c.filter(Boolean).join(' ');
+
+const Badge = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
+  <span className={cn2('inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border', className)}>
+    {children}
+  </span>
+);
+
+const Btn = ({
+  children, variant = 'primary', size = 'md', className = '', onClick, disabled = false, type = 'button',
+}: {
+  children: ReactNode;
+  variant?: 'primary' | 'outline' | 'ghost' | 'danger' | 'save';
+  size?: 'sm' | 'md' | 'lg' | 'icon';
+  className?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+  type?: 'button' | 'submit';
+}) => {
+  const base = 'inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed select-none';
+  const variants = {
+    primary: 'bg-[#ace600] hover:bg-[#beff00] text-slate-900 shadow-lg shadow-[#ace600]/20',
+    outline: 'border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 text-white',
+    ghost:   'text-white/60 hover:text-white hover:bg-white/5',
+    danger:  'border border-red-500/30 bg-red-950/40 hover:bg-red-950/60 text-red-400 hover:text-red-300',
+    save:    'bg-[#ace600] hover:bg-[#beff00] text-slate-900 shadow-lg shadow-[#ace600]/25',
+  };
+  const sizes = { sm: 'h-8 px-3 text-xs', md: 'h-9 px-4 text-sm', lg: 'h-11 px-6 text-sm', icon: 'h-9 w-9' };
+  return (
+    <button type={type} disabled={disabled} onClick={onClick}
+      className={cn2(base, variants[variant], sizes[size], className)}>
+      {children}
+    </button>
+  );
+};
+
+const Panel = ({ children, className = '' }: { children: ReactNode; className?: string }) => (
+  <div className={cn2('bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden', className)}>
+    {children}
+  </div>
+);
+
+const SectionHead = ({
+  icon: Icon2, title, right,
+}: {
+  icon: React.ElementType; title: string; right?: ReactNode;
+}) => (
+  <div className="flex items-center justify-between gap-3 pb-4 mb-4 border-b border-white/[0.06]">
+    <div className="flex items-center gap-2.5">
+      <div className="w-7 h-7 rounded-lg bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center shrink-0">
+        <Icon2 className="w-3.5 h-3.5 text-[#ace600]" />
+      </div>
+      <h2 className="text-sm font-black uppercase tracking-widest text-white/60">{title}</h2>
+    </div>
+    {right}
+  </div>
+);
+
+const InfoRow = ({ label, value }: { label: string; value?: string | number | null }) => (
+  <div>
+    <p className="text-[10px] font-black uppercase tracking-widest text-[#ace600]/50 mb-1">{label}</p>
+    <p className="text-sm font-semibold text-white/75">{value ?? '—'}</p>
+  </div>
+);
+
+const StatusBooking: Record<string, { label: string; cls: string }> = {
+  confirmed:  { label: 'Confirmada',  cls: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' },
+  pending:    { label: 'Pendiente',   cls: 'bg-amber-500/10  border-amber-500/20  text-amber-400'   },
+  cancelled:  { label: 'Cancelada',   cls: 'bg-red-500/10    border-red-500/20    text-red-400'     },
+  completed:  { label: 'Completada',  cls: 'bg-sky-500/10    border-sky-500/20    text-sky-400'     },
+  no_show:    { label: 'No se presentó', cls: 'bg-white/5    border-white/10      text-white/40'    },
+};
+
+// ─── Main component ───────────────────────────────────────────────────────────
 export default function CourtDetails() {
-  const { id } = useParams();
-  const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
-  const { currentCourt: court, loading } = useSelector((s: RootState) => s.courts);
-  const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { id } = useParams<{ id: string }>();
+  const navigate  = useNavigate();
+  const dispatch  = useDispatch<AppDispatch>();
 
-  // Local state
-  const [editMode, setEditMode] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [bookmarked, setBookmarked] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const { currentCourt: court, loading, error } = useSelector(
+    (state: RootState) => state.courts,
+  );
 
-  // Form state
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    court_type: '',
-    surface: '',
-    hourly_rate: '',
-    amenities: [] as string[],
-    photos: [] as string[],
-    club_name: '',
-  });
+  // ── Local state ──
+  const [stats,         setStats]         = useState<CourtStats | null>(null);
+  const [bookings,      setBookings]      = useState<Booking[]>([]);
+  const [statsLoading,  setStatsLoading]  = useState(false);
+  const [editMode,      setEditMode]      = useState(false);
+  const [saving,        setSaving]        = useState(false);
+  const [deleting,      setDeleting]      = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [toast,         setToast]         = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
+  const [formData,      setFormData]      = useState<EditForm | null>(null);
 
-  // New amenity input
-  const [newAmenity, setNewAmenity] = useState('');
+  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
 
+  // ── Fetch court ──
   useEffect(() => {
     if (id) dispatch(fetchCourt(id));
-  }, [dispatch, id]);
+  }, [id, dispatch]);
 
-  // Update form when court data loads
+  // ── Init form when court loads ──
   useEffect(() => {
-    if (court) {
+    if (court && (court as any).id === id) {
+      const c = court as any;
       setFormData({
-        name: court.name || '',
-        description: court.description || '',
-        court_type: court.court_type || '',
-        surface: court.surface || '',
-        hourly_rate: court.hourly_rate?.toString() || '',
-        amenities: Array.isArray(court.amenities) ? court.amenities : [],
-        photos: Array.isArray(court.photos) ? court.photos : [],
-        club_name: court.club?.name || court.club_name || '',
+        name:          c.name            ?? '',
+        court_type:    c.court_type      ?? 'outdoor',
+        surface:       c.surface         ?? 'concrete',
+        description:   c.description     ?? '',
+        capacity:      c.capacity        ?? 4,
+        hourly_rate:   c.hourly_rate     ?? 0,
+        has_lighting:  c.has_lighting    ?? false,
+        has_net:       c.has_net         ?? true,
+        has_equipment: c.has_equipment   ?? false,
+        is_available:  c.is_available    ?? true,
+        is_active:     c.is_active       ?? true,
       });
     }
-  }, [court]);
+  }, [court, id]);
 
-  // Amenity icon mapping
-  const getAmenityIcon = (amenity: string) => {
-    const amenityLower = amenity.toLowerCase();
-    if (amenityLower.includes('wifi') || amenityLower.includes('internet')) return Wifi;
-    if (amenityLower.includes('agua') || amenityLower.includes('water')) return Droplets;
-    if (amenityLower.includes('luz') || amenityLower.includes('light')) return Sun;
-    if (amenityLower.includes('noche') || amenityLower.includes('night')) return Moon;
-    if (amenityLower.includes('energía') || amenityLower.includes('power')) return Zap;
-    return CheckCircle2;
-  };
+  // ── Fetch stats & bookings (once court is confirmed loaded) ──
+  useEffect(() => {
+    if (!id || !court || (court as any).id !== id) return;
 
-  // Action handlers
-  const handleShare = async () => {
-    const url = window.location.href;
-
-    if (navigator.share) {
+    const fetchAux = async () => {
+      setStatsLoading(true);
       try {
-        await navigator.share({
-          title: court?.name,
-          text: `Mira esta cancha: ${court?.name}`,
-          url: url,
-        });
-        toast({
-          title: '¡Compartido!',
-          description: 'El enlace ha sido compartido exitosamente',
-        });
-      } catch (err) {
-        // User cancelled share
+        const [statsRes, bookingsRes] = await Promise.allSettled([
+          api.get(`/courts/${id}/stats`),
+          api.get(`/courts/${id}/bookings?limit=5`),
+        ]);
+
+        if (statsRes.status === 'fulfilled') {
+          const s = (statsRes.value as any)?.data?.stats;
+          if (s) setStats(s);
+        }
+        if (bookingsRes.status === 'fulfilled') {
+          const b = (bookingsRes.value as any)?.data?.data ?? [];
+          setBookings(Array.isArray(b) ? b : []);
+        }
+      } finally {
+        setStatsLoading(false);
       }
-    } else {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      toast({
-        title: '¡Copiado!',
-        description: 'El enlace ha sido copiado al portapapeles',
-      });
-    }
-  };
+    };
+    fetchAux();
+  }, [id, court]);
 
-  const handleBookmark = () => {
-    setBookmarked(!bookmarked);
-    toast({
-      title: bookmarked ? 'Marcador eliminado' : '¡Guardado!',
-      description: bookmarked
-        ? 'La cancha ha sido eliminada de tus favoritos'
-        : 'La cancha ha sido guardada en tus favoritos',
-    });
-  };
-
-  const handleEditToggle = () => {
-    if (editMode) {
-      // Cancel edit - reset form
-      if (court) {
-        setFormData({
-          name: court.name || '',
-          description: court.description || '',
-          court_type: court.court_type || '',
-          surface: court.surface || '',
-          hourly_rate: court.hourly_rate?.toString() || '',
-          amenities: Array.isArray(court.amenities) ? court.amenities : [],
-          photos: Array.isArray(court.photos) ? court.photos : [],
-          club_name: court.club?.name || court.club_name || '',
-        });
-      }
-    }
-    setEditMode(!editMode);
-  };
-
-  const handleSave = async () => {
-    if (!id) return;
-
-    // Validation
-    if (!formData.name.trim()) {
-      toast({
-        title: 'Error de validación',
-        description: 'El nombre de la cancha es requerido',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!formData.hourly_rate || parseFloat(formData.hourly_rate) <= 0) {
-      toast({
-        title: 'Error de validación',
-        description: 'La tarifa debe ser mayor a 0',
-        variant: 'destructive',
-      });
-      return;
-    }
-
+  // ── Save edits ──
+  const handleSave = useCallback(async () => {
+    if (!id || !formData) return;
     setSaving(true);
     try {
-      await dispatch(
-        updateCourt({
-          id,
-          courtData: {
-            name: formData.name,
-            description: formData.description,
-            court_type: formData.court_type as any,
-            surface: formData.surface as any,
-            hourly_rate: parseFloat(formData.hourly_rate),
-            amenities: formData.amenities,
-            photos: formData.photos,
-          } as any,
-        }),
-      ).unwrap();
-
-      toast({
-        title: '¡Guardado exitosamente!',
-        description: 'Los cambios han sido guardados correctamente',
-      });
+      const result = await dispatch(updateCourt({ id, courtData: formData as Parameters<typeof updateCourt>[0]['courtData'] })).unwrap();
+      // Re-fetch to get fresh data (including nested venue/club)
+      await dispatch(fetchCourt(id));
       setEditMode(false);
-      // Refresh data
-      dispatch(fetchCourt(id));
-    } catch (error: any) {
-      toast({
-        title: 'Error al guardar',
-        description: error?.message || 'No se pudieron guardar los cambios',
-        variant: 'destructive',
-      });
+      showToast('Cambios guardados exitosamente');
+    } catch (err: any) {
+      showToast(err?.message ?? 'Error al guardar los cambios', 'error');
     } finally {
       setSaving(false);
     }
-  };
+  }, [id, formData, dispatch]);
 
-  const handleDelete = async () => {
+  // ── Cancel edit ──
+  const handleCancel = useCallback(() => {
+    if (!court) return;
+    const c = court as any;
+    setFormData({
+      name:          c.name         ?? '',
+      court_type:    c.court_type   ?? 'outdoor',
+      surface:       c.surface      ?? 'concrete',
+      description:   c.description  ?? '',
+      capacity:      c.capacity     ?? 4,
+      hourly_rate:   c.hourly_rate  ?? 0,
+      has_lighting:  c.has_lighting  ?? false,
+      has_net:       c.has_net       ?? true,
+      has_equipment: c.has_equipment ?? false,
+      is_available:  c.is_available  ?? true,
+      is_active:     c.is_active     ?? true,
+    });
+    setEditMode(false);
+  }, [court]);
+
+  // ── Delete ──
+  const handleDelete = useCallback(async () => {
     if (!id) return;
-
     setDeleting(true);
     try {
       await dispatch(deleteCourt(id)).unwrap();
-      toast({
-        title: '¡Eliminado!',
-        description: 'La cancha ha sido eliminada exitosamente',
-      });
-      navigate('/admin/dashboard/courts');
-    } catch (error: any) {
-      toast({
-        title: 'Error al eliminar',
-        description: error?.message || 'No se pudo eliminar la cancha',
-        variant: 'destructive',
-      });
+      showToast('Cancha eliminada');
+      setTimeout(() => navigate(-1), 1000);
+    } catch (err: any) {
+      showToast(err?.message ?? 'Error al eliminar la cancha', 'error');
+      setConfirmDelete(false);
     } finally {
       setDeleting(false);
-      setDeleteDialogOpen(false);
     }
-  };
+  }, [id, dispatch, navigate]);
 
-  const handleViewReservations = () => {
-    navigate(`/admin/dashboard/reservations?court=${id}`);
-  };
+  const setField = <K extends keyof EditForm>(key: K, val: EditForm[K]) =>
+    setFormData(p => p ? { ...p, [key]: val } : p);
 
-  const handleViewStatistics = () => {
-    navigate(`/admin/dashboard/courts/${id}/statistics`);
-  };
+  // ─── LOADING ──────────────────────────────────────────────────────────────
+  if (loading && !court) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 gap-3">
+        <Loader2 className="w-7 h-7 text-[#ace600] animate-spin" />
+        <p className="text-sm text-white/30">Cargando cancha…</p>
+      </div>
+    );
+  }
 
-  const handleViewReviews = () => {
-    navigate(`/admin/dashboard/courts/${id}/reviews`);
-  };
+  // ─── ERROR / NOT FOUND ────────────────────────────────────────────────────
+  if ((error && !court) || (court && (court as any).id !== id && !loading)) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 gap-4 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+          <AlertTriangle className="w-7 h-7 text-red-400" />
+        </div>
+        <div>
+          <p className="text-sm font-bold text-white/50 mb-1">No se encontró la cancha</p>
+          <p className="text-xs text-white/25">{error ?? 'Verifica el ID e inténtalo de nuevo.'}</p>
+        </div>
+        <Btn variant="outline" size="sm" onClick={() => navigate(-1)}>
+          <ArrowLeft className="w-3.5 h-3.5" /> Volver
+        </Btn>
+      </div>
+    );
+  }
 
-  const handleViewOnMap = () => {
-    if (court?.club?.latitude && court?.club?.longitude) {
-      const url = `https://www.google.com/maps?q=${court.club.latitude},${court.club.longitude}`;
-      window.open(url, '_blank');
-    } else {
-      toast({
-        title: 'Ubicación no disponible',
-        description: 'No se encontraron coordenadas para este club',
-        variant: 'destructive',
-      });
-    }
-  };
+  if (!court || !formData) return null;
 
-  const handleViewCalendar = () => {
-    navigate(`/admin/dashboard/courts/${id}/calendar`);
-  };
+  const c = court as any;
+  const venue = c.venue as any;
+  const club  = venue?.club as any;
 
-  const handleAddAmenity = () => {
-    if (newAmenity.trim()) {
-      setFormData((prev) => ({
-        ...prev,
-        amenities: [...prev.amenities, newAmenity.trim()],
-      }));
-      setNewAmenity('');
-      toast({
-        title: 'Amenidad agregada',
-        description: `Se agregó: ${newAmenity.trim()}`,
-      });
-    }
-  };
-
-  const handleRemoveAmenity = (index: number) => {
-    const removedAmenity = formData.amenities[index];
-    setFormData((prev) => ({
-      ...prev,
-      amenities: prev.amenities.filter((_, i) => i !== index),
-    }));
-    toast({
-      title: 'Amenidad eliminada',
-      description: `Se eliminó: ${removedAmenity}`,
-    });
-  };
-
-  // Image upload handlers
-  const handleUploadClick = () => {
-    setUploadDialogOpen(true);
-  };
-
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    setUploading(true);
-
-    try {
-      // Simulate upload - in real implementation, upload to server/cloud storage
-      const uploadedUrls: string[] = [];
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-          toast({
-            title: 'Archivo inválido',
-            description: `${file.name} no es una imagen válida`,
-            variant: 'destructive',
-          });
-          continue;
-        }
-
-        // Validate file size (max 5MB)
-        if (file.size > 5 * 1024 * 1024) {
-          toast({
-            title: 'Archivo muy grande',
-            description: `${file.name} excede el límite de 5MB`,
-            variant: 'destructive',
-          });
-          continue;
-        }
-
-        // Create preview URL
-        const reader = new FileReader();
-        const url = await new Promise<string>((resolve) => {
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.readAsDataURL(file);
-        });
-
-        uploadedUrls.push(url);
-      }
-
-      if (uploadedUrls.length > 0) {
-        setFormData((prev) => ({
-          ...prev,
-          photos: [...prev.photos, ...uploadedUrls],
-        }));
-
-        toast({
-          title: '¡Fotos cargadas!',
-          description: `Se cargaron ${uploadedUrls.length} foto(s) exitosamente`,
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Error al cargar',
-        description: 'Hubo un problema al cargar las fotos',
-        variant: 'destructive',
-      });
-    } finally {
-      setUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
-  const handleAddPhotoByUrl = () => {
-    const url = prompt('Ingresa la URL de la imagen:');
-    if (url && url.trim()) {
-      // Validate URL format
-      try {
-        new URL(url);
-        setFormData((prev) => ({
-          ...prev,
-          photos: [...prev.photos, url.trim()],
-        }));
-        toast({
-          title: 'Foto agregada',
-          description: 'La imagen ha sido agregada desde la URL',
-        });
-      } catch {
-        toast({
-          title: 'URL inválida',
-          description: 'Por favor ingresa una URL válida',
-          variant: 'destructive',
-        });
-      }
-    }
-  };
-
-  const handleRemovePhoto = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      photos: prev.photos.filter((_, i) => i !== index),
-    }));
-    toast({
-      title: 'Foto eliminada',
-      description: 'La imagen ha sido eliminada',
-    });
-  };
-
-  const handleDownloadPhotos = async () => {
-    if (!formData.photos || formData.photos.length === 0) {
-      toast({
-        title: 'No hay fotos',
-        description: 'No hay fotos para descargar',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    toast({
-      title: 'Descargando fotos...',
-      description: `Descargando ${formData.photos.length} foto(s)`,
-    });
-
-    // In a real implementation, this would download or create a ZIP file
-    formData.photos.forEach((url, index) => {
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `court-photo-${index + 1}.jpg`;
-      link.click();
-    });
-
-    setTimeout(() => {
-      toast({
-        title: '¡Descarga completa!',
-        description: 'Las fotos han sido descargadas',
-      });
-    }, 1000);
-  };
+  // ── Helpers ──
+  const courtTypeLabel   = COURT_TYPES[c.court_type]   ?? c.court_type   ?? '—';
+  const surfaceLabel     = COURT_SURFACES[c.surface]   ?? c.surface      ?? '—';
+  const surfaceDot       = SURFACE_COLORS[c.surface]   ?? 'bg-white/20';
+  const displayName      = editMode ? formData.name    : c.name;
+  const rating           = stats?.average_rating ?? c.average_rating ?? 0;
+  const totalBookings    = stats?.total_bookings ?? c.total_bookings ?? 0;
 
   return (
-    <div className="space-y-6 pb-8">
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        multiple
-        className="hidden"
-        onChange={handleFileSelect}
-      />
+    <div className="space-y-6">
 
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+      {/* ── Header ──────────────────────────────────────────────────────── */}
+      <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
+        {/* Left: back + title */}
         <div className="flex items-start gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate('/admin/dashboard/courts')}
-            className="shrink-0 border-primary/20 bg-slate-800/80 hover:bg-slate-800 text-primary hover:text-primary hover:border-primary/40"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div className="flex-1">
+          <Btn variant="outline" size="icon" className="shrink-0 mt-1" onClick={() => navigate(-1)}>
+            <ArrowLeft className="w-4 h-4" />
+          </Btn>
+
+          <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-2 flex-wrap">
               {editMode ? (
-                <Input
+                <input
                   value={formData.name}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
-                  className="text-3xl lg:text-4xl font-bold h-auto py-2 px-3 bg-slate-800 border-primary/30 text-white focus:border-primary"
-                  placeholder="Nombre de la cancha"
+                  onChange={e => setField('name', e.target.value)}
+                  className="text-2xl sm:text-3xl font-black bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-white focus:outline-none focus:border-[#ace600]/50 w-full max-w-sm"
                 />
               ) : (
                 <>
-                  <h1 className="text-3xl lg:text-4xl font-bold text-white">
-                    {loading ? (
-                      <span className="inline-block h-9 w-64 bg-slate-700 animate-pulse rounded-lg" />
-                    ) : (
-                      court?.name || 'Cancha no encontrada'
-                    )}
+                  <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-none">
+                    {displayName}
                   </h1>
-                  {!loading && court && (
-                    <Badge className="bg-primary/20 text-primary border-primary/40 text-sm font-semibold">
-                      <Activity className="h-3.5 w-3.5 mr-1.5" />
-                      Activa
+                  <Badge className={cn2(
+                    c.is_active
+                      ? 'bg-[#ace600]/10 border-[#ace600]/25 text-[#ace600]'
+                      : 'bg-red-500/10 border-red-500/25 text-red-400',
+                  )}>
+                    <span className={cn2('w-1.5 h-1.5 rounded-full',
+                      c.is_active ? 'bg-[#ace600] animate-pulse' : 'bg-red-400',
+                    )} />
+                    {c.is_active ? 'Activa' : 'Inactiva'}
+                  </Badge>
+                  {!c.is_available && (
+                    <Badge className="bg-amber-500/10 border-amber-500/25 text-amber-400">
+                      Ocupada
                     </Badge>
                   )}
                 </>
               )}
             </div>
-            {!loading && court && !editMode && (
-              <div className="flex items-center gap-2 text-slate-300">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span className="text-base font-medium">
-                  {court?.club?.name || court?.club_name || 'Sin club'}
-                </span>
-                <span className="text-slate-300">•</span>
-                <span className="text-slate-200">
-                  {court?.club?.city}, {court?.club?.state}
-                </span>
-              </div>
-            )}
+
+            <div className="flex items-center gap-2 text-sm text-white/40 flex-wrap">
+              <MapPin className="w-3.5 h-3.5 text-[#ace600] shrink-0" />
+              {club?.name && <span className="font-semibold text-white/60">{club.name}</span>}
+              {club?.name && venue?.name && <span className="text-white/20">·</span>}
+              {venue?.name && <span className="text-white/50">{venue.name}</span>}
+              {(club?.city || club?.state) && (
+                <>
+                  <span className="text-white/20">·</span>
+                  <span>{[club?.city, club?.state].filter(Boolean).join(', ')}</span>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
-        {!loading && court && (
-          <div className="flex items-center gap-2 flex-wrap">
-            {!editMode ? (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleShare}
-                  className="border-primary/20 bg-slate-800/80 hover:bg-slate-800 text-white font-medium hover:border-primary/40"
-                >
-                  {copied ? (
-                    <>
-                      <Check className="h-4 w-4 mr-2" />
-                      Copiado
-                    </>
-                  ) : (
-                    <>
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Compartir
-                    </>
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleBookmark}
-                  className={cn(
-                    'border-primary/20 font-medium hover:border-primary/40',
-                    bookmarked
-                      ? 'bg-primary/20 hover:bg-primary/30 text-primary border-primary/40'
-                      : 'bg-slate-800/80 hover:bg-slate-800 text-white',
-                  )}
-                >
-                  <Bookmark className={cn('h-4 w-4 mr-2', bookmarked && 'fill-primary')} />
-                  {bookmarked ? 'Guardado' : 'Guardar'}
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleEditToggle}
-                  className="bg-primary hover:bg-primary/90 text-slate-900 font-semibold shadow-lg shadow-primary/30"
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  Editar
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDeleteDialogOpen(true)}
-                  className="border-red-500/30 bg-red-950/30 hover:bg-red-950/50 text-red-400 hover:text-red-300 font-medium"
-                >
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Eliminar
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleEditToggle}
-                  disabled={saving}
-                  className="border-slate-600 bg-slate-800 hover:bg-slate-700 text-white font-medium"
-                >
-                  <XCircle className="h-4 w-4 mr-2" />
-                  Cancelar
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="bg-primary hover:bg-primary/90 text-slate-900 font-semibold shadow-lg shadow-primary/30"
-                >
-                  {saving ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Guardando...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4 mr-2" />
-                      Guardar cambios
-                    </>
-                  )}
-                </Button>
-              </>
-            )}
-          </div>
-        )}
+        {/* Right: action buttons */}
+        <div className="flex items-center gap-2 flex-wrap shrink-0">
+          {!editMode ? (
+            <>
+              <Btn variant="primary" size="sm" onClick={() => setEditMode(true)}>
+                <Pencil className="w-3.5 h-3.5" /> Editar
+              </Btn>
+              <Btn variant="danger" size="sm" onClick={() => setConfirmDelete(true)}>
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Eliminar</span>
+              </Btn>
+            </>
+          ) : (
+            <>
+              <Btn variant="outline" size="sm" onClick={handleCancel} disabled={saving}>
+                <XCircle className="w-3.5 h-3.5" /> Cancelar
+              </Btn>
+              <Btn variant="save" size="sm" onClick={handleSave} disabled={saving}>
+                {saving
+                  ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  : <Save className="w-3.5 h-3.5" />}
+                {saving ? 'Guardando…' : 'Guardar cambios'}
+              </Btn>
+            </>
+          )}
+        </div>
       </div>
 
-      {loading ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <Card key={i} className="border-primary/20 bg-slate-800/50">
-              <CardContent className="p-6">
-                <div className="space-y-3">
-                  <div className="h-4 w-24 bg-slate-700 animate-pulse rounded" />
-                  <div className="h-7 w-full bg-slate-700 animate-pulse rounded" />
-                  <div className="h-3 w-3/4 bg-slate-700 animate-pulse rounded" />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : !court ? (
-        <Card className="border-primary/20 bg-slate-800/50">
-          <CardContent className="p-12">
-            <div className="flex flex-col items-center justify-center gap-4 text-center">
-              <div className="h-20 w-20 rounded-full bg-slate-700 flex items-center justify-center">
-                <MapPin className="h-10 w-10 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold text-white mb-2">Cancha no encontrada</h3>
-                <p className="text-slate-200 mb-6">
-                  No pudimos encontrar la información de esta cancha
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate('/admin/dashboard/courts')}
-                  className="border-primary/30 bg-slate-800 hover:bg-slate-700 text-white hover:border-primary/50"
-                >
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Volver a canchas
-                </Button>
+      {/* ── Stat cards ──────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* Price */}
+        <div className="relative bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden hover:border-white/[0.14] transition-all group">
+          <div className="h-px bg-gradient-to-r from-[#ace600]/40 via-[#ace600]/10 to-transparent" />
+          <div className="p-5">
+            <div className="flex items-start justify-between gap-2 mb-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-white/25">Tarifa / Hora</p>
+              <div className="w-8 h-8 rounded-lg bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center shrink-0">
+                <DollarSign className="w-3.5 h-3.5 text-[#ace600]" />
               </div>
             </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-6">
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 hover:from-primary/15 hover:to-primary/10 transition-all duration-300 group cursor-pointer">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-primary/80 mb-1">Tarifa por hora</p>
-                    {editMode ? (
-                      <div className="mt-2">
-                        <Input
-                          type="number"
-                          step="0.01"
-                          value={formData.hourly_rate}
-                          onChange={(e) =>
-                            setFormData((prev) => ({ ...prev, hourly_rate: e.target.value }))
-                          }
-                          className="text-xl font-bold h-auto py-1 px-2 bg-slate-800 border-primary/30 text-white"
-                          placeholder="0.00"
-                        />
-                      </div>
-                    ) : (
-                      <>
-                        <p className="text-3xl font-bold text-white">
-                          ${formData.hourly_rate ? Number(formData.hourly_rate).toFixed(2) : '0.00'}
-                        </p>
-                        <p className="text-xs font-semibold text-primary mt-2">MXN</p>
-                      </>
-                    )}
-                  </div>
-                  <div className="h-12 w-12 rounded-xl bg-primary/20 border border-primary/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <DollarSign className="h-6 w-6 text-primary" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 hover:from-primary/15 hover:to-primary/10 transition-all duration-300 group cursor-pointer">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-primary/80 mb-1">Tipo de cancha</p>
-                    {editMode ? (
-                      <Select
-                        value={formData.court_type}
-                        onValueChange={(value) =>
-                          setFormData((prev) => ({ ...prev, court_type: value }))
-                        }
-                      >
-                        <SelectTrigger className="mt-2 bg-slate-800 border-primary/30 text-white">
-                          <SelectValue placeholder="Seleccionar" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-slate-800 border-primary/30">
-                          <SelectItem value="indoor" className="text-white">
-                            Indoor
-                          </SelectItem>
-                          <SelectItem value="outdoor" className="text-white">
-                            Outdoor
-                          </SelectItem>
-                          <SelectItem value="covered" className="text-white">
-                            Cubierta
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <>
-                        <p className="text-2xl font-bold text-white capitalize">
-                          {formData.court_type || '-'}
-                        </p>
-                        <p className="text-xs font-semibold text-primary mt-2 capitalize">
-                          {formData.surface || 'N/A'}
-                        </p>
-                      </>
-                    )}
-                  </div>
-                  <div className="h-12 w-12 rounded-xl bg-primary/20 border border-primary/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Activity className="h-6 w-6 text-primary" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 hover:from-primary/15 hover:to-primary/10 transition-all duration-300 group cursor-pointer">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-primary/80 mb-1">Calificación</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-3xl font-bold text-white">4.8</p>
-                      <Star className="h-6 w-6 text-primary fill-primary" />
-                    </div>
-                    <p className="text-xs font-semibold text-primary mt-2">234 reseñas</p>
-                  </div>
-                  <div className="h-12 w-12 rounded-xl bg-primary/20 border border-primary/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Star className="h-6 w-6 text-primary" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-primary/5 hover:from-primary/15 hover:to-primary/10 transition-all duration-300 group cursor-pointer">
-              <CardContent className="p-6">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="text-sm font-semibold text-primary/80 mb-1">Reservaciones</p>
-                    <p className="text-3xl font-bold text-white">48</p>
-                    <p className="text-xs font-semibold text-primary mt-2 flex items-center gap-1">
-                      <TrendingUp className="h-3.5 w-3.5" />
-                      +12% este mes
-                    </p>
-                  </div>
-                  <div className="h-12 w-12 rounded-xl bg-primary/20 border border-primary/40 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Calendar className="h-6 w-6 text-primary" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <p className="text-3xl font-black text-[#ace600] leading-none">
+              ${Number(c.hourly_rate ?? 0).toFixed(0)}
+            </p>
+            <p className="text-[10px] text-white/25 mt-2">MXN · por hora</p>
           </div>
+        </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Left Column - Main Info */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Photos Gallery */}
-              <Card className="border-primary/20 bg-slate-800/50 overflow-hidden">
-                <CardContent className="p-0">
-                  <div className="p-6 border-b border-primary/20">
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                        <ImageIcon className="h-5 w-5 text-primary" />
-                        Galería de fotos
-                      </h2>
-                      <div className="flex items-center gap-2">
-                        <Badge className="bg-primary/20 text-primary border-primary/40 font-semibold">
-                          {formData.photos.length} foto{formData.photos.length !== 1 ? 's' : ''}
-                        </Badge>
-                        {formData.photos.length > 0 && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleDownloadPhotos}
-                            disabled={!editMode && formData.photos.length === 0}
-                            className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {editMode && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleUploadClick}
-                            className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
-                          >
-                            <Upload className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    {formData.photos.length > 0 ? (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {formData.photos.map((url, i) => (
-                          <div
-                            key={i}
-                            className="group relative aspect-video rounded-lg overflow-hidden bg-slate-700 border-2 border-transparent hover:border-primary transition-all"
-                          >
-                            <img
-                              src={url}
-                              alt={`Cancha foto ${i + 1}`}
-                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110 cursor-pointer"
-                              onClick={() => !editMode && setSelectedImage(url)}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                              <span className="text-sm font-semibold text-white">Foto {i + 1}</span>
-                              {editMode ? (
-                                <Button
-                                  onClick={() => handleRemovePhoto(i)}
-                                  size="icon"
-                                  className="h-8 w-8 bg-red-600 hover:bg-red-700 text-white"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              ) : (
-                                <Button
-                                  onClick={() => setSelectedImage(url)}
-                                  size="icon"
-                                  className="h-8 w-8 bg-primary hover:bg-primary/90 text-slate-900"
-                                >
-                                  <ExternalLink className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-                        <div className="h-20 w-20 rounded-full bg-slate-700 flex items-center justify-center mb-4">
-                          <ImageIcon className="h-10 w-10 text-primary" />
-                        </div>
-                        <h3 className="text-lg font-semibold text-white mb-2">
-                          No hay fotos disponibles
-                        </h3>
-                        <p className="text-slate-200 text-sm mb-4">
-                          {editMode
-                            ? 'Agrega fotos para mostrar esta cancha'
-                            : 'Esta cancha no tiene fotos'}
-                        </p>
-                        {editMode && (
-                          <Button
-                            onClick={handleUploadClick}
-                            className="bg-primary hover:bg-primary/90 text-slate-900 font-semibold"
-                          >
-                            <Upload className="h-4 w-4 mr-2" />
-                            Subir fotos
-                          </Button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Description */}
-              <Card className="border-primary/20 bg-slate-800/50">
-                <CardContent className="p-6">
-                  <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-primary" />
-                    Descripción
-                  </h2>
-                  {editMode ? (
-                    <Textarea
-                      value={formData.description}
-                      onChange={(e) =>
-                        setFormData((prev) => ({ ...prev, description: e.target.value }))
-                      }
-                      className="min-h-32 bg-slate-700/50 border-primary/30 text-white focus:border-primary resize-none"
-                      placeholder="Describe la cancha, sus características y servicios..."
-                    />
-                  ) : (
-                    <p className="text-base text-slate-200 leading-relaxed">
-                      {formData.description || (
-                        <span className="text-slate-200 italic">
-                          No hay descripción disponible para esta cancha.
-                        </span>
-                      )}
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Amenities */}
-              <Card className="border-primary/20 bg-slate-800/50">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-                      <CheckCircle2 className="h-5 w-5 text-primary" />
-                      Amenidades
-                    </h2>
-                  </div>
-
-                  {editMode && (
-                    <div className="flex gap-2 mb-4">
-                      <Input
-                        value={newAmenity}
-                        onChange={(e) => setNewAmenity(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleAddAmenity()}
-                        placeholder="Agregar nueva amenidad..."
-                        className="bg-slate-700/50 border-primary/30 text-white"
-                      />
-                      <Button
-                        onClick={handleAddAmenity}
-                        disabled={!newAmenity.trim()}
-                        className="bg-primary hover:bg-primary/90 text-slate-900 font-semibold shrink-0"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Agregar
-                      </Button>
-                    </div>
-                  )}
-
-                  {formData.amenities.length > 0 ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {formData.amenities.map((amenity, i) => {
-                        const Icon = getAmenityIcon(amenity);
-                        return (
-                          <div
-                            key={i}
-                            className="flex items-center gap-3 p-4 rounded-lg bg-slate-700/50 border border-primary/20 hover:border-primary/40 hover:bg-slate-700 transition-all group"
-                          >
-                            <div className="h-11 w-11 rounded-lg bg-primary/20 border border-primary/40 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                              <Icon className="h-5 w-5 text-primary" />
-                            </div>
-                            <span className="text-white font-medium capitalize text-base flex-1">
-                              {amenity}
-                            </span>
-                            {editMode && (
-                              <Button
-                                onClick={() => handleRemoveAmenity(i)}
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-950/30"
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <div className="h-20 w-20 rounded-full bg-slate-700 flex items-center justify-center mx-auto mb-4">
-                        <CheckCircle2 className="h-10 w-10 text-primary" />
-                      </div>
-                      <p className="text-slate-200 text-base">
-                        {editMode
-                          ? 'Agrega amenidades usando el campo de arriba'
-                          : 'No hay amenidades registradas'}
-                      </p>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Surface Type - Edit Mode Only */}
-              {editMode && (
-                <Card className="border-primary/20 bg-slate-800/50">
-                  <CardContent className="p-6">
-                    <Label className="text-white font-semibold text-base mb-3 block">
-                      Tipo de Superficie
-                    </Label>
-                    <Select
-                      value={formData.surface}
-                      onValueChange={(value) =>
-                        setFormData((prev) => ({ ...prev, surface: value }))
-                      }
-                    >
-                      <SelectTrigger className="bg-slate-700/50 border-primary/30 text-white h-12">
-                        <SelectValue placeholder="Seleccionar superficie" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-primary/30">
-                        {COURT_SURFACE_OPTIONS.map(({ value, label }) => (
-                          <SelectItem key={value} value={value} className="text-white">{label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </CardContent>
-                </Card>
-              )}
+        {/* Type + Surface */}
+        <div className="relative bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden hover:border-white/[0.14] transition-all">
+          <div className="h-px bg-gradient-to-r from-sky-400/30 via-sky-400/10 to-transparent" />
+          <div className="p-5">
+            <div className="flex items-start justify-between gap-2 mb-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-white/25">Tipo de Cancha</p>
+              <div className="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 flex items-center justify-center shrink-0">
+                <Activity className="w-3.5 h-3.5 text-sky-400" />
+              </div>
             </div>
+            <p className="text-2xl font-black text-sky-400 leading-none">{courtTypeLabel}</p>
+            <div className="flex items-center gap-1.5 mt-2">
+              <span className={cn2('w-2 h-2 rounded-full shrink-0', surfaceDot)} />
+              <p className="text-[10px] text-white/30 font-medium">{surfaceLabel}</p>
+            </div>
+          </div>
+        </div>
 
-            {/* Right Column - Club Info & Actions */}
-            <div className="space-y-6">
-              {/* Club Information */}
-              <Card className="border-primary/20 bg-slate-800/50">
-                <CardContent className="p-6">
-                  <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-primary" />
-                    Información del club
-                  </h2>
-                  <div className="space-y-4">
-                    <div>
-                      <p className="text-xs font-semibold text-primary/80 uppercase tracking-wider mb-1.5">
-                        Nombre del club
-                      </p>
-                      <p className="text-white font-semibold text-base">
-                        {court?.club?.name || court?.club_name || '-'}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold text-primary/80 uppercase tracking-wider mb-1.5">
-                        Ubicación
-                      </p>
-                      <p className="text-white font-semibold text-base">
-                        {court?.club?.city}, {court?.club?.state}
-                      </p>
-                    </div>
-                    {court?.club?.address && (
-                      <div>
-                        <p className="text-xs font-semibold text-primary/80 uppercase tracking-wider mb-1.5">
-                          Dirección
-                        </p>
-                        <p className="text-slate-200 text-sm leading-relaxed">
-                          {court.club.address}
-                        </p>
-                      </div>
-                    )}
-                    <Button
-                      onClick={handleViewOnMap}
-                      className="w-full bg-primary hover:bg-primary/90 text-slate-900 font-semibold"
-                    >
-                      <MapPin className="h-4 w-4 mr-2" />
-                      Ver en mapa
-                    </Button>
+        {/* Rating */}
+        <div className="relative bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden hover:border-white/[0.14] transition-all">
+          <div className="h-px bg-gradient-to-r from-amber-400/30 via-amber-400/10 to-transparent" />
+          <div className="p-5">
+            <div className="flex items-start justify-between gap-2 mb-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-white/25">Calificación</p>
+              <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0">
+                <Star className="w-3.5 h-3.5 text-amber-400" />
+              </div>
+            </div>
+            {statsLoading ? (
+              <Loader2 className="w-5 h-5 text-amber-400 animate-spin" />
+            ) : (
+              <>
+                <p className="text-3xl font-black text-amber-400 leading-none">
+                  {Number(rating).toFixed(1)} ★
+                </p>
+                <p className="text-[10px] text-white/25 mt-2">
+                  {c.review_count ?? 0} reseña{(c.review_count ?? 0) !== 1 ? 's' : ''}
+                </p>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Total bookings */}
+        <div className="relative bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden hover:border-white/[0.14] transition-all">
+          <div className="h-px bg-gradient-to-r from-emerald-400/30 via-emerald-400/10 to-transparent" />
+          <div className="p-5">
+            <div className="flex items-start justify-between gap-2 mb-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-white/25">Reservaciones</p>
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                <CalendarDays className="w-3.5 h-3.5 text-emerald-400" />
+              </div>
+            </div>
+            {statsLoading ? (
+              <Loader2 className="w-5 h-5 text-emerald-400 animate-spin" />
+            ) : (
+              <>
+                <p className="text-3xl font-black text-emerald-400 leading-none">{totalBookings}</p>
+                <p className="text-[10px] text-white/25 mt-2">totales acumuladas</p>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main grid ───────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+        {/* ── Left col (2/3) ───────────────────────────────────────────── */}
+        <div className="lg:col-span-2 space-y-5">
+
+          {/* ── Basic info (editable) ── */}
+          <Panel className="p-5">
+            <SectionHead icon={LayoutGrid} title="Información de la Cancha" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-5">
+
+              {/* Court type */}
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#ace600]/50 mb-1.5">Tipo</p>
+                {editMode ? (
+                  <select
+                    value={formData.court_type}
+                    onChange={e => setField('court_type', e.target.value)}
+                    className="w-full h-9 bg-white/5 border border-white/10 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#ace600]/40 appearance-none">
+                    {Object.entries(COURT_TYPES).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  </select>
+                ) : (
+                  <p className="text-sm font-bold text-white/80">{courtTypeLabel}</p>
+                )}
+              </div>
+
+              {/* Surface */}
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#ace600]/50 mb-1.5">Superficie</p>
+                {editMode ? (
+                  <select
+                    value={formData.surface}
+                    onChange={e => setField('surface', e.target.value)}
+                    className="w-full h-9 bg-white/5 border border-white/10 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#ace600]/40 appearance-none">
+                    {Object.entries(COURT_SURFACES).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                  </select>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <span className={cn2('w-2.5 h-2.5 rounded-full shrink-0', surfaceDot)} />
+                    <p className="text-sm font-bold text-white/80">{surfaceLabel}</p>
                   </div>
-                </CardContent>
-              </Card>
+                )}
+              </div>
+
+              {/* Hourly rate */}
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#ace600]/50 mb-1.5">Precio / hr</p>
+                {editMode ? (
+                  <input
+                    type="number" min="0" step="0.01"
+                    value={formData.hourly_rate}
+                    onChange={e => setField('hourly_rate', e.target.value)}
+                    className="w-full h-9 bg-white/5 border border-white/10 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#ace600]/40"
+                  />
+                ) : (
+                  <p className="text-sm font-bold text-white/80">${Number(c.hourly_rate ?? 0).toFixed(2)}</p>
+                )}
+              </div>
+
+              {/* Capacity */}
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#ace600]/50 mb-1.5">Capacidad</p>
+                {editMode ? (
+                  <input
+                    type="number" min="1" max="100"
+                    value={formData.capacity}
+                    onChange={e => setField('capacity', Number(e.target.value))}
+                    className="w-full h-9 bg-white/5 border border-white/10 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#ace600]/40"
+                  />
+                ) : (
+                  <p className="text-sm font-bold text-white/80">{c.capacity ?? 4} jugadores</p>
+                )}
+              </div>
+
+              {/* Status */}
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#ace600]/50 mb-1.5">Estado</p>
+                {editMode ? (
+                  <select
+                    value={formData.is_active ? 'active' : 'inactive'}
+                    onChange={e => setField('is_active', e.target.value === 'active')}
+                    className="w-full h-9 bg-white/5 border border-white/10 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#ace600]/40 appearance-none">
+                    <option value="active">Activa</option>
+                    <option value="inactive">Inactiva</option>
+                  </select>
+                ) : (
+                  <span className={cn2(
+                    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-black',
+                    c.is_active
+                      ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                      : 'bg-red-500/10 border-red-500/20 text-red-400',
+                  )}>
+                    <span className={cn2('w-1.5 h-1.5 rounded-full', c.is_active ? 'bg-emerald-400 animate-pulse' : 'bg-red-400')} />
+                    {c.is_active ? 'Activa' : 'Inactiva'}
+                  </span>
+                )}
+              </div>
 
               {/* Availability */}
-              <Card className="border-primary/20 bg-slate-800/50">
-                <CardContent className="p-6">
-                  <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                    <Clock className="h-5 w-5 text-primary" />
-                    Disponibilidad
-                  </h2>
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between py-3 border-b border-primary/20">
-                      <span className="text-sm font-medium text-slate-300">Lunes - Viernes</span>
-                      <span className="text-sm font-bold text-white">6:00 - 22:00</span>
-                    </div>
-                    <div className="flex items-center justify-between py-3 border-b border-primary/20">
-                      <span className="text-sm font-medium text-slate-300">Sábado</span>
-                      <span className="text-sm font-bold text-white">7:00 - 23:00</span>
-                    </div>
-                    <div className="flex items-center justify-between py-3">
-                      <span className="text-sm font-medium text-slate-300">Domingo</span>
-                      <span className="text-sm font-bold text-white">8:00 - 20:00</span>
-                    </div>
-                  </div>
-                  <Button
-                    onClick={handleViewCalendar}
-                    className="w-full mt-4 bg-primary hover:bg-primary/90 text-slate-900 font-semibold"
-                  >
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Ver calendario completo
-                  </Button>
-                </CardContent>
-              </Card>
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-[#ace600]/50 mb-1.5">Disponibilidad</p>
+                {editMode ? (
+                  <select
+                    value={formData.is_available ? 'available' : 'unavailable'}
+                    onChange={e => setField('is_available', e.target.value === 'available')}
+                    className="w-full h-9 bg-white/5 border border-white/10 rounded-xl px-3 text-sm text-white focus:outline-none focus:border-[#ace600]/40 appearance-none">
+                    <option value="available">Disponible</option>
+                    <option value="unavailable">Ocupada</option>
+                  </select>
+                ) : (
+                  <span className={cn2(
+                    'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[10px] font-black',
+                    c.is_available
+                      ? 'bg-sky-500/10 border-sky-500/20 text-sky-400'
+                      : 'bg-amber-500/10 border-amber-500/20 text-amber-400',
+                  )}>
+                    {c.is_available ? 'Disponible' : 'Ocupada'}
+                  </span>
+                )}
+              </div>
+            </div>
+          </Panel>
 
-              {/* Quick Actions */}
-              {!editMode && (
-                <Card className="border-primary/20 bg-slate-800/50">
-                  <CardContent className="p-6">
-                    <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                      <Settings className="h-5 w-5 text-primary" />
-                      Acciones rápidas
-                    </h2>
-                    <div className="space-y-2">
-                      <Button
-                        onClick={handleViewReservations}
-                        variant="outline"
-                        className="w-full justify-start border-primary/20 bg-slate-700/50 hover:bg-slate-700 hover:border-primary/40 text-white font-medium"
-                      >
-                        <Users className="h-4 w-4 mr-3 text-primary" />
-                        Ver reservaciones
-                      </Button>
-                      <Button
-                        onClick={handleViewStatistics}
-                        variant="outline"
-                        className="w-full justify-start border-primary/20 bg-slate-700/50 hover:bg-slate-700 hover:border-primary/40 text-white font-medium"
-                      >
-                        <BarChart3 className="h-4 w-4 mr-3 text-primary" />
-                        Estadísticas
-                      </Button>
-                      <Button
-                        onClick={handleViewReviews}
-                        variant="outline"
-                        className="w-full justify-start border-primary/20 bg-slate-700/50 hover:bg-slate-700 hover:border-primary/40 text-white font-medium"
-                      >
-                        <MessageSquare className="h-4 w-4 mr-3 text-primary" />
-                        Ver reseñas
-                      </Button>
+          {/* ── Description ── */}
+          <Panel className="p-5">
+            <SectionHead icon={Zap} title="Descripción" />
+            {editMode ? (
+              <textarea
+                value={formData.description}
+                onChange={e => setField('description', e.target.value)}
+                rows={4}
+                placeholder="Describe la cancha…"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white/80 placeholder-white/20 focus:outline-none focus:border-[#ace600]/40 resize-none leading-relaxed"
+              />
+            ) : c.description ? (
+              <p className="text-sm text-white/50 leading-relaxed">{c.description}</p>
+            ) : (
+              <p className="text-sm text-white/20 italic">Sin descripción</p>
+            )}
+          </Panel>
+
+          {/* ── Features / Equipment ── */}
+          <Panel className="p-5">
+            <SectionHead icon={Settings}  title="Equipamiento"
+              right={
+                <Badge className="bg-white/5 border-white/10 text-white/40 text-[10px]">
+                  {[c.has_lighting, c.has_net, c.has_equipment].filter(Boolean).length} / 3
+                </Badge>
+              }
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                { key: 'has_lighting'  as const, icon: Lightbulb, label: 'Iluminación',  active: editMode ? formData.has_lighting  : c.has_lighting  },
+                { key: 'has_net'       as const, icon: Wifi,       label: 'Red / Malla',  active: editMode ? formData.has_net       : c.has_net       },
+                { key: 'has_equipment' as const, icon: Package,    label: 'Equipamiento', active: editMode ? formData.has_equipment : c.has_equipment },
+              ].map(({ key, icon: Ic, label, active }) => (
+                <div
+                  key={key}
+                  onClick={() => editMode && setField(key, !active)}
+                  className={cn2(
+                    'flex items-center gap-3 px-4 py-3.5 rounded-xl border transition-all',
+                    editMode ? 'cursor-pointer' : '',
+                    active
+                      ? 'bg-[#ace600]/[0.06] border-[#ace600]/20 hover:border-[#ace600]/30'
+                      : 'bg-white/[0.02] border-white/[0.06] hover:border-white/[0.10]',
+                  )}>
+                  <div className={cn2(
+                    'w-8 h-8 rounded-lg border flex items-center justify-center shrink-0',
+                    active ? 'bg-[#ace600]/10 border-[#ace600]/20' : 'bg-white/5 border-white/[0.08]',
+                  )}>
+                    <Ic className={cn2('w-4 h-4', active ? 'text-[#ace600]' : 'text-white/20')} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={cn2('text-sm font-semibold transition-colors', active ? 'text-white/80' : 'text-white/30')}>
+                      {label}
+                    </p>
+                    <p className={cn2('text-[10px]', active ? 'text-[#ace600]/60' : 'text-white/20')}>
+                      {active ? 'Disponible' : 'No disponible'}
+                    </p>
+                  </div>
+                  {active && <Check className="w-3.5 h-3.5 text-[#ace600] shrink-0" />}
+                </div>
+              ))}
+            </div>
+          </Panel>
+
+          {/* ── Recent bookings ── */}
+          <Panel>
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.06]">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center">
+                  <CalendarDays className="w-3.5 h-3.5 text-[#ace600]" />
+                </div>
+                <span className="text-sm font-black uppercase tracking-widest text-white/50">Reservaciones recientes</span>
+              </div>
+              {statsLoading && <Loader2 className="w-3.5 h-3.5 text-white/20 animate-spin" />}
+            </div>
+
+            {bookings.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-2 text-center">
+                <CalendarDays className="w-8 h-8 text-white/10" />
+                <p className="text-sm text-white/20">Sin reservaciones registradas</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-white/[0.04]">
+                {bookings.map(bk => {
+                  const s = StatusBooking[bk.status] ?? StatusBooking.pending;
+                  return (
+                    <div key={bk.id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-white/[0.02] transition-colors">
+                      <div className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/[0.07] flex items-center justify-center shrink-0">
+                        <Users className="w-3.5 h-3.5 text-white/30" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-white/70 truncate">
+                          {bk.user?.name ?? bk.user?.email ?? 'Usuario'}
+                        </p>
+                        <p className="text-[11px] text-white/30 flex items-center gap-1.5 mt-0.5">
+                          <Clock className="w-3 h-3" />
+                          {bk.reservation_date} · {bk.start_time} – {bk.end_time}
+                        </p>
+                      </div>
+                      <span className={cn2('inline-flex items-center px-2.5 py-1 rounded-full border text-[10px] font-black shrink-0', s.cls)}>
+                        {s.label}
+                      </span>
                     </div>
-                  </CardContent>
-                </Card>
+                  );
+                })}
+              </div>
+            )}
+          </Panel>
+        </div>
+
+        {/* ── Right col (1/3) ─────────────────────────────────────────── */}
+        <div className="space-y-5">
+
+          {/* ── Venue info ── */}
+          <Panel className="p-5">
+            <SectionHead icon={Store} title="Sede" />
+            <div className="space-y-4">
+              <InfoRow label="Nombre de la sede" value={venue?.name} />
+              <InfoRow label="Dirección"          value={venue?.address} />
+              <InfoRow label="Estado"             value={venue?.state} />
+              {venue?.base_price_per_hour != null && (
+                <InfoRow label="Precio base / hr" value={`$${Number(venue.base_price_per_hour).toFixed(2)}`} />
               )}
+            </div>
+          </Panel>
+
+          {/* ── Club info ── */}
+          <Panel className="p-5">
+            <SectionHead icon={Building2} title="Club" />
+            <div className="space-y-4">
+              <InfoRow label="Nombre del club" value={club?.name} />
+              <InfoRow label="Ciudad / Estado"  value={[club?.city, club?.state].filter(Boolean).join(', ') || null} />
+              {club?.contact_email && <InfoRow label="Email"    value={club.contact_email} />}
+              {club?.contact_phone && <InfoRow label="Teléfono" value={club.contact_phone} />}
+            </div>
+            {venue?.id && (
+              <button
+                onClick={() => navigate(`/admin/dashboard/venues/${venue.id}`)}
+                className="mt-4 w-full flex items-center justify-between px-4 py-3 rounded-xl border border-white/[0.07] bg-white/[0.02] hover:bg-white/[0.05] hover:border-[#ace600]/20 transition-all group">
+                <span className="text-xs font-semibold text-white/40 group-hover:text-white/70 transition-colors">
+                  Ver sede completa
+                </span>
+                <ChevronRight className="w-3.5 h-3.5 text-white/20 group-hover:text-[#ace600]/50 transition-colors" />
+              </button>
+            )}
+          </Panel>
+
+          {/* ── Stats panel (if loaded) ── */}
+          {stats && (
+            <Panel className="p-5">
+              <SectionHead icon={BarChart3} title="Estadísticas" />
+              <div className="space-y-3">
+                {[
+                  { label: 'Total partidos',    value: stats.total_matches     },
+                  { label: 'Partidos completados', value: stats.completed_matches },
+                  { label: 'Tasa de uso',       value: `${Number(stats.utilization_rate ?? 0).toFixed(1)}%` },
+                  { label: 'Horas reservadas',  value: c.total_hours_booked ?? 0 },
+                ].map(({ label, value }) => (
+                  <div key={label} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
+                    <span className="text-xs text-white/35 font-medium">{label}</span>
+                    <span className="text-sm font-black text-white/70">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </Panel>
+          )}
+
+          {/* ── Quick actions ── */}
+          {!editMode && (
+            <Panel className="p-5">
+              <SectionHead icon={Settings} title="Acciones rápidas" />
+              <div className="space-y-2">
+                {[
+                  { label: 'Ver reservaciones', icon: Users,       color: 'text-sky-400',    onClick: () => {} },
+                  { label: 'Estadísticas',       icon: BarChart3,   color: 'text-violet-400', onClick: () => {} },
+                  { label: 'Ver reseñas',        icon: MessageSquare, color: 'text-amber-400', onClick: () => {} },
+                ].map(({ label, icon: Ic, color, onClick }) => (
+                  <button key={label} onClick={onClick}
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/[0.12] transition-all group text-left">
+                    <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/[0.07] flex items-center justify-center shrink-0">
+                      <Ic className={cn2('w-3.5 h-3.5', color)} />
+                    </div>
+                    <span className="text-sm font-semibold text-white/45 group-hover:text-white/75 transition-colors flex-1">
+                      {label}
+                    </span>
+                    <ChevronRight className="w-3.5 h-3.5 text-white/15 group-hover:text-white/40 transition-colors" />
+                  </button>
+                ))}
+              </div>
+            </Panel>
+          )}
+        </div>
+      </div>
+
+      {/* ── Confirm delete dialog ──────────────────────────────────────── */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => !deleting && setConfirmDelete(false)}>
+          <div
+            className="bg-[#0d1117] border border-white/[0.09] rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+            onClick={e => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5 text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-white">¿Eliminar cancha?</h3>
+                <p className="text-xs text-white/35 mt-0.5">Esta acción no se puede deshacer.</p>
+              </div>
+            </div>
+            <p className="text-xs text-white/40 mb-5 leading-relaxed">
+              Se eliminará <span className="font-bold text-white/60">"{c.name}"</span> permanentemente.
+              Las reservaciones activas deben cancelarse primero.
+            </p>
+            <div className="flex gap-2">
+              <Btn variant="outline" size="sm" className="flex-1" onClick={() => setConfirmDelete(false)} disabled={deleting}>
+                Cancelar
+              </Btn>
+              <Btn variant="danger" size="sm" className="flex-1" onClick={handleDelete} disabled={deleting}>
+                {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                {deleting ? 'Eliminando…' : 'Sí, eliminar'}
+              </Btn>
             </div>
           </div>
         </div>
       )}
 
-      {/* Upload Photos Dialog */}
-      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-        <DialogContent className="bg-slate-800 border-primary/30 text-white sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <Upload className="h-6 w-6 text-primary" />
-              Subir fotos
-            </DialogTitle>
-            <DialogDescription className="text-slate-300 text-base">
-              Agrega fotos de la cancha desde tu dispositivo o mediante URL
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div>
-              <Label className="text-white font-semibold mb-2 block">Desde tu dispositivo</Label>
-              <Button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="w-full bg-primary hover:bg-primary/90 text-slate-900 font-semibold justify-start"
-              >
-                {uploading ? (
-                  <>
-                    <Loader2 className="h-5 w-5 mr-3 animate-spin" />
-                    Subiendo...
-                  </>
-                ) : (
-                  <>
-                    <FileImage className="h-5 w-5 mr-3" />
-                    Seleccionar archivos
-                  </>
-                )}
-              </Button>
-              <p className="text-xs text-slate-200 mt-2">
-                Formatos: JPG, PNG, GIF • Máximo 5MB por archivo
-              </p>
-            </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-primary/20" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-slate-800 px-2 text-slate-200">O</span>
-              </div>
-            </div>
-
-            <div>
-              <Label className="text-white font-semibold mb-2 block">Desde una URL</Label>
-              <Button
-                onClick={handleAddPhotoByUrl}
-                variant="outline"
-                className="w-full border-primary/20 bg-slate-700/50 hover:bg-slate-700 hover:border-primary/40 text-white font-medium justify-start"
-              >
-                <LinkIcon className="h-5 w-5 mr-3 text-primary" />
-                Agregar desde URL
-              </Button>
-            </div>
+      {/* ── Toast ──────────────────────────────────────────────────────── */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] flex items-center gap-2.5 px-4 py-3 rounded-2xl bg-[#0d1117] border border-white/10 shadow-2xl shadow-black/50 text-sm font-semibold text-white whitespace-nowrap">
+          <div className={cn2(
+            'w-5 h-5 rounded-full border flex items-center justify-center',
+            toast.type === 'success'
+              ? 'bg-[#ace600]/20 border-[#ace600]/30'
+              : 'bg-red-500/20 border-red-500/30',
+          )}>
+            {toast.type === 'success'
+              ? <Check className="w-2.5 h-2.5 text-[#ace600]" />
+              : <X className="w-2.5 h-2.5 text-red-400" />}
           </div>
-          <DialogFooter>
-            <Button
-              onClick={() => setUploadDialogOpen(false)}
-              variant="outline"
-              className="border-primary/30 bg-slate-700 hover:bg-slate-600 text-white font-medium"
-            >
-              Cerrar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="bg-slate-800 border-primary/30 text-white">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-xl">
-              <AlertTriangle className="h-6 w-6 text-red-400" />
-              Confirmar eliminación
-            </DialogTitle>
-            <DialogDescription className="text-slate-300 text-base">
-              ¿Estás seguro de que deseas eliminar la cancha{' '}
-              <strong className="text-white font-semibold">"{court?.name}"</strong>? Esta acción no
-              se puede deshacer y se eliminarán todas las reservaciones asociadas.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setDeleteDialogOpen(false)}
-              disabled={deleting}
-              className="border-primary/30 bg-slate-700 hover:bg-slate-600 text-white font-medium"
-            >
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold"
-            >
-              {deleting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Eliminando...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Eliminar cancha
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Image Modal */}
-      {selectedImage && (
-        <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
-          <DialogContent className="max-w-4xl bg-slate-900 border-primary/30 p-0">
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSelectedImage(null)}
-                className="absolute top-4 right-4 z-10 h-10 w-10 bg-black/50 hover:bg-black/70 text-white rounded-full"
-              >
-                <X className="h-5 w-5" />
-              </Button>
-              <img
-                src={selectedImage}
-                alt="Vista ampliada"
-                className="w-full h-auto max-h-[80vh] object-contain"
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
+          {toast.msg}
+        </div>
       )}
     </div>
   );

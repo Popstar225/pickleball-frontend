@@ -282,7 +282,7 @@ function ClubDetailDialog({
               </div>
               {club.membership_fee !== undefined && club.membership_fee !== null && (
                 <div className="text-right shrink-0">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/88">Membresía</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/88">Afiliación</p>
                   <p className="text-xl font-black text-[#ace600] leading-tight">
                     ${typeof club.membership_fee === 'number' ? club.membership_fee.toLocaleString() : Number(club.membership_fee).toLocaleString()}
                     <span className="text-xs font-normal text-white/60 ml-1">MXN</span>
@@ -505,12 +505,12 @@ function ClubJoinPaymentForm({
     <div className="space-y-4">
       <p className="text-[11px] font-semibold text-white/65 mb-3">Detalles de Pago</p>
       <PaymentElement options={{ layout: 'tabs' }} />
-      {error && (
+      {/* {error && (
         <div className="flex gap-2.5 bg-red-500/[0.06] border border-red-500/15 rounded-xl px-4 py-3">
           <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
           <p className="text-[12px] text-red-400">{error}</p>
         </div>
-      )}
+      )} */}
       <div className="flex items-center justify-between pt-2">
         <button
           onClick={onBack}
@@ -605,7 +605,7 @@ export default function PlayerClubsPage() {
           payment_type: 'membership_fee',
           currency: 'mxn',
           club_id: club.id,
-          description: `Membresía - ${club.name}`,
+          description: `Afiliación - ${club.name}`,
         });
         setJoinPaymentInfo({
           payment_id: res.data.payment_id,
@@ -861,7 +861,7 @@ export default function PlayerClubsPage() {
                 {/* ── Membership fee preview ──────────────────────────────── */}
                 {club.membership_fee != null && (
                   <div className="border-t border-white/[0.05] px-5 py-3 flex items-center justify-between">
-                    <span className="text-[11px] text-white/60">Cuota de membresía</span>
+                    <span className="text-[11px] text-white/60">Cuota de Afiliación</span>
                     <span className="text-sm font-bold text-[#ace600]">
                       ${typeof club.membership_fee === 'number' ? club.membership_fee.toLocaleString() : Number(club.membership_fee).toLocaleString()} MXN
                     </span>
@@ -1007,7 +1007,7 @@ export default function PlayerClubsPage() {
               </div>
               {joinPaymentInfo && (
                 <div className="flex justify-between items-baseline pt-2 border-t border-white/[0.06]">
-                  <span className="text-[11px] text-white/65">Cuota de membresía</span>
+                  <span className="text-[11px] text-white/65">Cuota de Afiliación</span>
                   <span className="font-bold text-[#ace600] text-xl">
                     ${typeof joinPaymentInfo.amount === 'number' ? joinPaymentInfo.amount.toLocaleString() : Number(joinPaymentInfo.amount).toLocaleString()}{' '}
                     <span className="text-sm font-normal text-white/60">MXN</span>

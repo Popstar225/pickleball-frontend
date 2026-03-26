@@ -151,7 +151,7 @@ export const TournamentPaymentModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{tournament.name}</DialogTitle>
           <DialogDescription>
@@ -159,6 +159,7 @@ export const TournamentPaymentModal = ({
           </DialogDescription>
         </DialogHeader>
 
+        <div className="overflow-y-auto flex-1 pr-1">
         {showPayment && paymentData ? (
           // Payment Step
           <div className="space-y-4">
@@ -367,6 +368,7 @@ export const TournamentPaymentModal = ({
             )}
           </div>
         )}
+        </div>
       </DialogContent>
     </Dialog>
   );

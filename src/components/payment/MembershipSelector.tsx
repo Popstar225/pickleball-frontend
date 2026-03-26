@@ -46,6 +46,7 @@ interface MembershipSelectorProps {
   userType: string;
   currentMembershipStatus?: string;
   onSuccess?: (planType: string) => void;
+  required?: boolean; // when true: dialog cannot be dismissed without paying
 }
 
 /* ─── Plans data ─────────────────────────────────────────────── */
@@ -53,11 +54,11 @@ const USER_TYPE_PLANS: Record<string, MembershipPlan[]> = {
   player: [
     {
       id: 'player-annual',
-      name: 'Membresía Anual',
+      name: 'Afiliación Anual',
       price: 500,
       currency: 'MXN',
       period: 'año',
-      description: 'Membresía anual oficial para jugadores de pickleball',
+      description: 'Afiliación anual oficial para jugadores de pickleball',
       features: [
         'Perfil de jugador activo',
         'Participación en torneos oficiales',
@@ -72,11 +73,11 @@ const USER_TYPE_PLANS: Record<string, MembershipPlan[]> = {
   coach: [
     {
       id: 'coach-annual',
-      name: 'Membresía Anual',
+      name: 'Afiliación Anual',
       price: 800,
       currency: 'MXN',
       period: 'año',
-      description: 'Membresía anual oficial para entrenadores',
+      description: 'Afiliación anual oficial para entrenadores',
       features: [
         'Perfil de entrenador activo',
         'Acceso a herramientas de entrenamiento',
@@ -91,11 +92,11 @@ const USER_TYPE_PLANS: Record<string, MembershipPlan[]> = {
   club: [
     {
       id: 'club-annual',
-      name: 'Membresía Anual',
+      name: 'Afiliación Anual',
       price: 2000,
       currency: 'MXN',
       period: 'año',
-      description: 'Membresía anual básica para clubes',
+      description: 'Afiliación anual básica para clubes',
       features: [
         'Perfil de club activo',
         'Gestión de miembros',
@@ -113,7 +114,7 @@ const USER_TYPE_PLANS: Record<string, MembershipPlan[]> = {
       period: 'año',
       description: 'Plan premium con funcionalidades avanzadas para clubes',
       features: [
-        'Todo lo de la Membresía Anual',
+        'Todo lo de la Afiliación Anual',
         'Gestión de Canchas',
         'Creación de Torneos',
         'Panel de análisis avanzado',
@@ -147,11 +148,11 @@ const USER_TYPE_PLANS: Record<string, MembershipPlan[]> = {
   state: [
     {
       id: 'state-annual',
-      name: 'Membresía Anual Estatal',
+      name: 'Afiliación Anual Estatal',
       price: 15000,
       currency: 'MXN',
       period: 'año',
-      description: 'Membresía anual para federaciones estatales',
+      description: 'Afiliación anual para federaciones estatales',
       features: [
         'Perfil estatal activo',
         'Gestión de torneos estatales',
@@ -173,6 +174,7 @@ export const MembershipSelector = ({
   userType,
   currentMembershipStatus,
   onSuccess,
+  required = false,
 }: MembershipSelectorProps) => {
   const [selectedPlan, setSelectedPlan] = useState<MembershipPlan | null>(null);
   const [showPayment, setShowPayment] = useState(false);
@@ -229,13 +231,13 @@ export const MembershipSelector = ({
     (plan.type === 'premium_plan' && currentMembershipStatus === 'premium');
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
+    <Dialog open={isOpen} onOpenChange={required ? undefined : handleClose}>
       <DialogContent
         className={cn(
           'font-["DM_Sans",sans-serif] bg-[#06080E] border border-[#C8FF00]/[0.12]',
           'rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.8),0_0_80px_rgba(200,255,0,0.05)]',
           'max-w-3xl p-0 overflow-hidden',
-          '[&>button]:text-white/30 [&>button]:hover:text-white [&>button]:border-none',
+          required ? '[&>button]:hidden' : '[&>button]:text-white/30 [&>button]:hover:text-white [&>button]:border-none',
         )}
       >
         {/* Header */}
@@ -246,13 +248,21 @@ export const MembershipSelector = ({
                 <Zap className="w-3.5 h-3.5 text-[#C8FF00]" />
               </div>
               <DialogTitle className="font-sans font-extrabold text-[18px] text-white tracking-tight">
-                Planes de Membresía
+                Planes de Afiliación
               </DialogTitle>
             </div>
             <DialogDescription className="text-white/35 text-[13px] ml-9">
               Selecciona el plan adecuado para acceder a todas las funcionalidades
             </DialogDescription>
           </DialogHeader>
+          {required && (
+            <div className="mt-4 flex items-center gap-2.5 px-3.5 py-2.5 bg-amber-500/[0.08] border border-amber-500/[0.2] rounded-xl">
+              <Lock className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
+              <p className="text-amber-300 text-[12px] font-medium">
+                La afiliación anual es requerida para completar el registro y acceder a la plataforma.
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="px-6 py-5 space-y-5">
@@ -358,7 +368,7 @@ export const MembershipSelector = ({
                           'text-[10px] font-bold font-sans tracking-[1.5px] uppercase',
                           isPremium ? 'text-amber-400' : 'text-[#C8FF00]',
                         )}>
-                          {isPremium ? 'Premium' : 'Membresía'}
+                          {isPremium ? 'Premium' : 'Afiliación'}
                         </span>
                       </div>
 

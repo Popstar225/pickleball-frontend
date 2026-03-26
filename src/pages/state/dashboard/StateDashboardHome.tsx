@@ -35,7 +35,7 @@ function SectionHeading({ icon: Icon, children }: { icon: React.ElementType; chi
       <div className="w-6 h-6 rounded-md bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center shrink-0">
         <Icon className="w-3 h-3 text-[#ace600]" />
       </div>
-      <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/30">{children}</span>
+      <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-white/50">{children}</span>
       <div className="flex-1 h-px bg-white/[0.05]" />
     </div>
   );
@@ -63,7 +63,7 @@ function EmptyBlock({ text }: { text: string }) {
   return (
     <Card className="bg-[#0d1117] border-white/[0.07] rounded-2xl">
       <CardContent className="flex items-center justify-center py-12">
-        <p className="text-xs text-white/20">{text}</p>
+        <p className="text-xs text-white/40">{text}</p>
       </CardContent>
     </Card>
   );
@@ -112,7 +112,7 @@ export default function StateDashboardHome() {
             Estatal
           </span>
         </div>
-        <p className="text-xs text-white/25">
+        <p className="text-xs text-white">
           Bienvenido al panel de administración de la federación estatal
         </p>
       </div>
@@ -137,9 +137,9 @@ export default function StateDashboardHome() {
               <Card key={label} className="bg-[#0d1117] border-white/[0.07] rounded-2xl">
                 <CardContent className="flex items-center justify-between gap-3 p-4">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/20 mb-1 truncate">{label}</p>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-white mb-1 truncate">{label}</p>
                     <p className={cn('text-[22px] font-bold leading-none', color)}>{value}</p>
-                    <p className="text-[10px] text-white/20 mt-1.5 truncate">{sub}</p>
+                    <p className="text-[10px] text-white/70 mt-1.5 truncate">{sub}</p>
                   </div>
                   <div className={cn('w-9 h-9 rounded-xl border flex items-center justify-center shrink-0', bg)}>
                     <Icon className={cn('w-4 h-4', color)} />
@@ -170,8 +170,8 @@ export default function StateDashboardHome() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-white/75 truncate">{activity.title}</p>
-                      <p className="text-xs text-white/30 mt-0.5 line-clamp-1">{activity.description}</p>
-                      <p className="text-[10px] text-white/20 mt-1.5">
+                      <p className="text-xs text-white/50 mt-0.5 line-clamp-1">{activity.description}</p>
+                      <p className="text-[10px] text-white/40 mt-1.5">
                         {new Date(activity.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </p>
                     </div>
@@ -208,16 +208,16 @@ export default function StateDashboardHome() {
                 </CardHeader>
                 <CardContent className="px-4 pt-3 pb-4 space-y-2">
                   <div className="flex flex-col gap-1.5">
-                    <span className="inline-flex items-center gap-2 text-[11px] text-white/30">
-                      <Calendar className="w-3 h-3 text-white/20 shrink-0" />
+                    <span className="inline-flex items-center gap-2 text-[11px] text-white/50">
+                      <Calendar className="w-3 h-3 text-white/40 shrink-0" />
                       {event.date ? new Date(event.date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}
                     </span>
-                    <span className="inline-flex items-center gap-2 text-[11px] text-white/30">
-                      <MapPin className="w-3 h-3 text-white/20 shrink-0" />
+                    <span className="inline-flex items-center gap-2 text-[11px] text-white/50">
+                      <MapPin className="w-3 h-3 text-white/40 shrink-0" />
                       {event.location || '—'}
                     </span>
-                    <span className="inline-flex items-center gap-2 text-[11px] text-white/30">
-                      <Users className="w-3 h-3 text-white/20 shrink-0" />
+                    <span className="inline-flex items-center gap-2 text-[11px] text-white/50">
+                      <Users className="w-3 h-3 text-white/40 shrink-0" />
                       {event.participants ?? 0} participantes esperados
                     </span>
                   </div>

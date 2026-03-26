@@ -29,8 +29,12 @@ import {
   type PlayerFinderResult,
 } from '@/services/playerFinderService';
 import PaymentService from '@/services/paymentService';
-import { RootState } from '@/store';
+import { RootState, AppDispatch } from '@/store';
 import { updateUser } from '@/store/slices/authSlice';
+import {
+  upsertConversation,
+  setActiveConversation,
+} from '@/store/slices/messagesSlice';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const MEXICO_CENTER: [number, number] = [23.6345, -102.5528];
@@ -230,7 +234,7 @@ function PaymentGateModal({ open, onClose, onSuccess }: PaymentGateModalProps) {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function PlayerSearchPage() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((s: RootState) => s.auth);
 
@@ -328,6 +332,23 @@ export default function PlayerSearchPage() {
   const handlePaymentSuccess = () => {
     dispatch(updateUser({ membership_status: 'basic' as any }));
     setAccessState('granted');
+  };
+
+  const handleContact = (player: PlayerFinderResult) => {
+    dispatch(
+      upsertConversation({
+        partner_id: player.id,
+        partner_name: player.full_name || 'Jugador',
+        partner_type: 'player',
+        partner_photo: player.profile_photo ?? null,
+        last_message: '',
+        last_message_at: new Date().toISOString(),
+        last_message_is_mine: false,
+        unread_count: 0,
+      }),
+    );
+    dispatch(setActiveConversation(player.id));
+    navigate('/players/dashboard/messages');
   };
 
   // ── Checking spinner ────────────────────────────────────────────────────────
@@ -554,18 +575,6 @@ export default function PlayerSearchPage() {
                       <p className="font-semibold text-sm text-white truncate">
                         {player.full_name || '—'}
                       </p>
-                      {player.email && (
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <Mail className="w-3 h-3 text-white/30 shrink-0" />
-                          <p className="text-xs text-white/40 truncate">{player.email}</p>
-                        </div>
-                      )}
-                      {player.phone && (
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <Phone className="w-3 h-3 text-white/30 shrink-0" />
-                          <p className="text-xs text-white/40 truncate">{player.phone}</p>
-                        </div>
-                      )}
                       {(player.city || player.state) && (
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <MapPin className="w-3 h-3 text-white/30 shrink-0" />
@@ -589,9 +598,16 @@ export default function PlayerSearchPage() {
                       </div>
                     </div>
 
-                    <div
-                      className={cn('w-2 h-2 rounded-full shrink-0 mt-1', player.membership_status === 'active' ? 'bg-green-400' : 'bg-white/[0.12]')}
-                    />
+                    <div className="flex flex-col items-center gap-1.5 shrink-0">
+                      <div className={cn('w-2 h-2 rounded-full', player.membership_status === 'active' ? 'bg-green-400' : 'bg-white/[0.12]')} />
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleContact(player); }}
+                        className="w-7 h-7 rounded-lg bg-[#ace600]/10 border border-[#ace600]/30 flex items-center justify-center hover:bg-[#ace600]/20 transition-colors"
+                        title="Enviar mensaje"
+                      >
+                        <Mail className="w-3.5 h-3.5 text-[#ace600]" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -654,18 +670,6 @@ export default function PlayerSearchPage() {
                           </div>
                         </div>
                       </div>
-                      {player.email && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '4px' }}>
-                          <span style={{ fontSize: '11px', color: '#64748b' }}>✉</span>
-                          <span style={{ fontSize: '11px', color: '#334155' }}>{player.email}</span>
-                        </div>
-                      )}
-                      {player.phone && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '4px' }}>
-                          <span style={{ fontSize: '11px', color: '#64748b' }}>📞</span>
-                          <span style={{ fontSize: '11px', color: '#334155' }}>{player.phone}</span>
-                        </div>
-                      )}
                       {(player.city || player.state) && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '6px' }}>
                           <span style={{ fontSize: '11px', color: '#64748b' }}>📍</span>
@@ -680,7 +684,10 @@ export default function PlayerSearchPage() {
                         <button style={{ flex: 1, padding: '5px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', color: '#0f172a' }}>
                           Perfil
                         </button>
-                        <button style={{ flex: 1, padding: '5px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', border: 'none', backgroundColor: '#ace600', cursor: 'pointer', color: '#0f172a' }}>
+                        <button
+                          style={{ flex: 1, padding: '5px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', border: 'none', backgroundColor: '#ace600', cursor: 'pointer', color: '#0f172a' }}
+                          onClick={() => handleContact(player)}
+                        >
                           Conectar
                         </button>
                       </div>

@@ -69,7 +69,7 @@ export default function StatePaymentsPage() {
   };
 
   const getTypeLabel = (type: string) => ({
-    annual_membership: 'Membresía Anual Estatal', tournament_registration: 'Torneo', other: 'Otro',
+    annual_membership: 'Afiliación Anual Estatal', tournament_registration: 'Torneo', other: 'Otro',
   }[type] || type);
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;

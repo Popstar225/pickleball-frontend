@@ -212,7 +212,15 @@ export const deleteClubAccount = createAsyncThunk(
 
 export const fetchClubStatistics = createAsyncThunk('clubDashboard/fetchStatistics', async () => {
   const data = await api.get('/clubs/statistics');
-  return (data as any)?.data as ClubStats;
+  const raw = (data as any)?.data;
+  return {
+    totalMembers: raw?.totalMembers ?? 0,
+    activeMembers: raw?.activeMembers ?? 0,
+    totalCourts: raw?.totalCanchas ?? 0,
+    upcomingTournaments: raw?.upcomingTorneos ?? 0,
+    monthlyRevenue: raw?.monthlyRevenue ?? 0,
+    membershipGrowth: raw?.membershipGrowth ?? 0,
+  } as ClubStats;
 });
 
 export const fetchClubMembers = createAsyncThunk(

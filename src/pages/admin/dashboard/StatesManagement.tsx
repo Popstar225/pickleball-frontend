@@ -17,6 +17,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { api } from '@/lib/api';
 import { fetchClubs, updateClub, deleteClub } from '@/store/slices/clubsSlice';
 import { RootState, AppDispatch } from '@/store';
 
@@ -46,6 +47,24 @@ const PLAN_STYLES: Record<SubscriptionPlan, { bg: string; border: string; text: 
 const selTrigger = 'h-9 bg-white/[0.04] border-white/[0.08] text-white/60 text-sm focus:border-[#ace600]/30 focus:ring-0 rounded-xl';
 const selContent = 'bg-[#0d1117] border-white/[0.09] rounded-xl shadow-2xl';
 const selItem    = 'text-white/60 focus:bg-white/[0.06] focus:text-white rounded-lg';
+
+// ─── CSV helper ───────────────────────────────────────────────────────────────
+function downloadCSV(rows: (string | number | boolean | null | undefined)[][], filename: string) {
+  const esc = (v: any) => {
+    const s = String(v ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const csv = rows.map(r => r.map(esc).join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `${filename}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 150);
+}
 
 // ─── Atoms ────────────────────────────────────────────────────────────────────
 function PlanPill({ plan }: { plan: SubscriptionPlan }) {
@@ -113,6 +132,7 @@ export default function ClubsManagement() {
   const [memberFilter,   setMemberFilter]   = useState('all');
   const [sortField,      setSortField]      = useState<SortField>('createdAt');
   const [sortOrder,      setSortOrder]      = useState<SortOrder>('desc');
+  const [isExporting,    setIsExporting]    = useState(false);
 
   const loadData = useCallback(() => {
     dispatch(fetchClubs({ page: pagination.page, limit: pagination.limit } as any))
@@ -125,6 +145,49 @@ export default function ClubsManagement() {
   }, [reduxPagination]);
 
   const clubs = useMemo(() => (reduxClubs as any) as Club[], [reduxClubs]);
+
+  const handleExport = async () => {
+    if (isExporting) return;
+    setIsExporting(true);
+    try {
+      // Fetch ALL clubs (not just the current page)
+      const res = await api.get('/clubs?limit=1000&page=1') as any;
+      const allClubs: any[] = res?.data?.clubs ?? [];
+
+      const headers = [
+        'Nombre', 'Contacto', 'Email', 'Teléfono', 'WhatsApp',
+        'Estado', 'Ciudad', 'Dirección', 'Sitio web', 'Plan',
+        'Verificado', 'Activo', 'Miembros', 'Canchas',
+        'Torneos', 'Calificación', 'Fecha de registro',
+      ];
+      const planLabel: Record<string, string> = { basic: 'Básico', pro: 'Pro', premium: 'Premium' };
+      const rows = allClubs.map((c: any) => [
+        c.name ?? '',
+        c.contact_person ?? '',
+        c.contact_email ?? '',
+        c.contact_phone ?? '',
+        c.contact_whatsapp ?? '',
+        c.state ?? '',
+        c.city ?? '',
+        c.address ?? '',
+        c.website ?? '',
+        planLabel[c.subscription_plan] ?? c.subscription_plan ?? '',
+        c.is_verified ? 'Sí' : 'No',
+        c.is_active   ? 'Sí' : 'No',
+        c.member_count    ?? 0,
+        c.court_count     ?? 0,
+        c.total_tournaments ?? 0,
+        c.average_rating  ?? '',
+        c.createdAt ? new Date(c.createdAt).toLocaleDateString('es-MX') : '',
+      ]);
+      downloadCSV([headers, ...rows], 'reporte-clubes');
+    } catch (err) {
+      console.error('[Export clubs]', err);
+      setActionError('No se pudo generar el reporte de clubes.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
   const uniqueStates = useMemo(() => Array.from(new Set(clubs.map(c => c.state ?? '').filter(Boolean))).sort(), [clubs]);
 
   const flash = (msg: string) => { setSuccessMsg(msg); setTimeout(() => setSuccessMsg(null), 3000); };
@@ -221,8 +284,10 @@ export default function ClubsManagement() {
             className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-white/40 hover:text-white text-xs font-bold disabled:opacity-40 transition-all">
             <RefreshCw className={cn('w-3.5 h-3.5', reduxLoading && 'animate-spin')} /> Actualizar
           </button>
-          <button className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-white/40 hover:text-white text-xs font-bold transition-all">
-            <Download className="w-3.5 h-3.5" /> Exportar
+          <button onClick={handleExport} disabled={isExporting}
+            className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-white/40 hover:text-white text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+            {isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+            {isExporting ? 'Exportando…' : 'Exportar'}
           </button>
           <button className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-white/40 hover:text-white text-xs font-bold transition-all">
             <Upload className="w-3.5 h-3.5" /> Importar
@@ -313,7 +378,7 @@ export default function ClubsManagement() {
           </Select>
 
           <Select value={memberFilter} onValueChange={setMemberFilter}>
-            <SelectTrigger className={selTrigger}><div className="flex items-center gap-2"><Award className="w-3.5 h-3.5 text-white/20" /><SelectValue placeholder="Membresía" /></div></SelectTrigger>
+            <SelectTrigger className={selTrigger}><div className="flex items-center gap-2"><Award className="w-3.5 h-3.5 text-white/20" /><SelectValue placeholder="Afiliación" /></div></SelectTrigger>
             <SelectContent className={selContent}>
               <SelectItem value="all"     className={selItem}>Todas</SelectItem>
               <SelectItem value="basic"   className={selItem}>Básica</SelectItem>
@@ -390,7 +455,7 @@ export default function ClubsManagement() {
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-white/20 h-10 px-4">Contacto</TableHead>
                 <SortTh label="Email"     field="contact_email" current={sortField} order={sortOrder} onSort={handleSort} />
                 <SortTh label="Estado"    field="state"         current={sortField} order={sortOrder} onSort={handleSort} />
-                <TableHead className="text-[10px] font-black uppercase tracking-widest text-white/20 h-10 px-4">Membresía</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-white/20 h-10 px-4">Afiliación</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-white/20 h-10 px-4">Verificación</TableHead>
                 <SortTh label="Registro"  field="createdAt"     current={sortField} order={sortOrder} onSort={handleSort} />
                 <TableHead className="w-12 px-4" />

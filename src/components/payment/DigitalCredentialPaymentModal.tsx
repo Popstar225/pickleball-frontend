@@ -49,7 +49,7 @@ const PLAN_META: Record<PlanType, {
   },
   membership: {
     duration: '1 año',
-    desc: 'Membresía anual con credencial digital',
+    desc: 'Afiliación anual con credencial digital',
     features: [
       'Todo lo del plan básico',
       'Vigencia de 12 meses',
@@ -59,9 +59,9 @@ const PLAN_META: Record<PlanType, {
   },
   premium: {
     duration: '1 año',
-    desc: 'Membresía premium con beneficios exclusivos',
+    desc: 'Afiliación premium con beneficios exclusivos',
     features: [
-      'Todo lo del plan membresía',
+      'Todo lo del plan Afiliación',
       'Perfil destacado en directorio',
       'Acceso a eventos y zonas VIP',
       'Soporte prioritario 24/7',

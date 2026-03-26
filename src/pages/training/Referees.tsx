@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Search,
   MapPin,
@@ -12,12 +12,17 @@ import {
   Shield,
   Star,
   X,
-  Sparkles,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react';
 
-import { referees, coaches } from '@/data/mockData';
 import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
-import { Mexico } from '@/constants/constants';
+import {
+  fetchCoaches,
+  fetchCoachProfile,
+  normalizeCoach,
+  type RefereeDisplay,
+} from '@/services/refereeService';
 
 // ─── Certification colour tokens ───────────────────────────
 const CERT_STYLES = {
@@ -77,15 +82,34 @@ const DetailRow = ({
 );
 
 const Referees = () => {
+  // ── API state ──────────────────────────────────────────────────────────────
+  const [allReferees, setAllReferees] = useState<RefereeDisplay[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    setError(null);
+    fetchCoaches()
+      .then((data) => setAllReferees(data.coaches.map(normalizeCoach)))
+      .catch((err) => setError(err?.message || 'Error al cargar árbitros'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  // ── Filter state ───────────────────────────────────────────────────────────
   const [searchTerm, setSearchTerm] = useState('');
   const [stateFilter, setStateFilter] = useState('');
   const [certFilter, setCertFilter] = useState('all');
-  const [selected, setSelected] = useState<(typeof referees)[0] | null>(null);
+  const [selected, setSelected] = useState<RefereeDisplay | null>(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
 
-  const states = [...new Set(referees.map((r) => r.state))];
-  const certs = [...new Set(referees.map((r) => r.certification))];
+  // ── Derived ────────────────────────────────────────────────────────────────
+  const referees = allReferees;
+  const coaches = allReferees; // same pool; used for badge count
+  const states = [...new Set(allReferees.map((r) => r.state).filter(Boolean))];
+  const certs  = [...new Set(allReferees.map((r) => r.certification).filter(Boolean))];
 
-  const filtered = referees.filter((r) => {
+  const filtered = allReferees.filter((r) => {
     const q = searchTerm.toLowerCase();
     return (
       (r.name.toLowerCase().includes(q) || r.state.toLowerCase().includes(q)) &&
@@ -102,7 +126,27 @@ const Referees = () => {
   };
 
   // ── count helpers for hero stats ──
-  const lvl3Count = referees.filter((r) => r.certification.includes('Level 3')).length;
+  const lvl3Count = allReferees.filter((r) => r.certification.includes('Level 3')).length;
+
+  // ── Card click: load full profile (email / phone) lazily ──────────────────
+  const handleSelect = async (referee: RefereeDisplay) => {
+    setSelected(referee);
+    if (!referee.email && !referee.phone) {
+      setDetailsLoading(true);
+      try {
+        const full = await fetchCoachProfile(referee.id);
+        setSelected((prev) =>
+          prev
+            ? { ...prev, email: full.email || '', phone: full.phone || '' }
+            : prev,
+        );
+      } catch {
+        // keep card data as-is
+      } finally {
+        setDetailsLoading(false);
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-background to-secondary/5">
@@ -191,7 +235,7 @@ const Referees = () => {
                   </div>
 
                   {/* floating badge */}
-                  <div className="hidden lg:flex absolute -bottom-6 -right-6 bg-primary text-primary-foreground px-6 py-4 rounded-2xl shadow-xl space-y-3">
+                  <div className="hidden lg:flex flex-col absolute -bottom-6 -right-6 bg-primary text-primary-foreground px-6 py-4 rounded-2xl shadow-xl space-y-3">
                     <div>
                       <div className="text-3xl font-bold">{referees.length}+</div>
                       <div className="text-sm opacity-90">Árbitros</div>
@@ -263,34 +307,32 @@ const Referees = () => {
                         placeholder="Buscar por nombre o estado..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-slate-950/50 border border-slate-700 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 transition-colors"
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 transition-colors"
                       />
                     </div>
 
                     {/* state */}
-                    <div className="relative flex-1 md:flex-auto">
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
-                      <div className="w-full md:w-40">
-                        <StateAutocomplete
-                          value={stateFilter}
-                          onChange={setStateFilter}
-                          placeholder="Buscar estado..."
-                          className="md:w-40 bg-slate-950/50 border border-slate-700 rounded-xl px-10 py-3 sm:py-4 text-xs sm:text-sm text-white"
-                        />
-                      </div>
+                    <div className="relative flex-1">
+                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 pointer-events-none z-10" />
+                      <StateAutocomplete
+                        value={stateFilter}
+                        onChange={setStateFilter}
+                        placeholder="Buscar estado..."
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-12 pr-4 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-primary/50 transition-colors"
+                      />
                     </div>
 
                     {/* certification */}
-                    <div className="relative flex-1 md:flex-auto">
-                      <Award className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300 pointer-events-none" />
+                    <div className="relative flex-1">
+                      <Award className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 pointer-events-none" />
                       <select
                         value={certFilter}
                         onChange={(e) => setCertFilter(e.target.value)}
-                        className="w-full md:w-40 bg-slate-950/50 border border-slate-700 rounded-xl pl-10 pr-4 py-3 sm:py-4 text-xs sm:text-sm text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer"
+                        className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-12 pr-4 py-4 text-white focus:outline-none focus:border-primary/50 transition-colors appearance-none cursor-pointer"
                       >
-                        <option value="all">Todos los Niveles</option>
+                        <option value="all" className="bg-slate-950 text-white">Todos los Niveles</option>
                         {certs.map((c) => (
-                          <option key={c} value={c}>
+                          <option key={c} value={c} className="bg-slate-950 text-white">
                             {c}
                           </option>
                         ))}
@@ -315,7 +357,50 @@ const Referees = () => {
                 )}
               </div>
 
+              {/* ═══ Loading / Error states ═══ */}
+              {loading && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="rounded-3xl border border-slate-700/50 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 min-h-[340px] animate-pulse">
+                      <div className="flex items-start gap-4 mb-6">
+                        <div className="w-16 h-16 rounded-full bg-slate-700/60 flex-shrink-0" />
+                        <div className="flex-1 space-y-2 pt-1">
+                          <div className="h-4 bg-slate-700/60 rounded w-3/4" />
+                          <div className="h-3 bg-slate-700/40 rounded w-1/2" />
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        {[...Array(4)].map((_, j) => (
+                          <div key={j} className="h-10 bg-slate-700/40 rounded-lg" />
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {error && (
+                <div className="flex flex-col items-center justify-center py-24 gap-4">
+                  <AlertCircle className="w-12 h-12 text-red-400" />
+                  <p className="text-slate-300 text-lg">{error}</p>
+                  <button
+                    onClick={() => {
+                      setLoading(true);
+                      setError(null);
+                      fetchCoaches()
+                        .then((data) => setAllReferees(data.coaches.map(normalizeCoach)))
+                        .catch((err) => setError(err?.message || 'Error al cargar árbitros'))
+                        .finally(() => setLoading(false));
+                    }}
+                    className="px-6 py-3 bg-primary text-slate-900 font-bold rounded-xl hover:bg-lime-400 transition-colors"
+                  >
+                    Reintentar
+                  </button>
+                </div>
+              )}
+
               {/* ═══ REFEREE CARDS ═══ */}
+              {!loading && !error && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                 {filtered.map((referee, index) => {
                   const c = getCert(referee.certification);
@@ -324,7 +409,7 @@ const Referees = () => {
                       key={referee.id}
                       className="group relative overflow-hidden rounded-3xl transition-all duration-700 hover:-translate-y-3 cursor-pointer"
                       style={{ animationDelay: `${index * 100}ms` }}
-                      onClick={() => setSelected(referee)}
+                      onClick={() => handleSelect(referee)}
                     >
                       {/* outer glow */}
                       <div className="absolute -inset-1 bg-gradient-to-r from-primary via-lime-400 to-primary rounded-3xl opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-700" />
@@ -405,9 +490,10 @@ const Referees = () => {
                   );
                 })}
               </div>
+              )}
 
               {/* ── empty state ── */}
-              {filtered.length === 0 && (
+              {!loading && !error && filtered.length === 0 && (
                 <div className="text-center py-24">
                   <div className="w-24 h-24 rounded-3xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto mb-6">
                     <Filter className="w-12 h-12 text-slate-300" />
@@ -589,24 +675,30 @@ const Referees = () => {
                     {/* detail rows */}
                     <div className="space-y-3">
                       {[
-                        { Icon: MapPin, label: selected.state },
-                        { Icon: Shield, label: selected.specialization },
-                        { Icon: Mail, label: selected.email, href: `mailto:${selected.email}` },
-                        { Icon: Phone, label: selected.phone, href: `tel:${selected.phone}` },
+                        { Icon: MapPin, label: selected.state, href: undefined },
+                        { Icon: Shield, label: selected.specialization, href: undefined },
+                        { Icon: Mail, label: selected.email, href: selected.email ? `mailto:${selected.email}` : undefined },
+                        { Icon: Phone, label: selected.phone, href: selected.phone ? `tel:${selected.phone}` : undefined },
                       ].map((item, i) => (
                         <div
                           key={i}
                           className="flex items-center gap-4 bg-slate-800/40 border border-slate-700/40 rounded-xl px-4 py-3"
                         >
                           <div className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center">
-                            <item.Icon className="w-4 h-4 text-primary" />
+                            {detailsLoading && (i === 2 || i === 3) ? (
+                              <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                            ) : (
+                              <item.Icon className="w-4 h-4 text-primary" />
+                            )}
                           </div>
-                          {item.href ? (
+                          {detailsLoading && (i === 2 || i === 3) ? (
+                            <span className="text-sm text-slate-500">Cargando...</span>
+                          ) : item.href ? (
                             <a href={item.href} className="text-sm text-primary hover:underline">
                               {item.label}
                             </a>
                           ) : (
-                            <span className="text-sm text-slate-300">{item.label}</span>
+                            <span className="text-sm text-slate-300">{item.label || '—'}</span>
                           )}
                         </div>
                       ))}

@@ -32,6 +32,14 @@ export interface Venue {
   created_at?: string;
   updated_at?: string;
   courts?: Court[];
+  club?: {
+    id: string;
+    name: string;
+    state?: string;
+    city?: string;
+    address?: string;
+    logo?: string;
+  };
 }
 
 interface VenuesState {
@@ -61,6 +69,25 @@ const initialState: VenuesState = {
 };
 
 // Async thunks
+export const fetchAllVenues = createAsyncThunk(
+  'venues/fetchAll',
+  async (
+    params: { page?: number; limit?: number; is_active?: boolean } = {},
+    { rejectWithValue },
+  ) => {
+    try {
+      const p = new URLSearchParams();
+      if (params.page)  p.append('page', String(params.page));
+      if (params.limit) p.append('limit', String(params.limit));
+      if (params.is_active !== undefined) p.append('is_active', String(params.is_active));
+      const response = await api.get(`/venues?${p.toString()}`);
+      return (response as any).data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch venues');
+    }
+  },
+);
+
 export const fetchVenuesByClub = createAsyncThunk(
   'venues/fetchByClub',
   async (
@@ -208,6 +235,22 @@ const venuesSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    // Fetch all venues (admin)
+    builder
+      .addCase(fetchAllVenues.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllVenues.fulfilled, (state, action) => {
+        state.loading = false;
+        state.venues = action.payload?.venues || [];
+        state.pagination = action.payload?.pagination || initialState.pagination;
+      })
+      .addCase(fetchAllVenues.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
     // Fetch venues by club
     builder
       .addCase(fetchVenuesByClub.pending, (state) => {

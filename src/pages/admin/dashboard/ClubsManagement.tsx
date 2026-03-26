@@ -313,7 +313,7 @@ export default function ClubsManagement() {
           </Select>
 
           <Select value={memberFilter} onValueChange={setMemberFilter}>
-            <SelectTrigger className={selTrigger}><div className="flex items-center gap-2"><Award className="w-3.5 h-3.5 text-white/20" /><SelectValue placeholder="Membresía" /></div></SelectTrigger>
+            <SelectTrigger className={selTrigger}><div className="flex items-center gap-2"><Award className="w-3.5 h-3.5 text-white/20" /><SelectValue placeholder="Afiliación" /></div></SelectTrigger>
             <SelectContent className={selContent}>
               <SelectItem value="all"     className={selItem}>Todas</SelectItem>
               <SelectItem value="basic"   className={selItem}>Básica</SelectItem>
@@ -390,7 +390,7 @@ export default function ClubsManagement() {
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-white/20 h-10 px-4">Contacto</TableHead>
                 <SortTh label="Email"     field="contact_email" current={sortField} order={sortOrder} onSort={handleSort} />
                 <SortTh label="Estado"    field="state"         current={sortField} order={sortOrder} onSort={handleSort} />
-                <TableHead className="text-[10px] font-black uppercase tracking-widest text-white/20 h-10 px-4">Membresía</TableHead>
+                <TableHead className="text-[10px] font-black uppercase tracking-widest text-white/20 h-10 px-4">Afiliación</TableHead>
                 <TableHead className="text-[10px] font-black uppercase tracking-widest text-white/20 h-10 px-4">Verificación</TableHead>
                 <SortTh label="Registro"  field="createdAt"     current={sortField} order={sortOrder} onSort={handleSort} />
                 <TableHead className="w-12 px-4" />

@@ -30,7 +30,7 @@ const STATUS_CFG = {
 const getS = (s: string) => STATUS_CFG[s as keyof typeof STATUS_CFG] ?? STATUS_CFG.pending;
 
 const TYPE_LABELS: Record<string, string> = {
-  annual_membership:       'Membresía Anual',
+  annual_membership:       'Afiliación Anual',
   premium_plan:            'Plan Premium',
   tournament_registration: 'Torneo',
   court_rental:            'Renta de Cancha',
@@ -185,7 +185,7 @@ export default function ClubPaymentsPage() {
                   <Star className={cn('w-4 h-4', memberActive ? 'text-[#ace600]' : 'text-white/25')} />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-white">Membresía Anual Básica</p>
+                  <p className="text-sm font-black text-white">Afiliación Anual Básica</p>
                   <p className="text-[11px] text-white/25 mt-0.5">Afiliación oficial a la Federación</p>
                 </div>
               </div>
@@ -226,7 +226,7 @@ export default function ClubPaymentsPage() {
                   : 'bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_12px_rgba(172,230,0,0.15)]',
               )}>
               <CreditCard className="w-3.5 h-3.5" />
-              {memberActive ? 'Renovar Membresía' : 'Activar Membresía Anual'}
+              {memberActive ? 'Renovar Afiliación' : 'Activar Afiliación Anual'}
             </button>
           </div>
         </div>
@@ -281,7 +281,7 @@ export default function ClubPaymentsPage() {
               {isPremiumActive ? 'Renovar Plan Premium' : 'Activar Plan Premium'}
             </button>
             {!memberActive && (
-              <p className="text-[10px] text-white/20 text-center mt-2">Activa primero la membresía anual</p>
+              <p className="text-[10px] text-white/20 text-center mt-2">Activa primero la Afiliación anual</p>
             )}
           </div>
         </div>
@@ -403,7 +403,7 @@ export default function ClubPaymentsPage() {
         currentMembershipStatus={membership?.membership_status || 'free'}
         onSuccess={planType => {
           toast({
-            title: planType === 'premium_plan' ? 'Plan Premium activado' : 'Membresía activada',
+            title: planType === 'premium_plan' ? 'Plan Premium activado' : 'Afiliación activada',
             description: 'Tu plan ha sido activado exitosamente.',
           });
           setShowMembershipModal(false);

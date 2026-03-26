@@ -43,8 +43,12 @@ import { stripePromise } from '@/components/payment/StripeProvider';
 import { PaymentForm } from '@/components/payment/PaymentForm';
 import { searchNearbyPlayers, getCurrentLocation, type PlayerFinderResult } from '@/services/playerFinderService';
 import PaymentService from '@/services/paymentService';
-import { RootState } from '@/store';
+import { RootState, AppDispatch } from '@/store';
 import { updateUser } from '@/store/slices/authSlice';
+import {
+  upsertConversation,
+  setActiveConversation,
+} from '@/store/slices/messagesSlice';
 
 const MEXICO_CENTER: [number, number] = [23.6345, -102.5528];
 const FEATURE_PRICE = 200;
@@ -272,7 +276,8 @@ function LoginGate() {
 
 const PlayerSearch = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
 
   const [accessState, setAccessState] = useState<'checking' | 'locked' | 'granted'>('checking');
@@ -394,6 +399,23 @@ const PlayerSearch = () => {
   const handlePaymentSuccess = () => {
     dispatch(updateUser({ membership_status: 'basic' as any }));
     setAccessState('granted');
+  };
+
+  const handleContact = (player: PlayerFinderResult) => {
+    dispatch(
+      upsertConversation({
+        partner_id: player.id,
+        partner_name: player.full_name || 'Jugador',
+        partner_type: 'player',
+        partner_photo: player.profile_photo ?? null,
+        last_message: '',
+        last_message_at: new Date().toISOString(),
+        last_message_is_mine: false,
+        unread_count: 0,
+      }),
+    );
+    dispatch(setActiveConversation(player.id));
+    navigate('/players/dashboard/messages');
   };
 
   // ── Gate screens ──────────────────────────────────────────────────────────
@@ -646,18 +668,6 @@ const PlayerSearch = () => {
                         <p className="font-semibold text-sm text-white truncate">
                           {player.full_name || t('pages.playerSearchMap.unknown')}
                         </p>
-                        {player.email && (
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <Mail className="w-3 h-3 text-slate-500 shrink-0" />
-                            <p className="text-xs text-slate-400 truncate">{player.email}</p>
-                          </div>
-                        )}
-                        {player.phone && (
-                          <div className="flex items-center gap-1.5 mt-0.5">
-                            <Phone className="w-3 h-3 text-slate-500 shrink-0" />
-                            <p className="text-xs text-slate-400 truncate">{player.phone}</p>
-                          </div>
-                        )}
                         {(player.city || player.state) && (
                           <div className="flex items-center gap-1.5 mt-0.5">
                             <MapPin className="w-3 h-3 text-slate-500 shrink-0" />
@@ -685,11 +695,20 @@ const PlayerSearch = () => {
                         </div>
                       </div>
 
-                      <div
-                        className={`w-2 h-2 rounded-full shrink-0 mt-1 ${
-                          player.membership_status === 'active' ? 'bg-green-400' : 'bg-slate-600'
-                        }`}
-                      />
+                      <div className="flex flex-col items-center gap-1.5 shrink-0">
+                        <div
+                          className={`w-2 h-2 rounded-full ${
+                            player.membership_status === 'active' ? 'bg-green-400' : 'bg-slate-600'
+                          }`}
+                        />
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleContact(player); }}
+                          className="w-7 h-7 rounded-lg bg-primary/10 border border-primary/30 flex items-center justify-center hover:bg-primary/20 transition-colors"
+                          title="Enviar mensaje"
+                        >
+                          <Mail className="w-3.5 h-3.5 text-primary" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -762,18 +781,6 @@ const PlayerSearch = () => {
                             </div>
                           </div>
                         </div>
-                        {player.email && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '4px' }}>
-                            <span style={{ fontSize: '11px', color: '#64748b' }}>✉</span>
-                            <span style={{ fontSize: '11px', color: '#334155' }}>{player.email}</span>
-                          </div>
-                        )}
-                        {player.phone && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '4px' }}>
-                            <span style={{ fontSize: '11px', color: '#64748b' }}>📞</span>
-                            <span style={{ fontSize: '11px', color: '#334155' }}>{player.phone}</span>
-                          </div>
-                        )}
                         {(player.city || player.state) && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '6px' }}>
                             <span style={{ fontSize: '11px', color: '#64748b' }}>📍</span>
@@ -788,7 +795,10 @@ const PlayerSearch = () => {
                           <button style={{ flex: 1, padding: '5px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', border: '1px solid #e2e8f0', backgroundColor: 'white', cursor: 'pointer', color: '#0f172a' }}>
                             {t('pages.playerSearchMap.profile')}
                           </button>
-                          <button style={{ flex: 1, padding: '5px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', border: 'none', backgroundColor: '#84CC16', cursor: 'pointer', color: '#0f172a' }}>
+                          <button
+                            style={{ flex: 1, padding: '5px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', border: 'none', backgroundColor: '#84CC16', cursor: 'pointer', color: '#0f172a' }}
+                            onClick={() => handleContact(player)}
+                          >
                             {t('pages.playerSearchMap.connect')}
                           </button>
                         </div>

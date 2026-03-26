@@ -81,7 +81,7 @@ function StatCard({ icon: Icon, label, value, sub, iconColor }: {
 }
 
 const TYPE_LABELS: Record<string, string> = {
-  annual_membership: 'Membresía Anual',
+  annual_membership: 'Afiliación Anual',
   tournament_registration: 'Torneo',
   player_nearby_search: 'Búsqueda de Jugadores',
   court_rental: 'Reserva de Cancha',
@@ -189,7 +189,7 @@ export default function PlayerPaymentsPage() {
         <h1 className="font-sans font-extrabold text-[28px] tracking-tight text-white leading-none">
           Pagos
         </h1>
-        <p className="text-white/65 text-[13px] mt-1.5">Historial de pagos y gestión de membresía</p>
+        <p className="text-white/65 text-[13px] mt-1.5">Historial de pagos y gestión de Afiliación</p>
       </div>
 
       {/* ── Error banner ── */}
@@ -226,7 +226,7 @@ export default function PlayerPaymentsPage() {
               <div>
                 <div className="flex items-center gap-2.5 mb-1.5">
                   <p className="font-sans font-extrabold text-[15px] text-white">
-                    Membresía Anual de Jugador
+                    Afiliación Anual de Jugador
                   </p>
                   <span className={cn(
                     'px-2.5 py-0.5 rounded-full text-[10px] font-bold font-sans tracking-wide',
@@ -248,7 +248,7 @@ export default function PlayerPaymentsPage() {
                   </p>
                 ) : (
                   <p className="text-[12px] text-white/65 mt-1.5 max-w-sm">
-                    Activa tu membresía para participar en torneos oficiales y acceder a funciones exclusivas
+                    Activa tu Afiliación para participar en torneos oficiales y acceder a funciones exclusivas
                   </p>
                 )}
               </div>
@@ -263,7 +263,7 @@ export default function PlayerPaymentsPage() {
               )}
             >
               <CreditCard className="w-3.5 h-3.5" />
-              {isActive ? 'Renovar' : 'Activar Membresía'}
+              {isActive ? 'Renovar' : 'Activar Afiliación'}
             </Button>
           </div>
         </CardContent>
@@ -346,7 +346,7 @@ export default function PlayerPaymentsPage() {
                 )
               )}
               {!searchFeaturePaid && !isActive && (
-                <p className="text-[11px] text-white/88 mt-2.5">Requiere membresía activa</p>
+                <p className="text-[11px] text-white/88 mt-2.5">Requiere Afiliación activa</p>
               )}
             </div>
 
@@ -541,7 +541,7 @@ export default function PlayerPaymentsPage() {
         userType="player"
         currentMembershipStatus={membership?.membership_status || 'free'}
         onSuccess={() => {
-          toast({ title: 'Membresía activada', description: 'Tu membresía anual ha sido activada.' });
+          toast({ title: 'Afiliación activada', description: 'Tu Afiliación anual ha sido activada.' });
           setShowMembershipModal(false);
           loadData();
         }}

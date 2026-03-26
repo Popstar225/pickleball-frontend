@@ -110,7 +110,7 @@ export const PremiumPlanModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Crown className="w-5 h-5 text-yellow-500" />
@@ -122,6 +122,7 @@ export const PremiumPlanModal = ({
           </DialogDescription>
         </DialogHeader>
 
+        <div className="overflow-y-auto flex-1 pr-1">
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -215,6 +216,7 @@ export const PremiumPlanModal = ({
             </Button>
           </div>
         )}
+        </div>
       </DialogContent>
     </Dialog>
   );

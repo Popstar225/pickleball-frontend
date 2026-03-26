@@ -112,7 +112,7 @@ export default function PlayerCredentialsPage() {
     },
     {
       id: 'membership',
-      name: 'Membresía Anual',
+      name: 'Afiliación Anual',
       price: 250,
       duration: '1 Año',
       popular: true,
@@ -131,7 +131,7 @@ export default function PlayerCredentialsPage() {
       duration: '1 Año',
       popular: false,
       features: [
-        'Todo lo incluido en Membresía',
+        'Todo lo incluido en Afiliación',
         'Estadísticas Avanzadas',
         'Eventos Exclusivos',
         'Consultoría de Entrenamiento',
@@ -168,7 +168,7 @@ export default function PlayerCredentialsPage() {
     setPaymentModal({
       open: true,
       planType: 'membership',
-      planName: 'Membresía Anual',
+      planName: 'Afiliación Anual',
       amount: 250,
     });
   };
@@ -180,7 +180,7 @@ export default function PlayerCredentialsPage() {
     date: new Date(myCredential?.issued_date || '2024-01-15').toISOString(),
     amount: 250,
     method: 'Stripe',
-    description: 'Membresía Anual',
+    description: 'Afiliación Anual',
   }];
 
   const ntprPct = myCredential
@@ -248,7 +248,7 @@ export default function PlayerCredentialsPage() {
                 </div>
                 <div>
                   <p className="text-sm font-extrabold text-[#ff6b6b]">Tu credencial ha expirado</p>
-                  <p className="text-[11px] text-white/40 mt-0.5">Renueva tu membresía para seguir participando en torneos oficiales</p>
+                  <p className="text-[11px] text-white/40 mt-0.5">Renueva tu Afiliación para seguir participando en torneos oficiales</p>
                 </div>
               </div>
               <Button
@@ -256,7 +256,7 @@ export default function PlayerCredentialsPage() {
                 className="rounded-xl text-[12px] font-extrabold font-sans gap-1.5 bg-[#ff6b6b] text-white hover:bg-[#ff5252] shadow-[0_3px_14px_rgba(255,107,107,0.3)]"
               >
                 <RefreshCcw className="w-3.5 h-3.5" />
-                Renovar Membresía
+                Renovar Afiliación
               </Button>
             </div>
           )}
@@ -277,7 +277,7 @@ export default function PlayerCredentialsPage() {
                 const pct = total > 0 ? Math.round((elapsed / total) * 100) : 0;
                 const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
                 return (
-                  <Panel icon={Calendar} title="Vigencia de Membresía">
+                  <Panel icon={Calendar} title="Vigencia de Afiliación">
                     <div className="flex justify-between text-[12px] text-white/65 mb-2">
                       <span>
                         Emitida:{' '}

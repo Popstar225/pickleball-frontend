@@ -628,7 +628,7 @@ export default function PlayerSinglesRegistration({
                     value={eligibilityResult.playerInfo.skill_block}
                   />
                   <InfoRow
-                    label="Membresía"
+                    label="Afiliación"
                     value={eligibilityResult.playerInfo.membership_status || 'Activa'}
                   />
                   {eligibilityResult.warnings?.length > 0 && (

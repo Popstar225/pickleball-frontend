@@ -333,12 +333,17 @@ const messagesSlice = createSlice({
         const payload = action.payload as any;
         const rawConvs: any[] = payload?.data ?? [];
         // Exclude broadcast/announcement conversations from Chats tab.
-        // Broadcasts are shown in the Anuncios tab for both senders and recipients.
-        state.conversations = rawConvs.filter(
+        const serverConvs: Conversation[] = rawConvs.filter(
           (c: any) =>
             !c.last_message_type ||
             c.last_message_type === 'direct_message',
         );
+        // Merge: keep any locally-upserted contacts that the server doesn't know
+        // about yet (e.g. a contact opened from Player Search before a message
+        // has been sent), then layer server data on top.
+        const serverIds = new Set(serverConvs.map((c) => c.partner_id));
+        const localOnly = state.conversations.filter((c) => !serverIds.has(c.partner_id));
+        state.conversations = [...serverConvs, ...localOnly];
         state.unreadTotal = state.conversations.reduce(
           (sum: number, c: Conversation) => sum + (c.unread_count || 0),
           0,

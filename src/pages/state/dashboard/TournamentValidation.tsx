@@ -269,7 +269,7 @@ export default function TournamentValidationPage() {
             {allTournaments.length} total
           </span>
         </div>
-        <p className="text-xs text-white/25">
+        <p className="text-xs text-white/70">
           Revisa y gestiona torneos locales creados por clubes en tu estado
         </p>
       </div>

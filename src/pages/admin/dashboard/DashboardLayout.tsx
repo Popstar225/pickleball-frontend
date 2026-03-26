@@ -17,7 +17,7 @@ import {
 
 const navItems: NavItem[] = [
   {
-    title: 'Panel de Administradora',
+    title: 'Panel de administración',
     url: '/admin/dashboard',
     icon: LayoutDashboard,
     description: 'Vista general',
@@ -111,7 +111,7 @@ export default function DashboardLayout() {
     <DashboardLayoutBase
       navItems={navItems}
       brandTitle="FEDMEX Admin"
-      brandSubtitle="Panel de Administradora"
+      brandSubtitle="Panel de administración"
       BrandIcon={Shield}
       user={displayUser}
       basePath="/admin/dashboard"

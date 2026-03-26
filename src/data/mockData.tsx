@@ -1631,7 +1631,7 @@ export const affiliationBenefits = [
   {
     icon: 'id-card',
     title: 'Credencial Digital',
-    description: 'Credencial oficial de membresía de la federación',
+    description: 'Credencial oficial de Afiliación de la federación',
   },
   {
     icon: 'map-pin',

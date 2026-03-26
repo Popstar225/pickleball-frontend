@@ -51,7 +51,7 @@ const TAB_CONFIG = [
   { value: 'location',     label: 'Ubicación',  icon: MapPin },
   { value: 'courts',       label: 'Canchas',    icon: Settings },
   { value: 'availability', label: 'Servicios',  icon: Calendar },
-  { value: 'membership',   label: 'Membresía',  icon: Shield },
+  { value: 'membership',   label: 'Afiliación',  icon: Shield },
   { value: 'rules',        label: 'Reglas',     icon: Settings },
   { value: 'media',        label: 'Medios',     icon: Share2 },
   { value: 'owner',        label: 'Propietario', icon: User },
@@ -633,7 +633,7 @@ export default function ClubAccountPage() {
                     </div>
                   </div>
                 </div>
-                <Field label="Cuota de Membresía ($)" value={formData.membershipFee} onChange={v => set('membershipFee', v)} disabled={isDisabled} type="number" />
+                <Field label="Cuota de Afiliación ($)" value={formData.membershipFee} onChange={v => set('membershipFee', v)} disabled={isDisabled} type="number" />
                 <Field label="Renta de Cancha ($)" value={formData.courtRentalFee} onChange={v => set('courtRentalFee', v)} disabled={isDisabled} type="number" />
               </div>
               <div className="bg-white/[0.02] border border-white/[0.05] rounded-xl px-4">
@@ -661,7 +661,7 @@ export default function ClubAccountPage() {
           <TabsContent value="membership" className="mt-4">
             <SectionCard>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Dropdown label="Estado de Membresía" value={formData.membershipStatus} onChange={v => set('membershipStatus', v)} disabled={true} options={MEMBERSHIP_STATUS_OPTIONS} />
+                <Dropdown label="Estado de Afiliación" value={formData.membershipStatus} onChange={v => set('membershipStatus', v)} disabled={true} options={MEMBERSHIP_STATUS_OPTIONS} />
                 <Dropdown label="Plan de Suscripción" value={formData.subscriptionPlan} onChange={v => set('subscriptionPlan', v)} disabled={true} options={SUBSCRIPTION_PLAN_OPTIONS} />
                 <Field label="Vence el" value={formData.membershipExpiresAt?.split('T')[0] || ''} onChange={v => set('membershipExpiresAt', v)} disabled={true} type="date" />
               </div>

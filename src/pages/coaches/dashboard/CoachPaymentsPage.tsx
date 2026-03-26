@@ -26,7 +26,7 @@ const STATUS_CFG = {
 const getS = (s: string) => STATUS_CFG[s as keyof typeof STATUS_CFG] ?? STATUS_CFG.pending;
 
 const TYPE_LABELS: Record<string, string> = {
-  annual_membership: 'Membresía Anual',
+  annual_membership: 'Afiliación Anual',
   coach_license:     'Licencia',
   certification:     'Certificación',
 };
@@ -117,7 +117,7 @@ export default function CoachPaymentsPage() {
               <CreditCard className="w-2.5 h-2.5" /> Pagos
             </span>
           </div>
-          <p className="text-xs text-white/25">Gestiona tu membresía anual de entrenador</p>
+          <p className="text-xs text-white/25">Gestiona tu Afiliación anual de entrenador</p>
         </div>
         <button onClick={loadData}
           className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] text-white/35 hover:text-white text-xs font-bold transition-all">
@@ -156,7 +156,7 @@ export default function CoachPaymentsPage() {
                 <Star className={cn('w-4 h-4', isActive ? 'text-[#ace600]' : 'text-white/25')} />
               </div>
               <div>
-                <p className="text-sm font-black text-white">Membresía Anual</p>
+                <p className="text-sm font-black text-white">Afiliación Anual</p>
                 <p className="text-[11px] text-white/25 mt-0.5">Cuota anual obligatoria para entrenadores</p>
               </div>
             </div>
@@ -193,7 +193,7 @@ export default function CoachPaymentsPage() {
                 : 'bg-[#ace600] hover:bg-[#c0f000] text-black shadow-[0_0_12px_rgba(172,230,0,0.15)]',
             )}>
             <CreditCard className="w-3.5 h-3.5" />
-            {isActive ? 'Renovar Membresía' : 'Activar Membresía'}
+            {isActive ? 'Renovar Afiliación' : 'Activar Afiliación'}
           </button>
         </div>
       </div>
@@ -312,7 +312,7 @@ export default function CoachPaymentsPage() {
         userType="coach"
         currentMembershipStatus={membership?.membership_status || 'free'}
         onSuccess={() => {
-          toast({ title: 'Membresía activada', description: 'Tu membresía anual de entrenador ha sido activada.' });
+          toast({ title: 'Afiliación activada', description: 'Tu Afiliación anual de entrenador ha sido activada.' });
           setShowMembershipModal(false);
           loadData();
         }}

@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import { toast } from 'sonner';
 import { baseURL } from './const';
 import {
   DigitalCredential,
@@ -46,6 +47,25 @@ apiClient.interceptors.request.use((config) => {
 
   return config;
 });
+
+// Response interceptor: show toast for any error with a message
+apiClient.interceptors.response.use(
+  (res) => {
+    // HTTP 2xx but body has { success: false, message: '...' }
+    if (res.data?.success === false && res.data?.message) {
+      toast.error(res.data.message);
+    }
+    return res;
+  },
+  (err) => {
+    // HTTP 4xx / 5xx
+    const message: string | undefined = err?.response?.data?.message;
+    if (message) {
+      toast.error(message);
+    }
+    return Promise.reject(err);
+  },
+);
 
 /**
  * GET request

@@ -51,7 +51,7 @@ export const coachTranslations = {
 
   // Descriptions
   descriptions: {
-    payments: 'Gestiona tu membresía anual y licencias de entrenador',
+    payments: 'Gestiona tu Afiliación anual y licencias de entrenador',
     teamRegistration: 'Registra tus equipos y jugadores en torneos disponibles',
     courtsManagement: 'Administra tus canchas y reservas',
     credentials: 'Visualiza y actualiza tus credenciales profesionales',
@@ -61,8 +61,8 @@ export const coachTranslations = {
   // Payments & Billing
   payments: {
     paymentsAndBilling: 'Pagos y Facturación',
-    manageAnnualMembership: 'Gestiona tu membresía anual y licencias de entrenador',
-    annualMembership: 'Membresía Anual',
+    manageAnnualMembership: 'Gestiona tu Afiliación anual y licencias de entrenador',
+    annualMembership: 'Afiliación Anual',
     requiredAnnualFee: 'Cuota anual obligatoria para entrenadores',
     coachLicenses: 'Licencias de Entrenador',
     acquireCertifications: 'Adquiere certificaciones a través de la plataforma',
@@ -74,13 +74,13 @@ export const coachTranslations = {
     pendingPayments: 'Pagos Pendientes',
     nextRenewal: 'Próxima Renovación',
     buyLicense: 'Comprar Licencia',
-    renewMembership: 'Renovar Membresía',
-    activateMembership: 'Activar Membresía',
+    renewMembership: 'Renovar Afiliación',
+    activateMembership: 'Activar Afiliación',
     licenseAcquired: '¡Licencia adquirida!',
     activatedSuccessfully: 'activada exitosamente.',
     processingError: 'Error al procesar',
     paymentError: 'Error confirmando el pago',
-    annualMembershipRequired: 'Se requiere membresía anual activa',
+    annualMembershipRequired: 'Se requiere Afiliación anual activa',
     selectExactlyPlayers: 'Debes seleccionar exactamente',
     playersForThisEvent: 'jugador(es) para este evento.',
     registrationSuccessful: '¡Registro exitoso!',

@@ -50,7 +50,7 @@ const Benefits = () => {
               <div className="lg:w-3/5 space-y-4 sm:space-y-5 md:space-y-6">
                 <div className="animate-fade-in">
                   <span className="inline-flex items-center text-primary text-sm sm:text-base font-semibold uppercase bg-primary/10 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-primary/20">
-                    Membresía Oficial
+                    Afiliación Oficial
                   </span>
                 </div>
 
@@ -270,7 +270,7 @@ const Benefits = () => {
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 text-slate-300 text-xs sm:text-sm">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                      <span>Membresía Oficial</span>
+                      <span>Afiliación Oficial</span>
                     </div>
                     <div className="hidden sm:block w-px h-4 bg-slate-700" />
                     <div className="flex items-center gap-2">

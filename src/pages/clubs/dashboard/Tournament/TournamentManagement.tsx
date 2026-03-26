@@ -656,12 +656,12 @@ const TournamentManagement: React.FC = () => {
       </Dialog>
 
       {/* ── Error ─────────────────────────────────────────────────────────── */}
-      {error && (
+      {/* {error && (
         <div className="flex gap-2.5 bg-red-500/[0.06] border border-red-500/15 rounded-xl px-4 py-3">
           <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-red-400">{error}</p>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

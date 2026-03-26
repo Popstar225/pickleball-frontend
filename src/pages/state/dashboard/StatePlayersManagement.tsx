@@ -301,7 +301,7 @@ export default function StatePlayersManagement() {
         </Select>
 
         <Select value={filterMembership} onValueChange={(v) => { setFilterMembership(v); setPage(1); }}>
-          <SelectTrigger className={`${selTrigger} sm:w-40`}><SelectValue placeholder="Membresía" /></SelectTrigger>
+          <SelectTrigger className={`${selTrigger} sm:w-40`}><SelectValue placeholder="Afiliación" /></SelectTrigger>
           <SelectContent className={selContent}>
             {[['all','Todas'],['free','Gratis'],['basic','Básico'],['pro','Pro'],['premium','Premium'],['expired','Expirado']].map(([v, l]) => (
               <SelectItem key={v} value={v} className={selItem}>{l}</SelectItem>
@@ -362,7 +362,7 @@ export default function StatePlayersManagement() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/[0.06]">
-                  {['Miembro', 'Tipo', 'Membresía', 'Estado', 'Verificado', 'Registro', ''].map((h) => (
+                  {['Miembro', 'Tipo', 'Afiliación', 'Estado', 'Verificado', 'Registro', ''].map((h) => (
                     <th
                       key={h}
                       className="text-left py-3 px-4 text-[11px] font-bold uppercase tracking-widest text-white/25"
@@ -572,7 +572,7 @@ export default function StatePlayersManagement() {
 
             {/* Membership status */}
             <div>
-              <label className="block text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1.5">Plan de Membresía</label>
+              <label className="block text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1.5">Plan de Afiliación</label>
               <Select value={editForm.membership_status} onValueChange={(v) => setEditForm((p) => ({ ...p, membership_status: v }))}>
                 <SelectTrigger className="h-9 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white/70 focus:border-white/20 transition-colors">
                   <SelectValue />

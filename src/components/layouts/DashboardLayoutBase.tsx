@@ -317,7 +317,7 @@ export default function DashboardLayoutBase({
                 onClick={() => navigate(`${basePath}/payments`)}
               >
                 <Star className="h-3.5 w-3.5" />
-                Obtener Membresía
+                Obtener Afiliación
               </Button>
             )}
             <div className="relative hidden md:block">

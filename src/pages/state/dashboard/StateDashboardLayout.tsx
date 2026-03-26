@@ -7,7 +7,7 @@ import { getFullImageUrl } from '@/common/tools';
 const navItems: NavItem[] = [
   {
     title: 'Panel de estatal',
-    url: '/state/dashboard/home',
+    url: '/state/dashboard',
     icon: LayoutDashboard,
     description: 'Vista general',
   },
@@ -75,7 +75,7 @@ const navItems: NavItem[] = [
     title: 'Pagos',
     url: '/state/dashboard/payments',
     icon: Receipt,
-    description: 'Membresía y pagos',
+    description: 'Afiliación y pagos',
   },
 ];
 

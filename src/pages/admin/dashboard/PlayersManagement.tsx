@@ -51,6 +51,24 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 
+// ─── CSV helper ───────────────────────────────────────────────────────────────
+function downloadCSV(rows: (string | number | boolean | null | undefined)[][], filename: string) {
+  const esc = (v: any) => {
+    const s = String(v ?? '');
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const csv = rows.map(r => r.map(esc).join(',')).join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `${filename}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 150);
+}
+
 // ─── Tokens ───────────────────────────────────────────────────────────────────
 const inputCls =
   'w-full h-10 bg-white/[0.04] border border-white/[0.08] rounded-xl text-sm text-white ' +
@@ -142,6 +160,7 @@ export default function PlayersManagement() {
   const [sortField, setSortField] = useState<SortField>('created_at');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
   const [actionLoading, setActionLoading] = useState<string | null>(null); // Track which user is being acted on
+  const [isExporting,   setIsExporting]   = useState(false);
 
   const buildParams = useCallback(() => {
     const p: Record<string, string> = {
@@ -181,6 +200,41 @@ export default function PlayersManagement() {
     }, 450);
     return () => clearTimeout(t);
   }, [search, userTypeFilter, statusFilter, verifiedFilter, membershipFilter]);
+
+  const handleExport = async () => {
+    if (isExporting) return;
+    setIsExporting(true);
+    try {
+      // Fetch ALL users (not just the current page)
+      const res = await api.get('/admin/users?limit=1000&page=1') as any;
+      const allUsers: any[] = res?.data ?? [];
+
+      const headers = [
+        'Nombre completo', 'Usuario', 'Email', 'Teléfono', 'Tipo de usuario',
+        'Afiliación', 'Verificado', 'Activo', 'Nivel de habilidad',
+        'Fecha de registro', 'Último acceso',
+      ];
+      const rows = allUsers.map((u: any) => [
+        u.full_name ?? '',
+        u.username  ?? '',
+        u.email     ?? '',
+        u.phone     ?? '',
+        userTypeCfg[u.user_type]?.label    ?? u.user_type        ?? '',
+        membershipCfg[u.membership_status ?? '']?.label ?? u.membership_status ?? '',
+        u.is_verified ? 'Sí' : 'No',
+        u.is_active   ? 'Sí' : 'No',
+        u.skill_level ?? '',
+        u.created_at  ? new Date(u.created_at).toLocaleDateString('es-MX') : '',
+        u.last_login  ? new Date(u.last_login).toLocaleDateString('es-MX')  : '',
+      ]);
+      downloadCSV([headers, ...rows], 'reporte-jugadores');
+    } catch (err) {
+      console.error('[Export players]', err);
+      toast({ title: 'Error al exportar', description: 'No se pudo generar el reporte de jugadores.', variant: 'destructive' });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const handleSort = (field: SortField) => {
     if (sortField === field) setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'));
@@ -427,8 +481,10 @@ export default function PlayersManagement() {
             <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             Actualizar
           </button>
-          <button className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/50 hover:text-white text-xs font-semibold transition-all">
-            <Download className="w-3.5 h-3.5" /> Exportar
+          <button onClick={handleExport} disabled={isExporting}
+            className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/50 hover:text-white text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+            {isExporting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+            {isExporting ? 'Exportando…' : 'Exportar'}
           </button>
           <button className="flex items-center gap-1.5 h-9 px-3.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.07] text-white/50 hover:text-white text-xs font-semibold transition-all">
             <Upload className="w-3.5 h-3.5" /> Importar
@@ -444,7 +500,7 @@ export default function PlayersManagement() {
         {statCards.map(({ label, value, icon: Icon, color, accent }) => (
           <div key={label} className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-4">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-white/50">
                 {label}
               </p>
               <div
@@ -523,7 +579,7 @@ export default function PlayersManagement() {
               icon: Trophy,
               value: membershipFilter,
               onChange: setMembershipFilter,
-              placeholder: 'Membresía',
+              placeholder: 'Afiliación',
               options: [
                 { v: 'all', l: 'Todas' },
                 { v: 'free', l: 'Gratis' },
@@ -650,7 +706,7 @@ export default function PlayersManagement() {
                   { label: 'Usuario', field: 'full_name' as SortField, always: true },
                   { label: 'Email', field: 'email' as SortField, always: false },
                   { label: 'Tipo', field: 'user_type' as SortField, always: true },
-                  { label: 'Membresía', field: null, always: false },
+                  { label: 'Afiliación', field: null, always: false },
                   { label: 'Estado', field: null, always: true },
                   { label: 'Registro', field: 'created_at' as SortField, always: false },
                   { label: '', field: null, always: true },

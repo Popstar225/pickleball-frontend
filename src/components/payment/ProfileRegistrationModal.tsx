@@ -57,6 +57,7 @@ const registrationSchema = z.object({
   ]),
   organization_name: z.string().optional(),
   country: z.string().min(2, 'Please select a country'),
+  zipcode: z.string().max(10).optional(),
 });
 
 type RegistrationFormData = z.infer<typeof registrationSchema>;
@@ -116,6 +117,7 @@ export const ProfileRegistrationModal = ({
       user_type: 'player',
       organization_name: '',
       country: '',
+      zipcode: '',
     },
   });
 
@@ -206,7 +208,7 @@ export const ProfileRegistrationModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Create Your Account</DialogTitle>
           <DialogDescription>
@@ -214,7 +216,7 @@ export const ProfileRegistrationModal = ({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-6">
+        <div className="mt-6 overflow-y-auto flex-1 pr-1">
           {currentStep === 'success' ? (
             <Card className="p-8">
               <div className="flex flex-col items-center justify-center space-y-4">
@@ -409,6 +411,20 @@ export const ProfileRegistrationModal = ({
                           <SelectItem value="AU">Australia</SelectItem>
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="zipcode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Código Postal</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ej. 64000" maxLength={10} {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

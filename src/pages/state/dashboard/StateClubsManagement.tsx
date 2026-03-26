@@ -620,7 +620,7 @@ export default function StateClubsManagement() {
               </div>
 
               <div>
-                <label className="text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1.5 block">Plan de Membresía</label>
+                <label className="text-[11px] font-bold uppercase tracking-widest text-white/40 mb-1.5 block">Plan de Afiliación</label>
                 <select
                   value={formData.membership_status || 'basic'}
                   onChange={(e) => setFormData({ ...formData, membership_status: e.target.value })}

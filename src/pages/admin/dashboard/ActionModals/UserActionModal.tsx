@@ -392,10 +392,10 @@ export default function UserActionModal({ isOpen, user, mode, onClose, onSaveSuc
                   <div className="w-6 h-6 rounded-lg bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center shrink-0">
                     <Shield className="w-3 h-3 text-[#ace600]" />
                   </div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Estado y Membresía</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-white/25">Estado y Afiliación</p>
                 </div>
                 <div className="p-4 space-y-1">
-                  <Field label="Plan de Membresía">
+                  <Field label="Plan de Afiliación">
                     <Select value={form.membership_status ?? ''} onValueChange={v => set('membership_status', v)}>
                       <SelectTrigger className={selectCls}><SelectValue placeholder="Seleccionar plan" /></SelectTrigger>
                       <SelectContent className="bg-[#161c25] border-white/[0.08] rounded-xl shadow-2xl">

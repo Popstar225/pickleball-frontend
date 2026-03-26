@@ -482,12 +482,12 @@ const TournamentEdit: React.FC<TournamentEditProps> = ({ tournamentId }) => {
       </div>
 
       {/* error */}
-      {error && (
+      {/* {error && (
         <div className="flex gap-2.5 bg-red-500/[0.06] border border-red-500/15 rounded-xl px-4 py-3">
           <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-red-400">{error}</p>
         </div>
-      )}
+      )} */}
 
       {/* ── Footer actions ─────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-3 px-5 py-3.5 bg-[#0a0e14] border border-white/[0.06] rounded-2xl">

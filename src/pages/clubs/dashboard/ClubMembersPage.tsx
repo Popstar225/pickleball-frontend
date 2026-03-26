@@ -17,15 +17,12 @@ import {
   Plus,
   Edit2,
   Trash2,
-  Phone,
-  Calendar,
   AlertTriangle,
   Loader2,
   Star,
   ChevronLeft,
   ChevronRight,
   MoreHorizontal,
-  Mail,
 } from 'lucide-react';
 import {
   Select,
@@ -47,7 +44,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
-const ITEMS_PER_PAGE = 9;
+const ITEMS_PER_PAGE = 15;
 
 /* ─── shared select/input styles ── */
 const selTrigger = 'h-9 bg-white/[0.04] border border-white/[0.08] rounded-lg text-sm text-white/70 px-3 focus:border-white/20 transition-colors w-full';
@@ -70,9 +67,9 @@ function initials(m: ClubMember) {
 function StatusPill({ status }: { status: string }) {
   const { t } = useTranslation();
   const cfg =
-    status === 'active'   ? { label: t('club_dashboard.members.status_active'),    dot: 'bg-emerald-400', text: 'text-emerald-400', bg: 'bg-emerald-500/[0.08]' } :
-    status === 'pending'  ? { label: t('club_dashboard.members.status_pending'), dot: 'bg-amber-400',   text: 'text-amber-400',   bg: 'bg-amber-500/[0.08]' } :
-                            { label: t('club_dashboard.members.status_inactive'),  dot: 'bg-white/20',    text: 'text-white/35',    bg: 'bg-white/[0.05]' };
+    (status === 'premium' || status === 'active') ? { label: t('club_dashboard.members.status_active'),   dot: 'bg-emerald-400', text: 'text-emerald-400', bg: 'bg-emerald-500/[0.08]' } :
+    status === 'expired'                          ? { label: 'Expirado',                                   dot: 'bg-amber-400',   text: 'text-amber-400',   bg: 'bg-amber-500/[0.08]' } :
+                                                    { label: t('club_dashboard.members.status_inactive'),  dot: 'bg-white/20',    text: 'text-white/35',    bg: 'bg-white/[0.05]' };
   return (
     <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full border border-white/[0.06] ${cfg.bg} ${cfg.text}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
@@ -150,7 +147,6 @@ function DeleteMemberDialog({
           <p className="text-sm text-white/35 leading-relaxed">
             {t('club_dashboard.members.delete_desc')}{' '}
             <span className="text-white/60 font-medium">"{memberName}"</span>. {t('club_dashboard.members.delete_undone')}
-
           </p>
         </div>
         <div className="flex gap-2.5 px-6 pb-6">
@@ -164,99 +160,6 @@ function DeleteMemberDialog({
         </div>
       </DialogContent>
     </Dialog>
-  );
-}
-
-/* ─── Member card ── */
-function MemberCard({ member, onEdit, onDelete }: {
-  member: ClubMember; onEdit: (m: ClubMember) => void; onDelete: (m: ClubMember) => void;
-}) {
-  const isPremium = member.level?.toLowerCase() === 'premium';
-
-  return (
-    <div className="bg-white/[0.02] border border-white/[0.07] hover:border-white/[0.15] rounded-xl p-4 transition-all group">
-      {/* Top row */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex items-center gap-3 min-w-0">
-          {/* Avatar */}
-          <div className="w-9 h-9 rounded-xl bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center text-[11px] font-black text-[#ace600] flex-shrink-0">
-            {initials(member)}
-          </div>
-          <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-white/90 truncate leading-tight">
-              {member.firstName} {member.lastName}
-            </h3>
-            <p className="text-[11px] text-white/35 truncate mt-0.5">{member.email}</p>
-          </div>
-        </div>
-
-        {/* Actions dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="w-7 h-7 rounded-lg flex items-center justify-center text-white/25 hover:text-white/60 hover:bg-white/[0.06] transition-all opacity-0 group-hover:opacity-100">
-              <MoreHorizontal className="w-4 h-4" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl p-1 w-40">
-            <DropdownMenuItem
-              onClick={() => onEdit(member)}
-              className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
-            >
-              <Edit2 className="w-3.5 h-3.5" /> Editar estado
-            </DropdownMenuItem>
-            <div className="h-px bg-white/[0.06] my-1" />
-            <DropdownMenuItem
-              onClick={() => onDelete(member)}
-              className="flex items-center gap-2.5 text-red-400 hover:text-red-300 focus:text-red-300 hover:bg-red-500/[0.06] focus:bg-red-500/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
-            >
-              <Trash2 className="w-3.5 h-3.5" /> Eliminar
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {/* Fee + Last payment */}
-      <div className="grid grid-cols-2 gap-2 mb-3">
-        <div className="bg-white/[0.03] rounded-lg px-3 py-2 border border-white/[0.05]">
-          <p className="text-[10px] text-white/25 mb-0.5">Cuota</p>
-          <p className="text-sm font-bold text-white/80">
-            {member.membershipFee != null ? `$${member.membershipFee}` : '—'}
-          </p>
-        </div>
-        <div className="bg-white/[0.03] rounded-lg px-3 py-2 border border-white/[0.05]">
-          <p className="text-[10px] text-white/25 mb-0.5">Último pago</p>
-          <p className={`text-[11px] font-semibold ${member.lastPaymentDate ? 'text-[#ace600]' : 'text-white/25'}`}>
-            {formatDate(member.lastPaymentDate)}
-          </p>
-        </div>
-      </div>
-
-      {/* Meta rows */}
-      <div className="space-y-1.5 mb-3">
-        {member.phone && (
-          <div className="flex items-center gap-2 text-[11px] text-white/35">
-            <Phone className="w-3 h-3 flex-shrink-0" /> {member.phone}
-          </div>
-        )}
-        <div className="flex items-center gap-2 text-[11px] text-white/35">
-          <Calendar className="w-3 h-3 flex-shrink-0" /> Desde {formatDate(member.joinDate)}
-        </div>
-      </div>
-
-      {/* Badges */}
-      <div className="flex items-center gap-2 flex-wrap pt-3 border-t border-white/[0.05]">
-        <StatusPill status={member.membershipStatus} />
-        {isPremium ? (
-          <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-full border bg-[#ace600]/[0.08] border-[#ace600]/20 text-[#ace600]">
-            <Star className="w-2.5 h-2.5" /> Premium
-          </span>
-        ) : (
-          <span className="inline-flex items-center text-[11px] font-semibold px-2.5 py-1 rounded-full border bg-white/[0.04] border-white/[0.07] text-white/30">
-            {member.level || 'Básica'}
-          </span>
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -286,14 +189,13 @@ export default function ClubMembersPage() {
 
   const [search, setSearch]               = useState('');
   const [filterStatus, setFilterStatus]   = useState('');
-  const [filterLevel, setFilterLevel]     = useState('');
   const [currentPage, setCurrentPage]     = useState(1);
   const [showAdd, setShowAdd]             = useState(false);
   const [deleteDialog, setDeleteDialog]   = useState<{ open: boolean; id: string | null; name: string }>({ open: false, id: null, name: '' });
 
   const refreshMembers = useCallback(() => {
-    dispatch(fetchClubMembers({ status: filterStatus || undefined }));
-  }, [dispatch, filterStatus]);
+    dispatch(fetchClubMembers({ limit: 200 }));
+  }, [dispatch]);
 
   useEffect(() => {
     refreshMembers();
@@ -303,23 +205,23 @@ export default function ClubMembersPage() {
       setDeleteDialog({ open: false, id: null, name: '' });
       dispatch(clearError());
     };
-  }, [dispatch, filterStatus]);
+  }, [dispatch]);
 
   const filtered = members.filter((m) => {
     const q = search.toLowerCase();
-    const matchSearch = !search || `${m.firstName} ${m.lastName}`.toLowerCase().includes(q) || m.email.toLowerCase().includes(q);
-    const matchLevel  = !filterLevel || m.level?.toLowerCase() === filterLevel;
-    return matchSearch && matchLevel;
+    const matchSearch  = !search       || `${m.firstName} ${m.lastName}`.toLowerCase().includes(q) || m.email.toLowerCase().includes(q);
+    const matchStatus  = !filterStatus || m.membershipStatus === filterStatus;
+    return matchSearch && matchStatus;
   });
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const displayed  = filtered.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const displayStats = {
-    total:    stats?.totalMembers  ?? members.length,
-    active:   stats?.activeMembers ?? members.filter((m) => m.membershipStatus === 'active').length,
-    pending:  members.filter((m) => m.membershipStatus === 'pending').length,
-    inactive: members.filter((m) => m.membershipStatus === 'inactive').length,
+    total:   stats?.totalMembers  ?? members.length,
+    active:  stats?.activeMembers ?? members.filter((m) => m.membershipStatus === 'premium').length,
+    free:    members.filter((m) => m.membershipStatus === 'free').length,
+    expired: members.filter((m) => m.membershipStatus === 'expired').length,
   };
 
   const handleAddMember = useCallback(async (data: { userId: string }) => {
@@ -330,7 +232,7 @@ export default function ClubMembersPage() {
   }, [dispatch, refreshMembers]);
 
   const handleEditMember = (member: ClubMember) => {
-    const next = member.membershipStatus === 'active' ? 'inactive' : 'active';
+    const next = member.membershipStatus === 'premium' ? 'free' : 'premium';
     dispatch(updateClubMember({ memberId: member.id, membershipStatus: next }))
       .unwrap()
       .then(() => { toast.success('Estado actualizado'); refreshMembers(); })
@@ -368,24 +270,23 @@ export default function ClubMembersPage() {
       </div>
 
       {/* Error */}
-      {membersError && (
+      {/* {membersError && (
         <div className="flex gap-2.5 bg-red-500/[0.06] border border-red-500/15 rounded-xl px-4 py-3">
           <AlertTriangle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-red-400">{membersError}</p>
         </div>
-      )}
+      )} */}
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard label="Total"     value={displayStats.total}    loading={statsLoading} accent />
-        <StatCard label="Activos"   value={displayStats.active}   loading={statsLoading} />
-        <StatCard label="Pendientes"value={displayStats.pending}  loading={statsLoading} />
-        <StatCard label="Inactivos" value={displayStats.inactive} loading={statsLoading} />
+        <StatCard label="Total"     value={displayStats.total}   loading={statsLoading} accent />
+        <StatCard label="Premium"   value={displayStats.active}  loading={statsLoading} />
+        <StatCard label="Gratuitos" value={displayStats.free}    loading={statsLoading} />
+        <StatCard label="Expirados" value={displayStats.expired} loading={statsLoading} />
       </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
-        {/* Search */}
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/25 pointer-events-none" />
           <input
@@ -399,25 +300,17 @@ export default function ClubMembersPage() {
         <Select value={filterStatus || 'all'} onValueChange={(v) => { setFilterStatus(v === 'all' ? '' : v); setCurrentPage(1); }}>
           <SelectTrigger className={`${selTrigger} sm:w-44`}><SelectValue placeholder="Todos los estados" /></SelectTrigger>
           <SelectContent className={selContent}>
-            {[['all','Todos los estados'],['active','Activos'],['pending','Pendientes'],['inactive','Inactivos']].map(([v,l]) => (
-              <SelectItem key={v} value={v} className={selItem}>{l}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={filterLevel || 'all'} onValueChange={(v) => { setFilterLevel(v === 'all' ? '' : v); setCurrentPage(1); }}>
-          <SelectTrigger className={`${selTrigger} sm:w-44`}><SelectValue placeholder="Todos los niveles" /></SelectTrigger>
-          <SelectContent className={selContent}>
-            {[['all','Todos los niveles'],['premium','Premium'],['básica','Básica']].map(([v,l]) => (
+            {[['all','Todos los estados'],['premium','Premium'],['free','Gratuito'],['expired','Expirado']].map(([v,l]) => (
               <SelectItem key={v} value={v} className={selItem}>{l}</SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Table card */}
+      {/* Table */}
       <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl overflow-hidden">
-        {/* Card header */}
+
+        {/* Table header bar */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-white/30" />
@@ -439,16 +332,16 @@ export default function ClubMembersPage() {
         )}
 
         {/* Empty */}
-        {!membersLoading && displayed.length === 0 && (
+        {!membersLoading && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.07] flex items-center justify-center mb-4">
               <Users className="w-6 h-6 text-white/20" />
             </div>
             <p className="text-white/50 font-semibold text-sm mb-1">No hay miembros</p>
             <p className="text-white/20 text-xs max-w-xs">
-              {search || filterStatus || filterLevel ? 'Intenta ajustar los filtros de búsqueda.' : 'Agrega tu primer miembro para comenzar.'}
+              {search || filterStatus ? 'Intenta ajustar los filtros de búsqueda.' : 'Agrega tu primer miembro para comenzar.'}
             </p>
-            {!search && !filterStatus && !filterLevel && (
+            {!search && !filterStatus && (
               <button onClick={() => setShowAdd(true)} className="mt-5 flex items-center gap-2 bg-[#ace600] hover:bg-[#c0f000] text-black text-xs font-bold px-4 py-2 rounded-lg transition-all">
                 <Plus className="w-3.5 h-3.5" /> Agregar Miembro
               </button>
@@ -456,17 +349,99 @@ export default function ClubMembersPage() {
           </div>
         )}
 
-        {/* Grid */}
+        {/* Table */}
         {!membersLoading && displayed.length > 0 && (
-          <div className="p-4 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-            {displayed.map((member) => (
-              <MemberCard
-                key={member.id}
-                member={member}
-                onEdit={handleEditMember}
-                onDelete={(m) => setDeleteDialog({ open: true, id: m.id, name: `${m.firstName} ${m.lastName}` })}
-              />
-            ))}
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/[0.05]">
+                  {['Miembro', 'Teléfono', 'Nivel', 'Afiliación', 'Ingreso', ''].map((col) => (
+                    <th key={col} className="text-left text-[10px] font-bold uppercase tracking-widest text-white/25 px-4 py-3 whitespace-nowrap">
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.04]">
+                {displayed.map((member) => {
+                  const isPremium = member.membershipStatus === 'premium';
+                  return (
+                    <tr key={member.id} className="group hover:bg-white/[0.02] transition-colors">
+
+                      {/* Member */}
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-8 h-8 rounded-lg bg-[#ace600]/10 border border-[#ace600]/20 flex items-center justify-center text-[10px] font-black text-[#ace600] flex-shrink-0">
+                            {initials(member)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-white/90 truncate leading-tight">
+                              {member.firstName} {member.lastName}
+                            </p>
+                            <p className="text-[11px] text-white/35 truncate">{member.email}</p>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Phone */}
+                      <td className="px-4 py-3 text-sm text-white/45 whitespace-nowrap">
+                        {member.phone || '—'}
+                      </td>
+
+                      {/* Level */}
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        {isPremium ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-md bg-[#ace600]/[0.08] border border-[#ace600]/20 text-[#ace600]">
+                            <Star className="w-2.5 h-2.5" /> Premium
+                          </span>
+                        ) : (
+                          <span className="text-[11px] font-medium text-white/30">
+                            {member.level || '—'}
+                          </span>
+                        )}
+                      </td>
+
+                      {/* Membership status */}
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <StatusPill status={member.membershipStatus} />
+                      </td>
+
+                      {/* Join date */}
+                      <td className="px-4 py-3 text-sm text-white/45 whitespace-nowrap">
+                        {formatDate(member.joinDate)}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-4 py-3">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="w-7 h-7 rounded-lg flex items-center justify-center text-white/20 hover:text-white/60 hover:bg-white/[0.06] transition-all opacity-0 group-hover:opacity-100">
+                              <MoreHorizontal className="w-4 h-4" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-[#161c25] border border-white/[0.08] rounded-xl shadow-2xl p-1 w-44">
+                            <DropdownMenuItem
+                              onClick={() => handleEditMember(member)}
+                              className="flex items-center gap-2.5 text-white/60 hover:text-white focus:text-white hover:bg-white/[0.06] focus:bg-white/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                              {isPremium ? 'Quitar premium' : 'Activar premium'}
+                            </DropdownMenuItem>
+                            <div className="h-px bg-white/[0.06] my-1" />
+                            <DropdownMenuItem
+                              onClick={() => setDeleteDialog({ open: true, id: member.id, name: `${member.firstName} ${member.lastName}` })}
+                              className="flex items-center gap-2.5 text-red-400 hover:text-red-300 focus:text-red-300 hover:bg-red-500/[0.06] focus:bg-red-500/[0.06] rounded-lg px-3 py-2 text-xs font-medium cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" /> Eliminar
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
 
