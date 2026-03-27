@@ -63,7 +63,12 @@ const TAB_CONFIG = [
 type TabValue = 'identity' | 'contact' | 'location' | 'courts' | 'availability' | 'membership' | 'payments' | 'rules' | 'media' | 'owner' | 'hours';
 
 const CLUB_TYPES = { RECREATIONAL:'recreational', COMPETITIVE:'competitive', TRAINING:'training', MIXED:'mixed' } as const;
-const CLUB_TYPES_OPTIONS = ['Recreativo', 'Competitivo', 'Entrenamiento', 'Mixto'];
+const CLUB_TYPES_OPTIONS = [
+  { value: 'recreational', label: 'Recreativo' },
+  { value: 'competitive', label: 'Competitivo' },
+  { value: 'training', label: 'Entrenamiento' },
+  { value: 'mixed', label: 'Mixto' },
+];
 const MEMBERSHIP_STATUS_OPTIONS = [{ value: 'active', label: 'Activo' }, { value: 'expired', label: 'Expirado' }, { value: 'pending', label: 'Pendiente' }];
 const SUBSCRIPTION_PLAN_OPTIONS = [{ value: 'basic', label: 'Básico' }, { value: 'premium', label: 'Premium' }];
 const DAYS = [
