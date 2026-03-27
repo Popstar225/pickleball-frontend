@@ -60,6 +60,8 @@ export const StateAutocomplete: React.FC<StateAutocompleteProps> = ({
       left: rect.left,
       width: rect.width,
       zIndex: 9999,
+      // Override pointer-events: none that Radix Dialog sets on document.body
+      pointerEvents: 'auto',
     });
   }, []);
 
@@ -108,7 +110,7 @@ export const StateAutocomplete: React.FC<StateAutocompleteProps> = ({
                     ? 'bg-[#ace600]/10 text-[#ace600]'
                     : 'hover:bg-white/[0.05] text-white/80'
                 }`}
-                onMouseDown={() => handleOptionClick(state.code)}
+                onMouseDown={(e) => { e.preventDefault(); handleOptionClick(state.code); }}
               >
                 <div className="flex justify-between items-center">
                   <span>{state.state}</span>

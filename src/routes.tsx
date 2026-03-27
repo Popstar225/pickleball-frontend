@@ -36,6 +36,7 @@ import RegistrationPaymentPage from './pages/auth/RegistrationPaymentPage';
 
 import FederationDashboardLayout from './pages/admin/dashboard/DashboardLayout';
 import MessagesPage from './pages/admin/dashboard/MessagesPage';
+import AdminPaymentsPage from './pages/admin/dashboard/PaymentsPage';
 import ClubsManagement from './pages/admin/dashboard/ClubsManagement';
 import CourtsManagement from './pages/admin/dashboard/CourtsManagement';
 import CourtDetails from './pages/admin/dashboard/CourtDetails';
@@ -589,6 +590,12 @@ export const routes = [
         key: 'dashboard-messages',
         path: '/admin/dashboard/messages',
         element: <MessagesPage />,
+        public: false,
+      },
+      {
+        key: 'admin-payments',
+        path: '/admin/dashboard/payments',
+        element: <AdminPaymentsPage />,
         public: false,
       },
       {

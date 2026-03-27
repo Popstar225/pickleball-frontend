@@ -298,6 +298,32 @@ class PaymentService {
   }
 
   /**
+   * Create a Stripe PaymentIntent before the user account exists (pre-registration).
+   * Calls the public /auth/pre-registration-payment endpoint — no auth token needed.
+   */
+  static async createPreRegistrationPayment(userType: string, planType: string): Promise<{
+    success: boolean;
+    data: {
+      payment_id: string;
+      client_secret: string;
+      amount: number;
+      currency: string;
+      user_type: string;
+      plan_type: string;
+    };
+  }> {
+    try {
+      const response = await apiClient.post('/auth/pre-registration-payment', {
+        user_type: userType,
+        plan_type: planType,
+      });
+      return response.data;
+    } catch (error) {
+      throw this.handleError(error);
+    }
+  }
+
+  /**
    * Create payment intent for annual membership (player, coach, club, state)
    */
   static async createAnnualMembershipPayment(): Promise<{

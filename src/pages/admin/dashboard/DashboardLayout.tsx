@@ -13,6 +13,7 @@ import {
   Zap,
   CheckSquare,
   CalendarDays,
+  Banknote,
 } from 'lucide-react';
 
 const navItems: NavItem[] = [
@@ -87,6 +88,12 @@ const navItems: NavItem[] = [
     url: '/admin/dashboard/messages',
     icon: MessageSquare,
     description: 'Ver mensajes',
+  },
+  {
+    title: 'Pagos',
+    url: '/admin/dashboard/payments',
+    icon: Banknote,
+    description: 'Cuenta de cobros y enrutamiento',
   },
 ];
 

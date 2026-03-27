@@ -47,6 +47,10 @@ interface MembershipSelectorProps {
   currentMembershipStatus?: string;
   onSuccess?: (planType: string) => void;
   required?: boolean; // when true: dialog cannot be dismissed without paying
+  /** Pre-registration mode: payment happens before account creation */
+  preRegistrationMode?: boolean;
+  /** Called with the Stripe paymentIntentId after successful payment (pre-registration only) */
+  onPreRegistrationPaymentSuccess?: (paymentIntentId: string, planType: string) => void;
 }
 
 /* ─── Plans data ─────────────────────────────────────────────── */
@@ -175,6 +179,8 @@ export const MembershipSelector = ({
   currentMembershipStatus,
   onSuccess,
   required = false,
+  preRegistrationMode = false,
+  onPreRegistrationPaymentSuccess,
 }: MembershipSelectorProps) => {
   const [selectedPlan, setSelectedPlan] = useState<MembershipPlan | null>(null);
   const [showPayment, setShowPayment] = useState(false);
@@ -189,9 +195,14 @@ export const MembershipSelector = ({
     setError(null);
     setLoading(true);
     try {
-      const response = plan.type === 'annual_membership'
-        ? await PaymentService.createAnnualMembershipPayment()
-        : await PaymentService.createPremiumPlanPayment();
+      let response;
+      if (preRegistrationMode) {
+        response = await PaymentService.createPreRegistrationPayment(userType, plan.type);
+      } else {
+        response = plan.type === 'annual_membership'
+          ? await PaymentService.createAnnualMembershipPayment()
+          : await PaymentService.createPremiumPlanPayment();
+      }
       if (!response.success || !response.data) throw new Error('No se pudo crear la solicitud de pago');
       setPaymentData({ paymentId: response.data.payment_id, clientSecret: response.data.client_secret });
       setShowPayment(true);
@@ -205,6 +216,13 @@ export const MembershipSelector = ({
   const handlePaymentSuccess = async (paymentIntentId: string) => {
     if (!selectedPlan || !paymentData) return;
     try {
+      if (preRegistrationMode) {
+        // In pre-registration mode: don't call confirm API (user doesn't exist yet).
+        // Hand the paymentIntentId back to the parent so it can call registerUser.
+        onPreRegistrationPaymentSuccess?.(paymentIntentId, selectedPlan.type);
+        handleClose();
+        return;
+      }
       if (selectedPlan.type === 'annual_membership') {
         await PaymentService.confirmAnnualMembership(paymentData.paymentId, paymentIntentId);
       } else {
@@ -231,13 +249,13 @@ export const MembershipSelector = ({
     (plan.type === 'premium_plan' && currentMembershipStatus === 'premium');
 
   return (
-    <Dialog open={isOpen} onOpenChange={required ? undefined : handleClose}>
+    <Dialog open={isOpen} onOpenChange={(required && !preRegistrationMode) ? undefined : handleClose}>
       <DialogContent
         className={cn(
           'font-["DM_Sans",sans-serif] bg-[#06080E] border border-[#C8FF00]/[0.12]',
           'rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.8),0_0_80px_rgba(200,255,0,0.05)]',
           'max-w-3xl p-0 overflow-hidden',
-          required ? '[&>button]:hidden' : '[&>button]:text-white/30 [&>button]:hover:text-white [&>button]:border-none',
+          (required && !preRegistrationMode) ? '[&>button]:hidden' : '[&>button]:text-white/30 [&>button]:hover:text-white [&>button]:border-none',
         )}
       >
         {/* Header */}
@@ -304,6 +322,7 @@ export const MembershipSelector = ({
                   description={`${selectedPlan.name} - ${selectedPlan.price.toLocaleString()} MXN/${selectedPlan.period}`}
                   onSuccess={handlePaymentSuccess}
                   onError={(err) => { setError(err); setShowPayment(false); }}
+                  skipBackendConfirm={preRegistrationMode}
                 />
               </Elements>
 

@@ -20,8 +20,9 @@ import { getImageUrl, cn } from '@/lib/utils';
 import {
   Building2, MapPin, Edit, X, Trash2, AlertTriangle, Loader2, Check,
   Clock, Mail, Share2, Settings, Calendar, User, Shield, Upload, Plus,
-  Image as ImageIcon, Star, Trophy, Users,
+  Image as ImageIcon, Star, Trophy, Users, Banknote,
 } from 'lucide-react';
+import { ConnectAccountSetup } from '@/components/payment/ConnectAccountSetup';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -52,13 +53,14 @@ const TAB_CONFIG = [
   { value: 'courts',       label: 'Canchas',    icon: Settings },
   { value: 'availability', label: 'Servicios',  icon: Calendar },
   { value: 'membership',   label: 'Afiliación',  icon: Shield },
+  { value: 'payments',     label: 'Pagos',      icon: Banknote },
   { value: 'rules',        label: 'Reglas',     icon: Settings },
   { value: 'media',        label: 'Medios',     icon: Share2 },
   { value: 'owner',        label: 'Propietario', icon: User },
   { value: 'hours',        label: 'Horarios',   icon: Clock },
 ];
 
-type TabValue = 'identity' | 'contact' | 'location' | 'courts' | 'availability' | 'membership' | 'rules' | 'media' | 'owner' | 'hours';
+type TabValue = 'identity' | 'contact' | 'location' | 'courts' | 'availability' | 'membership' | 'payments' | 'rules' | 'media' | 'owner' | 'hours';
 
 const CLUB_TYPES = { RECREATIONAL:'recreational', COMPETITIVE:'competitive', TRAINING:'training', MIXED:'mixed' } as const;
 const CLUB_TYPES_OPTIONS = ['Recreativo', 'Competitivo', 'Entrenamiento', 'Mixto'];
@@ -654,6 +656,13 @@ export default function ClubAccountPage() {
                 <Toggle label="Ligas" description="Participación en ligas activas" checked={formData.availability.leagues} onChange={v => setAvailability('leagues', v)} disabled={isDisabled} />
                 <Toggle label="Torneos" description="Torneos abiertos a inscripción" checked={formData.availability.tournaments} onChange={v => setAvailability('tournaments', v)} disabled={isDisabled} />
               </div>
+            </SectionCard>
+          </TabsContent>
+
+          {/* ── Payments ─────────────────────────────────────────────────── */}
+          <TabsContent value="payments" className="mt-4">
+            <SectionCard>
+              <ConnectAccountSetup userType="club" />
             </SectionCard>
           </TabsContent>
 

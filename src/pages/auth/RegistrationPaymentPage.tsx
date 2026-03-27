@@ -7,14 +7,16 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '@/store';
+import { updateUser } from '@/store/slices/authSlice';
 import { MembershipSelector } from '@/components/payment/MembershipSelector';
 import { toast } from 'sonner';
 import { Shield } from 'lucide-react';
 
 const RegistrationPaymentPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   // Redirect to login if not authenticated
@@ -70,7 +72,8 @@ const RegistrationPaymentPage = () => {
           toast.error('El pago de afiliación es obligatorio para activar tu cuenta.');
         }}
         userType={user.user_type}
-        onSuccess={() => {
+        onSuccess={(planType) => {
+          dispatch(updateUser({ membership_status: planType === 'premium_plan' ? 'premium' : 'active', membership_expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() }));
           toast.success('¡Afiliación activada! Bienvenido a la Federación Mexicana de Pickleball.');
           navigateToDashboard(user.user_type);
         }}

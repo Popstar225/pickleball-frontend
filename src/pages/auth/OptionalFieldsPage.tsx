@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { AppDispatch, RootState } from '../../store';
 import { registerUser } from '../../store/slices/authSlice';
 import { toast } from 'sonner';
-import { MembershipSelector } from '@/components/payment/MembershipSelector';
 import { StateAutocomplete } from '@/components/ui/StateAutocomplete';
 import { Mexico } from '@/constants/constants';
 import {
@@ -62,9 +61,6 @@ const OptionalFieldsPage = () => {
   const [dragActive, setDragActive] = useState({ profile: false, document: false });
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [cropFileName, setCropFileName] = useState('');
-  const [showMembershipModal, setShowMembershipModal] = useState(false);
-  const [pendingPayment, setPendingPayment] = useState(false);
-  const [registeredUserType, setRegisteredUserType] = useState<string>('');
   const [showLevelsModal, setShowLevelsModal] = useState(false);
 
   const dispatch = useDispatch<AppDispatch>();
@@ -84,12 +80,12 @@ const OptionalFieldsPage = () => {
     }
   };
 
-  // Redirect to dashboard if already authenticated and no pending payment
+  // Redirect to dashboard if already authenticated (e.g. back navigation after completing registration)
   useEffect(() => {
-    if (isAuthenticated && user && !pendingPayment) {
+    if (isAuthenticated && user) {
       navigateToDashboard(user.user_type);
     }
-  }, [isAuthenticated, user, navigate, pendingPayment]);
+  }, [isAuthenticated, user, navigate]);
 
   useEffect(() => {
     const storedUserType = localStorage.getItem('registration_user_type');
@@ -330,35 +326,22 @@ const OptionalFieldsPage = () => {
         formDataToSend.append('profile_photo', files.profile_photo);
       }
 
-      // Set pending payment flag before dispatch so the isAuthenticated effect doesn't navigate
-      if (USER_TYPES_REQUIRING_PAYMENT.includes(userType)) {
-        setPendingPayment(true);
-      }
-
       const result = await dispatch(registerUser(formDataToSend));
-      const registrationResult = result as any;
-      const apiResponse = registrationResult?.payload;
+      const apiResponse = (result as any)?.payload;
 
       if (apiResponse?.data?.user && apiResponse?.data?.tokens) {
         localStorage.removeItem('registration_user_type');
         localStorage.removeItem('registration_required_fields');
-
-        const type = apiResponse.data.user.user_type;
-        setRegisteredUserType(type);
-
-        if (USER_TYPES_REQUIRING_PAYMENT.includes(type)) {
-          toast.success('¡Registro exitoso! Por favor completa tu Afiliación.');
-          setShowMembershipModal(true);
+        if (apiResponse.data.user.membership_status === 'pending_payment') {
+          toast.success('¡Registro exitoso! Por favor completa tu afiliación anual para activar tu cuenta.');
+          navigate('/register/payment');
         } else {
-          // Partner — free, navigate immediately
-          setPendingPayment(false);
           toast.success(t('auth.optionalFields.toast_success'));
-          navigateToDashboard(type);
+          navigateToDashboard(apiResponse.data.user.user_type);
         }
       } else {
-        setPendingPayment(false);
         toast.error(t('auth.optionalFields.toast_error_server'));
-        console.error('Registration failed - Invalid response structure:', apiResponse);
+        console.error('Registration failed:', apiResponse);
       }
     } catch (err) {
       toast.error(error || t('auth.optionalFields.toast_error_server'));
@@ -402,10 +385,6 @@ const OptionalFieldsPage = () => {
         return;
       }
 
-      if (USER_TYPES_REQUIRING_PAYMENT.includes(userType)) {
-        setPendingPayment(true);
-      }
-
       const result = await dispatch(registerUser(registrationData));
       const registrationResult = result as any;
       const apiResponse = registrationResult?.payload;
@@ -413,20 +392,14 @@ const OptionalFieldsPage = () => {
       if (apiResponse?.data?.user && apiResponse?.data?.tokens) {
         localStorage.removeItem('registration_user_type');
         localStorage.removeItem('registration_required_fields');
-
-        const type = apiResponse.data.user.user_type;
-        setRegisteredUserType(type);
-
-        if (USER_TYPES_REQUIRING_PAYMENT.includes(type)) {
-          toast.success('¡Registro exitoso! Por favor completa tu Afiliación.');
-          setShowMembershipModal(true);
+        if (apiResponse.data.user.membership_status === 'pending_payment') {
+          toast.success('¡Registro exitoso! Por favor completa tu afiliación anual para activar tu cuenta.');
+          navigate('/register/payment');
         } else {
-          setPendingPayment(false);
           toast.success(t('auth.optionalFields.toast_success_skip'));
-          navigateToDashboard(type);
+          navigateToDashboard(apiResponse.data.user.user_type);
         }
       } else {
-        setPendingPayment(false);
         toast.error(t('auth.optionalFields.toast_error_server'));
         console.error('Registration failed - Invalid response structure:', apiResponse);
       }
@@ -820,24 +793,6 @@ const OptionalFieldsPage = () => {
           </div>
         </div>
       </main>
-
-      {/* Post-registration membership payment modal — required, cannot be skipped */}
-      {showMembershipModal && (
-        <MembershipSelector
-          isOpen={showMembershipModal}
-          required
-          onClose={() => {
-            toast.error('El pago de afiliación es obligatorio para activar tu cuenta.');
-          }}
-          userType={registeredUserType}
-          onSuccess={() => {
-            setShowMembershipModal(false);
-            setPendingPayment(false);
-            toast.success('¡Afiliación activada! Bienvenido a la Federación Mexicana de Pickleball.');
-            navigateToDashboard(registeredUserType);
-          }}
-        />
-      )}
 
       {cropSrc && (
         <AvatarCropDialog

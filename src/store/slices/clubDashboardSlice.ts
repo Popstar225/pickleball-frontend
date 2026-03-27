@@ -195,9 +195,48 @@ export const fetchClubProfile = createAsyncThunk('clubDashboard/fetchProfile', a
 });
 
 export const updateClubProfile = createAsyncThunk(
-  'clubDashb.pqoown.qwoard/updateProfile',
+  'clubDashboard/updateProfile',
   async (profileData: Partial<ClubProfile>) => {
-    const data = await api.put(`/clubs/profile`, profileData);
+    // Backend expects snake_case field names
+    const payload: Record<string, unknown> = {
+      name:               profileData.name,
+      club_type:          profileData.clubType,
+      description:        profileData.description,
+      contact_person:     profileData.contactPerson,
+      contact_email:      profileData.contactEmail,
+      contact_phone:      profileData.contactPhone,
+      contact_whatsapp:   profileData.contactWhatsapp,
+      state:              profileData.state,
+      city:               profileData.city,
+      address:            profileData.address,
+      latitude:           profileData.latitude,
+      longitude:          profileData.longitude,
+      founded_date:       profileData.foundedDate,
+      max_members:        profileData.maxMembers,
+      has_courts:         profileData.hasCourts,
+      court_count:        profileData.courtCount,
+      court_types:        profileData.courtTypes,
+      offers_training:    profileData.offersTraining,
+      offers_tournaments: profileData.offersTournaments,
+      offers_equipment:   profileData.offersEquipment,
+      membership_fee:     profileData.membershipFee,
+      court_rental_fee:   profileData.courtRentalFee,
+      logo:               profileData.logoUrl,
+      banner_image:       profileData.bannerImage,
+      photos:             profileData.photos,
+      website:            profileData.website,
+      social_media:       profileData.socialMedia,
+      operating_hours:    profileData.operatingHours,
+      availability:       profileData.availability,
+      club_rules:         profileData.clubRules,
+      dress_code:         profileData.dressCode,
+      settings:           profileData.settings,
+      notes:              profileData.notes,
+    };
+    // Remove keys with undefined values so backend doesn't overwrite with null
+    Object.keys(payload).forEach((k) => payload[k] === undefined && delete payload[k]);
+
+    const data = await api.put(`/clubs/profile`, payload);
     return (data as any)?.data as ClubProfile;
   },
 );

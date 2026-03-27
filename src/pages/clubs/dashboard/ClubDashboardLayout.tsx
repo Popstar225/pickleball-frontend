@@ -34,12 +34,12 @@ export default function ClubDashboardLayout() {
       icon: Trophy,
       description: t('club_dashboard.nav.venues_desc'),
     },
-    {
-  title: t('club_dashboard.nav.court_schedule'),
-  url: '/clubs/dashboard/court-schedule',
-  icon: Clock,  // import Clock from 'lucide-react'
-  description: t('club_dashboard.nav.court_schedule_desc'),
-},
+    // {
+    //   title: t('club_dashboard.nav.court_schedule'),
+    //   url: '/clubs/dashboard/court-schedule',
+    //   icon: Clock,  // import Clock from 'lucide-react'
+    //   description: t('club_dashboard.nav.court_schedule_desc'),
+    // },
     {
       title: t('club_dashboard.nav.tournaments'),
       url: '/clubs/dashboard/tournaments',
