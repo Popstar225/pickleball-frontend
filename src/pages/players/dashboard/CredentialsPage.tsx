@@ -184,7 +184,7 @@ export default function PlayerCredentialsPage() {
   }];
 
   const ntprPct = myCredential
-    ? (parseFloat(myCredential.nrtp_level || '3.5') / 8) * 100
+    ? Math.min((parseFloat(myCredential.nrtp_level || '5') / 5) * 100, 100)
     : 0;
 
   /* Loading */
@@ -311,12 +311,12 @@ export default function PlayerCredentialsPage() {
               <Panel icon={TrendingUp} title="Nivel NTPR">
                 <div className="flex items-end gap-5 mb-4">
                   <span className="font-sans font-extrabold text-[64px] leading-none tracking-tight text-[#C8FF00] drop-shadow-[0_0_30px_rgba(200,255,0,0.35)]">
-                    {myCredential?.nrtp_level || '3.5'}
+                    {myCredential?.nrtp_level || '5+'}
                   </span>
                   <div className="pb-2 flex flex-col gap-2">
-                    <span className="text-[11px] text-[#C8FF00]/50 tracking-[2px] uppercase">de 8.0 máximo</span>
+                    <span className="text-[11px] text-[#C8FF00]/50 tracking-[2px] uppercase">de 5.0 máximo</span>
                     <Badge className="bg-[#C8FF00]/[0.1] border border-[#C8FF00]/[0.22] text-[#C8FF00] text-[11px] font-bold font-sans w-fit">
-                      NTPR {myCredential?.nrtp_level || '3.5'}
+                      NTPR {myCredential?.nrtp_level || '5+'}
                     </Badge>
                   </div>
                 </div>
@@ -327,7 +327,7 @@ export default function PlayerCredentialsPage() {
                   />
                 </div>
                 <div className="flex justify-between text-[9px] text-[#C8FF00]/30 tracking-[1px] mt-1.5">
-                  {['1.0', '2.5', '4.0', '5.5', '7.0', '8.0'].map(v => <span key={v}>{v}</span>)}
+                  {['1.0', '2.0', '3.0', '4.0', '5.0+'].map(v => <span key={v}>{v}</span>)}
                 </div>
                 <Separator className="bg-[#C8FF00]/[0.08] my-3" />
                 <InfoRow label="Club" value={myCredential?.club_name || 'Independiente'} />

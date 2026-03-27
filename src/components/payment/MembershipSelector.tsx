@@ -254,7 +254,7 @@ export const MembershipSelector = ({
         className={cn(
           'font-["DM_Sans",sans-serif] bg-[#06080E] border border-[#C8FF00]/[0.12]',
           'rounded-2xl shadow-[0_32px_80px_rgba(0,0,0,0.8),0_0_80px_rgba(200,255,0,0.05)]',
-          'max-w-3xl p-0 overflow-hidden',
+          'max-w-3xl p-0 overflow-hidden flex flex-col max-h-[90vh]',
           (required && !preRegistrationMode) ? '[&>button]:hidden' : '[&>button]:text-white/30 [&>button]:hover:text-white [&>button]:border-none',
         )}
       >
@@ -283,7 +283,7 @@ export const MembershipSelector = ({
           )}
         </div>
 
-        <div className="px-6 py-5 space-y-5">
+        <div className="px-6 py-5 space-y-5 overflow-y-auto flex-1">
           {/* Error */}
           {error && (
             <div className="flex items-center gap-3 p-3.5 bg-[#FF5A1F]/[0.08] border border-[#FF5A1F]/[0.25] rounded-xl">

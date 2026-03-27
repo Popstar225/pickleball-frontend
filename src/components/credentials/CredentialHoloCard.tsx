@@ -193,7 +193,7 @@ export function CredentialHoloCard({ credential, photoUrl }: Props) {
 
       {/* NTPR / NRTP */}
       <div className="py-2 text-center font-sans font-extrabold text-[18px] tracking-[5px] text-white bg-gradient-to-r from-[#152B0B] via-[#1F3E10] to-[#152B0B]">
-        {ntprLabel}: {credential.nrtp_level || (isCoach ? 'Level 3' : '3.5')}
+        {ntprLabel}: {credential.nrtp_level || '5+'}
       </div>
 
       {/* Flag */}
