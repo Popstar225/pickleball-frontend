@@ -320,7 +320,7 @@ export default function StatePaymentsPage() {
                 {payments.map((payment) => (
                   <tr key={payment.id} className="group hover:bg-white/[0.02] transition-colors">
                     <td className="py-3 px-4 text-[11px] text-white/30 whitespace-nowrap">
-                      {new Date(payment.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      {new Date((payment as any).createdAt ?? payment.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
                     <td className="py-3 px-4 text-xs font-semibold text-white/70 group-hover:text-white transition-colors max-w-[200px] truncate">
                       {payment.description || TYPE_LABELS[payment.payment_type] || payment.payment_type}

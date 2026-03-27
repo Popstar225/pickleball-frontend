@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '@/store';
-import { fetchMyCoachCredential, fetchCoachProfile, setMyCredential } from '@/store/slices/coachDashboardSlice';
-import { DigitalCredentialPaymentModal } from '@/components/payment/DigitalCredentialPaymentModal';
+import { fetchMyCoachCredential, fetchCoachProfile, createCoachCredential, setMyCredential } from '@/store/slices/coachDashboardSlice';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import {
   Download, QrCode, Shield, TrendingUp, CreditCard, CheckCircle2,
-  Trophy, Star, Calendar, User, Zap, RefreshCcw, Sparkles, AlertCircle, Loader2,
+  Trophy, Star, Calendar, User, Zap, Sparkles, AlertCircle, Loader2, RefreshCcw,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -87,97 +86,36 @@ export default function CoachCredentialsPage() {
   const { myCredential, myCredentialLoading, myCredentialError, profile } = useSelector(
     (state: RootState) => state.coachDashboard,
   );
-  const [paymentModal, setPaymentModal] = useState<{
-    open: boolean;
-    planType: 'basic' | 'membership' | 'premium';
-    planName: string;
-    amount: number;
-  } | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchMyCoachCredential());
     dispatch(fetchCoachProfile());
   }, [dispatch]);
 
-  const paymentPlans = [
-    {
-      id: 'basic',
-      name: 'Certificación Básica',
-      price: 150,
-      duration: '1 Año',
-      popular: false,
-      features: ['Credencial Digital NRTP', 'Verificación por QR', 'Acceso a torneos locales'],
-    },
-    {
-      id: 'professional',
-      name: 'Licencia Profesional',
-      price: 350,
-      duration: '1 Año',
-      popular: true,
-      features: [
-        'Credencial Digital + Renovación',
-        'Entrenamiento en torneos oficiales',
-        'Acceso a rankings de entrenadores',
-        'Descuentos en afiliación a clubes',
-        'Soporte Prioritario 24/7',
-      ],
-    },
-    {
-      id: 'elite',
-      name: 'Licencia Elite',
-      price: 600,
-      duration: '1 Año',
-      popular: false,
-      features: [
-        'Todo lo incluido en Profesional',
-        'Seminarios exclusivos FMXPKL',
-        'Consultoría de alto rendimiento',
-        'Certificación internacional IPF',
-      ],
-    },
-  ];
-
-  const COACH_PLAN_TYPE_MAP: Record<string, 'basic' | 'membership' | 'premium'> = {
-    basic: 'basic',
-    professional: 'membership',
-    elite: 'premium',
-  };
-
-  const handleCreateCredential = (planId: string) => {
-    const plan = paymentPlans.find((p) => p.id === planId);
-    if (!plan) return;
-    setPaymentModal({
-      open: true,
-      planType: COACH_PLAN_TYPE_MAP[planId] || 'membership',
-      planName: plan.name,
-      amount: plan.price,
-    });
-  };
-
-  const handlePaymentSuccess = (credential?: any) => {
-    setPaymentModal(null);
-    if (credential) {
-      dispatch(setMyCredential(credential));
+  // Auto-create credential if none exists after loading completes
+  useEffect(() => {
+    if (!myCredentialLoading && !myCredential && !creating && !createError) {
+      handleAutoCreate();
     }
-    dispatch(fetchMyCoachCredential());
-  };
+  }, [myCredentialLoading, myCredential]);
 
-  const handleRenew = () => {
-    setPaymentModal({
-      open: true,
-      planType: 'membership',
-      planName: 'Licencia Profesional',
-      amount: 350,
-    });
+  const handleAutoCreate = async () => {
+    setCreating(true);
+    setCreateError(null);
+    try {
+      const result = await dispatch(createCoachCredential()).unwrap();
+      if (result) {
+        dispatch(setMyCredential(result));
+        dispatch(fetchMyCoachCredential());
+      }
+    } catch (err: any) {
+      setCreateError(err?.message || 'Error al crear la credencial. Intenta de nuevo.');
+    } finally {
+      setCreating(false);
+    }
   };
-
-  const paymentHistory = [{
-    id: 'PAY-301',
-    date: new Date(myCredential?.issued_date || '2024-01-15').toISOString(),
-    amount: 350,
-    method: 'Stripe',
-    description: 'Licencia Profesional de Entrenador',
-  }];
 
   const nrtpLevelMap: Record<string, number> = {
     '2.5': 2.5, '3.0': 3.0, '3.5': 3.5, '4.0': 4.0, '4.5': 4.5, '5+': 5, '5.0': 5,
@@ -198,12 +136,37 @@ export default function CoachCredentialsPage() {
   ];
 
   /* Loading */
-  if (myCredentialLoading) {
+  if (myCredentialLoading || creating) {
     return (
       <div className="min-h-screen bg-[#06080E] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="w-7 h-7 text-[#C8FF00] animate-spin" />
-          <span className="text-white/60 text-sm font-['DM_Sans',sans-serif]">Cargando credencial…</span>
+          <span className="text-white/60 text-sm font-['DM_Sans',sans-serif]">
+            {creating ? 'Generando tu credencial…' : 'Cargando credencial…'}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  /* Error creating */
+  if (createError && !myCredential) {
+    return (
+      <div className="min-h-screen bg-[#06080E] flex items-center justify-center p-6">
+        <div className="max-w-md w-full text-center space-y-5">
+          <div className="w-14 h-14 rounded-2xl bg-[#ff6b6b]/[0.1] border border-[#ff6b6b]/[0.25] flex items-center justify-center mx-auto">
+            <AlertCircle className="w-6 h-6 text-[#ff6b6b]" />
+          </div>
+          <div>
+            <p className="text-white font-bold text-base mb-1">Error al generar credencial</p>
+            <p className="text-white/45 text-sm">{createError}</p>
+          </div>
+          <Button
+            onClick={handleAutoCreate}
+            className="bg-[#C8FF00] text-black font-extrabold rounded-xl gap-2 hover:bg-[#d6ff26]"
+          >
+            <RefreshCcw className="w-4 h-4" /> Reintentar
+          </Button>
         </div>
       </div>
     );
@@ -251,23 +214,14 @@ export default function CoachCredentialsPage() {
 
           {/* Expired banner */}
           {isExpired && (
-            <div className="flex items-center justify-between gap-4 bg-[#ff6b6b]/[0.07] border border-[#ff6b6b]/[0.25] rounded-2xl px-5 py-4 mb-8 flex-wrap">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#ff6b6b]/[0.12] border border-[#ff6b6b]/[0.25] flex items-center justify-center shrink-0">
-                  <AlertCircle className="w-4 h-4 text-[#ff6b6b]" />
-                </div>
-                <div>
-                  <p className="text-sm font-extrabold text-[#ff6b6b]">Tu licencia ha expirado</p>
-                  <p className="text-[11px] text-white/40 mt-0.5">Renueva ahora para seguir operando como entrenador certificado</p>
-                </div>
+            <div className="flex items-center gap-4 bg-[#ff6b6b]/[0.07] border border-[#ff6b6b]/[0.25] rounded-2xl px-5 py-4 mb-8 flex-wrap">
+              <div className="w-9 h-9 rounded-xl bg-[#ff6b6b]/[0.12] border border-[#ff6b6b]/[0.25] flex items-center justify-center shrink-0">
+                <AlertCircle className="w-4 h-4 text-[#ff6b6b]" />
               </div>
-              <Button
-                onClick={handleRenew}
-                className="rounded-xl text-[12px] font-extrabold font-sans gap-1.5 bg-[#ff6b6b] text-white hover:bg-[#ff5252] shadow-[0_3px_14px_rgba(255,107,107,0.3)]"
-              >
-                <RefreshCcw className="w-3.5 h-3.5" />
-                Renovar Licencia
-              </Button>
+              <div>
+                <p className="text-sm font-extrabold text-[#ff6b6b]">Tu licencia ha expirado</p>
+                <p className="text-[11px] text-white/40 mt-0.5">Contacta a la administración para renovar tu licencia de entrenador</p>
+              </div>
             </div>
           )}
 
@@ -285,17 +239,17 @@ export default function CoachCredentialsPage() {
                 const total = end.getTime() - start.getTime();
                 const elapsed = Math.min(Math.max(now.getTime() - start.getTime(), 0), total);
                 const pct = total > 0 ? Math.round((elapsed / total) * 100) : 0;
-                const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                const fmt = (d: Date) => d.toLocaleDateString('es-MX', { month: 'short', year: 'numeric' });
                 return (
                   <Panel icon={Calendar} title="Vigencia de Licencia">
                     <div className="flex justify-between text-[12px] text-white/65 mb-2">
                       <span>
                         Emitida:{' '}
-                        <span className="text-white/88">{start.toLocaleDateString('en-US')}</span>
+                        <span className="text-white/88">{start.toLocaleDateString('es-MX')}</span>
                       </span>
                       <span>
                         Expira:{' '}
-                        <span className="text-white/88">{end.toLocaleDateString('en-US')}</span>
+                        <span className="text-white/88">{end.toLocaleDateString('es-MX')}</span>
                       </span>
                     </div>
                     <div className="h-1 bg-white/[0.06] rounded-full overflow-hidden">
@@ -363,7 +317,7 @@ export default function CoachCredentialsPage() {
                   {(myCredential as any)?.user?.date_of_birth && (
                     <InfoRow
                       label="Fecha de Nacimiento"
-                      value={new Date((myCredential as any).user.date_of_birth).toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' })}
+                      value={new Date((myCredential as any).user.date_of_birth).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' })}
                     />
                   )}
                   <InfoRow
@@ -386,12 +340,12 @@ export default function CoachCredentialsPage() {
                   <InfoRow
                     label="Emitida"
                     value={myCredential?.issued_date
-                      ? new Date(myCredential.issued_date).toLocaleDateString('en-US')
+                      ? new Date(myCredential.issued_date).toLocaleDateString('es-MX')
                       : 'Sin datos'}
                   />
                   <InfoRow
                     label="Expira"
-                    value={getExpiryDate(myCredential).toLocaleDateString('en-US')}
+                    value={getExpiryDate(myCredential).toLocaleDateString('es-MX')}
                   />
                 </Panel>
 
@@ -401,171 +355,20 @@ export default function CoachCredentialsPage() {
                   ))}
                 </Panel>
               </div>
-
-              {/* Payment history */}
-              <Panel
-                icon={CreditCard}
-                title="Historial de Pagos"
-                action={
-                  <Button
-                    onClick={handleRenew}
-                    size="sm"
-                    className="rounded-[9px] text-[12px] font-extrabold font-sans gap-1.5 h-8 px-3.5 bg-[#C8FF00] text-black shadow-[0_3px_14px_rgba(200,255,0,0.28)] hover:bg-[#d6ff26]"
-                  >
-                    <RefreshCcw className="w-3 h-3" />
-                    Renovar $350 USD
-                  </Button>
-                }
-              >
-                {paymentHistory.map(p => (
-                  <div key={p.id} className="flex items-center justify-between py-3 border-b border-white/[0.04] last:border-none">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-[10px] bg-[#C8FF00]/[0.07] border border-[#C8FF00]/[0.12] flex items-center justify-center flex-shrink-0">
-                        <CheckCircle2 className="w-[17px] h-[17px] text-[#C8FF00]" />
-                      </div>
-                      <div>
-                        <p className="text-[13px] font-medium text-white/85">{p.description}</p>
-                        <p className="text-[11px] text-white/60 mt-0.5">
-                          {new Date(p.date).toLocaleDateString('en-US')} · {p.method} · {p.id}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="font-sans font-extrabold text-[20px] leading-none text-[#C8FF00]">
-                        ${p.amount}{' '}
-                        <span className="text-[13px] font-normal text-white/60">USD</span>
-                      </p>
-                      <Badge className="mt-1 bg-[#C8FF00]/[0.08] border border-[#C8FF00]/[0.18] text-[#C8FF00] text-[8px] font-bold tracking-[1.5px] uppercase font-sans">
-                        Completado
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </Panel>
             </div>
           </div>
         </div>
-
-        {paymentModal && (
-          <DigitalCredentialPaymentModal
-            isOpen={paymentModal.open}
-            onClose={() => setPaymentModal(null)}
-            planType={paymentModal.planType}
-            planName={paymentModal.planName}
-            amount={paymentModal.amount}
-            userType="coach"
-            onSuccess={handlePaymentSuccess}
-          />
-        )}
       </div>
     );
   }
 
-  /* ── NO CREDENTIAL ──────────────────────────────────────────── */
+  /* ── FALLBACK (should not reach here after auto-create) ─────── */
   return (
-    <div className="min-h-screen bg-[#06080E] text-[#F0F0FF] font-['DM_Sans',sans-serif] relative overflow-hidden">
-      <div className="fixed pointer-events-none rounded-full -top-1/4 -left-1/4 w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(200,255,0,0.04)_0%,transparent_65%)]" />
-      <div className="fixed pointer-events-none rounded-full -bottom-1/4 -right-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(100,180,0,0.03)_0%,transparent_65%)]" />
-
-      <div className="relative z-10 max-w-[1200px] mx-auto px-6 py-8 pb-16">
-
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-1.5 bg-[#ff6b6b]/[0.07] border border-[#ff6b6b]/[0.2] rounded-full px-3 py-1 mb-3 font-sans text-[10px] font-bold tracking-[2px] text-[#ff6b6b] uppercase">
-            <AlertCircle className="w-2.5 h-2.5" /> Sin Licencia Activa
-          </div>
-          <h1 className="font-sans font-extrabold leading-none tracking-tight text-[clamp(28px,4vw,44px)]">
-            OBTENER LICENCIA <span className="text-[#C8FF00]">DE ENTRENADOR</span>
-          </h1>
-          <p className="text-[#8CAF00] text-[11px] tracking-[2.5px] uppercase font-bold mt-3">
-            Elige un plan y obtén tu licencia oficial de entrenador
-          </p>
-        </div>
-
-        {/* Error */}
-        {myCredentialError && (
-          <div className="bg-[#ff6b6b]/[0.1] border border-[#ff6b6b]/[0.3] rounded-xl px-4 py-3.5 mb-8 text-[#ff6b6b] text-[14px]">
-            {myCredentialError}
-          </div>
-        )}
-
-        {/* Plans */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
-          {paymentPlans.map(plan => (
-            <Card
-              key={plan.id}
-              className={cn(
-                'relative overflow-hidden rounded-2xl',
-                plan.popular
-                  ? 'bg-[#C8FF00]/[0.06] border-2 border-[#C8FF00]/[0.35]'
-                  : 'bg-white/[0.02] border border-[#C8FF00]/[0.1]',
-              )}
-            >
-              {plan.popular && (
-                <div className="absolute top-3 right-[-38px] bg-[#C8FF00] text-black px-12 py-1 rotate-45 font-sans text-[9px] font-extrabold tracking-[1px]">
-                  POPULAR
-                </div>
-              )}
-              <CardContent className="p-6">
-                <h3 className="font-sans font-extrabold text-[17px] text-white mb-1.5">
-                  {plan.name}
-                </h3>
-                <div className="flex items-baseline gap-2 mb-0.5">
-                  <span className="font-sans font-extrabold text-[38px] leading-none text-[#C8FF00] tracking-tight">
-                    ${plan.price}
-                  </span>
-                  <span className="text-[12px] text-white/65">USD</span>
-                </div>
-                <p className="text-[12px] text-white/65 mb-4">/ {plan.duration}</p>
-
-                <Separator className="bg-[#C8FF00]/[0.08] mb-4" />
-
-                <ul className="flex flex-col gap-2.5 mb-6">
-                  {plan.features.map((feat, i) => (
-                    <li key={i} className="flex items-center gap-2 text-[12px] text-white/85">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#C8FF00] flex-shrink-0" />
-                      {feat}
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  onClick={() => handleCreateCredential(plan.id)}
-                  className={cn(
-                    'w-full rounded-xl font-extrabold font-sans text-[13px]',
-                    plan.popular
-                      ? 'bg-[#C8FF00] text-black hover:bg-[#d6ff26] shadow-[0_4px_18px_rgba(200,255,0,0.28)]'
-                      : 'bg-[#C8FF00]/[0.08] text-[#C8FF00] border border-[#C8FF00]/[0.2] hover:bg-[#C8FF00]/[0.15]',
-                  )}
-                >
-                  Seleccionar Plan
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Benefits */}
-        <Panel icon={Sparkles} title="¿Qué incluye tu licencia de entrenador?">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
-            {benefits.map(([Icon, text], i) => (
-              <BenefitRow key={i} icon={Icon} text={text} />
-            ))}
-          </div>
-        </Panel>
+    <div className="min-h-screen bg-[#06080E] flex items-center justify-center p-6">
+      <div className="max-w-md w-full text-center space-y-5">
+        <Loader2 className="w-7 h-7 text-[#C8FF00] animate-spin mx-auto" />
+        <p className="text-white/60 text-sm">Preparando tu credencial…</p>
       </div>
-
-      {paymentModal && (
-        <DigitalCredentialPaymentModal
-          isOpen={paymentModal.open}
-          onClose={() => setPaymentModal(null)}
-          planType={paymentModal.planType}
-          planName={paymentModal.planName}
-          amount={paymentModal.amount}
-          userType="coach"
-          onSuccess={handlePaymentSuccess}
-        />
-      )}
     </div>
   );
 }

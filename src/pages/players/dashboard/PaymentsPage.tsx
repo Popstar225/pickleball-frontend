@@ -166,7 +166,7 @@ export default function PlayerPaymentsPage() {
     totalPaid: payments.filter(p => p.status === 'completed').reduce((s, p) => s + Number(p.amount), 0),
     pending: payments.filter(p => p.status === 'pending').length,
     thisYear: payments
-      .filter(p => p.status === 'completed' && new Date(p.created_at).getFullYear() === new Date().getFullYear())
+      .filter(p => p.status === 'completed' && new Date((p as any).createdAt ?? p.created_at).getFullYear() === new Date().getFullYear())
       .reduce((s, p) => s + Number(p.amount), 0),
   };
 
@@ -446,7 +446,7 @@ export default function PlayerPaymentsPage() {
                         className="border-b border-white/[0.04] last:border-none hover:bg-white/[0.02] transition-colors"
                       >
                         <TableCell className="text-[13px] text-white/60 px-5 py-3.5">
-                          {new Date(payment.created_at).toLocaleDateString('en-US')}
+                          {new Date((payment as any).createdAt ?? payment.created_at).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' })}
                         </TableCell>
                         <TableCell className="py-3.5">
                           <p className="text-[13px] font-medium text-white/85">
