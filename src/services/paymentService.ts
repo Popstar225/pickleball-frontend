@@ -38,6 +38,7 @@ export interface PaymentIntentResponse {
   data: {
     payment_id: string;
     client_secret: string;
+    stripe_publishable_key?: string;
     amount: number;
     currency: string;
   };
@@ -474,30 +475,19 @@ class PaymentService {
    * Create payment intent for court rental
    */
   static async createCourtRentalPayment(data: {
-    amount: number;         // in cents
+    amount: number;         // in cents (unused — backend derives from reservation)
     court_id: string;
     club_id?: string;
     start_time: string;     // ISO string
     end_time: string;       // ISO string
     duration_hours: number;
     description?: string;
+    reservation_id: string;
   }): Promise<PaymentIntentResponse> {
     try {
       const response = await apiClient.post<PaymentIntentResponse>(
-        '/stripe/payment-intent',
-        {
-          amount: data.amount,
-          payment_type: 'court_rental',
-          currency: 'mxn',
-          club_id: data.club_id,
-          description: data.description || 'Renta de cancha',
-          metadata: {
-            court_id: data.court_id,
-            start_time: data.start_time,
-            end_time: data.end_time,
-            duration_hours: data.duration_hours,
-          },
-        },
+        '/payments/court-rental',
+        { reservation_id: data.reservation_id },
       );
       return response.data;
     } catch (error) {
@@ -540,7 +530,7 @@ class PaymentService {
     partner_id?: string;
   }): Promise<{
     success: boolean;
-    data: { payment_id: string; client_secret: string; amount: number; currency: string; tournament_event_id: string };
+    data: { payment_id: string; client_secret: string; stripe_publishable_key?: string; amount: number; currency: string; tournament_event_id: string };
   }> {
     try {
       const response = await apiClient.post('/payments/tournament-registration', data);

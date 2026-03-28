@@ -16,7 +16,7 @@ import {
 
 const navItems: NavItem[] = [
   {
-    title: 'Panel de estatal',
+    title: 'Panel de entrenadores',
     url: '/coaches/dashboard',
     icon: LayoutDashboard,
     description: 'Vista general',
