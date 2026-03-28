@@ -156,7 +156,6 @@ export default function VenuesManagement() {
       }
       closeModal();
     } catch (e: any) { 
-      console.error('❌ Error saving venue:', e);
       const errorMsg = typeof e === 'string' ? e : (e?.message || 'Error al guardar');
       toast.error(errorMsg); 
     }

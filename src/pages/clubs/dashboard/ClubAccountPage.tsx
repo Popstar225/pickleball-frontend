@@ -11,18 +11,18 @@ import {
   deleteClubAccount,
 } from '@/store/slices/clubDashboardSlice';
 import { AppDispatch, RootState } from '@/store';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { ClubProfile, ClubOperatingHours } from '@/store/slices/clubDashboardSlice';
 import { createClub } from '@/store/slices/clubsSlice';
 import { getFullImageUrl } from '@/common/tools';
 import { getImageUrl, cn } from '@/lib/utils';
 
 import {
-  Building2, MapPin, Edit, X, Trash2, AlertTriangle, Loader2, Check,
+  Building2, MapPin, X, Trash2, AlertTriangle, Loader2, Check,
   Clock, Mail, Share2, Settings, Calendar, User, Shield, Upload, Plus,
   Image as ImageIcon, Star, Trophy, Users, Banknote,
 } from 'lucide-react';
-import { ConnectAccountSetup } from '@/components/payment/ConnectAccountSetup';
+import { OwnStripeSetup } from '@/components/payment/OwnStripeSetup';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -241,10 +241,10 @@ function toForm(p: ClubProfile): FormData {
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function ClubAccountPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const { toast } = useToast();
   const { profile, profileLoading, profileError } = useSelector((s: RootState) => s.clubDashboard);
+  const authUser = useSelector((s: RootState) => s.auth.user);
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
   const [formData, setFormData] = useState<FormData | null>(null);
   const [hours, setHours] = useState<ClubOperatingHours | null>(null);
   const [activeTab, setActiveTab] = useState<TabValue>('identity');
@@ -259,7 +259,7 @@ export default function ClubAccountPage() {
   useEffect(() => { dispatch(fetchClubProfile()); }, [dispatch]);
 
   useEffect(() => {
-    if (profile && !isEditing) {
+    if (profile && !isDirty) {
       const f = toForm(profile);
       setFormData(f); setHours(profile.operatingHours ?? null);
       setCourtTypesRaw(f.courtTypes.join(', ')); setIsNewClub(false);
@@ -268,22 +268,34 @@ export default function ClubAccountPage() {
 
   useEffect(() => {
     if (profileError && !formData && !profile) {
-      setFormData(emptyFormData); setHours(emptyFormData.operatingHours);
-      setCourtTypesRaw(''); setIsNewClub(true); setIsEditing(true);
+      const userMembership = authUser?.membership_status;
+      const seedData: FormData = {
+        ...emptyFormData,
+        membershipStatus: userMembership === 'expired' ? 'expired' : 'active',
+        subscriptionPlan: authUser?.subscription_plan === 'premium' ? 'premium' : 'basic',
+        membershipExpiresAt: authUser?.membership_expires_at ?? '',
+      };
+      setFormData(seedData); setHours(emptyFormData.operatingHours);
+      setCourtTypesRaw(''); setIsNewClub(true); setIsDirty(false);
     }
-  }, [profileError, formData, profile]);
+  }, [profileError, formData, profile, authUser]);
 
-  const set = (key: keyof FormData, val: any) => setFormData(p => p ? { ...p, [key]: val } : p);
-  const setAvailability = (field: keyof FormData['availability'], val: boolean) =>
-    setFormData(p => p ? { ...p, availability: { ...p.availability, [field]: val } } : p);
-  const setSettings = (field: keyof FormData['settings'], val: boolean | number) =>
-    setFormData(p => p ? { ...p, settings: { ...p.settings, [field]: val } } : p);
-  const setSocialMedia = (field: keyof FormData['socialMedia'], val: string) =>
-    setFormData(p => p ? { ...p, socialMedia: { ...p.socialMedia, [field]: val } } : p);
-  const setOwner = (field: keyof FormData['owner'], val: string | null) =>
-    setFormData(p => p ? { ...p, owner: { ...p.owner, [field]: val } } : p);
-  const setHour = (day: keyof ClubOperatingHours, field: 'open' | 'close', val: string) =>
-    setHours(h => h ? { ...h, [day]: { ...h[day], [field]: val } } : h);
+  const set = (key: keyof FormData, val: any) => { setIsDirty(true); setFormData(p => p ? { ...p, [key]: val } : p); };
+  const setAvailability = (field: keyof FormData['availability'], val: boolean) => {
+    setIsDirty(true); setFormData(p => p ? { ...p, availability: { ...p.availability, [field]: val } } : p);
+  };
+  const setSettings = (field: keyof FormData['settings'], val: boolean | number) => {
+    setIsDirty(true); setFormData(p => p ? { ...p, settings: { ...p.settings, [field]: val } } : p);
+  };
+  const setSocialMedia = (field: keyof FormData['socialMedia'], val: string) => {
+    setIsDirty(true); setFormData(p => p ? { ...p, socialMedia: { ...p.socialMedia, [field]: val } } : p);
+  };
+  const setOwner = (field: keyof FormData['owner'], val: string | null) => {
+    setIsDirty(true); setFormData(p => p ? { ...p, owner: { ...p.owner, [field]: val } } : p);
+  };
+  const setHour = (day: keyof ClubOperatingHours, field: 'open' | 'close', val: string) => {
+    setIsDirty(true); setHours(h => h ? { ...h, [day]: { ...h[day], [field]: val } } : h);
+  };
 
   function readFileAsBase64(file: File): Promise<string> {
     return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result as string); r.onerror = rej; r.readAsDataURL(file); });
@@ -299,13 +311,13 @@ export default function ClubAccountPage() {
   async function handleLogoCropComplete(croppedFile: File) {
     setCropSrc(null);
     setUploadingLogo(true);
-    try { const b64 = await readFileAsBase64(croppedFile); setFormData(p => p ? { ...p, logoUrl: b64 } : p); } catch {}
+    try { const b64 = await readFileAsBase64(croppedFile); setIsDirty(true); setFormData(p => p ? { ...p, logoUrl: b64 } : p); } catch {}
     finally { setUploadingLogo(false); }
   }
   async function handleBannerUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]; if (!file) return;
     setUploadingBanner(true);
-    try { const b64 = await readFileAsBase64(file); setFormData(p => p ? { ...p, bannerImage: b64 } : p); } catch {}
+    try { const b64 = await readFileAsBase64(file); setIsDirty(true); setFormData(p => p ? { ...p, bannerImage: b64 } : p); } catch {}
     finally { setUploadingBanner(false); }
   }
   async function handlePhotosUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -313,7 +325,7 @@ export default function ClubAccountPage() {
     setUploadingPhotos(true);
     try {
       const arr = await Promise.all(files.map(readFileAsBase64));
-      setFormData(p => p ? { ...p, photos: [...p.photos, ...arr] } : p);
+      setIsDirty(true); setFormData(p => p ? { ...p, photos: [...p.photos, ...arr] } : p);
     } catch {}
     finally { setUploadingPhotos(false); }
   }
@@ -322,8 +334,8 @@ export default function ClubAccountPage() {
     if (!formData) return;
     const finalCourtTypes = courtTypesRaw.split(',').map(s => s.trim()).filter(Boolean);
     try {
-      if (isNewClub && profileError) {
-        await dispatch(createClub({
+      if (isNewClub) {
+        const result = await dispatch(createClub({
           name: formData.name, club_type: (formData.clubType as any) || CLUB_TYPES.RECREATIONAL,
           description: formData.description, contact_person: formData.contactPerson,
           contact_email: formData.contactEmail, contact_phone: formData.contactPhone,
@@ -341,35 +353,55 @@ export default function ClubAccountPage() {
           dress_code: formData.dressCode, logo: formData.logoUrl || undefined,
           banner: formData.bannerImage || undefined,
           photos: formData.photos.length ? formData.photos : undefined,
-        })).unwrap();
-        setIsEditing(false);
-        toast({ title: 'Club creado', description: 'El club ha sido creado exitosamente.' });
+        })).unwrap() as any;
+        // Backend returns HTTP 200 { success: false } on validation errors — interceptor
+        // already showed the toast, so just bail out without touching isNewClub.
+        if (result?.success === false) return;
+        setIsNewClub(false);
+        setIsDirty(false);
+        dispatch(fetchClubProfile());
+        toast.success('¡Club creado!', { description: 'El club ha sido creado exitosamente.' });
       } else {
         await dispatch(updateClubProfile({
           ...formData, courtTypes: finalCourtTypes, photos: formData.photos,
           logoUrl: formData.logoUrl, bannerImage: formData.bannerImage,
           operatingHours: hours ?? formData.operatingHours,
         })).unwrap();
-        setIsEditing(false);
-        toast({ title: 'Perfil actualizado', description: 'Los cambios han sido guardados.' });
+        setIsDirty(false);
+        toast.success('Perfil actualizado', { description: 'Los cambios han sido guardados.' });
       }
     } catch (error: any) {
-      toast({ title: 'Error', description: error?.message || 'No se pudo actualizar', variant: 'destructive' });
+      const message = error?.response?.data?.message || error?.message || 'No se pudo guardar los cambios';
+      toast.error(message);
     }
   };
 
   const handleCancel = () => {
-    if (profile) { const f = toForm(profile); setFormData(f); setHours(profile.operatingHours ?? null); setCourtTypesRaw(f.courtTypes.join(', ')); }
-    setIsEditing(false);
+    if (isNewClub) {
+      // New club: reset form to empty, stay in edit mode (can't exit — nothing exists yet)
+      setFormData(emptyFormData);
+      setHours(emptyFormData.operatingHours);
+      setCourtTypesRaw('');
+      setIsDirty(false);
+    } else if (profile) {
+      const f = toForm(profile);
+      setFormData(f);
+      setHours(profile.operatingHours ?? null);
+      setCourtTypesRaw(f.courtTypes.join(', '));
+      setIsDirty(false);
+    } else {
+      setIsDirty(false);
+    }
   };
 
   const handleDelete = async () => {
     try {
       await dispatch(deleteClubAccount('confirm-delete')).unwrap();
-      toast({ title: 'Club eliminado', variant: 'destructive' });
+      toast.success('Club eliminado');
       setTimeout(() => { window.location.href = '/auth/login'; }, 2000);
     } catch (error: any) {
-      toast({ title: 'Error', description: error?.message || 'No se pudo eliminar', variant: 'destructive' });
+      const message = error?.response?.data?.message || error?.message || 'No se pudo eliminar la cuenta';
+      toast.error(message);
     }
   };
 
@@ -384,7 +416,7 @@ export default function ClubAccountPage() {
   if (!formData) return null;
 
   const initials = formData.name.split(' ').filter(Boolean).map(w => w[0]).slice(0, 2).join('').toUpperCase() || (isNewClub ? 'NC' : 'CL');
-  const isDisabled = !isEditing || profileLoading;
+  const isDisabled = profileLoading;
 
   const statusCfg = formData.membershipStatus === 'active'
     ? { bg:'bg-emerald-500/10', text:'text-emerald-400', border:'border-emerald-500/20', label:'Activo' }
@@ -443,12 +475,6 @@ export default function ClubAccountPage() {
 
             {/* actions */}
             <div className="flex gap-2 pb-0.5">
-              <button type="button" onClick={() => isEditing ? handleCancel() : setIsEditing(true)} disabled={profileLoading}
-                className="flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-white/[0.08] text-white/50 hover:text-white hover:bg-white/[0.05] text-xs font-semibold disabled:opacity-40 transition-all">
-                {isEditing ? <X className="w-3.5 h-3.5" /> : <Edit className="w-3.5 h-3.5" />}
-                {isEditing ? 'Cancelar' : isNewClub ? 'Crear Club' : 'Editar'}
-              </button>
-
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <button type="button" disabled={profileLoading || isNewClub}
@@ -667,7 +693,7 @@ export default function ClubAccountPage() {
           {/* ── Payments ─────────────────────────────────────────────────── */}
           <TabsContent value="payments" className="mt-4">
             <SectionCard>
-              <ConnectAccountSetup userType="club" />
+              <OwnStripeSetup userType="club" />
             </SectionCard>
           </TabsContent>
 
@@ -791,7 +817,7 @@ export default function ClubAccountPage() {
                     </label>
                   )}
                 </div>
-                {formData.photos.length === 0 && isDisabled && <p className="text-xs text-white/20 mt-2">Sin fotos. Activa la edición para agregar.</p>}
+                {formData.photos.length === 0 && <p className="text-xs text-white/20 mt-2">Sin fotos aún.</p>}
               </div>
 
               <div className="h-px bg-white/[0.05]" />
@@ -878,7 +904,7 @@ export default function ClubAccountPage() {
           </TabsContent>
         </Tabs>
 
-        <SaveBar visible={isEditing} onSave={handleSave} onCancel={handleCancel} loading={profileLoading} />
+        <SaveBar visible={isDirty} onSave={handleSave} onCancel={handleCancel} loading={profileLoading} />
       </div>
 
       {cropSrc && (

@@ -17,8 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import { stripePromise } from './StripeProvider';
 import {
   Select,
   SelectContent,
@@ -78,6 +78,7 @@ export const TournamentPaymentModal = ({
   const [paymentData, setPaymentData] = useState<{
     paymentId: string;
     clientSecret: string;
+    stripePublishableKey: string;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -127,6 +128,7 @@ export const TournamentPaymentModal = ({
       setPaymentData({
         paymentId: response.data.payment_id,
         clientSecret: response.data.client_secret,
+        stripePublishableKey: response.data.stripe_publishable_key,
       });
 
       setShowPayment(true);
@@ -170,7 +172,7 @@ export const TournamentPaymentModal = ({
               </Alert>
             )}
             <Elements
-              stripe={stripePromise}
+              stripe={loadStripe(paymentData.stripePublishableKey)}
               options={{ clientSecret: paymentData.clientSecret }}
             >
               <PaymentForm

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +13,8 @@ import {
   Loader2,
   ArrowRight,
   TrendingUp,
+  X,
+  Bell,
 } from 'lucide-react';
 import { AppDispatch, RootState } from '@/store';
 import {
@@ -30,7 +32,7 @@ function MemberBadge({ status }: { status: string }) {
     <span
       className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
         active
-          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+          ? 'bg-emerald-500/10 text-emerald-400 border-eerald-500/20'
           : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
       }`}
     >
@@ -55,11 +57,65 @@ function EventBadge({ status }: { status: string }) {
   );
 }
 
+// ─── Welcome notification ─────────────────────────────────────────────────────
+const DISMISSED_KEY = 'fedmex_welcome_dismissed';
+
+function WelcomeNotification() {
+  const [dismissed, setDismissed] = useState(() => !!sessionStorage.getItem(DISMISSED_KEY));
+
+  const handleDismiss = () => {
+    sessionStorage.setItem(DISMISSED_KEY, '1');
+    setDismissed(true);
+  };
+
+  if (dismissed) return null;
+
+  return (
+    <div className="relative flex gap-4 rounded-2xl border border-[#ace600]/25 bg-[#ace600]/[0.05] px-5 py-4 pr-10">
+      {/* icon */}
+      <div className="mt-0.5 flex-shrink-0 w-9 h-9 rounded-xl border border-[#ace600]/20 bg-[#ace600]/10 flex items-center justify-center">
+        <Bell className="w-4 h-4 text-[#ace600]" />
+      </div>
+
+      {/* content */}
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-bold text-white mb-1.5">
+          ¡Bienvenido a la FEDMEX Pickleball!
+        </p>
+        <p className="text-[13px] text-white/55 leading-relaxed">
+          Antes de empezar, es necesario que rellenes algunos campos básicos de
+          información de tu club. Por favor, ve al menú y dale clic en{' '}
+          <span className="text-white/80 font-semibold">"Mi cuenta"</span>, ahí
+          rellena los campos de{' '}
+          <span className="text-white/80">identidad</span>,{' '}
+          <span className="text-white/80">contacto</span> y{' '}
+          <span className="text-white/80">ubicación</span>. Luego dale en guardar.
+        </p>
+        <Link
+          to="/clubs/dashboard/account"
+          className="inline-flex items-center gap-1.5 mt-3 h-8 px-4 rounded-xl bg-[#ace600] hover:bg-[#c0f000] text-black text-xs font-bold transition-all"
+        >
+          Ir a Mi cuenta <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      {/* dismiss */}
+      <button
+        type="button"
+        onClick={handleDismiss}
+        className="absolute top-3 right-3 w-6 h-6 rounded-lg flex items-center justify-center text-white/25 hover:text-white/60 hover:bg-white/[0.06] transition-all"
+      >
+        <X className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function ClubDashboardHome() {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
-  const { profile, stats: clubStats, members, events, membersLoading, eventsLoading } = useSelector(
+  const { profile, stats: clubStats, members, events, membersLoading, eventsLoading, profileLoading } = useSelector(
     (state: RootState) => state.clubDashboard,
   );
 
@@ -69,6 +125,9 @@ export default function ClubDashboardHome() {
     dispatch(fetchClubMembers({ limit: 5 }));
     dispatch(fetchClubEvents());
   }, [dispatch]);
+
+  // Show welcome notification only when the fetch is done and no club exists yet
+  const showWelcome = !profileLoading && !profile;
 
   const stats = [
     {
@@ -137,6 +196,9 @@ export default function ClubDashboardHome() {
           </Link>
         </div>
       </div>
+
+      {/* ── Welcome notification ────────────────────────────────────────────── */}
+      {showWelcome && <WelcomeNotification />}
 
       {/* ── Stats ───────────────────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

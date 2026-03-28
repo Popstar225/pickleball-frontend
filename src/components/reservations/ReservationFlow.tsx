@@ -24,8 +24,8 @@ import {
   Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { stripePromise } from '@/components/payment/StripeProvider';
 import PaymentService from '@/services/paymentService';
 
 interface ReservationFlowProps {
@@ -59,6 +59,7 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
   const [reservationData, setReservationData] = useState<Partial<CourtReservation>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentIntent, setPaymentIntent] = useState<{ paymentId: string; clientSecret: string } | null>(null);
+  const [clubStripeKey, setClubStripeKey] = useState<string | null>(null);
   const [confirmedReservation, setConfirmedReservation] = useState<any>(null);
 
   // Fetch venues when component mounts
@@ -148,6 +149,7 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
         description: `Cancha ${selectedCourt.name} — ${selectedDate} ${timeDesc}`,
       });
       setPaymentIntent({ paymentId: res.data.payment_id, clientSecret: res.data.client_secret });
+      setClubStripeKey(res.data.stripe_publishable_key ?? null);
       setCurrentStep('payment');
     } catch (err: any) {
       toast.error(err?.message || 'No se pudo iniciar el pago');
@@ -334,9 +336,9 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
             />
           )}
 
-          {currentStep === 'payment' && paymentIntent && (
+          {currentStep === 'payment' && paymentIntent && clubStripeKey && (
             <Elements
-              stripe={stripePromise}
+              stripe={loadStripe(clubStripeKey)}
               options={{
                 clientSecret: paymentIntent.clientSecret,
                 appearance: {

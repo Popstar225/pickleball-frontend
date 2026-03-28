@@ -199,6 +199,10 @@ export function OrganizerTournamentDashboard({
 
   const filtered = useMemo(() => {
     let r = [...safe];
+    // For club organizers, show only tournaments they created
+    if (organizerType === 'club' && user?.id) {
+      r = r.filter((t) => t.organizer_id === user.id);
+    }
     if (search) {
       const q = search.toLowerCase();
       r = r.filter(
@@ -211,7 +215,7 @@ export function OrganizerTournamentDashboard({
         new Date(b.created_at || b.start_date || 0).getTime() -
         new Date(a.created_at || a.start_date || 0).getTime(),
     );
-  }, [safe, search, activeStatus]);
+  }, [safe, search, activeStatus, organizerType, user?.id]);
 
   const baseUrl =
     organizerType === 'club'

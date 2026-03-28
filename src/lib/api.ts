@@ -48,11 +48,16 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+// Endpoints that return success:false as a normal "not found" state (no toast needed)
+const SILENT_ENDPOINTS = ['/clubs/profile', '/clubs/statistics', '/clubs/members', '/clubs/events'];
+
 // Response interceptor: show toast for any error with a message
 apiClient.interceptors.response.use(
   (res) => {
     // HTTP 2xx but body has { success: false, message: '...' }
-    if (res.data?.success === false && res.data?.message) {
+    const url = res.config?.url ?? '';
+    const isSilent = SILENT_ENDPOINTS.some((ep) => url.includes(ep));
+    if (res.data?.success === false && res.data?.message && !isSilent) {
       toast.error(res.data.message);
     }
     return res;
@@ -60,7 +65,9 @@ apiClient.interceptors.response.use(
   (err) => {
     // HTTP 4xx / 5xx
     const message: string | undefined = err?.response?.data?.message;
-    if (message) {
+    const url: string = err?.config?.url ?? '';
+    const isSilent = SILENT_ENDPOINTS.some((ep) => url.includes(ep));
+    if (message && !isSilent) {
       toast.error(message);
     }
     return Promise.reject(err);

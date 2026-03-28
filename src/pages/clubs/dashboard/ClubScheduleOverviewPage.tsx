@@ -56,6 +56,7 @@ interface Tournament {
   name: string;
   start_date: string;
   status: string;
+  organizer_id?: string;
   events: any[];
 }
 
@@ -95,7 +96,12 @@ export default function ClubScheduleOverviewPage() {
           }),
         );
 
-        setTournaments(withEvents.filter(t => (t.events?.length ?? 0) > 0));
+        const clubId = user?.id;
+        setTournaments(
+          withEvents
+            .filter(t => !clubId || t.organizer_id === clubId)
+            .filter(t => (t.events?.length ?? 0) > 0),
+        );
       } catch (err) {
         setError(err instanceof Error ? err.message : t('club_dashboard.schedule.error_loading_tournaments'));
       } finally {
