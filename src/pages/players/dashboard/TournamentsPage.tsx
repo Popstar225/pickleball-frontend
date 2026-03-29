@@ -259,8 +259,8 @@ export default function PlayerTournamentsPage() {
       setLoading(true);
       setError(null);
       try {
-        // Fetch all published tournaments for players
-        const res = await api.get<any>('/tournaments?status=published');
+        // Fetch all active tournaments (all states, all statuses except draft/cancelled)
+        const res = await api.get<any>('/tournaments');
         let data = res.data as any;
         if (data?.data && Array.isArray(data.data)) data = data.data;
         const tours = Array.isArray(data) ? data : [];

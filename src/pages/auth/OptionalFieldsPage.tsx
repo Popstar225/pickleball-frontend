@@ -211,7 +211,7 @@ const OptionalFieldsPage = () => {
           name: 'gender',
           label: t('auth.optionalFields.field_gender'),
           type: 'select',
-          options: ['masculino', 'femenino'],
+          options: ['male', 'female'],
           icon: User,
         },
         {
@@ -472,6 +472,8 @@ const OptionalFieldsPage = () => {
                 </option>
                 {field.options.map((option: string) => {
                   const optionLabels: Record<string, string> = {
+                    male: t('auth.optionalFields.gender_male'),
+                    female: t('auth.optionalFields.gender_female'),
                     masculino: t('auth.optionalFields.gender_male'),
                     femenino: t('auth.optionalFields.gender_female'),
                     otro: option.charAt(0).toUpperCase() + option.slice(1).replace('_', ' '),
