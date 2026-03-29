@@ -33,9 +33,12 @@ import {
   Crown,
   Medal,
   ChevronRight,
+  ChevronLeft,
   Search,
   Zap,
 } from 'lucide-react';
+
+const PAGE_SIZE = 10;
 import { Mexico } from '@/constants/constants';
 import { api } from '@/lib/api';
 import type { RootState } from '@/store';
@@ -246,6 +249,7 @@ export default function PlayerTournamentsPage() {
   const [filterState, setFilterState] = useState('');
   const [filterLevel, setFilterLevel] = useState('all');
   const [sortBy, setSortBy] = useState<'date' | 'level' | 'participants'>('date');
+  const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
 
   // Registration modal state
@@ -260,7 +264,7 @@ export default function PlayerTournamentsPage() {
       setError(null);
       try {
         // Fetch all active tournaments (all states, all statuses except draft/cancelled)
-        const res = await api.get<any>('/tournaments');
+        const res = await api.get<any>('/tournaments?limit=100');
         let data = res.data as any;
         if (data?.data && Array.isArray(data.data)) data = data.data;
         const tours = Array.isArray(data) ? data : [];
@@ -305,7 +309,11 @@ export default function PlayerTournamentsPage() {
       return (b.current_events || 0) - (a.current_events || 0);
     });
     setFiltered(f);
+    setCurrentPage(1);
   }, [search, filterState, filterLevel, sortBy, allTournaments]);
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paginated = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   const clearFilters = () => {
     setSearch('');
@@ -563,6 +571,11 @@ export default function PlayerTournamentsPage() {
               <span className="text-xs text-white">
                 <span className="font-semibold text-white">{filtered.length}</span> torneos
                 encontrados
+                {filtered.length > PAGE_SIZE && (
+                  <span className="text-white/50">
+                    {' '}· página {currentPage} de {totalPages}
+                  </span>
+                )}
               </span>
               {hasFilters && (
                 <div className="flex flex-wrap items-center gap-1.5 ml-2">
@@ -615,7 +628,7 @@ export default function PlayerTournamentsPage() {
           )}
 
           {!loading &&
-            filtered.map((t: any) => {
+            paginated.map((t: any) => {
               const isOpen = !!t.registrations_open;
               console.log('Tournament', t, 'open:', isOpen, 'reg open:', t.registrations_open);
               return (
@@ -780,6 +793,59 @@ export default function PlayerTournamentsPage() {
                 </div>
               );
             })}
+
+          {/* ━━━ PAGINATION ━━━ */}
+          {!loading && totalPages > 1 && (
+            <div className="flex items-center justify-between pt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="h-9 px-3.5 rounded-xl text-xs border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/65 hover:text-white disabled:opacity-30 gap-1.5 transition-all"
+              >
+                <ChevronLeft className="w-3.5 h-3.5" /> Anterior
+              </Button>
+
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                  .reduce<(number | 'ellipsis')[]>((acc, p, idx, arr) => {
+                    if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push('ellipsis');
+                    acc.push(p);
+                    return acc;
+                  }, [])
+                  .map((item, idx) =>
+                    item === 'ellipsis' ? (
+                      <span key={`e-${idx}`} className="text-white/30 text-xs px-1">…</span>
+                    ) : (
+                      <button
+                        key={item}
+                        onClick={() => setCurrentPage(item as number)}
+                        className={cn(
+                          'w-8 h-8 rounded-lg text-xs font-semibold transition-all',
+                          currentPage === item
+                            ? 'bg-[#ace600] text-black'
+                            : 'text-white/50 hover:text-white hover:bg-white/[0.06]',
+                        )}
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="h-9 px-3.5 rounded-xl text-xs border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] text-white/65 hover:text-white disabled:opacity-30 gap-1.5 transition-all"
+              >
+                Siguiente <ChevronRight className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          )}
         </TabsContent>
 
         {/* ━━━ MY TOURNAMENTS ━━━ */}
