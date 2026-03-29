@@ -135,41 +135,9 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
           ? parseFloat(selectedCourt.hourly_rate)
           : selectedCourt.hourly_rate || 0;
 
-      // Calculate total amount: rate * count of selected time slots
-      const totalAmount = rate * selectedTimes.length;
-      const timeDesc = selectedTimes.map((t) => `${t.start}–${t.end}`).join(', ');
-
-      const res = await PaymentService.createCourtRentalPayment({
-        amount: Math.round(totalAmount * 100),
-        court_id: selectedCourt.id,
-        club_id: clubId,
-        start_time: new Date(`${selectedDate}T${selectedTimes[0].start}`).toISOString(),
-        end_time: new Date(`${selectedDate}T${selectedTimes[selectedTimes.length - 1].end}`).toISOString(),
-        duration_hours: selectedTimes.length,
-        description: `Cancha ${selectedCourt.name} — ${selectedDate} ${timeDesc}`,
-      });
-      setPaymentIntent({ paymentId: res.data.payment_id, clientSecret: res.data.client_secret });
-      setClubStripeKey(res.data.stripe_publishable_key ?? null);
-      setCurrentStep('payment');
-    } catch (err: any) {
-      toast.error(err?.message || 'No se pudo iniciar el pago');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [selectedCourt, selectedDate, selectedTimes, clubId]);
-
-  const handlePaymentSuccess = useCallback(async () => {
-    if (!selectedCourt || !selectedDate || selectedTimes.length === 0) return;
-    setIsSubmitting(true);
-    try {
-      const rate =
-        typeof selectedCourt.hourly_rate === 'string'
-          ? parseFloat(selectedCourt.hourly_rate)
-          : selectedCourt.hourly_rate || 0;
-
-      // Calculate total amount: rate * count of selected time slots
       const totalAmount = rate * selectedTimes.length;
 
+      // Step 1: create the reservation in pending state
       const payload: Partial<CourtReservation> = {
         court_id: selectedCourt.id,
         club_id: clubId,
@@ -181,21 +149,38 @@ export default function ReservationFlow({ clubId, clubName, onClose }: Reservati
         total_amount: totalAmount,
         final_amount: totalAmount,
         duration_hours: selectedTimes.length,
-        payment_status: 'completed',
-        status: 'confirmed',
+        payment_status: 'pending',
+        status: 'pending',
         ...reservationData,
       };
+      const reservation = await dispatch(createReservation(payload)).unwrap();
+      setConfirmedReservation(reservation);
 
-      const result = await dispatch(createReservation(payload)).unwrap();
-      setConfirmedReservation(result);
-      toast.success('¡Reserva confirmada!');
-      setCurrentStep('confirmation');
+      // Step 2: create the PaymentIntent on the club's own Stripe account
+      const res = await PaymentService.createCourtRentalPayment({
+        amount: Math.round(totalAmount * 100),
+        court_id: selectedCourt.id,
+        club_id: clubId,
+        start_time: new Date(`${selectedDate}T${selectedTimes[0].start}`).toISOString(),
+        end_time: new Date(`${selectedDate}T${selectedTimes[selectedTimes.length - 1].end}`).toISOString(),
+        duration_hours: selectedTimes.length,
+        reservation_id: reservation.id,
+      });
+      setPaymentIntent({ paymentId: res.data.payment_id, clientSecret: res.data.client_secret });
+      setClubStripeKey(res.data.stripe_publishable_key ?? null);
+      setCurrentStep('payment');
     } catch (err: any) {
-      toast.error(err?.message || 'Error al crear la reserva');
+      toast.error(err?.message || 'No se pudo iniciar el pago');
     } finally {
       setIsSubmitting(false);
     }
-  }, [selectedCourt, selectedDate, selectedTimes, reservationData, dispatch, clubId]);
+  }, [selectedCourt, selectedDate, selectedTimes, clubId, reservationData, dispatch]);
+
+  // Payment confirmed by Stripe — backend already updated reservation to confirmed
+  const handlePaymentSuccess = useCallback(async () => {
+    toast.success('¡Reserva confirmada!');
+    setCurrentStep('confirmation');
+  }, []);
 
   const goToPreviousStep = () => {
     const stepIndex = STEPS.findIndex((s) => s.key === currentStep);
