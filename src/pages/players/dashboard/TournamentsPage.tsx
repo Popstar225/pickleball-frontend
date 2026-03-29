@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -41,10 +41,41 @@ import {
 const PAGE_SIZE = 10;
 import { Mexico } from '@/constants/constants';
 import { api } from '@/lib/api';
+import { toast } from 'sonner';
 import type { RootState } from '@/store';
 import { cn } from '@/lib/utils';
 
 // STATUS CONFIG
+// ─── Translation helpers ───────────────────────────────────────────────────────
+const TOURNAMENT_TYPE_ES: Record<string, string> = {
+  local: 'Local',
+  state: 'Estatal',
+  national: 'Nacional',
+};
+const TOURNAMENT_LEVEL_ES: Record<string, string> = {
+  Beginner: 'Principiante',
+  Intermediate: 'Intermedio',
+  Advanced: 'Avanzado',
+  Professional: 'Profesional',
+};
+const MODALITY_ES: Record<string, string> = {
+  Singles: 'Individual',
+  Doubles: 'Dobles',
+  Mixed: 'Mixto',
+  Mixed_doubles: 'Dobles Mixto',
+};
+const GENDER_ES: Record<string, string> = {
+  M: 'Hombres',
+  F: 'Mujeres',
+  Mixed: 'Mixto',
+  male: 'Masculino',
+  female: 'Femenino',
+};
+const translateType = (v?: string) => (v ? (TOURNAMENT_TYPE_ES[v] ?? v) : '—');
+const translateLevel = (v?: string) => (v ? (TOURNAMENT_LEVEL_ES[v] ?? v) : '—');
+const translateModality = (v?: string) => (v ? (MODALITY_ES[v] ?? v) : '—');
+const translateGender = (v?: string) => (v ? (GENDER_ES[v] ?? v) : '—');
+
 const statusCfg: Record<string, { label: string; cls: string; dot: string }> = {
   open: {
     label: 'Inscripciones Abiertas',
@@ -62,10 +93,25 @@ const statusCfg: Record<string, { label: string; cls: string; dot: string }> = {
     cls: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
     dot: 'bg-sky-500 animate-pulse',
   },
+  confirmed: {
+    label: 'Confirmado',
+    cls: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+    dot: 'bg-sky-500 animate-pulse',
+  },
   waitlist: {
     label: 'Lista de Espera',
     cls: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
     dot: 'bg-amber-500',
+  },
+  pending: {
+    label: 'Pendiente',
+    cls: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+    dot: 'bg-yellow-400',
+  },
+  cancelled: {
+    label: 'Cancelado',
+    cls: 'bg-white/[0.04] text-white/40 border-white/[0.06]',
+    dot: 'bg-white/20',
   },
   completed: {
     label: 'Completado',
@@ -258,35 +304,35 @@ export default function PlayerTournamentsPage() {
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [showEventSelector, setShowEventSelector] = useState(false);
 
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        // Fetch all active tournaments (all states, all statuses except draft/cancelled)
-        const res = await api.get<any>('/tournaments?limit=100');
-        let data = res.data as any;
-        if (data?.data && Array.isArray(data.data)) data = data.data;
-        const tours = Array.isArray(data) ? data : [];
-        setAllTournaments(tours);
-        setFiltered(tours);
-        if (user?.id) {
-          try {
-            const rRes = await api.get<any>(`/players/${user.id}/registrations`);
-            setMyRegistrations(Array.isArray(rRes?.registrations) ? rRes.registrations : []);
-            console.log('Loaded tournaments:', rRes.registrations);
-          } catch {
-            setMyRegistrations([]);
-          }
+  const loadTournaments = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Fetch all active tournaments (all states, all statuses except draft/cancelled)
+      const res = await api.get<any>('/tournaments?limit=100');
+      let data = res.data as any;
+      if (data?.data && Array.isArray(data.data)) data = data.data;
+      const tours = Array.isArray(data) ? data : [];
+      setAllTournaments(tours);
+      setFiltered(tours);
+      if (user?.id) {
+        try {
+          const rRes = await api.get<any>(`/players/${user.id}/registrations`);
+          setMyRegistrations(Array.isArray(rRes?.registrations) ? rRes.registrations : []);
+        } catch {
+          setMyRegistrations([]);
         }
-      } catch {
-        setError('Error al cargar torneos');
-      } finally {
-        setLoading(false);
       }
-    };
-    load();
+    } catch {
+      setError('Error al cargar torneos');
+    } finally {
+      setLoading(false);
+    }
   }, [user?.id]);
+
+  useEffect(() => {
+    loadTournaments();
+  }, [loadTournaments]);
 
   useEffect(() => {
     let f = [...allTournaments];
@@ -357,25 +403,16 @@ export default function PlayerTournamentsPage() {
   };
 
   const handleRegistrationSuccess = (registrationId: string, status: 'confirmed' | 'waitlist') => {
-    // Refresh my registrations
-    if (user?.id) {
-      const load = async () => {
-        try {
-          const rRes = await api.get<any>(`/players/${user.id}/registrations`);
-          setMyRegistrations(Array.isArray(rRes.data) ? rRes.data : []);
-        } catch {
-          setMyRegistrations([]);
-        }
-      };
-      load();
-    }
+    // Refetch all tournaments so capacity bars update
+    loadTournaments();
 
-    // Show success message based on status
     if (status === 'confirmed') {
+      toast.success('¡Registro completado! Redirigiendo al pago…');
       navigate(`/tournaments/${selectedTournament.id}/register/${registrationId}/payment`, {
         state: { automated: true },
       });
     } else {
+      toast.success('¡Te agregamos a la lista de espera! Te notificaremos cuando haya un lugar disponible.');
       setActiveTab('my-tournaments');
     }
   };
@@ -714,12 +751,12 @@ export default function PlayerTournamentsPage() {
                         )}
                         <div className="grid grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-1.5 mb-4">
                           <MetaItem icon={Calendar}>
-                            {new Date(t.start_date).toLocaleDateString('en-US', {
+                            {new Date(t.start_date).toLocaleDateString('es-MX', {
                               day: 'numeric',
                               month: 'short',
                             })}{' '}
                             –{' '}
-                            {new Date(t.end_date).toLocaleDateString('en-US', {
+                            {new Date(t.end_date).toLocaleDateString('es-MX', {
                               day: 'numeric',
                               month: 'short',
                               year: 'numeric',
@@ -728,7 +765,7 @@ export default function PlayerTournamentsPage() {
                           <MetaItem icon={MapPin}>
                             {t.location || t.venue_name || 'Por determinar'}
                           </MetaItem>
-                          <MetaItem icon={Trophy}>{t.tournament_type || '—'}</MetaItem>
+                          <MetaItem icon={Trophy}>{translateType(t.tournament_type)}</MetaItem>
                           <MetaItem icon={Users}>{t.events_count ?? t.events?.length ?? 0} eventos</MetaItem>
                         </div>
                         {(t.total_max_participants > 0 || t.max_participants > 0) && (
@@ -748,7 +785,7 @@ export default function PlayerTournamentsPage() {
                             )}
                             {t.gender_restrictions && (
                               <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.07] text-white/60">
-                                {t.gender_restrictions}
+                                {translateGender(t.gender_restrictions)}
                               </span>
                             )}
                           </div>
@@ -883,13 +920,13 @@ export default function PlayerTournamentsPage() {
                 </div>
                 <div className="flex flex-wrap gap-x-4 gap-y-1">
                   <MetaItem icon={Calendar}>
-                    {new Date(reg.registeredAt || '').toLocaleDateString('en-US', {
+                    {new Date(reg.registeredAt || '').toLocaleDateString('es-MX', {
                       day: 'numeric',
                       month: 'short',
                       year: 'numeric',
                     })}
                   </MetaItem>
-                  <MetaItem icon={Trophy}>{reg.event?.modality || 'Individual'}</MetaItem>
+                  <MetaItem icon={Trophy}>{translateModality(reg.event?.modality)}</MetaItem>
                 </div>
               </div>
               <div className="flex gap-2 shrink-0">
@@ -1011,17 +1048,8 @@ export default function PlayerTournamentsPage() {
                         <div>
                           <p className="font-semibold text-white">
                             {event.skill_block} -{' '}
-                            {event.gender === 'M'
-                              ? 'Hombres'
-                              : event.gender === 'F'
-                                ? 'Mujeres'
-                                : 'Mixto'}{' '}
-                            -{' '}
-                            {event.modality === 'Singles'
-                              ? 'Individuales'
-                              : event.modality === 'Doubles'
-                                ? 'Dobles'
-                                : 'Dobles Mixto'}
+                            {translateGender(event.gender)} -{' '}
+                            {translateModality(event.modality)}
                           </p>
                           <p className="text-xs text-white/50 mt-1">
                             Cuota: ${event.entry_fee || 50}

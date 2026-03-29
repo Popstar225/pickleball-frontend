@@ -29,8 +29,8 @@ function calculateValidationChecks(tournament: any): ValidationCheck[] {
   if (!tournament) {
     checks.push({
       id: 'loading',
-      label: 'Loading Tournament Data',
-      description: 'Fetching tournament information...',
+      label: 'Cargando datos del torneo',
+      description: 'Obteniendo información del torneo…',
       status: 'pending',
     });
     return checks;
@@ -43,16 +43,16 @@ function calculateValidationChecks(tournament: any): ValidationCheck[] {
   if (events.length === 0) {
     checks.push({
       id: 'min-events',
-      label: 'Tournament Events',
-      description: 'Tournament has no events defined',
+      label: 'Eventos del Torneo',
+      description: 'El torneo no tiene eventos definidos',
       status: 'fail',
       severity: 'red',
     });
   } else {
     checks.push({
       id: 'min-events',
-      label: 'Tournament Events',
-      description: `Tournament has ${events.length} event${events.length !== 1 ? 's' : ''} configured`,
+      label: 'Eventos del Torneo',
+      description: `El torneo tiene ${events.length} evento${events.length !== 1 ? 's' : ''} configurado${events.length !== 1 ? 's' : ''}`,
       status: 'pass',
     });
   }
@@ -78,14 +78,14 @@ function calculateValidationChecks(tournament: any): ValidationCheck[] {
       event.registration_status !== 'merged'
     ) {
       insufficientEventsCount++;
-      eventWithIssues.push(`${name}: ${currentParticipants}/${minimum} registrations`);
+      eventWithIssues.push(`${name}: ${currentParticipants}/${minimum} inscripciones`);
     }
 
     // Odd number for single elimination
     if (event.format === 'single_elimination' && currentParticipants % 2 !== 0) {
       oddParticipantsCount++;
       eventWithIssues.push(
-        `${name}: ${currentParticipants} participants (odd - byes will be assigned)`,
+        `${name}: ${currentParticipants} participantes (impar — se asignarán byes)`,
       );
     }
 
@@ -94,7 +94,7 @@ function calculateValidationChecks(tournament: any): ValidationCheck[] {
       if (currentParticipants / event.number_of_groups < 3) {
         smallGroupCount++;
         eventWithIssues.push(
-          `${name}: Average group size ${(currentParticipants / event.number_of_groups).toFixed(1)} (small)`,
+          `${name}: Tamaño promedio de grupo ${(currentParticipants / event.number_of_groups).toFixed(1)} (pequeño)`,
         );
       }
     }
@@ -104,8 +104,8 @@ function calculateValidationChecks(tournament: any): ValidationCheck[] {
   if (insufficientEventsCount > 0) {
     checks.push({
       id: 'event-capacity',
-      label: 'Event Minimum Entries',
-      description: `${insufficientEventsCount} event${insufficientEventsCount !== 1 ? 's' : ''} below minimum: ${eventWithIssues.filter((e) => e.includes('registrations')).join(', ')}`,
+      label: 'Mínimo de Inscritos por Evento',
+      description: `${insufficientEventsCount} evento${insufficientEventsCount !== 1 ? 's' : ''} por debajo del mínimo: ${eventWithIssues.filter((e) => e.includes('inscripciones')).join(', ')}`,
       status: 'fail',
       severity: 'red',
     });
@@ -119,8 +119,8 @@ function calculateValidationChecks(tournament: any): ValidationCheck[] {
     );
     checks.push({
       id: 'event-capacity',
-      label: 'Event Minimum Entries',
-      description: `All ${passingEvents.length} active event${passingEvents.length !== 1 ? 's' : ''} meet minimum enrollment`,
+      label: 'Mínimo de Inscritos por Evento',
+      description: `Los ${passingEvents.length} evento${passingEvents.length !== 1 ? 's' : ''} activo${passingEvents.length !== 1 ? 's' : ''} cumplen el mínimo de inscripciones`,
       status: 'pass',
     });
   }
@@ -136,16 +136,16 @@ function calculateValidationChecks(tournament: any): ValidationCheck[] {
   if (missingFormatCount > 0) {
     checks.push({
       id: 'event-format',
-      label: 'Event Formats Confirmed',
-      description: `${missingFormatCount} event${missingFormatCount !== 1 ? 's' : ''} missing format or rules configuration`,
+      label: 'Formatos de Evento Confirmados',
+      description: `${missingFormatCount} evento${missingFormatCount !== 1 ? 's' : ''} sin formato o configuración de reglas`,
       status: 'fail',
       severity: 'red',
     });
   } else {
     checks.push({
       id: 'event-format',
-      label: 'Event Formats Confirmed',
-      description: 'All events have format, sets, and rules configured',
+      label: 'Formatos de Evento Confirmados',
+      description: 'Todos los eventos tienen formato, sets y reglas configurados',
       status: 'pass',
     });
   }
@@ -157,16 +157,16 @@ function calculateValidationChecks(tournament: any): ValidationCheck[] {
   if (inactiveEvents > 0) {
     checks.push({
       id: 'events-active',
-      label: 'Active Events',
-      description: `${activeEvents} active, ${inactiveEvents} inactive event${inactiveEvents !== 1 ? 's' : ''}`,
+      label: 'Eventos Activos',
+      description: `${activeEvents} activo${activeEvents !== 1 ? 's' : ''}, ${inactiveEvents} evento${inactiveEvents !== 1 ? 's' : ''} inactivo${inactiveEvents !== 1 ? 's' : ''}`,
       status: inactiveEvents > 0 ? 'warning' : 'pass',
       severity: 'yellow',
     });
   } else {
     checks.push({
       id: 'events-active',
-      label: 'Active Events',
-      description: `All ${activeEvents} event${activeEvents !== 1 ? 's' : ''} are active and ready`,
+      label: 'Eventos Activos',
+      description: `Los ${activeEvents} evento${activeEvents !== 1 ? 's' : ''} están activos y listos`,
       status: 'pass',
     });
   }
@@ -180,16 +180,16 @@ function calculateValidationChecks(tournament: any): ValidationCheck[] {
   if (unconfirmedRegs > 0) {
     checks.push({
       id: 'registrations-confirmed',
-      label: 'Registration Confirmations',
-      description: `${confirmedRegs} confirmed, ${unconfirmedRegs} unconfirmed registration${unconfirmedRegs !== 1 ? 's' : ''}`,
+      label: 'Confirmación de Inscripciones',
+      description: `${confirmedRegs} confirmada${confirmedRegs !== 1 ? 's' : ''}, ${unconfirmedRegs} inscripción${unconfirmedRegs !== 1 ? 'es' : ''} sin confirmar`,
       status: 'warning',
       severity: 'yellow',
     });
   } else {
     checks.push({
       id: 'registrations-confirmed',
-      label: 'Registration Confirmations',
-      description: `All ${confirmedRegs} registration${confirmedRegs !== 1 ? 's' : ''} confirmed`,
+      label: 'Confirmación de Inscripciones',
+      description: `Las ${confirmedRegs} inscripción${confirmedRegs !== 1 ? 'es' : ''} están confirmadas`,
       status: 'pass',
     });
   }
@@ -203,16 +203,16 @@ function calculateValidationChecks(tournament: any): ValidationCheck[] {
   if (unpaidRegs > 0) {
     checks.push({
       id: 'payments-completed',
-      label: 'Payment Status',
-      description: `${paidRegs} paid ${unpaidRegs > 0 ? `, ${unpaidRegs} pending` : ''}`,
+      label: 'Estado de Pagos',
+      description: `${paidRegs} pagado${paidRegs !== 1 ? 's' : ''}${unpaidRegs > 0 ? `, ${unpaidRegs} pendiente${unpaidRegs !== 1 ? 's' : ''}` : ''}`,
       status: 'warning',
       severity: 'yellow',
     });
   } else {
     checks.push({
       id: 'payments-completed',
-      label: 'Payment Status',
-      description: `All payments completed (${paidRegs} registration${paidRegs !== 1 ? 's' : ''})`,
+      label: 'Estado de Pagos',
+      description: `Todos los pagos completados (${paidRegs} inscripción${paidRegs !== 1 ? 'es' : ''})`,
       status: 'pass',
     });
   }
@@ -224,16 +224,16 @@ function calculateValidationChecks(tournament: any): ValidationCheck[] {
     if (groupsFormedCount < hybridEvents.length) {
       checks.push({
         id: 'groups-formed',
-        label: 'Group Formation',
-        description: `${groupsFormedCount}/${hybridEvents.length} hybrid event${hybridEvents.length !== 1 ? 's' : ''} have groups configured`,
+        label: 'Formación de Grupos',
+        description: `${groupsFormedCount}/${hybridEvents.length} evento${hybridEvents.length !== 1 ? 's' : ''} híbrido${hybridEvents.length !== 1 ? 's' : ''} con grupos configurados`,
         status: 'warning',
         severity: 'yellow',
       });
     } else {
       checks.push({
         id: 'groups-formed',
-        label: 'Group Formation',
-        description: `All ${groupsFormedCount} hybrid event${groupsFormedCount !== 1 ? 's' : ''} have groups configured`,
+        label: 'Formación de Grupos',
+        description: `Los ${groupsFormedCount} evento${groupsFormedCount !== 1 ? 's' : ''} híbrido${groupsFormedCount !== 1 ? 's' : ''} tienen grupos configurados`,
         status: 'pass',
       });
     }
@@ -244,16 +244,16 @@ function calculateValidationChecks(tournament: any): ValidationCheck[] {
   if (hasRedFlags) {
     checks.push({
       id: 'no-red-flags',
-      label: 'Critical Issues',
-      description: 'Resolve red flag issues before starting',
+      label: 'Problemas Críticos',
+      description: 'Resuelve los problemas marcados antes de iniciar',
       status: 'fail',
       severity: 'red',
     });
   } else {
     checks.push({
       id: 'no-red-flags',
-      label: 'Critical Issues',
-      description: 'No critical issues detected',
+      label: 'Problemas Críticos',
+      description: 'No se detectaron problemas críticos',
       status: 'pass',
     });
   }
@@ -337,9 +337,9 @@ export default function TournamentStartValidation({
           <AlertCircle className="w-5 h-5 text-blue-400" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-bold text-white">Pre-Flight Validation</h3>
+          <h3 className="text-base font-bold text-white">Validación Pre-Inicio</h3>
           <p className="text-xs text-white/30 mt-1">
-            Verify all tournament requirements before starting
+            Verifica todos los requisitos del torneo antes de iniciar
           </p>
         </div>
       </div>
@@ -348,13 +348,13 @@ export default function TournamentStartValidation({
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
           <p className="text-[10px] font-bold uppercase tracking-widest text-white/25 mb-1">
-            Total Checks
+            Total
           </p>
           <p className="text-lg font-bold text-white">{checks.length}</p>
         </div>
         <div className="bg-emerald-500/[0.05] border border-emerald-500/15 rounded-xl p-3">
           <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-1">
-            Passed
+            Aprobadas
           </p>
           <p className="text-lg font-bold text-emerald-400">
             {checks.filter((c) => c.status === 'pass').length}
@@ -374,7 +374,7 @@ export default function TournamentStartValidation({
               failedCount > 0 ? 'text-red-400' : 'text-amber-400',
             )}
           >
-            {failedCount > 0 ? 'Failed' : 'Warnings'}
+            {failedCount > 0 ? 'Fallidas' : 'Advertencias'}
           </p>
           <p
             className={cn('text-lg font-bold', failedCount > 0 ? 'text-red-400' : 'text-amber-400')}
@@ -389,7 +389,7 @@ export default function TournamentStartValidation({
         {isValidating ? (
           <div className="flex flex-col items-center py-8 gap-3">
             <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
-            <p className="text-xs text-white/25">Validating tournament…</p>
+            <p className="text-xs text-white/25">Validando torneo…</p>
           </div>
         ) : (
           checks.map((check) => (
@@ -418,10 +418,10 @@ export default function TournamentStartValidation({
           <XCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-red-400">
-              {failedCount} {failedCount === 1 ? 'issue' : 'issues'} to resolve
+              {failedCount} {failedCount === 1 ? 'problema' : 'problemas'} por resolver
             </p>
             <p className="text-xs text-red-400/70 mt-1">
-              Fix the highlighted items before starting the tournament
+              Corrige los elementos marcados antes de iniciar el torneo
             </p>
           </div>
         </div>
@@ -432,9 +432,9 @@ export default function TournamentStartValidation({
           <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-amber-400">
-              {warningCount} {warningCount === 1 ? 'warning' : 'warnings'}
+              {warningCount} {warningCount === 1 ? 'advertencia' : 'advertencias'}
             </p>
-            <p className="text-xs text-amber-400/70 mt-1">Review before starting the tournament</p>
+            <p className="text-xs text-amber-400/70 mt-1">Revisa antes de iniciar el torneo</p>
           </div>
         </div>
       )}
@@ -452,18 +452,18 @@ export default function TournamentStartValidation({
       >
         {isValidating ? (
           <>
-            <Loader2 className="w-4 h-4 animate-spin" /> Validating…
+            <Loader2 className="w-4 h-4 animate-spin" /> Validando…
           </>
         ) : (
           <>
-            <Play className="w-4 h-4" /> Start Tournament
+            <Play className="w-4 h-4" /> Iniciar Torneo
           </>
         )}
       </Button>
 
       {!allPassed && (
         <p className="text-xs text-white/25 text-center">
-          Resolve all issues to enable tournament start
+          Resuelve todos los problemas para habilitar el inicio del torneo
         </p>
       )}
     </div>

@@ -342,11 +342,20 @@ const modalityColor: Record<string, string> = {
   Mixed: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
 };
 
+const TOURNAMENT_LEVEL_ES: Record<string, string> = {
+  Beginner: 'Principiante',
+  Intermediate: 'Intermedio',
+  Advanced: 'Avanzado',
+  Professional: 'Profesional',
+};
+const translateLevel = (v?: string) => (v ? (TOURNAMENT_LEVEL_ES[v] ?? v) : '');
+
 const translateModality = (modality: string): string => {
   const translations: Record<string, string> = {
     Singles: 'Individual',
     Doubles: 'Dobles',
     Mixed: 'Mixto',
+    Mixed_doubles: 'Dobles Mixto',
   };
   return translations[modality] || modality;
 };
@@ -523,7 +532,7 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
                   variant="outline"
                   className="text-[10px] font-bold uppercase tracking-wider rounded-full bg-[#ace600]/10 border-[#ace600]/20 text-[#ace600] shrink-0"
                 >
-                  {tournament.tournament_level}
+                  {translateLevel(tournament.tournament_level)}
                 </Badge>
               </div>
               {tournament.description && (
@@ -541,7 +550,7 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
           <MetaChip
             icon={Calendar}
             label="Inicio"
-            value={new Date(tournament.start_date).toLocaleDateString('en-US', {
+            value={new Date(tournament.start_date).toLocaleDateString('es-MX', {
               day: 'numeric',
               month: 'short',
               year: 'numeric',
@@ -550,7 +559,7 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
           <MetaChip
             icon={Calendar}
             label="Fin"
-            value={new Date(tournament.end_date).toLocaleDateString('en-US', {
+            value={new Date(tournament.end_date).toLocaleDateString('es-MX', {
               day: 'numeric',
               month: 'short',
               year: 'numeric',

@@ -104,7 +104,7 @@ function TypeBadge({ type }: { type: string }) {
 }
 
 function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('en-US', {
+  return new Date(d).toLocaleDateString('es-MX', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',

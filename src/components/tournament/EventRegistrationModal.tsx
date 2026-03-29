@@ -41,6 +41,31 @@ import type { RootState } from '@/store';
 import type { TournamentEvent } from '@/types/api';
 import { cn } from '@/lib/utils';
 
+// ─── Translation helpers ──────────────────────────────────────────────────────
+const MODALITY_ES: Record<string, string> = {
+  Singles: 'Individual',
+  Doubles: 'Dobles',
+  Mixed: 'Mixto',
+  Mixed_doubles: 'Dobles Mixto',
+};
+const GENDER_ES: Record<string, string> = {
+  M: 'Hombres',
+  F: 'Mujeres',
+  Mixed: 'Mixto',
+  male: 'Masculino',
+  female: 'Femenino',
+};
+const PENALTY_TYPE_ES: Record<string, string> = {
+  suspension: 'Suspensión',
+  fine: 'Multa',
+  warning: 'Advertencia',
+  disqualification: 'Descalificación',
+  ban: 'Prohibición',
+};
+const tModality = (v?: string) => (v ? (MODALITY_ES[v] ?? v) : '—');
+const tGender = (v?: string) => (v ? (GENDER_ES[v] ?? v) : '—');
+const tPenalty = (v?: string) => (v ? (PENALTY_TYPE_ES[v] ?? v) : v ?? '');
+
 interface EventRegistrationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -198,7 +223,7 @@ export function EventRegistrationModal({
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-white">Registrarse en Evento</DialogTitle>
           <DialogDescription className="text-white/50">
-            {event.skill_block} - {event.gender} - {event.modality}
+            {event.skill_block} · {tGender(event.gender)} · {tModality(event.modality)}
           </DialogDescription>
         </DialogHeader>
 
@@ -278,11 +303,11 @@ export function EventRegistrationModal({
                       <ul className="space-y-2">
                         {eligibilityResult.penalties.map((penalty) => (
                           <li key={penalty.id} className="text-xs text-yellow-300/80">
-                            <span className="font-semibold capitalize">{penalty.penalty_type}</span>
+                            <span className="font-semibold">{tPenalty(penalty.penalty_type)}</span>
                             : {penalty.reason}
                             {penalty.expires_date && (
                               <div className="text-[10px] text-yellow-300/60 mt-1">
-                                Vence: {new Date(penalty.expires_date).toLocaleDateString('en-US')}
+                                Vence: {new Date(penalty.expires_date).toLocaleDateString('es-MX')}
                               </div>
                             )}
                           </li>
@@ -310,7 +335,7 @@ export function EventRegistrationModal({
                           <span className="text-white/70">
                             {new Date(
                               eligibilityResult.eventInfo.registration_deadline,
-                            ).toLocaleDateString('en-US')}
+                            ).toLocaleDateString('es-MX')}
                           </span>
                         </div>
                       )}
@@ -385,7 +410,7 @@ export function EventRegistrationModal({
                   <div className="flex justify-between items-center text-sm">
                     <span className="text-white/60">Evento:</span>
                     <span className="text-white/80 font-semibold">
-                      {event.skill_block} {event.gender} {event.modality}
+                      {event.skill_block} · {tGender(event.gender)} · {tModality(event.modality)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-sm">

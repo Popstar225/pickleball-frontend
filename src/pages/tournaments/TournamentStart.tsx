@@ -31,13 +31,13 @@ export default function TournamentStart() {
   // Fetch tournament data on mount or when tournamentId changes
   useEffect(() => {
     if (!tournamentId) {
-      setStartError('No tournament ID provided');
+      setStartError('No se proporcionó ID del torneo');
       return;
     }
 
     // Fetch tournament details (includes events in response)
     dispatch(fetchTournament(tournamentId)).catch(() => {
-      setStartError('Failed to load tournament details');
+      setStartError('Error al cargar los detalles del torneo');
     });
   }, [tournamentId, dispatch]);
 
@@ -46,6 +46,21 @@ export default function TournamentStart() {
   const registrations = (currentTournament as any)?.registrations || [];
 
   // Process events to identify insufficient entries
+  const MODALITY_ES: Record<string, string> = { Singles: 'Individual', Doubles: 'Dobles', Mixed: 'Mixto', Mixed_doubles: 'Dobles Mixto' };
+  const GENDER_ES: Record<string, string> = { M: 'Hombres', F: 'Mujeres', Mixed: 'Mixto', male: 'Masculino', female: 'Femenino' };
+  const STATUS_ES: Record<string, string> = { published: 'Publicado', draft: 'Borrador', active: 'Activo', completed: 'Completado', cancelled: 'Cancelado', registration_open: 'Inscripción Abierta' };
+  const TOURNAMENT_TYPE_ES: Record<string, string> = { local: 'Local', state: 'Estatal', national: 'Nacional' };
+  const PLAYOFF_STRATEGY_ES: Record<string, string> = { best_2nd_places: 'Mejores Segundos Lugares', all_with_byes: 'Todos con Bye' };
+  const SETS_FORMAT_ES: Record<string, string> = { best_of_3: 'Al Mejor de 3', best_of_5: 'Al Mejor de 5' };
+  const FORMAT_ES: Record<string, string> = { hybrid: 'Híbrido', single_elimination: 'Eliminación Directa' };
+  const tModality = (v?: string) => v ? (MODALITY_ES[v] ?? v) : '—';
+  const tGender = (v?: string) => v ? (GENDER_ES[v] ?? v) : '—';
+  const tStatus = (v?: string) => v ? (STATUS_ES[v] ?? v) : '—';
+  const tType = (v?: string) => v ? (TOURNAMENT_TYPE_ES[v] ?? v) : '—';
+  const tPlayoff = (v?: string) => v ? (PLAYOFF_STRATEGY_ES[v] ?? v) : '—';
+  const tSetsFormat = (v?: string) => v ? (SETS_FORMAT_ES[v] ?? v) : '—';
+  const tFormat = (v?: string) => v ? (FORMAT_ES[v] ?? v) : '—';
+
   const insufficientEvents = tournamentEvents
     .filter((event: any) => {
       const minimum = event.minimum_participants || 2;
@@ -54,7 +69,7 @@ export default function TournamentStart() {
     })
     .map((event: any) => ({
       id: event.id,
-      name: `${event.skill_block} ${event.gender}'s ${event.modality}`,
+      name: `${event.skill_block} ${tGender(event.gender)} · ${tModality(event.modality)}`,
       current: event.current_participants || 0,
       minimum: event.minimum_participants || 2,
       capacity: event.max_participants || 32,
@@ -67,7 +82,7 @@ export default function TournamentStart() {
   // Group registrations by event
   const registrationsByEvent = tournamentEvents.map((event: any) => ({
     eventId: event.id,
-    eventName: `${event.skill_block} ${event.gender}'s ${event.modality}`,
+    eventName: `${event.skill_block} ${tGender(event.gender)} · ${tModality(event.modality)}`,
     registrations: registrations.filter((reg: any) => reg.tournament_event_id === event.id),
   }));
 
@@ -83,7 +98,7 @@ export default function TournamentStart() {
     });
     return {
       eventId: event.id,
-      eventName: `${event.skill_block} ${event.gender}'s ${event.modality}`,
+      eventName: `${event.skill_block} ${tGender(event.gender)} · ${tModality(event.modality)}`,
       groups: Array.from(groupMap.entries()).map(([groupId, regs]) => ({
         groupId,
         playerCount: regs.length,
@@ -115,7 +130,7 @@ export default function TournamentStart() {
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return 'Fecha Inválida';
-      return date.toLocaleDateString('en-US', {
+      return date.toLocaleDateString('es-MX', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -186,7 +201,7 @@ export default function TournamentStart() {
       setShowConfirmation(false);
       navigate(`/tournaments/${tournamentId}`);
     } catch (error: any) {
-      setStartError(error.message || 'Failed to start tournament');
+      setStartError(error.message || 'Error al iniciar el torneo');
     } finally {
       setIsStarting(false);
     }
@@ -205,7 +220,7 @@ export default function TournamentStart() {
       <div className="min-h-screen bg-[#0d1117] p-6 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
-          <p className="text-white/60">Loading tournament...</p>
+          <p className="text-white/60">Cargando torneo...</p>
         </div>
       </div>
     );
@@ -218,9 +233,9 @@ export default function TournamentStart() {
           <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-6 flex gap-4">
             <AlertCircle className="w-6 h-6 text-red-400 flex-shrink-0" />
             <div>
-              <h3 className="text-lg font-bold text-red-400">Tournament Not Found</h3>
+              <h3 className="text-lg font-bold text-red-400">Torneo No Encontrado</h3>
               <p className="text-red-300/80 mt-1">
-                {startError || 'Could not load tournament data'}
+                {startError || 'No se pudieron cargar los datos del torneo'}
               </p>
             </div>
           </div>
@@ -255,7 +270,7 @@ export default function TournamentStart() {
         <div>
           <h1 className="text-3xl font-bold text-white">{currentTournament?.name}</h1>
           <p className="text-white/40 mt-2">
-            Tournament Start Workflow - Validation & Confirmation
+            Flujo de Inicio del Torneo — Validación y Confirmación
           </p>
         </div>
 
@@ -267,7 +282,7 @@ export default function TournamentStart() {
               <div className="w-6 h-6 rounded-full bg-[#ace600] text-black flex items-center justify-center text-xs font-bold">
                 1
               </div>
-              <h2 className="text-lg font-bold text-white">Pre-Flight Validation</h2>
+              <h2 className="text-lg font-bold text-white">Validación Pre-Inicio</h2>
             </div>
             {tournamentId && (
               <TournamentStartValidation
@@ -279,7 +294,7 @@ export default function TournamentStart() {
             )}
             {/* Validation Checklist */}
             <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 space-y-2">
-              <h4 className="text-sm font-bold text-white mb-3">Validation Checks</h4>
+              <h4 className="text-sm font-bold text-white mb-3">Verificaciones de Validación</h4>
               <div className="space-y-2 text-xs">
                 <div className="flex items-center gap-2">
                   <span
@@ -292,7 +307,7 @@ export default function TournamentStart() {
                       validationChecks.allEventsActive ? 'text-emerald-300' : 'text-red-300'
                     }
                   >
-                    All events active
+                    Todos los eventos activos
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -308,7 +323,7 @@ export default function TournamentStart() {
                         : 'text-red-300'
                     }
                   >
-                    All registrations confirmed
+                    Todas las inscripciones confirmadas
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -322,7 +337,7 @@ export default function TournamentStart() {
                       validationChecks.allPaymentsPaid ? 'text-emerald-300' : 'text-red-300'
                     }
                   >
-                    All payments completed
+                    Todos los pagos completados
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -336,7 +351,7 @@ export default function TournamentStart() {
                       validationChecks.allPlayersGrouped ? 'text-emerald-300' : 'text-red-300'
                     }
                   >
-                    All players grouped
+                    Todos los jugadores en grupos
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -350,7 +365,7 @@ export default function TournamentStart() {
                       !validationChecks.insufficientEntries ? 'text-emerald-300' : 'text-red-300'
                     }
                   >
-                    Sufficient entries
+                    Participantes suficientes
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -364,7 +379,7 @@ export default function TournamentStart() {
                       validationChecks.allGroupsFormed ? 'text-emerald-300' : 'text-red-300'
                     }
                   >
-                    Groups formed correctly
+                    Grupos formados correctamente
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -380,7 +395,7 @@ export default function TournamentStart() {
                         : 'text-amber-300'
                     }
                   >
-                    Registration deadline passed
+                    Plazo de inscripción vencido
                   </span>
                 </div>
               </div>
@@ -391,14 +406,14 @@ export default function TournamentStart() {
           <div className="lg:col-span-2 space-y-4">
             {/* Summary Stats */}
             <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-6 space-y-4">
-              <h3 className="text-lg font-bold text-white">Tournament Summary</h3>
+              <h3 className="text-lg font-bold text-white">Resumen del Torneo</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <p className="text-white/40 text-sm">Total Players</p>
+                  <p className="text-white/40 text-sm">Total Jugadores</p>
                   <p className="text-3xl font-bold text-white">{totalRegistrations}</p>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-white/40 text-sm">Confirmed</p>
+                  <p className="text-white/40 text-sm">Confirmados</p>
                   <p
                     className={`text-3xl font-bold ${registrations.filter((r: any) => r.status === 'confirmed').length === totalRegistrations ? 'text-emerald-400' : 'text-amber-400'}`}
                   >
@@ -406,7 +421,7 @@ export default function TournamentStart() {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-white/40 text-sm">Payments Paid</p>
+                  <p className="text-white/40 text-sm">Pagos Realizados</p>
                   <p
                     className={`text-3xl font-bold ${registrations.filter((r: any) => r.payment_status === 'paid').length === totalRegistrations ? 'text-emerald-400' : 'text-amber-400'}`}
                   >
@@ -414,7 +429,7 @@ export default function TournamentStart() {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-white/40 text-sm">Validation</p>
+                  <p className="text-white/40 text-sm">Validación</p>
                   <p
                     className={`text-3xl font-bold ${isFullyValid ? 'text-emerald-400' : 'text-red-400'}`}
                   >
@@ -427,7 +442,7 @@ export default function TournamentStart() {
             {/* Events Configuration */}
             {tournamentEvents.length > 0 && (
               <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 space-y-4">
-                <h3 className="text-lg font-bold text-white">Events & Format Configuration</h3>
+                <h3 className="text-lg font-bold text-white">Eventos y Configuración de Formato</h3>
                 <div className="space-y-4">
                   {tournamentEvents.map((event: any) => (
                     <div
@@ -436,52 +451,51 @@ export default function TournamentStart() {
                     >
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <p className="text-xs text-white/40">Event</p>
+                          <p className="text-xs text-white/40">Evento</p>
                           <p className="text-sm font-semibold text-white">
-                            {event.skill_block} {event.gender}'s {event.modality}
+                            {event.skill_block} · {tGender(event.gender)} · {tModality(event.modality)}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-white/40">Status</p>
+                          <p className="text-xs text-white/40">Estado</p>
                           <p
                             className={`text-sm font-semibold ${event.is_active ? 'text-emerald-400' : 'text-red-400'}`}
                           >
-                            {event.is_active ? 'Active' : 'Inactive'}
+                            {event.is_active ? 'Activo' : 'Inactivo'}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-white/40">Format</p>
-                          <p className="text-sm font-semibold text-white">{event.format}</p>
+                          <p className="text-xs text-white/40">Formato</p>
+                          <p className="text-sm font-semibold text-white">{tFormat(event.format)}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-white/40">Participants</p>
+                          <p className="text-xs text-white/40">Participantes</p>
                           <p className="text-sm font-semibold text-white">
                             {event.current_participants} / {event.max_participants}
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-white/40">Groups</p>
+                          <p className="text-xs text-white/40">Grupos</p>
                           <p className="text-sm font-semibold text-white">
-                            {event.number_of_groups} groups ({event.target_group_size} per group)
+                            {event.number_of_groups} grupos ({event.target_group_size} por grupo)
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-white/40">Advance</p>
+                          <p className="text-xs text-white/40">Avance</p>
                           <p className="text-sm font-semibold text-white">
-                            {event.advance_from_group} per group
+                            {event.advance_from_group} por grupo
                           </p>
                         </div>
                         <div className="col-span-2">
-                          <p className="text-xs text-white/40">Match Format</p>
+                          <p className="text-xs text-white/40">Formato de Partido</p>
                           <p className="text-sm font-semibold text-white">
-                            {event.sets_format} ({event.points_per_set}pts/set, {event.win_margin}pt
-                            margin)
+                            {tSetsFormat(event.sets_format)} ({event.points_per_set}pts/set, margen {event.win_margin}pt)
                           </p>
                         </div>
                         <div className="col-span-2">
-                          <p className="text-xs text-white/40">Playoff Strategy</p>
-                          <p className="text-sm font-semibold text-white capitalize">
-                            {event.playoff_strategy}
+                          <p className="text-xs text-white/40">Estrategia de Playoff</p>
+                          <p className="text-sm font-semibold text-white">
+                            {tPlayoff(event.playoff_strategy)}
                           </p>
                         </div>
                       </div>
@@ -494,7 +508,7 @@ export default function TournamentStart() {
             {/* Groups & Players Breakdown */}
             {groupsByEvent.length > 0 && (
               <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 space-y-4">
-                <h3 className="text-lg font-bold text-white">Groups & Players Breakdown</h3>
+                <h3 className="text-lg font-bold text-white">Desglose de Grupos y Jugadores</h3>
                 <div className="space-y-4">
                   {groupsByEvent.map((eventGroup: any) => (
                     <div
@@ -504,7 +518,7 @@ export default function TournamentStart() {
                       <div className="flex items-center justify-between mb-3">
                         <p className="font-semibold text-white">{eventGroup.eventName}</p>
                         <span className="text-xs bg-white/10 px-2 py-1 rounded">
-                          {eventGroup.groups.length} / {eventGroup.expectedGroups} groups
+                          {eventGroup.groups.length} / {eventGroup.expectedGroups} grupos
                         </span>
                       </div>
                       <div className="space-y-2">
@@ -514,7 +528,7 @@ export default function TournamentStart() {
                             className="bg-white/[0.04] border border-white/[0.06] rounded p-3 space-y-2"
                           >
                             <p className="text-xs font-semibold text-white/60">
-                              Group {idx + 1} • {group.playerCount} players
+                              Grupo {idx + 1} • {group.playerCount} jugadores
                             </p>
                             <div className="space-y-1">
                               {group.players.map((player: any) => (
@@ -527,12 +541,12 @@ export default function TournamentStart() {
                                     <span
                                       className={`px-1.5 py-0.5 rounded text-xs ${player.status === 'confirmed' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}
                                     >
-                                      {player.status}
+                                      {player.status === 'confirmed' ? 'Confirmado' : player.status === 'pending' ? 'Pendiente' : player.status === 'cancelled' ? 'Cancelado' : player.status}
                                     </span>
                                     <span
                                       className={`px-1.5 py-0.5 rounded text-xs ${player.payment_status === 'paid' ? 'bg-blue-500/20 text-blue-300' : 'bg-red-500/20 text-red-300'}`}
                                     >
-                                      {player.payment_status}
+                                      {player.payment_status === 'paid' ? 'Pagado' : player.payment_status === 'pending' ? 'Pendiente' : player.payment_status === 'refunded' ? 'Reembolsado' : player.payment_status}
                                     </span>
                                   </div>
                                 </div>
@@ -551,7 +565,7 @@ export default function TournamentStart() {
             {registrations.length > 0 && (
               <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 space-y-4">
                 <h3 className="text-lg font-bold text-white">
-                  All Registered Players ({registrations.length})
+                  Todos los Jugadores Registrados ({registrations.length})
                 </h3>
                 <div className="space-y-2 max-h-96 overflow-y-auto">
                   {registrations.map((reg: any, idx: number) => (
@@ -564,31 +578,31 @@ export default function TournamentStart() {
                         <p className="text-white font-semibold">{reg.user.full_name}</p>
                       </div>
                       <div>
-                        <p className="text-white/40">Skill</p>
+                        <p className="text-white/40">Nivel</p>
                         <p className="text-white">{reg.user.skill_level}</p>
                       </div>
                       <div>
-                        <p className="text-white/40">Event</p>
+                        <p className="text-white/40">Evento</p>
                         <p className="text-white">
-                          {reg.skill_block} {reg.gender}
+                          {reg.skill_block} · {tGender(reg.gender)}
                         </p>
                       </div>
                       <div className="flex items-center gap-1">
                         <span
                           className={`px-2 py-1 rounded-sm font-semibold ${reg.status === 'confirmed' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}`}
                         >
-                          {reg.status}
+                          {reg.status === 'confirmed' ? 'Confirmado' : reg.status === 'pending' ? 'Pendiente' : reg.status === 'cancelled' ? 'Cancelado' : reg.status}
                         </span>
                       </div>
                       <div className="flex items-center gap-1">
                         <span
                           className={`px-2 py-1 rounded-sm font-semibold ${reg.payment_status === 'paid' ? 'bg-blue-500/20 text-blue-300' : 'bg-red-500/20 text-red-300'}`}
                         >
-                          {reg.payment_status}
+                          {reg.payment_status === 'paid' ? 'Pagado' : reg.payment_status === 'pending' ? 'Pendiente' : reg.payment_status === 'refunded' ? 'Reembolsado' : reg.payment_status}
                         </span>
                       </div>
                       <div>
-                        <p className="text-white/40">Group</p>
+                        <p className="text-white/40">Grupo</p>
                         <p className="text-white font-mono">
                           {reg.group_id?.substring(0, 8) || '—'}...
                         </p>
@@ -607,69 +621,68 @@ export default function TournamentStart() {
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-red-400">Validation Issues Found</h3>
+                <h3 className="text-lg font-bold text-red-400">Problemas de Validación Encontrados</h3>
                 <p className="text-sm text-red-300/80 mt-1">
-                  Please resolve the following issues before starting the tournament.
+                  Por favor resuelve los siguientes problemas antes de iniciar el torneo.
                 </p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {!validationChecks.allEventsActive && (
                 <div className="bg-white/[0.04] border border-red-500/20 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-red-300">✗ Inactive Events</p>
-                  <p className="text-xs text-red-300/70 mt-1">Some events are not active</p>
+                  <p className="text-sm font-semibold text-red-300">✗ Eventos Inactivos</p>
+                  <p className="text-xs text-red-300/70 mt-1">Algunos eventos no están activos</p>
                 </div>
               )}
               {!validationChecks.allRegistrationConfirmed && (
                 <div className="bg-white/[0.04] border border-red-500/20 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-red-300">✗ Unconfirmed Registrations</p>
+                  <p className="text-sm font-semibold text-red-300">✗ Inscripciones Sin Confirmar</p>
                   <p className="text-xs text-red-300/70 mt-1">
                     {registrations.filter((r: any) => r.status !== 'confirmed').length}{' '}
-                    registration(s) not confirmed
+                    inscripción(es) sin confirmar
                   </p>
                 </div>
               )}
               {!validationChecks.allPaymentsPaid && (
                 <div className="bg-white/[0.04] border border-red-500/20 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-red-300">✗ Incomplete Payments</p>
+                  <p className="text-sm font-semibold text-red-300">✗ Pagos Incompletos</p>
                   <p className="text-xs text-red-300/70 mt-1">
                     {registrations.filter((r: any) => r.payment_status !== 'paid').length}{' '}
-                    payment(s) pending
+                    pago(s) pendiente(s)
                   </p>
                 </div>
               )}
               {!validationChecks.allPlayersGrouped && (
                 <div className="bg-white/[0.04] border border-red-500/20 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-red-300">✗ Ungrouped Players</p>
+                  <p className="text-sm font-semibold text-red-300">✗ Jugadores Sin Grupo</p>
                   <p className="text-xs text-red-300/70 mt-1">
-                    {registrations.filter((r: any) => !r.group_id).length} player(s) not assigned to
-                    groups
+                    {registrations.filter((r: any) => !r.group_id).length} jugador(es) sin asignar a grupos
                   </p>
                 </div>
               )}
               {validationChecks.insufficientEntries && (
                 <div className="bg-white/[0.04] border border-red-500/20 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-red-300">✗ Insufficient Entries</p>
+                  <p className="text-sm font-semibold text-red-300">✗ Participantes Insuficientes</p>
                   <p className="text-xs text-red-300/70 mt-1">
-                    {insufficientEvents.length} event(s) below minimum participants
+                    {insufficientEvents.length} evento(s) por debajo del mínimo de participantes
                   </p>
                 </div>
               )}
               {!validationChecks.allGroupsFormed && (
                 <div className="bg-white/[0.04] border border-red-500/20 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-red-300">✗ Incomplete Group Formation</p>
+                  <p className="text-sm font-semibold text-red-300">✗ Formación de Grupos Incompleta</p>
                   <p className="text-xs text-red-300/70 mt-1">
-                    Some events don't have all expected groups formed
+                    Algunos eventos no tienen todos los grupos esperados formados
                   </p>
                 </div>
               )}
               {!validationChecks.registrationDeadlinePassed && (
                 <div className="bg-white/[0.04] border border-amber-500/20 rounded-lg p-3">
                   <p className="text-sm font-semibold text-amber-300">
-                    ⊘ Registration Deadline Pending
+                    ⊘ Plazo de Inscripción Pendiente
                   </p>
                   <p className="text-xs text-amber-300/70 mt-1">
-                    Registration deadline:{' '}
+                    Fecha límite de inscripción:{' '}
                     {formatDate((currentTournament as any)?.registration_deadline)}
                   </p>
                 </div>
@@ -681,11 +694,11 @@ export default function TournamentStart() {
         {/* Action Button */}
         <div className="bg-[#0d1117] border border-white/[0.07] rounded-2xl p-6 flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-white">Ready to Start?</h3>
+            <h3 className="text-lg font-bold text-white">¿Listo para Iniciar?</h3>
             <p className="text-sm text-white/40 mt-1">
               {validationPassed
-                ? 'All validations passed. You can start the tournament.'
-                : 'Complete all validations before starting.'}
+                ? 'Todas las validaciones aprobadas. Puedes iniciar el torneo.'
+                : 'Completa todas las validaciones antes de iniciar.'}
             </p>
           </div>
           <Button
@@ -694,7 +707,7 @@ export default function TournamentStart() {
             className="flex items-center gap-2 h-11 px-6 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-400 font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             {isStarting && <Loader2 className="w-4 h-4 animate-spin" />}
-            {isStarting ? 'Starting...' : 'Start Tournament'}
+            {isStarting ? 'Iniciando...' : 'Iniciar Torneo'}
             {!isStarting && <ChevronRight className="w-4 h-4" />}
           </Button>
         </div>
@@ -703,29 +716,29 @@ export default function TournamentStart() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Left: Organizer Info */}
           <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 space-y-4">
-            <h3 className="text-lg font-bold text-white">Tournament Information</h3>
+            <h3 className="text-lg font-bold text-white">Información del Torneo</h3>
             <div className="space-y-3">
               <div>
-                <p className="text-xs text-white/40">Type</p>
-                <p className="text-sm font-semibold text-white capitalize">
-                  {(currentTournament as any)?.tournament_type} •{' '}
+                <p className="text-xs text-white/40">Tipo</p>
+                <p className="text-sm font-semibold text-white">
+                  {tType((currentTournament as any)?.tournament_type)} •{' '}
                   {(currentTournament as any)?.category}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-white/40">Organizer</p>
+                <p className="text-xs text-white/40">Organizador</p>
                 <p className="text-sm font-semibold text-white">
                   {(currentTournament as any)?.organizer_name}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-white/40">Venue</p>
+                <p className="text-xs text-white/40">Sede</p>
                 <p className="text-sm font-semibold text-white">
                   {(currentTournament as any)?.venue_name}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-white/40">Location</p>
+                <p className="text-xs text-white/40">Ubicación</p>
                 <p className="text-sm font-semibold text-white">
                   {(currentTournament as any)?.city}, {(currentTournament as any)?.state}
                 </p>
@@ -735,30 +748,30 @@ export default function TournamentStart() {
 
           {/* Right: Schedule Info */}
           <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-6 space-y-4">
-            <h3 className="text-lg font-bold text-white">Schedule</h3>
+            <h3 className="text-lg font-bold text-white">Calendario</h3>
             <div className="space-y-3">
               <div>
-                <p className="text-xs text-white/40">Start Date</p>
+                <p className="text-xs text-white/40">Fecha de Inicio</p>
                 <p className="text-sm font-semibold text-white">
                   {formatDate((currentTournament as any)?.start_date)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-white/40">End Date</p>
+                <p className="text-xs text-white/40">Fecha de Fin</p>
                 <p className="text-sm font-semibold text-white">
                   {formatDate((currentTournament as any)?.end_date)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-white/40">Registration Deadline</p>
+                <p className="text-xs text-white/40">Fecha Límite de Inscripción</p>
                 <p className="text-sm font-semibold text-white">
                   {formatDate((currentTournament as any)?.registration_deadline)}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-white/40">Status</p>
-                <p className="text-sm font-semibold text-white capitalize">
-                  {(currentTournament as any)?.status}
+                <p className="text-xs text-white/40">Estado</p>
+                <p className="text-sm font-semibold text-white">
+                  {tStatus((currentTournament as any)?.status)}
                 </p>
               </div>
             </div>
@@ -768,39 +781,39 @@ export default function TournamentStart() {
         {/* State Display */}
         <div className="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-6">
           <h3 className="text-sm font-bold uppercase tracking-widest text-white/30 mb-4">
-            Component State
+            Estado del Componente
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="space-y-1">
-              <p className="text-xs text-white/40">Validation</p>
+              <p className="text-xs text-white/40">Validación</p>
               <p
                 className={`text-sm font-bold ${validationPassed ? 'text-emerald-400' : 'text-amber-400'}`}
               >
-                {validationPassed ? 'PASSED' : 'PENDING'}
+                {validationPassed ? 'APROBADA' : 'PENDIENTE'}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-xs text-white/40">Confirmation Modal</p>
+              <p className="text-xs text-white/40">Modal Confirmación</p>
               <p
                 className={`text-sm font-bold ${showConfirmation ? 'text-blue-400' : 'text-white/40'}`}
               >
-                {showConfirmation ? 'OPEN' : 'CLOSED'}
+                {showConfirmation ? 'ABIERTO' : 'CERRADO'}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-xs text-white/40">Insufficient Modal</p>
+              <p className="text-xs text-white/40">Modal Insuficiente</p>
               <p
                 className={`text-sm font-bold ${showInsufficientModal ? 'text-red-400' : 'text-white/40'}`}
               >
-                {showInsufficientModal ? 'OPEN' : 'CLOSED'}
+                {showInsufficientModal ? 'ABIERTO' : 'CERRADO'}
               </p>
             </div>
             <div className="space-y-1">
-              <p className="text-xs text-white/40">Starting</p>
+              <p className="text-xs text-white/40">Iniciando</p>
               <p
                 className={`text-sm font-bold ${isStarting ? 'text-orange-400' : 'text-white/40'}`}
               >
-                {isStarting ? 'IN PROGRESS' : 'IDLE'}
+                {isStarting ? 'EN PROGRESO' : 'INACTIVO'}
               </p>
             </div>
           </div>
@@ -810,7 +823,7 @@ export default function TournamentStart() {
       {/* Modals */}
       <StartTournamentConfirmationModal
         open={showConfirmation}
-        tournamentName={currentTournament?.name || 'Tournament'}
+        tournamentName={currentTournament?.name || 'Torneo'}
         eventCount={tournamentEvents.length}
         totalRegistrations={totalRegistrations}
         onConfirm={handleConfirmStart}
