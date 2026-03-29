@@ -58,6 +58,8 @@ interface Tournament {
   location: string;
   start_date: string;
   end_date: string;
+  registration_deadline: string;
+  status: string;
   tournament_level: string;
   events: TournamentEvent[];
   entry_fee: number;
@@ -426,8 +428,20 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
     );
   }
 
-  const registrationsOpen = tournament.registrations_open;
-  const selectedOpen = selected?.registration_status === 'open';
+  // Registrations are open only when:
+  //   1. Tournament is in a registrable status (published / registration_open)
+  //   2. The registration deadline has not yet passed
+  const now = new Date();
+  const registrableStatuses = ['published', 'registration_open'];
+  const deadlineOk = tournament.registration_deadline
+    ? now < new Date(tournament.registration_deadline)
+    : true;
+  const registrationsOpen =
+    registrableStatuses.includes(tournament.status) && deadlineOk;
+
+  // An individual event is open only when the tournament accepts registrations
+  // AND the event's own registration_status is 'open'
+  const selectedOpen = registrationsOpen && selected?.registration_status === 'open';
   const spacesLeft = selected
     ? (selected.max_participants ?? 0) - (selected.current_participants ?? 0)
     : 0;
