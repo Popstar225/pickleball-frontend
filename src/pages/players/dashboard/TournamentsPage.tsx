@@ -718,11 +718,11 @@ export default function PlayerTournamentsPage() {
                           <MetaItem icon={Trophy}>{t.tournament_type || '—'}</MetaItem>
                           <MetaItem icon={Users}>{t.events_count ?? t.events?.length ?? 0} eventos</MetaItem>
                         </div>
-                        {t.max_participants > 0 && (
+                        {(t.total_max_participants > 0 || t.max_participants > 0) && (
                           <div className="mb-4">
                             <CapacityBar
-                              current={t.current_participants || 0}
-                              max={t.max_participants}
+                              current={t.total_current_participants ?? t.current_participants ?? 0}
+                              max={t.total_max_participants ?? t.max_participants ?? 0}
                             />
                           </div>
                         )}

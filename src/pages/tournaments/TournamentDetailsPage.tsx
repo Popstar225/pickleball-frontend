@@ -370,25 +370,31 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
   const [selected, setSelected] = useState<TournamentEvent | null>(null);
   const [paymentEvent, setPaymentEvent] = useState<TournamentEvent | null>(null);
 
-  useEffect(() => {
-    const fetch = async () => {
-      try {
-        const res = await api.get<ApiResponse<Tournament>>(`/tournaments/${tournamentId}`);
-        let data = res.data as any;
-        // Handle nested response structure
-        if (data?.data && !Array.isArray(data.data)) {
-          data = data.data;
-        }
-        setTournament(data || null);
-        if (data?.events?.length) setSelected(data.events[0]);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
+  const fetchTournament = React.useCallback(async () => {
+    try {
+      const res = await api.get<ApiResponse<Tournament>>(`/tournaments/${tournamentId}`);
+      let data = res.data as any;
+      // Handle nested response structure
+      if (data?.data && !Array.isArray(data.data)) {
+        data = data.data;
       }
-    };
-    fetch();
+      setTournament(data || null);
+      if (data?.events?.length) {
+        // Keep the currently selected event in sync by matching on id
+        setSelected(prev =>
+          prev ? (data.events.find((e: TournamentEvent) => e.id === prev.id) ?? data.events[0]) : data.events[0]
+        );
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
   }, [tournamentId]);
+
+  useEffect(() => {
+    fetchTournament();
+  }, [fetchTournament]);
 
   const handleRegister = () => {
     if (selected) setPaymentEvent(selected);
@@ -457,7 +463,7 @@ const TournamentDetailsPage: React.FC<Props> = ({ tournamentId }) => {
           event={paymentEvent}
           entry_fee={tournament.entry_fee}
           tournamentName={tournament.name}
-          onSuccess={() => setPaymentEvent(null)}
+          onSuccess={() => { setPaymentEvent(null); fetchTournament(); }}
           onClose={() => setPaymentEvent(null)}
         />
       )}
