@@ -57,9 +57,9 @@ export default function StartTournamentConfirmationModal({
 
   return (
     <Dialog open={open} onOpenChange={onCancel}>
-      <DialogContent className="sm:max-w-2xl bg-[#0d1117] border-white/[0.07]">
+      <DialogContent className="sm:max-w-2xl bg-[#0d1117] border-white/[0.07] flex flex-col max-h-[90vh]">
         {/* Header */}
-        <DialogHeader>
+        <DialogHeader className="flex-shrink-0">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shrink-0 mt-1">
               <AlertTriangle className="w-5 h-5 text-amber-400" />
@@ -74,7 +74,7 @@ export default function StartTournamentConfirmationModal({
         </DialogHeader>
 
         {/* Content */}
-        <div className="space-y-6 py-4">
+        <div className="space-y-6 py-4 overflow-y-auto flex-1 pr-1">
           {/* Tournament Summary */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-4">
