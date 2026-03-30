@@ -823,6 +823,7 @@ export default function TournamentStart() {
       {/* Modals */}
       <StartTournamentConfirmationModal
         open={showConfirmation}
+        tournamentId={tournamentId || ''}
         tournamentName={currentTournament?.name || 'Torneo'}
         eventCount={tournamentEvents.length}
         totalRegistrations={totalRegistrations}
